@@ -41,6 +41,8 @@ class Span(_Strict):
     text: str
     type: HallucinationType | None = None
     source_label: str | None = None
+    implicit_true: bool | None = Field(default=None, description="Unsupported by the sources but true in the world.")
+    due_to_null: bool | None = Field(default=None, description="Caused by a missing (null) value in structured data.")
 
     @model_validator(mode="after")
     def _check_order(self) -> "Span":
@@ -61,6 +63,8 @@ class Meta(_Strict):
     split: Literal["train", "dev", "test"]
     group_id: str = Field(description="Samples sharing a source; a group never crosses splits.")
     generator: str | None = None
+    source: str | None = Field(default=None, description="Corpus the context came from, e.g. MARCO, CNN/DM, Yelp.")
+    quality: str = "good"
     synthetic: bool = False
 
 

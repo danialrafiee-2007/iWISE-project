@@ -20,6 +20,7 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | HHEM-2.1-Open | https://huggingface.co/vectara/hallucination_evaluation_model | Apache-2.0 | verified 2026-10-21 | Consistency signal and baseline |
 | MiniCheck | https://github.com/Liyan06/MiniCheck | Apache-2.0 | verified 2026-10-21 | Fact-check signal and baseline |
 | LettuceDetect | https://github.com/KRLabsOrg/LettuceDetect | MIT | verified 2026-10-21 | Span-level baseline |
+| all-MiniLM-L6-v2 | https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2 | Apache-2.0 | verified 2026-10-21 | B2 embedding baseline |
 
 ## Libraries
 
@@ -27,3 +28,6 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 |---|---|---|
 | pydantic | | to check |
 | pytest | | to check |
+| numpy | | to check |
+| scikit-learn | | to check |
+| spaCy | | to check |

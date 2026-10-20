@@ -19,3 +19,11 @@ Each decision records what was chosen and why, so any team member can defend it 
 | D-013 | 2026-10-21 | 173 responses with quality `incorrect_refusal` or `truncated` are excluded from training and reported separately | They are not normal answers and would add label noise |
 | D-014 | 2026-10-21 | Every metric is reported per task as well as overall | Hallucination rate differs by task (test: QA 18%, Summary 23%, Data2txt 64%); a model could exploit task type |
 | D-015 | 2026-10-21 | HaluEval used only for cross-dataset testing | Its QA, dialogue and summary hallucinations were deliberately generated, a different distribution from natural ones |
+| D-016 | 2026-10-21 | Yelp structured data rendered as "key: value" lines (null as "not specified"), one document per review | NLI models are trained on natural text, not JSON; null values cause 1,642 labeled hallucinations, so they must stay visible |
+| D-017 | 2026-10-21 | HaluEval: 500 question groups per task (1,000 samples), "general" excluded, all files locked | Enough for a cross-dataset check at a fraction of the compute; "general" has no source documents |
+| D-018 | 2026-10-21 | Sentences: split on line breaks first, then spaCy's rule-based sentencizer, keeping character offsets | Structured data is one fact per line; offsets let us highlight the exact text in the UI |
+| D-019 | 2026-10-21 | Confidence intervals by bootstrap over source groups, not single responses | The 6 responses of one source are correlated; per-response resampling would give falsely narrow intervals |
+| D-020 | 2026-10-21 | Decision thresholds are tuned on dev only and passed to test unchanged | Tuning on test inflates results |
+| D-021 | 2026-10-21 | Every F1 is reported next to the "flag everything" F1 | With 44% hallucinated responses, flagging everything already scores F1 0.615 on dev; AUROC is the fairer headline metric |
+| D-022 | 2026-10-21 | Thresholds must be checked for transfer to test, and calibration is a core Phase 2 goal | Hallucination rate drops from 44.6% (train) to 34.9% (test), QA from 30.6% to 17.8% |
+| D-023 | 2026-10-21 | Length is reported as a shortcut risk for HaluEval | HaluEval QA grounded answers average 2.3 words vs 11.1 for hallucinated ones |

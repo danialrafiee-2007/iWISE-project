@@ -8,6 +8,8 @@ Add a row every time an AI tool contributes to code, data, text or design. "Veri
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Analysis of the 25 challenges and choice of Challenge 4 | Project direction | Team read the official challenge text and rules | |
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Project roadmap and phase plan | Planning | Team reviewed the timeline and scope | |
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Project scaffold, unified data schema and its unit tests | `src/truth_guardian/schema.py`, `tests/test_schema.py` | Ran `uv run pytest` (11 passed); team to walk through every validator | |
+| 2026-10-21 | Claude Code (Claude Opus 5.5) | | Dataset download script, raw-data inspection, decisions D-009 to D-015 | `scripts/download_data.py`, `docs/DECISIONS.md` | Checksums re-verified on a second run; team to re-check the statistics behind each decision | |
+| 2026-10-21 | Claude Code (Claude Opus 5.5) | | Phase 1: converters, splits, data card, evaluation harness, sentence splitter, B1 baseline, decisions D-016 to D-023 | `src/truth_guardian/data/`, `evaluation.py`, `text.py`, `baselines/lexical.py`, `scripts/`, tests | 37 tests pass; all 17,790 RAGTruth and 60,000 HaluEval samples validate; metrics checked against hand-computed values | |
 
 ## Work done directly by the team
 

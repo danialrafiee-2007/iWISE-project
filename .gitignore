@@ -23,3 +23,6 @@ models/
 
 # Frontend
 node_modules/
+
+# Evaluation outputs (results JSON and the locked-run log are committed)
+eval/predictions/
