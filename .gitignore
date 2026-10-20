@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+
+# Virtual environments
+.venv
+
+# Data and model artifacts (downloaded or generated, never committed)
+data/raw/
+data/processed/
+models/
+*.ckpt
+*.safetensors
+*.onnx
+
+# Secrets
+.env
+
+# Frontend
+node_modules/
