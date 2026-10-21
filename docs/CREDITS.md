@@ -31,3 +31,6 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | numpy | | to check |
 | scikit-learn | | to check |
 | spaCy | | to check |
+| PyTorch | | to check |
+| sentence-transformers | | to check |
+| transformers | | to check |

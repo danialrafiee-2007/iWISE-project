@@ -27,3 +27,6 @@ Each decision records what was chosen and why, so any team member can defend it 
 | D-021 | 2026-10-21 | Every F1 is reported next to the "flag everything" F1 | With 44% hallucinated responses, flagging everything already scores F1 0.615 on dev; AUROC is the fairer headline metric |
 | D-022 | 2026-10-21 | Thresholds must be checked for transfer to test, and calibration is a core Phase 2 goal | Hallucination rate drops from 44.6% (train) to 34.9% (test), QA from 30.6% to 17.8% |
 | D-023 | 2026-10-21 | Length is reported as a shortcut risk for HaluEval | HaluEval QA grounded answers average 2.3 words vs 11.1 for hallucinated ones |
+| D-024 | 2026-10-21 | B3 premise = the 5 source sentences most similar to the answer sentence (in source order); score = 1 - P(entailment) | Sources exceed the 512-token NLI limit; 1 - P(entailment) flags both contradicted and unsupported sentences |
+| D-025 | 2026-10-21 | NLI outputs are reordered by the model's own `id2label` | Different NLI models use different label orders (e.g. the large DeBERTa model we plan to try); hard-coded indices would silently break |
+| D-026 | 2026-10-21 | NLI over the training set runs on a Kaggle/Colab GPU in Phase 2 | On the local CPU B3 takes about 5 s per response: about 2 hours for dev, about 19 hours for train |

@@ -9,7 +9,11 @@ from truth_guardian.evaluation import write_predictions
 from truth_guardian.schema import read_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
-METHODS = {"lexical": "truth_guardian.baselines.lexical"}
+METHODS = {
+    "lexical": "truth_guardian.baselines.lexical",
+    "embedding": "truth_guardian.baselines.embedding",
+    "nli": "truth_guardian.baselines.nli",
+}
 
 
 def main() -> None:
