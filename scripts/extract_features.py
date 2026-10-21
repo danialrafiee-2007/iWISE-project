@@ -8,14 +8,13 @@ import argparse
 import time
 from pathlib import Path
 
-from truth_guardian.data.splits import sample_groups
+from truth_guardian.data.splits import TRAIN_SUBSET_SEED, sample_groups
 from truth_guardian.features import FeatureStore, extract
 from truth_guardian.schema import read_jsonl
 from truth_guardian.signals import SIGNALS
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = ROOT / "data" / "features"
-SUBSET_SEED = "tg-train-subset-v1"
 
 
 def main() -> None:
@@ -30,7 +29,7 @@ def main() -> None:
 
     samples = list(read_jsonl(args.data))
     if args.groups:
-        samples = sample_groups(samples, args.groups, seed=SUBSET_SEED)
+        samples = sample_groups(samples, args.groups, seed=TRAIN_SUBSET_SEED)
     print(f"{args.data.name}: {len(samples)} samples", flush=True)
     for signal in args.signals:
         version, fn = SIGNALS[signal]

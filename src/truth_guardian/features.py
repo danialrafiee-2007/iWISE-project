@@ -49,6 +49,24 @@ class FeatureStore:
             f.write(json.dumps({"id": sample_id, "sentences": sentences}) + "\n")
 
 
+def load_rows(signals: Iterable[str], dataset: Path, features_dir: Path) -> dict[str, dict[str, list[dict]]]:
+    """Cached rows per signal for one dataset file; rows[signal][sample_id] -> per-sentence dicts."""
+    from truth_guardian.signals import SIGNALS
+
+    rows = {}
+    for signal in signals:
+        path = features_dir / signal / f"{dataset.stem}.jsonl"
+        if not path.exists():
+            raise FileNotFoundError(f"no cached {signal} features for {dataset.name}; run scripts/extract_features.py first")
+        rows[signal] = FeatureStore(path, signal, SIGNALS[signal][0]).load()
+    return rows
+
+
+def usable(samples: Iterable[Sample], rows: dict[str, dict]) -> list[Sample]:
+    """Samples that have every requested signal cached."""
+    return [s for s in samples if all(s.id in r for r in rows.values())]
+
+
 def extract(samples: Iterable[Sample], store: FeatureStore, signal: SignalFn, report_every: int = 50) -> int:
     """Compute the signal for samples not yet in the store; returns how many were computed."""
     done = set(store.load())

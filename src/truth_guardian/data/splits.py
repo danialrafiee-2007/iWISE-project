@@ -6,6 +6,8 @@ from collections.abc import Iterable
 
 from truth_guardian.schema import Sample
 
+TRAIN_SUBSET_SEED = "tg-train-subset-v1"
+
 
 def _rank(seed: str, group_id: str) -> str:
     return hashlib.sha256(f"{seed}:{group_id}".encode()).hexdigest()

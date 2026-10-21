@@ -48,6 +48,7 @@ class SentenceTable:
     sample_index: np.ndarray
     sentences: list[list[Sentence]]
     labels: np.ndarray | None = None
+    structure: bool = True
 
 
 def _value(row: dict, key: str) -> float:
@@ -55,9 +56,14 @@ def _value(row: dict, key: str) -> float:
     return float(len(value)) if isinstance(value, list) else float(value)
 
 
-def build_table(samples: Sequence[Sample], rows: dict[str, dict[str, list[dict]]], signals: Sequence[str]) -> SentenceTable:
-    """rows[signal][sample_id] is the cached per-sentence output of that signal."""
-    names = [k for s in signals for k in SIGNAL_KEYS[s]] + POSITION_FEATURES
+def build_table(
+    samples: Sequence[Sample], rows: dict[str, dict[str, list[dict]]], signals: Sequence[str], structure: bool = True
+) -> SentenceTable:
+    """rows[signal][sample_id] is the cached per-sentence output of that signal.
+
+    structure=False drops position, sentence length and sentence count, which can act as style shortcuts.
+    """
+    names = [k for s in signals for k in SIGNAL_KEYS[s]] + (POSITION_FEATURES if structure else [])
     features, index, sentences, labels = [], [], [], []
     for i, sample in enumerate(samples):
         per_signal = [rows[s][sample.id] for s in signals]
@@ -69,7 +75,8 @@ def build_table(samples: Sequence[Sample], rows: dict[str, dict[str, list[dict]]
         n = len(sents)
         for j, sent in enumerate(sents):
             row = [_value(per_signal[k][j], key) for k, s in enumerate(signals) for key in SIGNAL_KEYS[s]]
-            row += [j / max(n - 1, 1), float(j == 0), float(len(sent.text.split()))]
+            if structure:
+                row += [j / max(n - 1, 1), float(j == 0), float(len(sent.text.split()))]
             features.append(row)
             index.append(i)
         if sample.labels is not None:
@@ -80,13 +87,15 @@ def build_table(samples: Sequence[Sample], rows: dict[str, dict[str, list[dict]]
         sample_index=np.array(index, dtype=int),
         sentences=sentences,
         labels=np.array(labels, dtype=int) if len(labels) == len(index) else None,
+        structure=structure,
     )
 
 
 def response_features(probs: np.ndarray, table: SentenceTable) -> tuple[np.ndarray, list[str]]:
     """Per response: summaries of stage-1 probabilities plus max/mean/min of every raw sentence feature."""
     raw = table.features
-    names = STAGE1_SUMMARY + [f"{stat}_{n}" for n in table.feature_names for stat in ("max", "mean", "min")]
+    summary_names = STAGE1_SUMMARY if table.structure else [n for n in STAGE1_SUMMARY if n != "n_sentences"]
+    names = summary_names + [f"{stat}_{n}" for n in table.feature_names for stat in ("max", "mean", "min")]
     out = np.zeros((len(table.sentences), len(names)))
     for i in range(len(table.sentences)):
         mask = table.sample_index == i
@@ -94,7 +103,7 @@ def response_features(probs: np.ndarray, table: SentenceTable) -> tuple[np.ndarr
         if len(p) == 0:
             continue
         top2 = np.sort(p)[-2:].mean()
-        summary = [p.max(), p.mean(), top2, p.std(), (p >= 0.5).sum(), (p >= 0.5).mean(), len(p)]
+        summary = [p.max(), p.mean(), top2, p.std(), (p >= 0.5).sum(), (p >= 0.5).mean()] + ([len(p)] if table.structure else [])
         stats = np.stack([raw[mask].max(axis=0), raw[mask].mean(axis=0), raw[mask].min(axis=0)], axis=1).ravel()
         out[i] = np.concatenate([summary, stats])
     return out, names
@@ -144,9 +153,12 @@ class FusionModel:
     response_model: object
     calibrator: PlattCalibrator
     thresholds: dict[str, float] = field(default_factory=dict)
+    structure: bool = True
 
     def score(self, table: SentenceTable) -> tuple[np.ndarray, np.ndarray]:
         """(sentence probabilities, calibrated response probabilities)."""
+        if table.feature_names != self.feature_names:
+            raise ValueError("table features differ from the model's; build it with the same signals and structure flag")
         sentence_probs = self.sentence_model.predict_proba(table.features)[:, 1]
         response, _ = response_features(sentence_probs, table)
         return sentence_probs, self.calibrator.predict(self.response_model.predict_proba(response)[:, 1])
@@ -166,7 +178,10 @@ class FusionModel:
         ]
 
 
-def fit(samples: Sequence[Sample], table: SentenceTable, signals: Sequence[str], kind: str, folds: int = 5) -> tuple[FusionModel, dict]:
+def fit(
+    samples: Sequence[Sample], table: SentenceTable, signals: Sequence[str], kind: str, folds: int = 5
+) -> tuple[FusionModel, dict, dict[str, np.ndarray]]:
+    """Returns the model, a summary report, and out-of-fold sentence and response scores for error analysis."""
     if table.labels is None:
         raise ValueError("training samples need labels")
     groups = [s.meta.group_id for s in samples]
@@ -197,6 +212,7 @@ def fit(samples: Sequence[Sample], table: SentenceTable, signals: Sequence[str],
         sentence_model=sentence_model,
         response_model=response_model,
         calibrator=PlattCalibrator().fit(oof_response, y_response),
+        structure=table.structure,
     )
     report = {
         "oof_sentence_auroc": float(roc_auc_score(table.labels, oof_sentence)),
@@ -205,7 +221,7 @@ def fit(samples: Sequence[Sample], table: SentenceTable, signals: Sequence[str],
         "groups": len(set(groups)),
         "sentences": int(len(table.labels)),
     }
-    return model, report
+    return model, report, {"sentence": oof_sentence, "response": oof_response}
 
 
 def _sha256(path: Path) -> str:

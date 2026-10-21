@@ -46,7 +46,7 @@ def synthetic(n: int = 200, seed: int = 0):
 def test_fit_learns_informative_signal(kind):
     samples, rows = synthetic()
     table = fusion.build_table(samples, rows, ["lexical", "dense"])
-    model, report = fusion.fit(samples, table, ["lexical", "dense"], kind, folds=4)
+    model, report, _ = fusion.fit(samples, table, ["lexical", "dense"], kind, folds=4)
     assert report["oof_sentence_auroc"] > 0.9 and report["oof_response_auroc"] > 0.9
     test_samples, test_rows = synthetic(seed=1)
     predictions = model.predictions(test_samples, fusion.build_table(test_samples, test_rows, ["lexical", "dense"]))
@@ -72,6 +72,17 @@ def test_response_features_summaries():
     assert first["p_top2"] == pytest.approx(0.7)
 
 
+def test_structure_flag_removes_shortcut_features():
+    samples, rows = synthetic(n=40)
+    table = fusion.build_table(samples, rows, ["lexical"], structure=False)
+    assert table.feature_names == ["lex_unsupported"]
+    _, names = fusion.response_features(np.zeros(len(table.labels)), table)
+    assert "n_sentences" not in names
+    model, _, _ = fusion.fit(samples, table, ["lexical"], "logreg", folds=2)
+    with pytest.raises(ValueError, match="structure flag"):
+        model.score(fusion.build_table(samples, rows, ["lexical"]))
+
+
 def test_group_folds_keep_groups_together():
     folds = fusion.group_folds(["a", "a", "b", "c", "d"], 2)
     assert set(folds) == {"a", "b", "c", "d"} and set(folds.values()) == {0, 1}
@@ -80,7 +91,7 @@ def test_group_folds_keep_groups_together():
 def test_save_and_load_round_trip(tmp_path):
     samples, rows = synthetic(n=40)
     table = fusion.build_table(samples, rows, ["lexical", "dense"])
-    model, _ = fusion.fit(samples, table, ["lexical", "dense"], "logreg", folds=2)
+    model, _, _ = fusion.fit(samples, table, ["lexical", "dense"], "logreg", folds=2)
     fusion.save(model, tmp_path, {"version": "v1"})
     loaded, manifest = fusion.load(tmp_path)
     assert manifest["version"] == "v1" and len(manifest["model_sha256"]) == 64
@@ -90,7 +101,7 @@ def test_save_and_load_round_trip(tmp_path):
 def test_load_rejects_tampered_file(tmp_path):
     samples, rows = synthetic(n=40)
     table = fusion.build_table(samples, rows, ["lexical"])
-    model, _ = fusion.fit(samples, table, ["lexical"], "logreg", folds=2)
+    model, _, _ = fusion.fit(samples, table, ["lexical"], "logreg", folds=2)
     folder = fusion.save(model, tmp_path, {"version": "v1"})
     with (folder / "model.joblib").open("ab") as f:
         f.write(b"x")
@@ -101,7 +112,7 @@ def test_load_rejects_tampered_file(tmp_path):
 def test_load_rejects_stale_signal_versions(tmp_path):
     samples, rows = synthetic(n=40)
     table = fusion.build_table(samples, rows, ["lexical"])
-    model, _ = fusion.fit(samples, table, ["lexical"], "logreg", folds=2)
+    model, _, _ = fusion.fit(samples, table, ["lexical"], "logreg", folds=2)
     model.signal_versions = {"lexical": "v0"}
     fusion.save(model, tmp_path, {"version": "v1"})
     with pytest.raises(ValueError, match="older signal versions"):

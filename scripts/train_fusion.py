@@ -5,7 +5,6 @@ so a nested --groups subset from extract_features.py trains on exactly that subs
 """
 
 import argparse
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,33 +12,14 @@ import numpy as np
 
 from truth_guardian import fusion
 from truth_guardian.evaluation import best_span_threshold, best_threshold, evaluate, write_predictions
-from truth_guardian.features import FeatureStore
-from truth_guardian.schema import Sample, read_jsonl
+from truth_guardian.features import load_rows, usable
+from truth_guardian.provenance import git_commit
+from truth_guardian.schema import read_jsonl
 from truth_guardian.signals import SIGNALS
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = ROOT / "data" / "features"
 MODELS = ROOT / "models" / "fusion"
-
-
-def load_rows(signals: list[str], dataset: Path) -> dict[str, dict[str, list[dict]]]:
-    rows = {}
-    for signal in signals:
-        path = FEATURES / signal / f"{dataset.stem}.jsonl"
-        if not path.exists():
-            raise SystemExit(f"no cached {signal} features for {dataset.name}; run scripts/extract_features.py first")
-        rows[signal] = FeatureStore(path, signal, SIGNALS[signal][0]).load()
-    return rows
-
-
-def usable(samples: list[Sample], rows: dict[str, dict]) -> list[Sample]:
-    return [s for s in samples if all(s.id in r for r in rows.values())]
-
-
-def git_commit() -> str:
-    run = lambda *cmd: subprocess.run(["git", *cmd], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    dirty = run("status", "--porcelain", "--", "src", "scripts", "pyproject.toml", "uv.lock")
-    return run("rev-parse", "--short", "HEAD") + ("-dirty" if dirty else "")
 
 
 def main() -> None:
@@ -49,23 +29,24 @@ def main() -> None:
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--train", type=Path, default=ROOT / "data/processed/ragtruth_train.jsonl")
     parser.add_argument("--dev", type=Path, default=ROOT / "data/processed/ragtruth_dev.jsonl")
+    parser.add_argument("--no-structure", action="store_true", help="drop position, length and count features")
     parser.add_argument("--no-save", action="store_true")
     args = parser.parse_args()
 
-    train_rows = load_rows(args.signals, args.train)
+    train_rows = load_rows(args.signals, args.train, FEATURES)
     all_train = list(read_jsonl(args.train))
     train = usable([s for s in all_train if s.meta.quality == "good"], train_rows)
-    dev_rows = load_rows(args.signals, args.dev)
+    dev_rows = load_rows(args.signals, args.dev, FEATURES)
     all_dev = list(read_jsonl(args.dev))
     dev = usable(all_dev, dev_rows)
     if len(dev) != len(all_dev):
         raise SystemExit(f"dev features incomplete: {len(dev)} of {len(all_dev)} samples cached")
 
-    model, report = fusion.fit(train, fusion.build_table(train, train_rows, args.signals), args.signals, args.kind, args.folds)
+    model, report, _ = fusion.fit(train, fusion.build_table(train, train_rows, args.signals, not args.no_structure), args.signals, args.kind, args.folds)
     print(f"trained on {report['samples']} samples / {report['groups']} groups / {report['sentences']} sentences")
     print(f"  out-of-fold AUROC: sentence {report['oof_sentence_auroc']:.3f}, response {report['oof_response_auroc']:.3f}")
 
-    predictions = model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals))
+    predictions = model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals, not args.no_structure))
     by_id = {p.id: p for p in predictions}
     y = np.array([s.labels.response == "hallucinated" for s in dev], dtype=int)
     model.thresholds = {
@@ -74,7 +55,7 @@ def main() -> None:
     }
     dev_report = evaluate(dev, by_id, model.thresholds["response"], model.thresholds["sentence"], bootstrap_rounds=200)
 
-    name = f"fusion-{args.kind}-{'+'.join(args.signals)}"
+    name = f"fusion-{args.kind}-{'+'.join(args.signals)}" + ("-nostructure" if args.no_structure else "")
     out = ROOT / "eval" / "predictions" / f"{name}__{args.dev.stem}.jsonl"
     write_predictions(predictions, out)
     r = dev_report["response"]
@@ -88,8 +69,9 @@ def main() -> None:
         "version": f"{created:%Y%m%d-%H%M%S}-{args.kind}",
         "name": name,
         "created": created.isoformat(timespec="seconds"),
-        "commit": git_commit(),
+        "commit": git_commit(ROOT),
         "kind": args.kind,
+        "structure": model.structure,
         "signals": model.signal_versions,
         "train": {"data": args.train.name, **report, "excluded_quality": sum(s.meta.quality != "good" for s in all_train)},
         "folds": args.folds,

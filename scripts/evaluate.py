@@ -2,25 +2,18 @@
 
 import argparse
 import json
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 
 from truth_guardian.evaluation import best_span_threshold, best_threshold, evaluate, read_predictions
+from truth_guardian.provenance import git_commit
 from truth_guardian.schema import read_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "eval" / "results"
 LOCKED_LOG = ROOT / "eval" / "locked_runs.log"
-
-
-def git_commit() -> str:
-    """HEAD, marked dirty only when code or dependencies differ from it (result files do not count)."""
-    run = lambda *cmd: subprocess.run(["git", *cmd], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    dirty = run("status", "--porcelain", "--", "src", "scripts", "pyproject.toml", "uv.lock")
-    return run("rev-parse", "--short", "HEAD") + ("-dirty" if dirty else "")
 
 
 def relative(path: Path) -> str:
@@ -72,7 +65,7 @@ def main() -> None:
         "name": args.name,
         "data": relative(args.data),
         "predictions": relative(args.pred),
-        "commit": git_commit(),
+        "commit": git_commit(ROOT),
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         **evaluate(samples, predictions, threshold, sentence_threshold),
     }
