@@ -42,6 +42,16 @@ _STREET_WORDS = {
 _EQUIVALENTS = {**_US_STATES, **_STREET_WORDS}
 
 
+class Atom(NamedTuple):
+    """One unmatched item in the answer: character offsets, text, kind and (for entities) the NER label."""
+
+    start: int
+    end: int
+    text: str
+    kind: str
+    label: str = ""
+
+
 class SentenceChecks(NamedTuple):
     numbers: int
     numbers_unmatched: int
@@ -49,6 +59,7 @@ class SentenceChecks(NamedTuple):
     entities_unmatched: int
     null_mentions: int
     spans: list[tuple[int, int]]
+    atoms: list[Atom] = []
 
 
 @lru_cache(maxsize=1)
@@ -126,10 +137,10 @@ def check_sample(sample: Sample, sentences: list[Sentence]) -> list[SentenceChec
 
     results = []
     for s in sentences:
-        spans: list[tuple[int, int]] = []
+        atoms: list[Atom] = []
         numbers = _numbers_in(s.text)
         unmatched_numbers = [m for m in numbers if not normalize_number(m.group()) & source_numbers]
-        spans += [(s.start + m.start(), s.start + m.end()) for m in unmatched_numbers]
+        atoms += [Atom(s.start + m.start(), s.start + m.end(), m.group(), "number") for m in unmatched_numbers]
 
         checked = unmatched_entities = 0
         for e in entities:
@@ -143,13 +154,14 @@ def check_sample(sample: Sample, sentences: list[Sentence]) -> list[SentenceChec
             checked += 1
             if not all(_word_known(w, source_words) for w in words):
                 unmatched_entities += 1
-                spans.append((e.start_char, e.end_char))
+                atoms.append(Atom(e.start_char, e.end_char, e.text, "entity", e.label_))
 
         null_mentions = 0
         for m in re.finditer(r"\w+", s.text):
             if _word_known(m.group().lower(), null_terms):
                 null_mentions += 1
-                spans.append((s.start + m.start(), s.start + m.end()))
+                atoms.append(Atom(s.start + m.start(), s.start + m.end(), m.group(), "null"))
 
-        results.append(SentenceChecks(len(numbers), len(unmatched_numbers), checked, unmatched_entities, null_mentions, sorted(set(spans))))
+        spans = sorted({(a.start, a.end) for a in atoms})
+        results.append(SentenceChecks(len(numbers), len(unmatched_numbers), checked, unmatched_entities, null_mentions, spans, atoms))
     return results

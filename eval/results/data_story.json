@@ -1,0 +1,107 @@
+{
+  "responses": 14942,
+  "generators": {
+    "gpt-3.5-turbo-0613": {
+      "responses": 2465,
+      "hallucination_rate": 0.1440162271805274,
+      "ci95": [
+        0.13144016227180527,
+        0.15822515212981744
+      ],
+      "by_task": {
+        "qa": 0.08871989860583017,
+        "summary": 0.06305170239596469,
+        "data2text": 0.26613816534541335
+      },
+      "hallucinated_words_per_100": 1.0657025917842604,
+      "contradiction_share": 0.4801670146137787,
+      "avg_answer_words": 146.10060851926977
+    },
+    "gpt-4-0613": {
+      "responses": 2487,
+      "hallucination_rate": 0.1463610776035384,
+      "ci95": [
+        0.13228789706473662,
+        0.16083634901487737
+      ],
+      "by_task": {
+        "qa": 0.05055487053020962,
+        "summary": 0.08575031525851198,
+        "data2text": 0.2887882219705549
+      },
+      "hallucinated_words_per_100": 0.8702562658807513,
+      "contradiction_share": 0.3219178082191781,
+      "avg_answer_words": 112.82951347004423
+    },
+    "llama-2-13b-chat": {
+      "responses": 2509,
+      "hallucination_rate": 0.584296532483061,
+      "ci95": [
+        0.5663511359107214,
+        0.6038361897170187
+      ],
+      "by_task": {
+        "qa": 0.4316546762589928,
+        "summary": 0.33039092055485497,
+        "data2text": 0.9569160997732427
+      },
+      "hallucinated_words_per_100": 7.583931416646691,
+      "contradiction_share": 0.38704908338261385,
+      "avg_answer_words": 141.3332004782782
+    },
+    "llama-2-70b-chat": {
+      "responses": 2509,
+      "hallucination_rate": 0.48704663212435234,
+      "ci95": [
+        0.46711837385412514,
+        0.506576325229175
+      ],
+      "by_task": {
+        "qa": 0.3397358943577431,
+        "summary": 0.23707440100882723,
+        "data2text": 0.8505096262740657
+      },
+      "hallucinated_words_per_100": 6.2330833112492074,
+      "contradiction_share": 0.2943444730077121,
+      "avg_answer_words": 133.85292945396571
+    },
+    "llama-2-7b-chat": {
+      "responses": 2497,
+      "hallucination_rate": 0.6375650780937124,
+      "ci95": [
+        0.617941529835803,
+        0.6559871846215458
+      ],
+      "by_task": {
+        "qa": 0.5413625304136253,
+        "summary": 0.48297604035308955,
+        "data2text": 0.8662131519274376
+      },
+      "hallucinated_words_per_100": 8.702349974902061,
+      "contradiction_share": 0.38862068965517244,
+      "avg_answer_words": 138.8233880656788
+    },
+    "mistral-7B-instruct": {
+      "responses": 2475,
+      "hallucination_rate": 0.6864646464646464,
+      "ci95": [
+        0.6682727272727272,
+        0.7046464646464646
+      ],
+      "by_task": {
+        "qa": 0.43212951432129515,
+        "summary": 0.669620253164557,
+        "data2text": 0.9331065759637188
+      },
+      "hallucinated_words_per_100": 8.964365067823723,
+      "contradiction_share": 0.4360759493670886,
+      "avg_answer_words": 119.4719191919192
+    }
+  },
+  "rate_by_length_quartile": {
+    "1-93 words": 0.26471357572586973,
+    "93-125 words": 0.41812028117677685,
+    "125-164 words": 0.5368312225381235,
+    "164-632 words": 0.573757349011224
+  }
+}

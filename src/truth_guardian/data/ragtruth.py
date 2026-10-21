@@ -74,6 +74,7 @@ def convert_response(response: dict, source: dict) -> Sample:
             source_label=label["label_type"],
             implicit_true=label["implicit_true"],
             due_to_null=label["due_to_null"],
+            note=label.get("meta") or None,
         )
         for label in response["labels"]
     ]

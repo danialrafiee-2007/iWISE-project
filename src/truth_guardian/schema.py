@@ -43,6 +43,7 @@ class Span(_Strict):
     source_label: str | None = None
     implicit_true: bool | None = Field(default=None, description="Unsupported by the sources but true in the world.")
     due_to_null: bool | None = Field(default=None, description="Caused by a missing (null) value in structured data.")
+    note: str | None = Field(default=None, description="Annotator's free-text note, e.g. what the source originally said.")
 
     @model_validator(mode="after")
     def _check_order(self) -> "Span":

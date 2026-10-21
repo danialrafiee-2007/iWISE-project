@@ -1,0 +1,157 @@
+{
+  "samples": 3570,
+  "contradicted_spans": 1199,
+  "caught_by_symbolic": 103,
+  "with_replacement": 58,
+  "with_replacement_summary": 9,
+  "with_replacement_and_note": 57,
+  "correct": 39,
+  "correct_summary": 5,
+  "checked_summary": 9,
+  "with_replacement_data2text": 40,
+  "correct_data2text": 29,
+  "checked_data2text": 39,
+  "with_replacement_qa": 9,
+  "correct_qa": 5,
+  "checked_qa": 9,
+  "precision_vs_notes": 0.6842105263157895,
+  "precision_by_task": {
+    "qa": 0.5555555555555556,
+    "summary": 0.5555555555555556,
+    "data2text": 0.7435897435897436
+  },
+  "examples": [
+    {
+      "answer": "Helen Titus",
+      "suggestions": [
+        [
+          "Helen Titus",
+          "Hellen Titus"
+        ]
+      ],
+      "original_note": "Hellen Titus",
+      "correct": true
+    },
+    {
+      "answer": "Houthi leader Abdulmalik al-Houthi vowed to continue fighting.",
+      "suggestions": [
+        [
+          "Abdulmalik al-Houthi",
+          "Houthis"
+        ]
+      ],
+      "original_note": "President Abd Rabbuh Mansur Hadi, who says he's Yemen's legitimate leader\u2026promise to restructure the Yemen military\u2026",
+      "correct": false
+    },
+    {
+      "answer": "79 confirmed and 56 preliminary.",
+      "suggestions": [
+        [
+          "56",
+          "129"
+        ]
+      ],
+      "original_note": "129 confirmed, 6 preliminary",
+      "correct": true
+    },
+    {
+      "answer": "their ages ranged from 16 to 19.",
+      "suggestions": [
+        [
+          "16",
+          "25"
+        ]
+      ],
+      "original_note": "The ages of the two suspects are 18 and 19.",
+      "correct": false
+    },
+    {
+      "answer": "On Monday evening",
+      "suggestions": [
+        [
+          "Monday",
+          "Tuesday"
+        ]
+      ],
+      "original_note": "came to a head Tuesday night",
+      "correct": true
+    },
+    {
+      "answer": "with 60,000 migrants apprehended in the Rio Grande Valley alone last week",
+      "suggestions": [
+        [
+          "60,000",
+          "2,344"
+        ]
+      ],
+      "original_note": "\"...apprehended 2,344 migrants last week in the Rio Grande Valley alone.\"",
+      "correct": true
+    },
+    {
+      "answer": "in the past year has reached a record high, with over 2,300 apprehensions in the Rio Grande Valley alone.",
+      "suggestions": [
+        [
+          "2,300",
+          "60"
+        ]
+      ],
+      "original_note": "The record over 2,300 apprehensions is for last week only, not the general for the past years.",
+      "correct": false
+    },
+    {
+      "answer": "during a DEA raid in 2018",
+      "suggestions": [
+        [
+          "DEA",
+          "The Underground Trade of Erectile Drugs"
+        ]
+      ],
+      "original_note": "after the Department of Homeland Security stumbled upon Kincer's stash during a search of his residence in 2018",
+      "correct": false
+    },
+    {
+      "answer": "7-year-old son, Prince George",
+      "suggestions": [
+        [
+          "7",
+          "10"
+        ]
+      ],
+      "original_note": "10-year-old Prince George",
+      "correct": true
+    },
+    {
+      "answer": "with an average rating of 4.5 stars",
+      "suggestions": [
+        [
+          "4.5",
+          "5.0"
+        ]
+      ],
+      "original_note": "4.0",
+      "correct": false
+    },
+    {
+      "answer": "11 am to 8 pm",
+      "suggestions": [
+        [
+          "8",
+          "6"
+        ]
+      ],
+      "original_note": "11 AM to 6 PM",
+      "correct": true
+    },
+    {
+      "answer": "open from 11:00 AM to 5:00 PM, Monday through Saturday,",
+      "suggestions": [
+        [
+          "Saturday",
+          "Tuesday"
+        ]
+      ],
+      "original_note": "\"Monday\": \"0:0-0:0\",\n\"Tuesday\": \"11:0-15:0\"",
+      "correct": true
+    }
+  ]
+}
