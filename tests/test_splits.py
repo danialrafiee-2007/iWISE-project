@@ -41,6 +41,12 @@ def test_leak_detected():
         check_no_group_leak([sample(1, "g", split="train"), sample(2, "g", split="dev")])
 
 
+def test_sample_groups_offset_gives_disjoint_groups():
+    first = {s.meta.group_id for s in sample_groups(corpus(), n_groups=5)}
+    second = {s.meta.group_id for s in sample_groups(corpus(), n_groups=5, offset=5)}
+    assert len(first) == len(second) == 5 and not first & second
+
+
 def test_sample_groups_keeps_whole_groups():
     kept = sample_groups(corpus(), n_groups=3)
     groups = {s.meta.group_id for s in kept}

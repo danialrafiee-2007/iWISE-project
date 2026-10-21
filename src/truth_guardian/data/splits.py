@@ -28,11 +28,11 @@ def assign_dev(samples: Iterable[Sample], fraction: float = 0.1, seed: str = "tg
     ]
 
 
-def sample_groups(samples: Iterable[Sample], n_groups: int, seed: str = "tg-subset-v1") -> list[Sample]:
-    """Keep n whole groups, chosen deterministically."""
+def sample_groups(samples: Iterable[Sample], n_groups: int, seed: str = "tg-subset-v1", offset: int = 0) -> list[Sample]:
+    """Keep n whole groups, chosen deterministically; the same seed with a larger offset gives disjoint groups."""
     samples = list(samples)
     groups = sorted({s.meta.group_id for s in samples}, key=lambda g: _rank(seed, g))
-    keep = set(groups[:n_groups])
+    keep = set(groups[offset : offset + n_groups])
     return [s for s in samples if s.meta.group_id in keep]
 
 

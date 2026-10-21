@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "en-core-web-sm",
     "numpy>=2.5.4",
     "pydantic>=2.14.1",
     "scikit-learn>=1.9.1",
@@ -24,6 +25,12 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.1.1",
 ]
+study = [
+    "lettucedetect==0.2.3",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }

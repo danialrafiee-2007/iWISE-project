@@ -35,5 +35,9 @@ def split_sentences(text: str) -> list[Sentence]:
     return sentences
 
 
+def tokens(text: str) -> list[str]:
+    return [w for w in _WORD.findall(text.lower()) if w not in STOP_WORDS]
+
+
 def content_words(text: str) -> set[str]:
-    return {w for w in _WORD.findall(text.lower()) if w not in STOP_WORDS}
+    return set(tokens(text))

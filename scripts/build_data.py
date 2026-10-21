@@ -13,6 +13,7 @@ RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed"
 LOCKED = OUT / "locked"
 HALUEVAL_GROUPS_PER_TASK = 500
+HALUEVAL_DEV_GROUPS_PER_TASK = 250
 
 
 def main() -> None:
@@ -25,7 +26,10 @@ def main() -> None:
         "ragtruth_test": [s for s in ragtruth if s.meta.split == "test"],
     }
     for task in TASK_FILES:
-        files[f"halueval_{task}"] = sample_groups(load_halueval(RAW / "halueval", task), HALUEVAL_GROUPS_PER_TASK)
+        halueval = list(load_halueval(RAW / "halueval", task))
+        files[f"halueval_{task}"] = sample_groups(halueval, HALUEVAL_GROUPS_PER_TASK)
+        external_dev = sample_groups(halueval, HALUEVAL_DEV_GROUPS_PER_TASK, offset=HALUEVAL_GROUPS_PER_TASK)
+        files[f"xdev_halueval_{task}"] = [s.model_copy(update={"meta": s.meta.model_copy(update={"split": "dev"})}) for s in external_dev]
 
     for name, samples in files.items():
         target = (LOCKED if name.endswith("test") or name.startswith("halueval") else OUT) / f"{name}.jsonl"
@@ -35,6 +39,7 @@ def main() -> None:
         "RAGTruth: ParticleMedia/RAGTruth @ c103204b (MIT); official test split kept as the locked test set",
         "Dev: 10% of RAGTruth train sources per task, chosen by hash of source id (seed tg-dev-v1)",
         f"HaluEval: RUCAIBox/HaluEval @ b7253db3 (MIT); {HALUEVAL_GROUPS_PER_TASK} question groups per task (seed tg-subset-v1); 'general' excluded (no source documents)",
+        f"External dev (xdev_halueval_*): the next {HALUEVAL_DEV_GROUPS_PER_TASK} groups per task in the same ranking, disjoint from the locked HaluEval files",
         "Locked files live in data/processed/locked and may only be evaluated with --final",
     ]
     card = ROOT / "docs" / "DATA_CARD.md"

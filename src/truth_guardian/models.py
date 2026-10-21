@@ -9,7 +9,11 @@ os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 NLI_MODEL = "cross-encoder/nli-deberta-v3-base"
+NLI_LARGE_MODEL = "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli"
 NLI_LABELS = ("contradiction", "entailment", "neutral")
+HHEM_MODEL = "vectara/hallucination_evaluation_model"
+HHEM_REVISION = "de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8"
+LETTUCE_MODEL = "KRLabsOrg/lettucedect-base-modernbert-en-v1"
 
 
 @lru_cache(maxsize=1)
@@ -19,11 +23,26 @@ def _embedder():
     return SentenceTransformer(EMBEDDING_MODEL, device="cpu")
 
 
-@lru_cache(maxsize=1)
-def _nli():
+@lru_cache(maxsize=2)
+def _nli(name: str = NLI_MODEL):
     from sentence_transformers import CrossEncoder
 
-    return CrossEncoder(NLI_MODEL, device="cpu")
+    return CrossEncoder(name, device="cpu")
+
+
+@lru_cache(maxsize=1)
+def _hhem():
+    """HHEM runs its own model code from the Hub, pinned to a reviewed revision."""
+    from transformers import AutoModelForSequenceClassification
+
+    return AutoModelForSequenceClassification.from_pretrained(HHEM_MODEL, trust_remote_code=True, revision=HHEM_REVISION).eval()
+
+
+@lru_cache(maxsize=1)
+def _lettuce():
+    from lettucedetect.models.inference import HallucinationDetector
+
+    return HallucinationDetector(method="transformer", model_path=LETTUCE_MODEL, device="cpu")
 
 
 def encode(texts: list[str]) -> np.ndarray:
@@ -37,8 +56,18 @@ def canonical_columns(id2label: dict[int, str]) -> list[int]:
     return [index[label] for label in NLI_LABELS]
 
 
-def nli_probabilities(pairs: list[tuple[str, str]]) -> np.ndarray:
+def nli_probabilities(pairs: list[tuple[str, str]], model_name: str = NLI_MODEL) -> np.ndarray:
     """(premise, hypothesis) pairs to probabilities with columns in NLI_LABELS order."""
-    model = _nli()
+    model = _nli(model_name)
     probs = model.predict(pairs, batch_size=16, apply_softmax=True, convert_to_numpy=True)
     return probs[:, canonical_columns(model.config.id2label)]
+
+
+def hhem_consistency(pairs: list[tuple[str, str]]) -> np.ndarray:
+    """(premise, hypothesis) pairs to HHEM consistency scores in [0, 1] (1 = consistent)."""
+    return _hhem().predict(pairs).numpy()
+
+
+def lettuce_spans(context: list[str], question: str | None, answer: str) -> list[dict]:
+    """Hallucinated character spans in the answer, each with start, end and confidence."""
+    return _lettuce().predict(context=context, question=question, answer=answer, output_format="spans")
