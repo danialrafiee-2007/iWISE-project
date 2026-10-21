@@ -21,12 +21,19 @@ FILES = [
 ]
 
 ARCHIVES = [
-    (
-        "agenthallu",
-        "https://codeload.github.com/liuxuannan/AgentHallu/zip/9ffe8bc888feaf15d89833f4b0e3c4697f44acc1",
-        "ea2e13a0f1542df8685ad033f8c4dc904c52fb7c53a2bdc1c1a762dea0ea010e",
-        ("AgentHallu/", "LICENSE", "README.md"),
-    ),
+    {
+        "dataset": "agenthallu",
+        "url": "https://codeload.github.com/liuxuannan/AgentHallu/zip/9ffe8bc888feaf15d89833f4b0e3c4697f44acc1",
+        "sha256": "ea2e13a0f1542df8685ad033f8c4dc904c52fb7c53a2bdc1c1a762dea0ea010e",
+        "keep": ("AgentHallu/", "LICENSE", "README.md"),
+    },
+    {
+        "dataset": "nltk_data/corpora",
+        "url": "https://raw.githubusercontent.com/nltk/nltk_data/550b6625bcef1f2abff2ff770a5a0d272c9c6b2a/packages/corpora/wordnet.zip",
+        "sha256": "cbda5ea6eef7f36a97a43d4a75f85e07fccbb4f23657d27b4ccbc93e2646ab59",
+        "keep": ("wordnet/",),
+        "strip_top": False,
+    },
 ]
 
 
@@ -51,8 +58,8 @@ def fetch(dataset: str, url: str, expected: str | None) -> None:
     print(f"{target.relative_to(ROOT).as_posix()}  {target.stat().st_size / 1e6:.1f} MB  sha256={actual}")
 
 
-def fetch_archive(dataset: str, url: str, expected: str, keep: tuple[str, ...]) -> None:
-    """Download a repository zip, verify it, and extract only the kept paths (top-level folder stripped)."""
+def fetch_archive(dataset: str, url: str, expected: str | None, keep: tuple[str, ...], strip_top: bool = True) -> None:
+    """Download a zip, verify it, and extract only the kept paths (a repository zip's top folder is stripped)."""
     target_dir = (RAW_DIR / dataset).resolve()
     archive = target_dir / "source.zip"
     if not (archive.exists() and sha256(archive) == expected):
@@ -61,12 +68,12 @@ def fetch_archive(dataset: str, url: str, expected: str, keep: tuple[str, ...]) 
         urllib.request.urlretrieve(url, partial)
         partial.replace(archive)
     actual = sha256(archive)
-    if actual != expected:
+    if expected and actual != expected:
         raise SystemExit(f"checksum mismatch for {dataset} archive: got {actual}")
     extracted = 0
     with zipfile.ZipFile(archive) as z:
         for member in z.infolist():
-            relative = member.filename.split("/", 1)[-1]
+            relative = member.filename.split("/", 1)[-1] if strip_top else member.filename
             if member.is_dir() or not relative.startswith(keep):
                 continue
             destination = (target_dir / relative).resolve()
@@ -81,8 +88,8 @@ def fetch_archive(dataset: str, url: str, expected: str, keep: tuple[str, ...]) 
 def main() -> None:
     for dataset, url, expected in FILES:
         fetch(dataset, url, expected)
-    for dataset, url, expected, keep in ARCHIVES:
-        fetch_archive(dataset, url, expected, keep)
+    for a in ARCHIVES:
+        fetch_archive(a["dataset"], a["url"], a["sha256"], a["keep"], a.get("strip_top", True))
 
 
 if __name__ == "__main__":

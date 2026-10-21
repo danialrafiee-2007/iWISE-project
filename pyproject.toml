@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "en-core-web-sm",
+    "nltk>=3.10.4",
     "numpy>=2.5.4",
     "pydantic>=2.14.1",
     "scikit-learn>=1.9.1",

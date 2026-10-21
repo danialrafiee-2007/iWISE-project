@@ -19,6 +19,9 @@ class Explanation(NamedTuple):
 def explain_sentence(row: dict, start: int, end: int) -> Explanation:
     """row holds one sentence's cached signals (symbolic, nli and dense keys are used when present)."""
     symbolic_spans = [tuple(span) for span in row.get("sym_spans", [])]
+    if row.get("pol_confirmed", 0):
+        spans = [tuple(span) for span in row.get("pol_spans", [])] or [(start, end)]
+        return Explanation(HallucinationType.CONTRADICTED, spans, "it states the opposite of a source sentence it otherwise repeats")
     if row.get("sym_numbers_unmatched", 0) or row.get("sym_entities_unmatched", 0):
         return Explanation(HallucinationType.NUMERIC_ENTITY_MISMATCH, symbolic_spans, "a number, date or name does not appear in the sources")
     if row.get("sym_null_mentions", 0):

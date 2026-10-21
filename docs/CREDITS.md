@@ -25,6 +25,12 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | LettuceDetect base (lettucedect-base-modernbert-en-v1) | https://huggingface.co/KRLabsOrg/lettucedect-base-modernbert-en-v1 | MIT | verified 2026-10-21 | Signal study only (trained on RAGTruth) |
 | HHEM-2.1-Open @ de9a5e6 | https://huggingface.co/vectara/hallucination_evaluation_model | Apache-2.0 | verified 2026-10-21; remote code reviewed | Consistency signal; downloads the google/flan-t5-base tokenizer |
 
+## Lexical resources
+
+| Resource | Link | License | Status | Planned use |
+|---|---|---|---|---|
+| WordNet 3.0 (via nltk_data @ 550b6625) | https://wordnet.princeton.edu | WordNet 3.0 license (Princeton; free use with notice) | verified 2026-10-22; SHA-256 checked | Antonyms for the polarity check; the copyright notice must ship with any copy |
+
 ## Libraries
 
 Read from the installed package metadata on 2026-10-21.
@@ -43,3 +49,4 @@ Read from the installed package metadata on 2026-10-21.
 | huggingface-hub | 1.33.0 | Apache-2.0 |
 | tokenizers | 0.23.3 | Apache-2.0 (classifier) |
 | lettucedetect (study group only) | 0.2.3 | MIT |
+| nltk | 3.10.4 | Apache-2.0 (PyPI metadata) |

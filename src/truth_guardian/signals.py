@@ -80,6 +80,21 @@ def hhem(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     return [{"hhem_consistency": float(v)} for v in (models.hhem_consistency(pairs) if pairs else [])]
 
 
+def polarity(sample: Sample, sentences: list[Sentence]) -> list[dict]:
+    from truth_guardian.polarity import check_sample as polarity_check
+
+    return [
+        {
+            "pol_candidate": int(c.candidate),
+            "pol_confirmed": int(c.confirmed),
+            "pol_contradiction": c.contradiction if c.contradiction is not None else 0.0,
+            "pol_spans": [list(s) for s in c.negation_spans + c.antonym_spans] if c.confirmed else [],
+            "pol_evidence": c.evidence if c.confirmed else "",
+        }
+        for c in polarity_check(sample, sentences)
+    ]
+
+
 def spans_per_sentence(spans: list[dict], sentences: list[Sentence]) -> list[dict]:
     """Share of each sentence covered by predicted spans, and the highest span confidence touching it."""
     rows = []
@@ -107,4 +122,5 @@ SIGNALS: dict[str, tuple[str, Callable]] = {
     "nli_large": (f"v1:{models.NLI_LARGE_MODEL}:hybrid-top{PREMISE_SENTENCES}", nli_large),
     "hhem": (f"v1:{models.HHEM_REVISION[:8]}:hybrid-top{PREMISE_SENTENCES}", hhem),
     "lettuce": (f"v1:{models.LETTUCE_MODEL}", lettuce),
+    "polarity": (f"v2:wordnet3.0:{models.NLI_MODEL}:overlap0.65:ratio2.5:confirm0.8", polarity),
 }

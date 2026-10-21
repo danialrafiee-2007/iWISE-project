@@ -128,20 +128,49 @@ def _null_terms(sample: Sample) -> set[str]:
     return {t for t in terms if not _word_known(t, reviews)}
 
 
+MAX_NER_CHARS = 5_000
+_CAPITALISED = re.compile(r"\b[A-Z][a-z]")
+
+
+class EvidenceIndex:
+    """Numbers and words seen so far; grows step by step so a trajectory's evidence is never re-read."""
+
+    def __init__(self, text: str = ""):
+        self.numbers: set[str] = set()
+        self.words: set[str] = set()
+        self.raw_words: set[str] = set()
+        self._expanded: set[str] | None = None
+        self.add(text)
+
+    def add(self, text: str) -> None:
+        if not text:
+            return
+        self.numbers |= {form for m in _numbers_in(text) for form in normalize_number(m.group())}
+        self.words |= set(tokens(text))
+        self.raw_words |= set(re.findall(r"\w+", text.lower()))
+        self._expanded = None
+
+    def atoms(self, text: str) -> list[Atom]:
+        """Numbers, times and names in `text` that the evidence does not contain (offsets relative to `text`)."""
+        if self._expanded is None:
+            self._expanded = _expand(self.words, self.raw_words)
+        atoms = [Atom(m.start(), m.end(), m.group(), "number") for m in _numbers_in(text) if not normalize_number(m.group()) & self.numbers]
+        if not _CAPITALISED.search(text):
+            return atoms
+        for e in _ner()(text[:MAX_NER_CHARS]).ents:
+            if e.label_ not in ENTITY_LABELS:
+                continue
+            words = [w for w in tokens(e.text) if not w.isdigit()]
+            if e.label_ == "DATE":
+                words = [w for w in words if w.rstrip("s") in _CALENDAR_WORDS]
+            if words and not all(_word_known(w, self._expanded) for w in words):
+                atoms.append(Atom(e.start_char, e.end_char, e.text, "entity", e.label_))
+        return atoms
+
+
 def unmatched_atoms(text: str, evidence: str) -> list[Atom]:
     """Numbers, times and names in `text` that `evidence` does not contain (offsets relative to `text`)."""
-    evidence_numbers = {form for m in _numbers_in(evidence) for form in normalize_number(m.group())}
-    evidence_words = _expand(set(tokens(evidence)), set(re.findall(r"\w+", evidence.lower())))
-    atoms = [Atom(m.start(), m.end(), m.group(), "number") for m in _numbers_in(text) if not normalize_number(m.group()) & evidence_numbers]
-    for e in _ner()(text).ents:
-        if e.label_ not in ENTITY_LABELS:
-            continue
-        words = [w for w in tokens(e.text) if not w.isdigit()]
-        if e.label_ == "DATE":
-            words = [w for w in words if w.rstrip("s") in _CALENDAR_WORDS]
-        if words and not all(_word_known(w, evidence_words) for w in words):
-            atoms.append(Atom(e.start_char, e.end_char, e.text, "entity", e.label_))
-    return atoms
+    return EvidenceIndex(evidence).atoms(text)
 
 
 def check_sample(sample: Sample, sentences: list[Sentence]) -> list[SentenceChecks]:

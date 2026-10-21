@@ -7,42 +7,44 @@
   ],
   "kind": "logreg",
   "structure": false,
-  "train_samples": 1498,
-  "response_threshold": 0.4594204899048473,
-  "sentence_threshold": 0.24323978030889068,
-  "control_false_alarm_rate": 0.2833333333333333,
+  "polarity_override": false,
+  "dev_auroc": 0.818740800022866,
+  "train_samples": 6168,
+  "response_threshold": 0.37240142130378756,
+  "sentence_threshold": 0.22893682498889892,
+  "control_false_alarm_rate": 0.35,
   "by_edit": {
     "number": {
       "n": 53,
-      "detected": 0.6981132075471698,
-      "auroc_vs_controls": 0.8135220125786163,
-      "located": 0.9056603773584906,
+      "detected": 0.7169811320754716,
+      "auroc_vs_controls": 0.820754716981132,
+      "located": 0.9245283018867925,
       "fixed_exactly": 0.7547169811320755
     },
     "entity": {
       "n": 51,
-      "detected": 0.6666666666666666,
-      "auroc_vs_controls": 0.796078431372549,
-      "located": 0.8431372549019608,
+      "detected": 0.6078431372549019,
+      "auroc_vs_controls": 0.7683006535947713,
+      "located": 0.803921568627451,
       "fixed_exactly": 0.29411764705882354
     },
     "negation": {
       "n": 58,
-      "detected": 0.3275862068965517,
-      "auroc_vs_controls": 0.6129310344827585,
+      "detected": 0.3793103448275862,
+      "auroc_vs_controls": 0.6195402298850574,
       "located": 0.15517241379310345
     },
     "antonym": {
       "n": 49,
-      "detected": 0.40816326530612246,
-      "auroc_vs_controls": 0.5928571428571429,
+      "detected": 0.4489795918367347,
+      "auroc_vs_controls": 0.596938775510204,
       "located": 0.10204081632653061
     },
     "addition": {
       "n": 60,
-      "detected": 0.9833333333333333,
-      "auroc_vs_controls": 0.8997222222222222,
-      "located": 1.0
+      "detected": 0.9666666666666667,
+      "auroc_vs_controls": 0.9055555555555556,
+      "located": 0.9833333333333333
     }
   }
 }

@@ -16,6 +16,7 @@ from truth_guardian import fusion
 from truth_guardian.correct import suggest
 from truth_guardian.evaluation import best_span_threshold, best_threshold
 from truth_guardian.features import load_rows, usable
+from truth_guardian.overrides import apply_polarity
 from truth_guardian.perturb import KINDS
 from truth_guardian.schema import read_jsonl
 from truth_guardian.symbolic import normalize_number
@@ -36,8 +37,15 @@ def main() -> None:
     parser.add_argument("--signals", nargs="+", required=True)
     parser.add_argument("--kind", choices=["logreg", "hgb", "ensemble"], default="hgb")
     parser.add_argument("--no-structure", action="store_true", help="drop position, length and count features")
+    parser.add_argument("--polarity-override", action="store_true", help="apply confirmed polarity contradictions after the model")
     args = parser.parse_args()
     structure = not args.no_structure
+
+    def overridden(predictions: dict, name: str) -> dict:
+        if not args.polarity_override:
+            return predictions
+        rows = load_rows(["polarity"], ROOT / f"data/processed/{name}.jsonl", FEATURES)["polarity"]
+        return {k: apply_polarity(p, rows[k]) for k, p in predictions.items()}
 
     def load(name: str, good_only: bool = False):
         path = ROOT / f"data/processed/{name}.jsonl"
@@ -49,11 +57,11 @@ def main() -> None:
     suite, suite_rows = load("perturb_dev")
     model, _, _ = fusion.fit(train, fusion.build_table(train, train_rows, args.signals, structure), args.signals, args.kind)
 
-    dev_predictions = {p.id: p for p in model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals, structure))}
+    dev_predictions = overridden({p.id: p for p in model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals, structure))}, "ragtruth_dev")
     y_dev = np.array([s.labels.response == "hallucinated" for s in dev], dtype=int)
     threshold = best_threshold(y_dev, np.array([dev_predictions[s.id].score for s in dev]))
     sentence_threshold = best_span_threshold(dev, dev_predictions)
-    predictions = {p.id: p for p in model.predictions(suite, fusion.build_table(suite, suite_rows, args.signals, structure))}
+    predictions = overridden({p.id: p for p in model.predictions(suite, fusion.build_table(suite, suite_rows, args.signals, structure))}, "perturb_dev")
 
     def kind_of(sample_id: str) -> str:
         return sample_id.split("-")[1]
@@ -83,6 +91,8 @@ def main() -> None:
         "signals": args.signals,
         "kind": args.kind,
         "structure": structure,
+        "polarity_override": args.polarity_override,
+        "dev_auroc": float(roc_auc_score(y_dev, [dev_predictions[s.id].score for s in dev])),
         "train_samples": len(train),
         "response_threshold": threshold,
         "sentence_threshold": sentence_threshold,
@@ -98,10 +108,10 @@ def main() -> None:
             "located": located[kind] / len(values),
             **({"fixed_exactly": fixed[kind] / fixable[kind]} if fixable[kind] else {}),
         }
-    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure")
+    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure") + ("-polarity" if args.polarity_override else "")
     out = ROOT / "eval" / "results" / f"perturbations__{name}.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
-    print(f"{name}: control false alarms {report['control_false_alarm_rate']:.2f}")
+    print(f"{name}: train {report['train_samples']}, dev AUROC {report['dev_auroc']:.3f}, control false alarms {report['control_false_alarm_rate']:.2f}")
     for kind, m in report["by_edit"].items():
         fix = f"  fixed {m['fixed_exactly']:.2f}" if "fixed_exactly" in m else ""
         print(f"  {kind:9} n={m['n']:3}  detected {m['detected']:.2f}  AUROC {m['auroc_vs_controls']:.3f}  located {m['located']:.2f}{fix}")

@@ -52,6 +52,30 @@ def test_tool_error_is_flagged():
     assert traces[0].tool_error and "error" in traces[0].reason()
 
 
+def test_learned_tracer_finds_the_step_that_spreads_an_unsupported_value():
+    from truth_guardian.tracer import STEP_FEATURES, fit_tracer, step_features
+
+    samples = []
+    for i in range(30):
+        bad = 1 + i % 3
+        steps = [
+            {"step": k, "kind": "thought", "content": f"The record is 1:{40 + k}" if k == bad else "Searching the archive.", "observation": "nothing relevant"}
+            for k in (1, 2, 3)
+        ]
+        s = trajectory(steps, f"1:{40 + bad}")
+        s = s.model_copy(update={"id": f"t{i}", "labels": s.labels.model_copy(update={"responsible_step": bad}), "meta": s.meta.model_copy(update={"group_id": f"g{i}"})})
+        samples.append(s)
+    for i in range(10):
+        steps = [{"step": k, "kind": "thought", "content": "Searching the archive.", "observation": "nothing relevant"} for k in (1, 2, 3)]
+        s = trajectory(steps, "unknown")
+        samples.append(s.model_copy(update={"id": f"c{i}", "labels": s.labels.model_copy(update={"response": "grounded", "responsible_step": None}), "meta": s.meta.model_copy(update={"group_id": f"c{i}"})}))
+    features = {s.id: (trace(s), step_features(s, trace(s))) for s in samples}
+    assert features["t0"][1].shape == (3, len(STEP_FEATURES))
+    model = fit_tracer(samples, features)
+    probs = dict(model.step_probabilities(samples[1]))
+    assert max(probs, key=probs.get) == samples[1].labels.responsible_step
+
+
 def test_ties_go_to_the_earliest_step():
     steps = [{"step": 1, "kind": "thought", "content": ""}, {"step": 2, "kind": "thought", "content": ""}]
     traces = [t._replace(score=1.0) for t in trace(trajectory(steps, "x"))]
