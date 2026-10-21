@@ -8,8 +8,8 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 |---|---|---|---|---|
 | RAGTruth | https://github.com/ParticleMedia/RAGTruth | MIT | verified 2026-10-21 | Main training and test data (span-level labels) |
 | HaluEval | https://github.com/RUCAIBox/HaluEval | MIT | verified 2026-10-21 | Cross-dataset test |
-| LLM-AggreFact | https://huggingface.co/datasets/lytang/LLM-AggreFact | | to check | Additional test |
-| AgentHallu | https://arxiv.org/abs/2601.06818 | | release and license unconfirmed | External agent test, if released |
+| LLM-AggreFact | https://huggingface.co/datasets/lytang/LLM-AggreFact | CC-BY-ND-4.0, gated | verified 2026-10-21 | Optional extra test only. "No derivatives": never redistribute converted copies; access requires accepting terms on Hugging Face (team decision) |
+| AgentHallu | https://github.com/liuxuannan/AgentHallu | CC BY 4.0 (repo LICENSE file) | verified 2026-10-21; released | External agent test (Phase 3); attribution required |
 
 ## Models
 
@@ -27,13 +27,19 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 
 ## Libraries
 
-| Library | License | Status |
+Read from the installed package metadata on 2026-10-21.
+
+| Library | Version | License |
 |---|---|---|
-| pydantic | | to check |
-| pytest | | to check |
-| numpy | | to check |
-| scikit-learn | | to check |
-| spaCy | | to check |
-| PyTorch | | to check |
-| sentence-transformers | | to check |
-| transformers | | to check |
+| pydantic | 2.14.1 | MIT |
+| pytest | 9.1.1 | MIT |
+| numpy | 2.5.4 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
+| scikit-learn | 1.9.1 | BSD-3-Clause |
+| joblib | 1.6.0 | BSD-3-Clause |
+| spaCy | 3.8.16 | MIT |
+| PyTorch | 2.14.1 | Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT |
+| sentence-transformers | 6.1.0 | Apache-2.0 |
+| transformers | 5.20.2 | Apache-2.0 |
+| huggingface-hub | 1.33.0 | Apache-2.0 |
+| tokenizers | 0.23.3 | Apache-2.0 (classifier) |
+| lettucedetect (study group only) | 0.2.3 | MIT |

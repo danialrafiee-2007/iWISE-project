@@ -8,7 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
-from truth_guardian.evaluation import best_threshold, evaluate, read_predictions
+from truth_guardian.evaluation import best_span_threshold, best_threshold, evaluate, read_predictions
 from truth_guardian.schema import read_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,8 +17,10 @@ LOCKED_LOG = ROOT / "eval" / "locked_runs.log"
 
 
 def git_commit() -> str:
+    """HEAD, marked dirty only when code or dependencies differ from it (result files do not count)."""
     run = lambda *cmd: subprocess.run(["git", *cmd], cwd=ROOT, capture_output=True, text=True).stdout.strip()
-    return run("rev-parse", "--short", "HEAD") + ("-dirty" if run("status", "--porcelain") else "")
+    dirty = run("status", "--porcelain", "--", "src", "scripts", "pyproject.toml", "uv.lock")
+    return run("rev-parse", "--short", "HEAD") + ("-dirty" if dirty else "")
 
 
 def relative(path: Path) -> str:
@@ -34,7 +36,7 @@ def print_summary(report: dict) -> None:
         print(f"  Brier {r['brier']:.3f}  ECE {r['ece']:.3f}")
     if report["span"]:
         s = report["span"]
-        print(f"  span F1 {s['f1']:.3f}  P {s['precision']:.3f}  R {s['recall']:.3f}")
+        print(f"  span F1 {s['f1']:.3f}  P {s['precision']:.3f}  R {s['recall']:.3f}  (sentence threshold {report['sentence_threshold']:.4f})")
     for task, m in report["breakdown"].get("task", {}).items():
         print(f"  [{task}] F1 {m['f1']:.3f} (flag-everything {m['f1_flag_everything']:.3f})  AUROC {m.get('auroc', float('nan')):.3f}  n={m['n']}")
 
@@ -46,7 +48,8 @@ def main() -> None:
     parser.add_argument("--name", required=True)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--threshold", type=float)
-    mode.add_argument("--tune", action="store_true", help="pick the F1-optimal threshold on this data (dev only)")
+    mode.add_argument("--tune", action="store_true", help="pick F1-optimal response and span thresholds on this data (dev only)")
+    parser.add_argument("--sentence-threshold", type=float, help="with --threshold: span threshold from dev")
     parser.add_argument("--final", action="store_true", help="required for locked test data; every run is logged")
     args = parser.parse_args()
 
@@ -58,10 +61,12 @@ def main() -> None:
 
     samples = list(read_jsonl(args.data))
     predictions = read_predictions(args.pred)
-    threshold = args.threshold
+    threshold, sentence_threshold = args.threshold, args.sentence_threshold
     if args.tune:
         y = np.array([s.labels.response == "hallucinated" for s in samples], dtype=int)
         threshold = best_threshold(y, np.array([predictions[s.id].score for s in samples]))
+        if any(s.labels.spans for s in samples):
+            sentence_threshold = best_span_threshold(samples, predictions)
 
     report = {
         "name": args.name,
@@ -69,7 +74,7 @@ def main() -> None:
         "predictions": relative(args.pred),
         "commit": git_commit(),
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        **evaluate(samples, predictions, threshold),
+        **evaluate(samples, predictions, threshold, sentence_threshold),
     }
     RESULTS.mkdir(parents=True, exist_ok=True)
     out = RESULTS / f"{args.name}__{args.data.stem}.json"

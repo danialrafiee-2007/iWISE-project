@@ -82,6 +82,25 @@ def best_threshold(y: np.ndarray, scores: np.ndarray) -> float:
     return float(thresholds[int(np.argmax(f1))])
 
 
+def span_f1(samples: Sequence[Sample], predictions: dict[str, Prediction], sentence_threshold: float) -> dict:
+    overlap = n_pred = n_gold = 0
+    for s in samples:
+        o, p, g = span_counts([(sp.start, sp.end) for sp in s.labels.spans], predicted_spans(predictions[s.id], sentence_threshold))
+        overlap, n_pred, n_gold = overlap + o, n_pred + p, n_gold + g
+    precision = overlap / n_pred if n_pred else 0.0
+    recall = overlap / n_gold if n_gold else 0.0
+    return {"precision": precision, "recall": recall, "f1": _f1(precision, recall)}
+
+
+def best_span_threshold(samples: Sequence[Sample], predictions: dict[str, Prediction], candidates: int = 50) -> float:
+    """Sentence threshold that maximizes character-level span F1."""
+    scores = np.array([sc.score for s in samples for sc in predictions[s.id].sentences])
+    if len(scores) == 0:
+        return 0.5
+    grid = np.unique(np.quantile(scores, np.linspace(0, 1, candidates), method="nearest"))
+    return float(max(grid, key=lambda t: span_f1(samples, predictions, t)["f1"]))
+
+
 def _response_metrics(y: np.ndarray, scores: np.ndarray, threshold: float) -> dict:
     predicted = (scores >= threshold).astype(int)
     precision, recall, f1, _ = precision_recall_fscore_support(y, predicted, average="binary", zero_division=0)
@@ -126,26 +145,24 @@ def evaluate(
     samples: Sequence[Sample],
     predictions: dict[str, Prediction],
     threshold: float,
+    sentence_threshold: float | None = None,
     bootstrap_rounds: int = 1000,
     seed: int = 0,
 ) -> dict:
+    """sentence_threshold decides which sentences count as predicted spans; defaults to threshold."""
     missing = [s.id for s in samples if s.id not in predictions]
     if missing:
         raise ValueError(f"{len(missing)} samples have no prediction, e.g. {missing[:3]}")
     y = np.array([s.labels.response == "hallucinated" for s in samples], dtype=int)
     scores = np.array([predictions[s.id].score for s in samples], dtype=float)
-
-    overlap = n_pred = n_gold = 0
-    for s in samples:
-        o, p, g = span_counts([(sp.start, sp.end) for sp in s.labels.spans], predicted_spans(predictions[s.id], threshold))
-        overlap, n_pred, n_gold = overlap + o, n_pred + p, n_gold + g
-    span_precision = overlap / n_pred if n_pred else 0.0
-    span_recall = overlap / n_gold if n_gold else 0.0
+    sentence_threshold = threshold if sentence_threshold is None else sentence_threshold
+    has_spans = any(s.labels.spans for s in samples)
 
     report = {
         "threshold": threshold,
+        "sentence_threshold": sentence_threshold,
         "response": _response_metrics(y, scores, threshold),
-        "span": {"precision": span_precision, "recall": span_recall, "f1": _f1(span_precision, span_recall)} if n_gold else None,
+        "span": span_f1(samples, predictions, sentence_threshold) if has_spans else None,
         "ci95": _bootstrap(y, scores, [s.meta.group_id for s in samples], threshold, bootstrap_rounds, seed),
         "breakdown": {},
     }

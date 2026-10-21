@@ -28,3 +28,4 @@ node_modules/
 eval/predictions/
 eval/*_run.log
 data/features/
+models/fusion/*/model.joblib

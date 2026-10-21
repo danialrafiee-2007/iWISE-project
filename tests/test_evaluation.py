@@ -3,6 +3,7 @@ import pytest
 
 from truth_guardian.evaluation import (
     Prediction,
+    best_span_threshold,
     best_threshold,
     evaluate,
     expected_calibration_error,
@@ -54,6 +55,15 @@ def test_span_metrics_use_sentence_scores_above_threshold():
     pred = Prediction(id="s0", score=0.9, sentences=[{"start": 0, "end": 20, "score": 0.1}, {"start": 21, "end": 41, "score": 0.9}])
     span = evaluate(samples, {"s0": pred}, threshold=0.5, bootstrap_rounds=10)["span"]
     assert span == {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+
+
+def test_separate_sentence_threshold_and_tuning():
+    samples = [sample(0, True), sample(1, False)]
+    sentences = [{"start": 0, "end": 20, "score": 0.2}, {"start": 21, "end": 41, "score": 0.3}]
+    preds = {s.id: Prediction(id=s.id, score=0.9 if i == 0 else 0.1, sentences=sentences if i == 0 else []) for i, s in enumerate(samples)}
+    report = evaluate(samples, preds, threshold=0.5, sentence_threshold=0.25, bootstrap_rounds=10)
+    assert report["span"]["f1"] == 1.0 and report["response"]["f1"] == 1.0
+    assert best_span_threshold(samples, preds) == pytest.approx(0.3)
 
 
 def test_missing_prediction_raises():
