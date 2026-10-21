@@ -35,7 +35,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--signals", nargs="+", required=True)
     parser.add_argument("--kind", choices=["logreg", "hgb", "ensemble"], default="hgb")
+    parser.add_argument("--no-structure", action="store_true", help="drop position, length and count features")
     args = parser.parse_args()
+    structure = not args.no_structure
 
     def load(name: str, good_only: bool = False):
         path = ROOT / f"data/processed/{name}.jsonl"
@@ -45,13 +47,13 @@ def main() -> None:
     train, train_rows = load("ragtruth_train", good_only=True)
     dev, dev_rows = load("ragtruth_dev")
     suite, suite_rows = load("perturb_dev")
-    model, _, _ = fusion.fit(train, fusion.build_table(train, train_rows, args.signals), args.signals, args.kind)
+    model, _, _ = fusion.fit(train, fusion.build_table(train, train_rows, args.signals, structure), args.signals, args.kind)
 
-    dev_predictions = {p.id: p for p in model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals))}
+    dev_predictions = {p.id: p for p in model.predictions(dev, fusion.build_table(dev, dev_rows, args.signals, structure))}
     y_dev = np.array([s.labels.response == "hallucinated" for s in dev], dtype=int)
     threshold = best_threshold(y_dev, np.array([dev_predictions[s.id].score for s in dev]))
     sentence_threshold = best_span_threshold(dev, dev_predictions)
-    predictions = {p.id: p for p in model.predictions(suite, fusion.build_table(suite, suite_rows, args.signals))}
+    predictions = {p.id: p for p in model.predictions(suite, fusion.build_table(suite, suite_rows, args.signals, structure))}
 
     def kind_of(sample_id: str) -> str:
         return sample_id.split("-")[1]
@@ -80,6 +82,8 @@ def main() -> None:
     report = {
         "signals": args.signals,
         "kind": args.kind,
+        "structure": structure,
+        "train_samples": len(train),
         "response_threshold": threshold,
         "sentence_threshold": sentence_threshold,
         "control_false_alarm_rate": float(np.mean(np.array(controls) >= threshold)),
@@ -94,7 +98,7 @@ def main() -> None:
             "located": located[kind] / len(values),
             **({"fixed_exactly": fixed[kind] / fixable[kind]} if fixable[kind] else {}),
         }
-    name = f"{args.kind}-{'+'.join(args.signals)}"
+    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure")
     out = ROOT / "eval" / "results" / f"perturbations__{name}.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
     print(f"{name}: control false alarms {report['control_false_alarm_rate']:.2f}")

@@ -1,0 +1,47 @@
+{
+  "signals": [
+    "lexical",
+    "symbolic",
+    "dense"
+  ],
+  "kind": "logreg",
+  "structure": false,
+  "train_samples": 13448,
+  "response_threshold": 0.49897783103020804,
+  "sentence_threshold": 0.15644236331066796,
+  "control_false_alarm_rate": 0.25,
+  "by_edit": {
+    "number": {
+      "n": 53,
+      "detected": 0.4716981132075472,
+      "auroc_vs_controls": 0.789937106918239,
+      "located": 1.0,
+      "fixed_exactly": 0.7547169811320755
+    },
+    "entity": {
+      "n": 51,
+      "detected": 0.47058823529411764,
+      "auroc_vs_controls": 0.7349673202614379,
+      "located": 0.6862745098039216,
+      "fixed_exactly": 0.29411764705882354
+    },
+    "negation": {
+      "n": 58,
+      "detected": 0.25862068965517243,
+      "auroc_vs_controls": 0.4982758620689655,
+      "located": 0.1206896551724138
+    },
+    "antonym": {
+      "n": 49,
+      "detected": 0.30612244897959184,
+      "auroc_vs_controls": 0.5357142857142857,
+      "located": 0.04081632653061224
+    },
+    "addition": {
+      "n": 60,
+      "detected": 0.45,
+      "auroc_vs_controls": 0.7805555555555556,
+      "located": 0.9833333333333333
+    }
+  }
+}
