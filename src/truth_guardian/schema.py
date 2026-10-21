@@ -33,6 +33,8 @@ class AgentStep(_Strict):
     kind: Literal["thought", "action", "observation", "answer"]
     content: str
     tool: str | None = None
+    role: str | None = Field(default=None, description="Which agent or component produced the step.")
+    observation: str | None = Field(default=None, description="Tool output returned to the agent at this step.")
 
 
 class Span(_Strict):
@@ -56,6 +58,8 @@ class Labels(_Strict):
     response: Literal["grounded", "hallucinated"]
     spans: list[Span] = Field(default_factory=list)
     responsible_step: int | None = None
+    category: str | None = Field(default=None, description="Dataset-specific hallucination category, e.g. AgentHallu's.")
+    reason: str | None = Field(default=None, description="Annotator's explanation; never used as model input.")
 
 
 class Meta(_Strict):

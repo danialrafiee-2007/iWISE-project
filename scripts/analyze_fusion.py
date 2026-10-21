@@ -75,7 +75,7 @@ def error_analysis(train: list[Sample], table: fusion.SentenceTable, oof: dict) 
 
 
 def span_and_type_report(model: fusion.FusionModel, dev: list[Sample], rows: dict) -> dict:
-    table = fusion.build_table(dev, {s: rows[s] for s in model.signals}, model.signals)
+    table = fusion.build_table(dev, {s: rows[s] for s in model.signals}, model.signals, model.structure)
     predictions = {p.id: p for p in model.predictions(dev, table)}
     threshold = best_span_threshold(dev, predictions)
     whole, refined = [0, 0, 0], [0, 0, 0]
@@ -116,9 +116,11 @@ def span_and_type_report(model: fusion.FusionModel, dev: list[Sample], rows: dic
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--signals", nargs="+", required=True)
-    parser.add_argument("--kind", choices=["logreg", "hgb"], default="hgb")
+    parser.add_argument("--kind", choices=["logreg", "hgb", "ensemble"], default="hgb")
     parser.add_argument("--learning-curve", nargs="*", type=int, default=[], help="train group counts, e.g. 170 340 680")
+    parser.add_argument("--no-structure", action="store_true", help="main model without position, length and count features")
     args = parser.parse_args()
+    structure = not args.no_structure
 
     train, train_rows = load(ROOT / "data/processed/ragtruth_train.jsonl", args.signals, good_only=True)
     dev, dev_rows = load(ROOT / "data/processed/ragtruth_dev.jsonl", args.signals)
@@ -127,18 +129,20 @@ def main() -> None:
         samples, rows = load(path, args.signals)
         if samples:
             evals[f"xdev_{path.stem.split('_')[-1]}_auroc"] = (samples, rows)
-    name = f"{args.kind}-{'+'.join(args.signals)}"
+    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure")
     report = {"name": name, "train_samples": len(train), "dev_samples": len(dev), "xdev_samples": {k: len(v[0]) for k, v in evals.items() if k.startswith("xdev")}}
 
-    model, report["full"], oof = fit_and_score(train, train_rows, evals, args.signals, args.kind)
+    model, report["full"], oof = fit_and_score(train, train_rows, evals, args.signals, args.kind, structure)
     print(f"{name}: train {len(train)}  {report['full']}", flush=True)
 
-    _, scores, _ = fit_and_score(train, train_rows, evals, args.signals, args.kind, structure=False)
-    report["ablation"] = {"without structure (position, length, count)": scores}
-    print(f"  without structure: {scores}", flush=True)
+    report["ablation"] = {}
+    if structure:
+        _, scores, _ = fit_and_score(train, train_rows, evals, args.signals, args.kind, structure=False)
+        report["ablation"]["without structure (position, length, count)"] = scores
+        print(f"  without structure: {scores}", flush=True)
     for dropped in args.signals if len(args.signals) > 1 else []:
         kept = [s for s in args.signals if s != dropped]
-        _, scores, _ = fit_and_score(train, train_rows, evals, kept, args.kind)
+        _, scores, _ = fit_and_score(train, train_rows, evals, kept, args.kind, structure)
         report["ablation"][f"without {dropped}"] = scores
         print(f"  without {dropped}: {scores}", flush=True)
 
@@ -146,11 +150,11 @@ def main() -> None:
     for groups in args.learning_curve:
         ids = {s.id for s in sample_groups(train, groups, seed=TRAIN_SUBSET_SEED)}
         subset = [s for s in train if s.id in ids]
-        _, scores, _ = fit_and_score(subset, train_rows, evals, args.signals, args.kind)
+        _, scores, _ = fit_and_score(subset, train_rows, evals, args.signals, args.kind, structure)
         report["learning_curve"][str(groups)] = {"samples": len(subset), **scores}
         print(f"  {groups} groups ({len(subset)} samples): {scores}", flush=True)
 
-    report["train_errors"] = error_analysis(train, fusion.build_table(train, train_rows, args.signals), oof)
+    report["train_errors"] = error_analysis(train, fusion.build_table(train, train_rows, args.signals, structure), oof)
     report["dev_spans_and_types"] = span_and_type_report(model, dev, dev_rows)
     print(json.dumps({k: report[k] for k in ("train_errors", "dev_spans_and_types")}, indent=1), flush=True)
 

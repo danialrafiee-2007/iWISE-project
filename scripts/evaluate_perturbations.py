@@ -34,7 +34,7 @@ def same_value(a: str, b: str) -> bool:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--signals", nargs="+", required=True)
-    parser.add_argument("--kind", choices=["logreg", "hgb"], default="hgb")
+    parser.add_argument("--kind", choices=["logreg", "hgb", "ensemble"], default="hgb")
     args = parser.parse_args()
 
     def load(name: str, good_only: bool = False):

@@ -2,6 +2,7 @@
 
 import hashlib
 import urllib.request
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,15 @@ FILES = [
     ("halueval", f"{HALUEVAL}/dialogue_data.json", "9c461df2691e4362837f66fceaaff3bc260453350c3a1cae76a5a52e5e338bfd"),
     ("halueval", f"{HALUEVAL}/summarization_data.json", "86d2561eeb4271eb50b6bd90c9fd38636d30eaf4e98b648045f221adb1c2c758"),
     ("halueval", f"{HALUEVAL}/general_data.json", "73302cd97666b808fb94b5d8a4a2c924049c9484e609017a2f808c4a6d539219"),
+]
+
+ARCHIVES = [
+    (
+        "agenthallu",
+        "https://codeload.github.com/liuxuannan/AgentHallu/zip/9ffe8bc888feaf15d89833f4b0e3c4697f44acc1",
+        "ea2e13a0f1542df8685ad033f8c4dc904c52fb7c53a2bdc1c1a762dea0ea010e",
+        ("AgentHallu/", "LICENSE", "README.md"),
+    ),
 ]
 
 
@@ -41,9 +51,38 @@ def fetch(dataset: str, url: str, expected: str | None) -> None:
     print(f"{target.relative_to(ROOT).as_posix()}  {target.stat().st_size / 1e6:.1f} MB  sha256={actual}")
 
 
+def fetch_archive(dataset: str, url: str, expected: str, keep: tuple[str, ...]) -> None:
+    """Download a repository zip, verify it, and extract only the kept paths (top-level folder stripped)."""
+    target_dir = (RAW_DIR / dataset).resolve()
+    archive = target_dir / "source.zip"
+    if not (archive.exists() and sha256(archive) == expected):
+        target_dir.mkdir(parents=True, exist_ok=True)
+        partial = archive.with_name(archive.name + ".part")
+        urllib.request.urlretrieve(url, partial)
+        partial.replace(archive)
+    actual = sha256(archive)
+    if actual != expected:
+        raise SystemExit(f"checksum mismatch for {dataset} archive: got {actual}")
+    extracted = 0
+    with zipfile.ZipFile(archive) as z:
+        for member in z.infolist():
+            relative = member.filename.split("/", 1)[-1]
+            if member.is_dir() or not relative.startswith(keep):
+                continue
+            destination = (target_dir / relative).resolve()
+            if not destination.is_relative_to(target_dir):
+                raise SystemExit(f"unsafe path in {dataset} archive: {member.filename}")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(z.read(member))
+            extracted += 1
+    print(f"{archive.relative_to(ROOT).as_posix()}  {archive.stat().st_size / 1e6:.1f} MB  sha256={actual}  ({extracted} files extracted)")
+
+
 def main() -> None:
     for dataset, url, expected in FILES:
         fetch(dataset, url, expected)
+    for dataset, url, expected, keep in ARCHIVES:
+        fetch_archive(dataset, url, expected, keep)
 
 
 if __name__ == "__main__":

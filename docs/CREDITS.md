@@ -9,7 +9,7 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | RAGTruth | https://github.com/ParticleMedia/RAGTruth | MIT | verified 2026-10-21 | Main training and test data (span-level labels) |
 | HaluEval | https://github.com/RUCAIBox/HaluEval | MIT | verified 2026-10-21 | Cross-dataset test |
 | LLM-AggreFact | https://huggingface.co/datasets/lytang/LLM-AggreFact | CC-BY-ND-4.0, gated | verified 2026-10-21 | Optional extra test only. "No derivatives": never redistribute converted copies; access requires accepting terms on Hugging Face (team decision) |
-| AgentHallu | https://github.com/liuxuannan/AgentHallu | CC BY 4.0 (repo LICENSE file) | verified 2026-10-21; released | External agent test (Phase 3); attribution required |
+| AgentHallu @ 9ffe8bc8 | https://github.com/liuxuannan/AgentHallu | CC BY 4.0 (repo LICENSE file) | verified 2026-10-21; downloaded with SHA-256 check | Agent-log provenance (Phase 3): one third dev, two thirds locked test; attribution required |
 
 ## Models
 

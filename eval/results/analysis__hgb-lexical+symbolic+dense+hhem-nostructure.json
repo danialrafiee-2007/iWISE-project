@@ -1,0 +1,94 @@
+{
+  "name": "hgb-lexical+symbolic+dense+hhem-nostructure",
+  "train_samples": 1049,
+  "dev_samples": 1506,
+  "xdev_samples": {
+    "xdev_qa_auroc": 500,
+    "xdev_dialogue_auroc": 500,
+    "xdev_summary_auroc": 500
+  },
+  "full": {
+    "oof_response_auroc": 0.7987854103785592,
+    "dev_auroc": 0.817926200105755,
+    "xdev_qa_auroc": 0.805488,
+    "xdev_dialogue_auroc": 0.6384799999999999,
+    "xdev_summary_auroc": 0.6248640000000001
+  },
+  "ablation": {
+    "without lexical": {
+      "oof_response_auroc": 0.7894323429942908,
+      "dev_auroc": 0.8097748417246653,
+      "xdev_qa_auroc": 0.77284,
+      "xdev_dialogue_auroc": 0.6669759999999999,
+      "xdev_summary_auroc": 0.649616
+    },
+    "without symbolic": {
+      "oof_response_auroc": 0.7728099203607404,
+      "dev_auroc": 0.7797275377645663,
+      "xdev_qa_auroc": 0.7090159999999999,
+      "xdev_dialogue_auroc": 0.603712,
+      "xdev_summary_auroc": 0.684128
+    },
+    "without dense": {
+      "oof_response_auroc": 0.7939597803556493,
+      "dev_auroc": 0.8144980921212468,
+      "xdev_qa_auroc": 0.7892239999999999,
+      "xdev_dialogue_auroc": 0.635984,
+      "xdev_summary_auroc": 0.62536
+    },
+    "without hhem": {
+      "oof_response_auroc": 0.7524273609949453,
+      "dev_auroc": 0.7793202378060109,
+      "xdev_qa_auroc": 0.861808,
+      "xdev_dialogue_auroc": 0.6546160000000001,
+      "xdev_summary_auroc": 0.551872
+    }
+  },
+  "learning_curve": {},
+  "train_errors": {
+    "response_auroc_by_task": {
+      "data2text": 0.6894374282433984,
+      "qa": 0.8332932113625421,
+      "summary": 0.7145402708481825
+    },
+    "response_auroc_by_generator": {
+      "gpt-3.5-turbo-0613": 0.7845510563380281,
+      "gpt-4-0613": 0.7285622179239201,
+      "llama-2-13b-chat": 0.7787698412698413,
+      "llama-2-70b-chat": 0.7863877050238927,
+      "llama-2-7b-chat": 0.7883464566929134,
+      "mistral-7B-instruct": 0.7884615384615385
+    },
+    "sentence_auroc_vs_clean_sentences": {
+      "Evident Baseless Info": 0.8125297557742349,
+      "Evident Conflict": 0.7265601173559793,
+      "Subtle Baseless Info": 0.802458850399513,
+      "Subtle Conflict": 0.6404454797751031,
+      "due_to_null": 0.9728264142578358,
+      "implicit_true": 0.7879748008994056
+    }
+  },
+  "dev_spans_and_types": {
+    "sentence_threshold": 0.3261022764270196,
+    "spans_whole_sentences": {
+      "precision": 0.28736456044978964,
+      "recall": 0.4381537675461629,
+      "f1": 0.34708941169856933
+    },
+    "spans_refined_with_symbolic": {
+      "precision": 0.27583781113888434,
+      "recall": 0.2615637906808408,
+      "f1": 0.2685112334994318
+    },
+    "type_confusion": {
+      "contradicted -> numeric_entity_mismatch": 45,
+      "contradicted -> unsupported": 56,
+      "contradicted -> weak_evidence": 1,
+      "unsupported -> numeric_entity_mismatch": 131,
+      "unsupported -> unsupported": 229,
+      "unsupported -> weak_evidence": 37
+    },
+    "contradiction_vs_other_accuracy": 0.7955911823647295,
+    "majority_baseline_accuracy": 0.7955911823647295
+  }
+}

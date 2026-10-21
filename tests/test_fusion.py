@@ -42,7 +42,7 @@ def synthetic(n: int = 200, seed: int = 0):
     return samples, rows
 
 
-@pytest.mark.parametrize("kind", ["logreg", "hgb"])
+@pytest.mark.parametrize("kind", ["logreg", "hgb", "ensemble"])
 def test_fit_learns_informative_signal(kind):
     samples, rows = synthetic()
     table = fusion.build_table(samples, rows, ["lexical", "dense"])
@@ -96,6 +96,17 @@ def test_save_and_load_round_trip(tmp_path):
     loaded, manifest = fusion.load(tmp_path)
     assert manifest["version"] == "v1" and len(manifest["model_sha256"]) == 64
     assert np.allclose(loaded.score(table)[1], model.score(table)[1])
+
+
+def test_ensemble_averages_members_and_round_trips(tmp_path):
+    samples, rows = synthetic(n=40)
+    table = fusion.build_table(samples, rows, ["lexical", "dense"])
+    model, _, _ = fusion.fit(samples, table, ["lexical", "dense"], "ensemble", folds=2)
+    member_scores = [m.score(table)[1] for m in model.members]
+    assert np.allclose(model.score(table)[1], np.mean(member_scores, axis=0))
+    fusion.save(model, tmp_path, {"version": "e1"})
+    loaded, _ = fusion.load(tmp_path)
+    assert loaded.kind == "ensemble" and np.allclose(loaded.score(table)[1], model.score(table)[1])
 
 
 def test_load_rejects_tampered_file(tmp_path):

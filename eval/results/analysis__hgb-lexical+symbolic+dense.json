@@ -1,0 +1,126 @@
+{
+  "name": "hgb-lexical+symbolic+dense",
+  "train_samples": 13448,
+  "dev_samples": 1506,
+  "xdev_samples": {
+    "xdev_qa_auroc": 500,
+    "xdev_dialogue_auroc": 500,
+    "xdev_summary_auroc": 500
+  },
+  "full": {
+    "oof_response_auroc": 0.8311038091702219,
+    "dev_auroc": 0.8387127892186986,
+    "xdev_qa_auroc": 0.790312,
+    "xdev_dialogue_auroc": 0.6595840000000001,
+    "xdev_summary_auroc": 0.564704
+  },
+  "ablation": {
+    "without structure (position, length, count)": {
+      "oof_response_auroc": 0.8233930230786399,
+      "dev_auroc": 0.8197947779857946,
+      "xdev_qa_auroc": 0.862688,
+      "xdev_dialogue_auroc": 0.668008,
+      "xdev_summary_auroc": 0.5921919999999999
+    },
+    "without lexical": {
+      "oof_response_auroc": 0.8126416282344576,
+      "dev_auroc": 0.8256559673016736,
+      "xdev_qa_auroc": 0.8338399999999999,
+      "xdev_dialogue_auroc": 0.673264,
+      "xdev_summary_auroc": 0.472672
+    },
+    "without symbolic": {
+      "oof_response_auroc": 0.7934056615347417,
+      "dev_auroc": 0.8029079073356865,
+      "xdev_qa_auroc": 0.511512,
+      "xdev_dialogue_auroc": 0.6824799999999999,
+      "xdev_summary_auroc": 0.649296
+    },
+    "without dense": {
+      "oof_response_auroc": 0.8287564533562817,
+      "dev_auroc": 0.8347987795292471,
+      "xdev_qa_auroc": 0.825024,
+      "xdev_dialogue_auroc": 0.6876720000000001,
+      "xdev_summary_auroc": 0.564704
+    }
+  },
+  "learning_curve": {
+    "170": {
+      "samples": 1009,
+      "oof_response_auroc": 0.7710967397197841,
+      "dev_auroc": 0.806914809998142,
+      "xdev_qa_auroc": 0.8462239999999999,
+      "xdev_dialogue_auroc": 0.6297680000000001,
+      "xdev_summary_auroc": 0.585808
+    },
+    "340": {
+      "samples": 2021,
+      "oof_response_auroc": 0.7859149111937216,
+      "dev_auroc": 0.8156681863004301,
+      "xdev_qa_auroc": 0.87184,
+      "xdev_dialogue_auroc": 0.6687919999999999,
+      "xdev_summary_auroc": 0.506608
+    },
+    "680": {
+      "samples": 4048,
+      "oof_response_auroc": 0.8040548186766094,
+      "dev_auroc": 0.8242196990267675,
+      "xdev_qa_auroc": 0.8637599999999999,
+      "xdev_dialogue_auroc": 0.676192,
+      "xdev_summary_auroc": 0.540016
+    },
+    "1360": {
+      "samples": 8089,
+      "oof_response_auroc": 0.8249363586054234,
+      "dev_auroc": 0.8381197033141353,
+      "xdev_qa_auroc": 0.9264,
+      "xdev_dialogue_auroc": 0.678192,
+      "xdev_summary_auroc": 0.59856
+    }
+  },
+  "train_errors": {
+    "response_auroc_by_task": {
+      "data2text": 0.8247811309308635,
+      "qa": 0.8063956522408925,
+      "summary": 0.7204463498880707
+    },
+    "response_auroc_by_generator": {
+      "gpt-3.5-turbo-0613": 0.737164085492353,
+      "gpt-4-0613": 0.773976822883412,
+      "llama-2-13b-chat": 0.8460194619126051,
+      "llama-2-70b-chat": 0.8269670757942407,
+      "llama-2-7b-chat": 0.7558354367348341,
+      "mistral-7B-instruct": 0.8247952820975133
+    },
+    "sentence_auroc_vs_clean_sentences": {
+      "Evident Baseless Info": 0.8337355889710414,
+      "Evident Conflict": 0.8008164468200613,
+      "Subtle Baseless Info": 0.7846104938342472,
+      "Subtle Conflict": 0.5845218027571701,
+      "due_to_null": 0.9712310653124002,
+      "implicit_true": 0.7641918696137308
+    }
+  },
+  "dev_spans_and_types": {
+    "sentence_threshold": 0.2587811913463748,
+    "spans_whole_sentences": {
+      "precision": 0.2310481075256242,
+      "recall": 0.39256567835701206,
+      "f1": 0.29089016027933196
+    },
+    "spans_refined_with_symbolic": {
+      "precision": 0.2094794520547945,
+      "recall": 0.21704018053564586,
+      "f1": 0.21319280341844596
+    },
+    "type_confusion": {
+      "contradicted -> numeric_entity_mismatch": 50,
+      "contradicted -> unsupported": 108,
+      "unsupported -> numeric_entity_mismatch": 126,
+      "unsupported -> unsupported": 176,
+      "unsupported -> weak_evidence": 11
+    },
+    "contradiction_vs_other_accuracy": 0.6645435244161358,
+    "majority_baseline_accuracy": 0.6645435244161358
+  }
+}

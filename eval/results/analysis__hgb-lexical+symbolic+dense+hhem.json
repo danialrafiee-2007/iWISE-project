@@ -1,0 +1,101 @@
+{
+  "name": "hgb-lexical+symbolic+dense+hhem",
+  "train_samples": 1009,
+  "dev_samples": 1506,
+  "xdev_samples": {
+    "xdev_qa_auroc": 500,
+    "xdev_dialogue_auroc": 500,
+    "xdev_summary_auroc": 500
+  },
+  "full": {
+    "oof_response_auroc": 0.8181307412442342,
+    "dev_auroc": 0.8305310619810498,
+    "xdev_qa_auroc": 0.76432,
+    "xdev_dialogue_auroc": 0.6150720000000001,
+    "xdev_summary_auroc": 0.618416
+  },
+  "ablation": {
+    "without structure (position, length, count)": {
+      "oof_response_auroc": 0.814394266810206,
+      "dev_auroc": 0.8148500135766653,
+      "xdev_qa_auroc": 0.796336,
+      "xdev_dialogue_auroc": 0.6304560000000001,
+      "xdev_summary_auroc": 0.6368
+    },
+    "without lexical": {
+      "oof_response_auroc": 0.8039706425478748,
+      "dev_auroc": 0.820929144098438,
+      "xdev_qa_auroc": 0.7761600000000001,
+      "xdev_dialogue_auroc": 0.644768,
+      "xdev_summary_auroc": 0.641904
+    },
+    "without symbolic": {
+      "oof_response_auroc": 0.7895158692116078,
+      "dev_auroc": 0.7966072628013663,
+      "xdev_qa_auroc": 0.7392160000000001,
+      "xdev_dialogue_auroc": 0.5574239999999999,
+      "xdev_summary_auroc": 0.708992
+    },
+    "without dense": {
+      "oof_response_auroc": 0.817879285551513,
+      "dev_auroc": 0.8272851671358954,
+      "xdev_qa_auroc": 0.776848,
+      "xdev_dialogue_auroc": 0.594064,
+      "xdev_summary_auroc": 0.5887359999999999
+    },
+    "without hhem": {
+      "oof_response_auroc": 0.7710967397197841,
+      "dev_auroc": 0.806914809998142,
+      "xdev_qa_auroc": 0.8462239999999999,
+      "xdev_dialogue_auroc": 0.6297680000000001,
+      "xdev_summary_auroc": 0.585808
+    }
+  },
+  "learning_curve": {},
+  "train_errors": {
+    "response_auroc_by_task": {
+      "data2text": 0.7132606199770379,
+      "qa": 0.852832611137859,
+      "summary": 0.7520505580207072
+    },
+    "response_auroc_by_generator": {
+      "gpt-3.5-turbo-0613": 0.818785578747628,
+      "gpt-4-0613": 0.7566711895070104,
+      "llama-2-13b-chat": 0.8159481459149834,
+      "llama-2-70b-chat": 0.8036283063287634,
+      "llama-2-7b-chat": 0.7523555555555556,
+      "mistral-7B-instruct": 0.8320652173913043
+    },
+    "sentence_auroc_vs_clean_sentences": {
+      "Evident Baseless Info": 0.8184349763297132,
+      "Evident Conflict": 0.741810583969626,
+      "Subtle Baseless Info": 0.8052595890680686,
+      "Subtle Conflict": 0.5861528822055139,
+      "due_to_null": 0.9751685694885277,
+      "implicit_true": 0.7995855756705249
+    }
+  },
+  "dev_spans_and_types": {
+    "sentence_threshold": 0.3339341996932148,
+    "spans_whole_sentences": {
+      "precision": 0.28448337504469073,
+      "recall": 0.45173652014704,
+      "f1": 0.34911180945172954
+    },
+    "spans_refined_with_symbolic": {
+      "precision": 0.27264237707817474,
+      "recall": 0.27348595597314673,
+      "f1": 0.27306351500722725
+    },
+    "type_confusion": {
+      "contradicted -> numeric_entity_mismatch": 47,
+      "contradicted -> unsupported": 68,
+      "contradicted -> weak_evidence": 1,
+      "unsupported -> numeric_entity_mismatch": 132,
+      "unsupported -> unsupported": 235,
+      "unsupported -> weak_evidence": 34
+    },
+    "contradiction_vs_other_accuracy": 0.7756286266924565,
+    "majority_baseline_accuracy": 0.7756286266924565
+  }
+}

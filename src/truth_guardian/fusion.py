@@ -164,24 +164,65 @@ class FusionModel:
         return sentence_probs, self.calibrator.predict(self.response_model.predict_proba(response)[:, 1])
 
     def predictions(self, samples: Sequence[Sample], table: SentenceTable) -> list[Prediction]:
-        sentence_probs, response_probs = self.score(table)
-        return [
-            Prediction(
-                id=sample.id,
-                score=float(response_probs[i]),
-                sentences=[
-                    SentenceScore(start=s.start, end=s.end, score=float(p))
-                    for s, p in zip(table.sentences[i], sentence_probs[table.sample_index == i])
-                ],
-            )
-            for i, sample in enumerate(samples)
-        ]
+        return _to_predictions(samples, table, *self.score(table))
+
+
+@dataclass
+class EnsembleModel:
+    """Average of logistic regression and gradient boosting; the simple model generalises, the strong one fits."""
+
+    members: list[FusionModel]
+    thresholds: dict[str, float] = field(default_factory=dict)
+    kind: str = "ensemble"
+
+    @property
+    def signals(self) -> list[str]:
+        return self.members[0].signals
+
+    @property
+    def signal_versions(self) -> dict[str, str]:
+        return self.members[0].signal_versions
+
+    @property
+    def structure(self) -> bool:
+        return self.members[0].structure
+
+    def score(self, table: SentenceTable) -> tuple[np.ndarray, np.ndarray]:
+        scores = [m.score(table) for m in self.members]
+        return np.mean([s for s, _ in scores], axis=0), np.mean([r for _, r in scores], axis=0)
+
+    def predictions(self, samples: Sequence[Sample], table: SentenceTable) -> list[Prediction]:
+        return _to_predictions(samples, table, *self.score(table))
+
+
+def _to_predictions(samples: Sequence[Sample], table: SentenceTable, sentence_probs: np.ndarray, response_probs: np.ndarray) -> list[Prediction]:
+    return [
+        Prediction(
+            id=sample.id,
+            score=float(response_probs[i]),
+            sentences=[
+                SentenceScore(start=s.start, end=s.end, score=float(p))
+                for s, p in zip(table.sentences[i], sentence_probs[table.sample_index == i])
+            ],
+        )
+        for i, sample in enumerate(samples)
+    ]
 
 
 def fit(
     samples: Sequence[Sample], table: SentenceTable, signals: Sequence[str], kind: str, folds: int = 5
-) -> tuple[FusionModel, dict, dict[str, np.ndarray]]:
+) -> tuple[FusionModel | EnsembleModel, dict, dict[str, np.ndarray]]:
     """Returns the model, a summary report, and out-of-fold sentence and response scores for error analysis."""
+    if kind == "ensemble":
+        fitted = [fit(samples, table, signals, k, folds) for k in ("logreg", "hgb")]
+        oof = {key: np.mean([o[key] for _, _, o in fitted], axis=0) for key in ("sentence", "response")}
+        y_response = np.array([s.labels.response == "hallucinated" for s in samples], dtype=int)
+        report = {
+            **fitted[0][1],
+            "oof_sentence_auroc": float(roc_auc_score(table.labels, oof["sentence"])),
+            "oof_response_auroc": float(roc_auc_score(y_response, oof["response"])),
+        }
+        return EnsembleModel(members=[m for m, _, _ in fitted]), report, oof
     if table.labels is None:
         raise ValueError("training samples need labels")
     groups = [s.meta.group_id for s in samples]

@@ -25,7 +25,7 @@ MODELS = ROOT / "models" / "fusion"
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--signals", nargs="+", required=True, choices=list(SIGNALS))
-    parser.add_argument("--kind", choices=["logreg", "hgb"], default="hgb")
+    parser.add_argument("--kind", choices=["logreg", "hgb", "ensemble"], default="hgb")
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--train", type=Path, default=ROOT / "data/processed/ragtruth_train.jsonl")
     parser.add_argument("--dev", type=Path, default=ROOT / "data/processed/ragtruth_dev.jsonl")

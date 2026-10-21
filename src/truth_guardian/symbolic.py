@@ -128,6 +128,22 @@ def _null_terms(sample: Sample) -> set[str]:
     return {t for t in terms if not _word_known(t, reviews)}
 
 
+def unmatched_atoms(text: str, evidence: str) -> list[Atom]:
+    """Numbers, times and names in `text` that `evidence` does not contain (offsets relative to `text`)."""
+    evidence_numbers = {form for m in _numbers_in(evidence) for form in normalize_number(m.group())}
+    evidence_words = _expand(set(tokens(evidence)), set(re.findall(r"\w+", evidence.lower())))
+    atoms = [Atom(m.start(), m.end(), m.group(), "number") for m in _numbers_in(text) if not normalize_number(m.group()) & evidence_numbers]
+    for e in _ner()(text).ents:
+        if e.label_ not in ENTITY_LABELS:
+            continue
+        words = [w for w in tokens(e.text) if not w.isdigit()]
+        if e.label_ == "DATE":
+            words = [w for w in words if w.rstrip("s") in _CALENDAR_WORDS]
+        if words and not all(_word_known(w, evidence_words) for w in words):
+            atoms.append(Atom(e.start_char, e.end_char, e.text, "entity", e.label_))
+    return atoms
+
+
 def check_sample(sample: Sample, sentences: list[Sentence]) -> list[SentenceChecks]:
     source = " ".join([sample.question or "", *(d.text for d in sample.documents)])
     source_numbers = {form for m in _numbers_in(source) for form in normalize_number(m.group())}

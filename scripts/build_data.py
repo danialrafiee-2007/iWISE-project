@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from truth_guardian.data.agenthallu import load_agenthallu
 from truth_guardian.data.card import render_card
 from truth_guardian.data.halueval import TASK_FILES, load_halueval
 from truth_guardian.data.ragtruth import load_ragtruth
@@ -14,6 +15,7 @@ OUT = ROOT / "data" / "processed"
 LOCKED = OUT / "locked"
 HALUEVAL_GROUPS_PER_TASK = 500
 HALUEVAL_DEV_GROUPS_PER_TASK = 250
+AGENTHALLU_DEV_FRACTION = 1 / 3
 
 
 def main() -> None:
@@ -31,6 +33,14 @@ def main() -> None:
         external_dev = sample_groups(halueval, HALUEVAL_DEV_GROUPS_PER_TASK, offset=HALUEVAL_GROUPS_PER_TASK)
         files[f"xdev_halueval_{task}"] = [s.model_copy(update={"meta": s.meta.model_copy(update={"split": "dev"})}) for s in external_dev]
 
+    agenthallu = list(load_agenthallu(RAW / "agenthallu" / "AgentHallu"))
+    n_dev_groups = round(len({s.meta.group_id for s in agenthallu}) * AGENTHALLU_DEV_FRACTION)
+    agent_dev = sample_groups(agenthallu, n_dev_groups, seed="tg-agent-v1")
+    dev_ids = {s.id for s in agent_dev}
+    files["agenthallu_dev"] = [s.model_copy(update={"meta": s.meta.model_copy(update={"split": "dev"})}) for s in agent_dev]
+    files["agenthallu_test"] = [s for s in agenthallu if s.id not in dev_ids]
+    check_no_group_leak(files["agenthallu_dev"] + files["agenthallu_test"])
+
     for name, samples in files.items():
         target = (LOCKED if name.endswith("test") or name.startswith("halueval") else OUT) / f"{name}.jsonl"
         print(f"{target.relative_to(ROOT).as_posix()}: {write_jsonl(samples, target)} samples")
@@ -40,6 +50,7 @@ def main() -> None:
         "Dev: 10% of RAGTruth train sources per task, chosen by hash of source id (seed tg-dev-v1)",
         f"HaluEval: RUCAIBox/HaluEval @ b7253db3 (MIT); {HALUEVAL_GROUPS_PER_TASK} question groups per task (seed tg-subset-v1); 'general' excluded (no source documents)",
         f"External dev (xdev_halueval_*): the next {HALUEVAL_DEV_GROUPS_PER_TASK} groups per task in the same ranking, disjoint from the locked HaluEval files",
+        "AgentHallu: liuxuannan/AgentHallu @ 9ffe8bc8 (CC BY 4.0); one third of questions (seed tg-agent-v1) as dev, the rest locked; reference answers and solution notes dropped",
         "Locked files live in data/processed/locked and may only be evaluated with --final",
     ]
     card = ROOT / "docs" / "DATA_CARD.md"
