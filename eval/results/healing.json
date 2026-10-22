@@ -1,145 +1,3005 @@
 {
   "model_version": "20261022-082833-ensemble",
-  "hallucinated": {
-    "n": 60,
-    "flagged": 0.8,
-    "changed": 0.5166666666666667,
-    "grounded_after_among_flagged": 0.14583333333333334,
-    "mean_risk_before": 0.5650112116393261,
-    "mean_risk_after": 0.43087805777216553,
-    "gold_text_removed_among_flagged": 0.3659722222222222,
-    "text_kept": 0.9473655178943852
-  },
-  "grounded": {
-    "n": 24,
-    "flagged": 0.5,
-    "changed": 0.08333333333333333,
-    "grounded_after_among_flagged": 0.08333333333333333,
-    "mean_risk_before": 0.31565715416392,
-    "mean_risk_after": 0.3025842377807267,
-    "gold_text_removed_among_flagged": null,
-    "text_kept": 0.9911771906318886
-  },
-  "examples": [
-    {
-      "id": "ragtruth-13256",
-      "label": "hallucinated",
-      "before": "To harvest pine nuts in BC, you need to follow the steps outlined in the passages. You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. Once you have identified the pine cones, wait for them to open and shake them gently to release the seeds. If the pine cone is closed, you may need to use a tool like a hammer or mallet to crack it open before removing the seeds. Collect the seeds into cloth or paper bags for sto",
-      "after": "To harvest pine nuts in BC, you need to follow the steps outlined in the passages. You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. If the pine cone is closed, you may need to use a tool like a hammer or mallet to crack it open before removing the seeds. Collect the seeds into cloth or paper bags for storage and consumption.",
-      "risk": [
-        0.703,
-        0.566
+  "strategies": {
+    "basic": {
+      "hallucinated": {
+        "n": 60,
+        "flagged": 0.8,
+        "changed": 0.5166666666666667,
+        "grounded_after_among_flagged": 0.14583333333333334,
+        "below_threshold_after_among_flagged": 0.4583333333333333,
+        "mean_risk_before": 0.5650112116397689,
+        "mean_risk_after": 0.4301444003655853,
+        "text_edited": 0.08723107126232063,
+        "edit_precision": 0.4605568445475638,
+        "chance_precision": 0.12264971968669676,
+        "edit_recall": 0.32755775577557755
+      },
+      "grounded": {
+        "n": 24,
+        "flagged": 0.5,
+        "changed": 0.08333333333333333,
+        "grounded_after_among_flagged": 0.08333333333333333,
+        "below_threshold_after_among_flagged": 0.75,
+        "mean_risk_before": 0.31565715416392,
+        "mean_risk_after": 0.30258423467550805,
+        "text_edited": 0.010114145354717526,
+        "edit_precision": 0.0,
+        "chance_precision": 0.0,
+        "edit_recall": null
+      },
+      "details": [
+        {
+          "id": "ragtruth-13256",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.703,
+            0.566
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "To harvest pine nuts in BC, you need to follow the steps outlined in the passages. You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. If the pine cone is closed, you may need to use a tool like a hammer or mallet to crack it open before removing the seeds. Collect the seeds into cloth or paper bags for storage and consumption."
+        },
+        {
+          "id": "ragtruth-16782",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.068
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-14428",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.506,
+            0.43
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here are the steps to create a twist braid:\n\nPassage 1:\n\n2. Divide the section into three equal parts.\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\n\nPassage 2:\n\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you reach the end of your ponytail.\n4. Secure the end with a clear elast"
+        },
+        {
+          "id": "ragtruth-12376",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.57,
+            0.506
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here is how to cook a turkey leg:\n\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 d"
+        },
+        {
+          "id": "ragtruth-16996",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.78,
+            0.425
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "removed"
+            ]
+          ],
+          "after": "Sure, here are some important facts about recycling based on the provided passages:\n\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 1% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Recycling one ton of newspaper saves 15 trees, 4100 kWh of energy, and reduces greenhouse gas emissions by 96%. (Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubic"
+        },
+        {
+          "id": "ragtruth-17162",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.481
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-11882",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.74,
+            0.286
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed",
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "To soak off gel polish, you can follow these steps:\n\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails."
+        },
+        {
+          "id": "ragtruth-12082",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.708,
+            0.483
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, here is how to freeze hash browns:\n\n1. Place cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\n\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freeze"
+        },
+        {
+          "id": "ragtruth-16503",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.41,
+            0.184
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act."
+        },
+        {
+          "id": "ragtruth-14667",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.073
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-13259",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.474,
+            0.372
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here's how you can harvest pine nuts in BC:\n\n1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags."
+        },
+        {
+          "id": "ragtruth-16786",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.615,
+            0.472
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources"
+            ]
+          ],
+          "after": "Based on the given passages, here's how to make pork chops:\n\n1. Preheat the oven to 425\u00b0F (220\u00b0C).\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (425\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving.\n\nNote: If you prefer to saut\u00e9"
+        },
+        {
+          "id": "ragtruth-15082",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.977,
+            0.399
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the source sentence it contradicts",
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here is how you can get copies of your income tax returns:\n\nTo obtain a copy of your federal income tax return, you can:\n\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-3516-3516-3516 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 3516, Request for Copy of Tax Return.\n\nTo obtain a "
+        },
+        {
+          "id": "ragtruth-16526",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.331
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-16822",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.244
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-11962",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.812,
+            0.245
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the value in the sources"
+            ]
+          ],
+          "after": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with "
+        },
+        {
+          "id": "ragtruth-14867",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.416
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15398",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.434
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15183",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.356
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15573",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.631,
+            0.398
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, the main differences between HALT and HASS are:\n\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design we"
+        },
+        {
+          "id": "ragtruth-2351",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.391
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-524",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.545
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3542",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.136
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2636",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.857,
+            0.485
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "Shelling began to boom through the Yemeni city of Aden as I was leaving with a group of people to board a boat to return to Djibouti. The situation in Aden is dire, with the city plagued by fear, desperation, and a lack of basic necessities such as food, fuel, and electricity. That is the time of the shelling, the daily aerial bombardment. The hospital we visited had run out of medicine and supplies, and the doctors had stopped counting the dead and injured. Loyalist military commanders we spoke to were pushing back against the Houthi rebels, but they admitted that they are outnumbered and out"
+        },
+        {
+          "id": "ragtruth-1228",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.329
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1433",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.339
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3765",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.361
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1610",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.624,
+            0.418
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Amina Ali Qassim, an elderly grandmother, recounts her and her family's experience fleeing from Yemen due to the ongoing conflict. They were among several families who fled to Djibouti via a rickety fishing boat. Many of the passengers suffered seasickness, and one child died during the journey. Once in Djibouti, the families were provided with temporary shelter in an unfinished orphanage. However, they must soon be relocated to plastic tents on the outskirts of the town. Despite being grateful for the aid they receive, Qassim can't help but worry about her two daughters stuck in Taiz."
+        },
+        {
+          "id": "ragtruth-5105",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.529
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1808",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.686,
+            0.188
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "President Julie Pace will travel to Panama for a regional summit next month and may meet with Cuban leader Raul Castro. The meeting with Castro, however, is subject to Obama's efforts to end the freeze of Cuba, which has proven to be a challenge. Washington (CNN)Decision time for GOP operatives, another controversial foreign policy choice for President Obama, a ripple effect from the Robert Menendez indictment, and two insights into Hillary Clinton's campaign launch -- those stories filled our Sunday trip around the \"Inside Politics\" table. Meanwhile, Hillary Clinton will launch her presidenti"
+        },
+        {
+          "id": "ragtruth-5180",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.438
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2615",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.34
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2348",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.67,
+            0.313
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts",
+              "removed"
+            ]
+          ],
+          "after": "When the earthquake hit, many of Nepal's most renowned pagodas in and around Kathmandu crumbled into rubble-covered stumps. The Shiva Temple Pagoda, Narayan Temple Pagoda, and several other structures in the city were obliterated, leaving behind ruined piles of rubble. Other pagodas, shrines, and stupas, however, sustained relatively minor damage. The Shiva-Parvati Temple House and the Krishna Mandir survived the quakes, along with other structures in Patan and Bhaktapur. Visitors can view the damaged Boudhanath Stupa and other Buddhist sites from afar, while the Monkey Temple Swayambhunath te"
+        },
+        {
+          "id": "ragtruth-519",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.452
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2183",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.333
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-4502",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.138
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3287",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.2
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-4107",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.77,
+            0.206
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "Here is a summary of the article in 110 words or less:\n\nFOX's Big Noon Kickoff will broadcast from Columbus, Ohio on Saturday ahead of the matchup between No. 4 Ohio State and Maryland. This is the first time this season that the show is being held at a Big Ten school. Despite being undefeated, Maryland is still unranked and coach Ryan Day is 32-0 against unranked teams. Ohio State has a strong record against unranked opponents, with a 32-0 record under Day."
+        },
+        {
+          "id": "ragtruth-652",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.471
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3030",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.907,
+            0.284
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "A report today highlights the steady flow of migrants from North Africa to Italy, where 10,000 have arrived since the weekend.\u00a0Most migrants will then try to move further north, to countries like France, Belgium, the Netherlands and the UK, where economic opportunities are better than in austerity-wracked Italy. \u00a0Others will stay in Italy, trying to eke out a living in the twilight economy as street vendors and beggars.The small group of migrants in Augusta has been taken in by the Italian authorities."
+        },
+        {
+          "id": "ragtruth-9188",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.491
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6491",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.384
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6592",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.718,
+            0.66
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure! Here's an objective overview of Lucky Dragon based on the provided structured data:\n\nLucky Dragon is a Szechuan restaurant located in Goleta, California. The restaurant offers a unique and authentic Szechuan dining experience, with a diverse menu that includes dishes such as bullfrog in a spicy sauce and hot braised beef noodle. One customer even stated that the restaurant has the most authentic and delicious Szechuan food in Santa Barbara county. Some reviewers have noted that the portions are generous and the prices are reasonable. However, one reviewer did mention that they wished the"
+        },
+        {
+          "id": "ragtruth-5840",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.688,
+            0.586
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Tupelo Junction Cafe is a restaurant located at 1218 State St in Santa Barbara, CA. The cafe offers a variety of cuisines such as American (Traditional), American (New), Southern, Breakfast & Brunch, and Restaurants. The business is open from Monday to Sunday with different operating hours. The cafe provides parking options including street parking, garage parking, lot parking, and valet parking. Customers can also make reservations for their dining experience. The cafe features outdoor seating and WiFi services. The ambiance of the cafe is casual, with no specific theme or style mentioned. So"
+        },
+        {
+          "id": "ragtruth-10912",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.961,
+            0.953
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided structured data in JSON format, the following is an objective overview of the McDonald's location in Goleta, CA:\n\nThis McDonald's is located in Goleta, CA and offers a variety of menu items including burgers, sandwiches, salads, and breakfast items. The restaurant has a rating of 2.5 out of 2 stars based on customer reviews. Specifically, some reviewers have reported receiving cold or overcooked food, and one reviewer noted that the staff did not wear gloves when handling food, which may be a concern during the COVID-19 pandemic. Additionally, several reviewers have expre"
+        },
+        {
+          "id": "ragtruth-6486",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.93,
+            0.537
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "Taqueria Altamirano, located at 217 E Anacapa St, Santa Barbara, CA, is a highly-rated restaurant specializing in Mexican and New American cuisine. It has a 4.5-star business rating and has received rave reviews from customers, especially for its fish tacos and authentic Mexican food. Many customers have praised its affordability, the great atmosphere, and the friendly service, with homemade chips also getting special mentions. The restaurant, situated in the \"Funk Zone\" of Santa Barbara, is family-run and is known for its welcoming vibe. Taqueria Altamirano does not offer outdoor seating or r"
+        },
+        {
+          "id": "ragtruth-6758",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded",
+            "uncertain"
+          ],
+          "risks": [
+            0.342,
+            0.387
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Buena Onda at Mosaic Locale is a restaurant located at 1131 State St, Santa Barbara, CA. The business offers comfort food, bakeries, food, desserts, restaurants, empanadas, and Argentine cuisine.\n\nCustomers can park their vehicles either on the street or in the garage, but there is no valet parking available. The restaurant does not offer reservations, but there is outdoor seating available. The Wi-Fi is free, and take-out and delivery options are available.\n\nAccording to customer reviews, Buena Onda at Mosaic Locale is a casual restaurant with a shared space that offers coffee, beer, and empa"
+        },
+        {
+          "id": "ragtruth-8206",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.671,
+            0.688,
+            0.625
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ],
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "Here is an objective overview of Adama Vegan Comfort Cuisine based on the provided structured data in JSON format:\n\nAdama Vegan Comfort Cuisine is a vegetarian and vegan restaurant located in Santa Barbara, CA. The restaurant offers a unique dining experience with its own gelato and a menu that features vegan and gluten-free options. The restaurant has a cozy and retro atmosphere, with outdoor seating available. The menu includes quiche, which is a rare find in vegan cuisine, and the desserts are particularly popular among customers. Some reviewers have noted that the portions are small for th"
+        },
+        {
+          "id": "ragtruth-11594",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.957,
+            0.462
+          ],
+          "changes": [
+            [
+              "removed",
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 3 (2.0 stars, 2020-01-13 18:04:20): Dear IV Drip, The positive reviews praise the taste of the food and drink"
+        },
+        {
+          "id": "ragtruth-8253",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.892,
+            0.572
+          ],
+          "changes": [
+            [
+              "removed",
+              "replaced with the value in the sources"
+            ]
+          ],
+          "after": "Miso Hungry is a local restaurant located in Santa Barbara, California, serving Japanese cuisine with a focus on sushi. While some patrons have praised the friendly service and casual atmosphere, others have been disappointed with the quality of food and delivery issues. The business has a rating of 4.0 stars and three reviews, with an average rating of 1.0 stars. One customer noted that the restaurant was closed for building maintenance, while another complained about the quality of their shrimp salad and the freshness of the cucumbers. A third reviewer had a negative experience with delivery"
+        },
+        {
+          "id": "ragtruth-7910",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.718,
+            0.444
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "Subway is a restaurant located at 1936 State St, Ste B in Santa Barbara, CA. The business offers sandwiches, fast food, delis, and restaurants. The hours of operation are from 8 am to 10 pm on Monday through Saturday and from 10 am to 10 pm on Sunday. The restaurant does not offer parking services, but there are street parking options available. The restaurant does not accept reservations, and there is no outdoor seating or Wi-Fi available. The restaurant offers takeout and is good for groups. The ambiance is not specified. According to customer reviews, the chicken breast sandwich is good, an"
+        },
+        {
+          "id": "ragtruth-10155",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.901,
+            0.532
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "GoToCafe is a local restaurant located in Goleta, California, serving a variety of food options including American and Mexican dishes. With an overall rating of 4.5 stars, the cafe is known for its friendly staff, tasty food, and free WiFi. Customers have praised the affordable breakfast burritos ($5) and the quality of the food, with one reviewer stating that it's a \"hidden gem\" and another calling it their \"favorite place to eat.\" The outdoor seating area is also a popular feature, making it a great spot for groups or individuals looking for a relaxed dining experience."
+        },
+        {
+          "id": "ragtruth-8300",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.902,
+            0.69,
+            0.683
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Frankland's Crab is a restaurant located at 1295 Coast Village Rd in Santa Barbara, CA. They offer a variety of dishes such as desserts, seafood, food, salad, live/raw food, nightlife, cocktail bars, restaurants, bars, fish & chips, and sandwiches. The restaurant has several attributes that make it unique, including valet parking, outdoor seating, free Wi-Fi, takeout options, and a good atmosphere for groups. However, some customers have had negative experiences with the restaurant. One customer complained about the size of the lobster sandwich, which was microscopic in size and lacked freshne"
+        },
+        {
+          "id": "ragtruth-10827",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.71,
+            0.745
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Lilac P\u00e2tisserie is a highly rated local business in Santa Barbara, California, offering a variety of specialty food items, including gluten-free options. Customers have praised the business for its high-quality products and friendly staff. Reviews mention that the gluten-free options are particularly impressive, with one customer stating that everything is \"absolutely delicious\" and another commenting on the beautiful latte art. While some customers have noted minor issues with the portion size of certain dishes, the overall experience has been consistently positive."
+        },
+        {
+          "id": "ragtruth-8252",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.483
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-9713",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.469
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-9101",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.668
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-10259",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.775
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-7172",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.671
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-10438",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.723,
+            0.614
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure! Here is an objective overview of Bossie's Kitchen based on the provided structured data:\n\nBossie's Kitchen is a farm-to-table restaurant located in Santa Barbara, CA, offering American traditional and new cuisine. The restaurant has a casual, hipster vibe with outdoor seating and accepts reservations. According to customer reviews, the Korean Spicy Chicken burger is a popular item, but may not be spicy enough without requesting a spicy sauce. One reviewer noted that the fries were delicious but ordered incorrectly and resulted in an additional plate being added, leading to confusion. Ano"
+        },
+        {
+          "id": "ragtruth-17019",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.103
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-17443",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.267
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-12051",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.242
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15364",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.123
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-14665",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.1
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15063",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.334
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-12701",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.424,
+            0.229
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Unable to answer based on given passages.\n\nThe provided passages do not contain any information related to using a candy thermometer to measure the temperature of water. Therefore, I cannot provide an answer to the question based on the given passages."
+        },
+        {
+          "id": "ragtruth-14730",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.1
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-719",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.074
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2279",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.42
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-259",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.359
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1217",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.053
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3039",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.551
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2529",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.124
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-750",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.115
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1613",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.426
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6877",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.422
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-5726",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.208
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-11785",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.369
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-9591",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.821
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-9445",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.379
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-10511",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.669
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6589",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.39
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-10789",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.502,
+            0.384
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "Backyard Bowls is a local restaurant located at 3849 State St, Ste I157 in Santa Barbara, CA. It offers a variety of food options, including breakfast and brunch, as well as juice bars and smoothies. Some customers have praised the delicious bowls and great service, although they mentioned that it can take some time to receive their orders and that there have been occasional mistakes. On the other hand, there were complaints about slow service, with one customer mentioning that it took over 30 minutes to receive their order, despite others who ordered later getting served first. However, the o"
+        }
       ]
     },
-    {
-      "id": "ragtruth-14428",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here are the steps to create a twist braid:\n\nPassage 1:\n\n1. Start with a small section of hair from the crown of your head.\n2. Divide the section into three equal parts.\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\n\nPassage 2:\n\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you r",
-      "after": "Based on the given passages, here are the steps to create a twist braid:\nPassage 1:\n2. Divide the section into three equal parts.\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\nPassage 2:\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you reach the end of your ponytail.\n4. Secure the end with a clear elastic.\n",
-      "risk": [
-        0.506,
-        0.43
-      ]
-    },
-    {
-      "id": "ragtruth-12376",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here is how to cook a turkey leg:\n\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 d",
-      "after": "Based on the given passages, here is how to cook a turkey leg:\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 de",
-      "risk": [
-        0.57,
-        0.506
-      ]
-    },
-    {
-      "id": "ragtruth-16996",
-      "label": "hallucinated",
-      "before": "Sure, here are some important facts about recycling based on the provided passages:\n\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 75% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Recycling one ton of newspaper saves 15 trees, 4100 kWh of energy, and reduces greenhouse gas emissions by 96%. (Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubi",
-      "after": "Sure, here are some important facts about recycling based on the provided passages:\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 1% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Recycling one ton of newspaper saves 15 trees, 4100 kWh of energy, and reduces greenhouse gas emissions by 96%. (Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubic ",
-      "risk": [
-        0.78,
-        0.478
-      ]
-    },
-    {
-      "id": "ragtruth-11882",
-      "label": "hallucinated",
-      "before": "To soak off gel polish, you can follow these steps:\n\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails.\n6. Allow the remaining polish to soak off naturally by leaving the nails in warm water",
-      "after": "To soak off gel polish, you can follow these steps:\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails.",
-      "risk": [
-        0.74,
-        0.286
-      ]
-    },
-    {
-      "id": "ragtruth-12082",
-      "label": "hallucinated",
-      "before": "Based on the provided passages, here is how to freeze hash browns:\n\n1. Place cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\n\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freeze",
-      "after": "Based on the provided passages, here is how to freeze hash browns:\n1. Place cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freezer ",
-      "risk": [
-        0.708,
-        0.483
-      ]
-    },
-    {
-      "id": "ragtruth-16503",
-      "label": "hallucinated",
-      "before": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act. The CSA categorizes drugs into various schedules based on their potential for abuse, and sets penalties for illegal distribution and possession of controlled substances",
-      "after": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act.",
-      "risk": [
-        0.41,
-        0.184
-      ]
-    },
-    {
-      "id": "ragtruth-13259",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here's how you can harvest pine nuts in BC:\n\n1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags.\n\nIt's important to note that harvesti",
-      "after": "Based on the given passages, here's how you can harvest pine nuts in BC:\n1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags.",
-      "risk": [
-        0.474,
-        0.372
-      ]
-    },
-    {
-      "id": "ragtruth-16786",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here's how to make pork chops:\n\n1. Preheat the oven to 425\u00b0F (220\u00b0C).\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (63\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving.\n\nNote: If you prefer to saut\u00e9 ",
-      "after": "Based on the given passages, here's how to make pork chops:\n1. Preheat the oven to 425\u00b0F (220\u00b0C).\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (425\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving.\nNote: If you prefer to saut\u00e9 t",
-      "risk": [
-        0.615,
-        0.472
-      ]
-    },
-    {
-      "id": "ragtruth-15082",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here is how you can get copies of your income tax returns:\n\nTo obtain a copy of your federal income tax return, you can:\n\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-800-908-9243 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 4506, Request for Copy of Tax Return.\n\nTo obtain a co",
-      "after": "Based on the given passages, here is how you can get copies of your income tax returns:\nTo obtain a copy of your federal income tax return, you can:\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-3516-3516-3516 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 3516, Request for Copy of Tax Return.\nTo obtain a cop",
-      "risk": [
-        0.977,
-        0.399
-      ]
-    },
-    {
-      "id": "ragtruth-11962",
-      "label": "hallucinated",
-      "before": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with ",
-      "after": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with a",
-      "risk": [
-        0.812,
-        0.245
-      ]
-    },
-    {
-      "id": "ragtruth-15573",
-      "label": "hallucinated",
-      "before": "Based on the provided passages, the main differences between HALT and HASS are:\n\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design we",
-      "after": "Based on the provided passages, the main differences between HALT and HASS are:\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design wea",
-      "risk": [
-        0.631,
-        0.399
+    "full": {
+      "hallucinated": {
+        "n": 60,
+        "flagged": 0.8,
+        "changed": 0.7833333333333333,
+        "grounded_after_among_flagged": 0.6458333333333334,
+        "below_threshold_after_among_flagged": 0.7916666666666666,
+        "mean_risk_before": 0.5650112116397689,
+        "mean_risk_after": 0.32914676576551766,
+        "text_edited": 0.1871926167297456,
+        "edit_precision": 0.3650124337766245,
+        "chance_precision": 0.12264971968669676,
+        "edit_recall": 0.5570957095709571
+      },
+      "grounded": {
+        "n": 24,
+        "flagged": 0.5,
+        "changed": 0.3333333333333333,
+        "grounded_after_among_flagged": 0.5,
+        "below_threshold_after_among_flagged": 0.75,
+        "mean_risk_before": 0.31565715416392,
+        "mean_risk_after": 0.27520096785006937,
+        "text_edited": 0.03713336223089149,
+        "edit_precision": 0.0,
+        "chance_precision": 0.0,
+        "edit_recall": null
+      },
+      "details": [
+        {
+          "id": "ragtruth-13256",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.703,
+            0.496,
+            0.395,
+            0.232
+          ],
+          "changes": [
+            [
+              "removed the unsupported clause"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. Once you have identified the pine cones, wait for them to open. Collect the seeds into cloth or paper bags for storage and consumption."
+        },
+        {
+          "id": "ragtruth-16782",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.068
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-14428",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.506,
+            0.43,
+            0.352
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here are the steps to create a twist braid:\n\nPassage 1:\n\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\n\nPassage 2:\n\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you reach the end of your ponytail.\n4. Secure the end with a clear elastic.\n\nPassage 3:\n\n1. Brush your hair to remove "
+        },
+        {
+          "id": "ragtruth-12376",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.57,
+            0.506
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here is how to cook a turkey leg:\n\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 d"
+        },
+        {
+          "id": "ragtruth-16996",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.78,
+            0.425,
+            0.322
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure, here are some important facts about recycling based on the provided passages:\n\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 1% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubic yards of landfill space. (Passage 2, Point 4)\n6. The number of landfills in operation in the US has decreased si"
+        },
+        {
+          "id": "ragtruth-17162",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.481,
+            0.423,
+            0.354,
+            0.29
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "To plant a semi-dwarf apple tree, you will need to follow these steps:\n\n1. Choose a location where the tree can receive at least six hours of full sun each day and have well-draining soil.\n2. Clear away any weeds from the site and create a circular hole that is at least 2 feet larger than the root ball of the tree.\n3. This will help to support the tree as it grows and bears fruit.\n4. Select at least two apple tree varieties that bloom at the same time and are known as good pollinators. These will need to be planted together in order to produce fruit.\n\nUnable to answer based on given passages."
+        },
+        {
+          "id": "ragtruth-11882",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.74,
+            0.286
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed",
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "To soak off gel polish, you can follow these steps:\n\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails."
+        },
+        {
+          "id": "ragtruth-12082",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.708,
+            0.483,
+            0.346
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, here is how to freeze hash browns:\n\nPlace cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\n\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freezer o"
+        },
+        {
+          "id": "ragtruth-16503",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.41,
+            0.184
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act."
+        },
+        {
+          "id": "ragtruth-14667",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.073
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-13259",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.474,
+            0.372,
+            0.31
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags."
+        },
+        {
+          "id": "ragtruth-16786",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.615,
+            0.472,
+            0.376,
+            0.296
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here's how to make pork chops:\n\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (425\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving."
+        },
+        {
+          "id": "ragtruth-15082",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.977,
+            0.399,
+            0.304
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the value in the sources",
+              "replaced with the source sentence it contradicts",
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here is how you can get copies of your income tax returns:\n\nTo obtain a copy of your federal income tax return, you can:\n\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-3516-3516-3516 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 3516, Request for Copy of Tax Return.\n\nTo obtain a "
+        },
+        {
+          "id": "ragtruth-16526",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.331
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-16822",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.244
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-11962",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.812,
+            0.245
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the value in the sources"
+            ]
+          ],
+          "after": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with "
+        },
+        {
+          "id": "ragtruth-14867",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.416,
+            0.285
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, here's how to test Bakelite:\n\n1. Sight test: Use Simi-chrome Polish to test the authenticity of Bakelite. Apply the polish to a soft cloth and rub it on a small area of the item. If it's Bakelite, the cloth should turn yellow easily.\n2. Smell test: Dip the suspected Bakelite piece into hot water for 15-30 seconds. Smell it. Bakelite should give off a distinctive scent.\n3. Visual inspection: Examine the piece closely for seams and color. Authentic Bakelite typically has no seams and changes color with age. If the piece has seams or is bright white, it may not be Bak"
+        },
+        {
+          "id": "ragtruth-15398",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.434,
+            0.213
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the given passages, it appears that Koh Samui offers various tours for tourists to enjoy its beautiful beaches, visit attractions such as Namuang waterfall and Nathon town, and go snorkelling in the surrounding islands. Additionally, Koh Samui is located in the Gulf of Thailand and is easily accessible from Surat Thani town."
+        },
+        {
+          "id": "ragtruth-15183",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.356,
+            0.272
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, the requirements for egg donation are as follows:\n\n1. Age: Egg Donors must be between the ages of 21 and 32.\n2. Health: Egg Donors must be in good health.\n3. Education: Egg Donors must have obtained a High School Diploma or GED.\n4. Smoking: Egg Donors must be non-smokers and must have abstained from smoking for at least six months prior to submitting an Egg Donor application. Urine toxicology tests may be conducted during the screening process to confirm abstinence.\n5. Drug use: Egg Donors must be drug-free and must have a history of drug use."
+        },
+        {
+          "id": "ragtruth-15573",
+          "task": "qa",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.631,
+            0.398
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Based on the provided passages, the main differences between HALT and HASS are:\n\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design we"
+        },
+        {
+          "id": "ragtruth-2351",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.391,
+            0.205
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "The recent earthquake in Nepal has caused significant damage to the country's cultural heritage, particularly in the Kathmandu Valley. Many historic pagodas and temples have been destroyed or severely damaged, including the iconic Shiva temple pagoda and Narayan temple pagoda in Kathmandu's main Durbar Square. Other structures, such as the Shiva-Parvati temple house and the Sundari Chowk temple, appear to have survived the quake. The town of Patan, located on the outskirts of Kathmandu, has also suffered significant damage, with several pagodas collapsing entirely. The extent of damage to othe"
+        },
+        {
+          "id": "ragtruth-524",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.545,
+            0.48,
+            0.411
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Over 20,000 people died during the forced evacuation and another 1.7 million perished during the regime's four-year reign of terror. The Cambodian genocide left the country with a traumatic legacy that continues to affect its people today. The Khmer Rouge's policies of social engineering and the destruction of institutions led to a breakdown in the country's social fabric and left many communities divided. The legacy of the genocide is felt throughout Cambodia, and the country continues to grapple with the trauma and consequences of this dark chapter in its history."
+        },
+        {
+          "id": "ragtruth-3542",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.136
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2636",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.857,
+            0.485,
+            0.276
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Shelling began to boom through the Yemeni city of Aden as I was leaving with a group of people to board a boat to return to Djibouti. The situation in Aden is dire, with the city plagued by fear, desperation, and a lack of basic necessities such as food, fuel, and electricity. That is the time of the shelling, the daily aerial bombardment. Loyalist military commanders we spoke to were pushing back against the Houthi rebels, but they admitted that they are outnumbered and outgunned, relying on automatic weapons while the Houthis are better equipped with tanks and artillery."
+        },
+        {
+          "id": "ragtruth-1228",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.329
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1433",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.339
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3765",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.361
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1610",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.624,
+            0.418,
+            0.336
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Amina Ali Qassim, an elderly grandmother, recounts her and her family's experience fleeing from Yemen due to the ongoing conflict. They were among several families who fled to Djibouti via a rickety fishing boat. Many of the passengers suffered seasickness, and one child died during the journey. Once in Djibouti, the families were provided with temporary shelter in an unfinished orphanage. However, they must soon be relocated to plastic tents on the outskirts of the town."
+        },
+        {
+          "id": "ragtruth-5105",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.529,
+            0.414
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "A 13-year-old boy, Derek Rosa, has been charged with first-degree murder after admitting to killing his mother, Irina Garcia, while she slept alongside his two-week-old half-sister. Rosa called 911 and shared photos of the aftermath with an online friend, expressing no remorse. His family maintains that he is still a child and should not be treated as an adult. The case raises questions about the culpability of minors who commit heinous crimes."
+        },
+        {
+          "id": "ragtruth-1808",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.686,
+            0.188
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "President Julie Pace will travel to Panama for a regional summit next month and may meet with Cuban leader Raul Castro. The meeting with Castro, however, is subject to Obama's efforts to end the freeze of Cuba, which has proven to be a challenge. Washington (CNN)Decision time for GOP operatives, another controversial foreign policy choice for President Obama, a ripple effect from the Robert Menendez indictment, and two insights into Hillary Clinton's campaign launch -- those stories filled our Sunday trip around the \"Inside Politics\" table. Meanwhile, Hillary Clinton will launch her presidenti"
+        },
+        {
+          "id": "ragtruth-5180",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.438,
+            0.097
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Nick Newman breaks up with Sally Spectra and pulls the investment in her business on \"The Young and the Restless.\" This comes after Sally confesses her feelings for his brother, Adam Newman, and Nick finds out about their kiss."
+        },
+        {
+          "id": "ragtruth-2615",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.34
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2348",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.67,
+            0.313
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts",
+              "removed"
+            ]
+          ],
+          "after": "When the earthquake hit, many of Nepal's most renowned pagodas in and around Kathmandu crumbled into rubble-covered stumps. The Shiva Temple Pagoda, Narayan Temple Pagoda, and several other structures in the city were obliterated, leaving behind ruined piles of rubble. Other pagodas, shrines, and stupas, however, sustained relatively minor damage. The Shiva-Parvati Temple House and the Krishna Mandir survived the quakes, along with other structures in Patan and Bhaktapur. Visitors can view the damaged Boudhanath Stupa and other Buddhist sites from afar, while the Monkey Temple Swayambhunath te"
+        },
+        {
+          "id": "ragtruth-519",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.452,
+            0.298
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Lewis Hamilton stole the pole position from his Mercedes teammate Nico Rosberg in the final moments of qualifying for the Chinese Grand Prix, with a margin of just four hundredths of a second. Rosberg was visibly frustrated by the narrow loss, but maintained a more composed demeanor in the post-qualifying press conference. The top three drivers will be joined by Kimi Raikkonen and Sebastian Vettel on the second row, with Ferrari looking to build on their surprise win in Malaysia."
+        },
+        {
+          "id": "ragtruth-2183",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.333
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-4502",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.138
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3287",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.2
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-4107",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.77,
+            0.206
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "Here is a summary of the article in 110 words or less:\n\nFOX's Big Noon Kickoff will broadcast from Columbus, Ohio on Saturday ahead of the matchup between No. 4 Ohio State and Maryland. This is the first time this season that the show is being held at a Big Ten school. Despite being undefeated, Maryland is still unranked and coach Ryan Day is 32-0 against unranked teams. Ohio State has a strong record against unranked opponents, with a 32-0 record under Day."
+        },
+        {
+          "id": "ragtruth-652",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.471,
+            0.323
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure! Here's the summary in 109 words:\n\nTrey Moses, a top college basketball recruit, asked Ellie Meredith, a high school freshman with Down syndrome, to be his prom date. Despite their differences, Trey and Ellie have become close friends through the Best Buddies program at their school. Trey's selfless act has brought awareness to inclusivity and Special Education."
+        },
+        {
+          "id": "ragtruth-3030",
+          "task": "summary",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "grounded"
+          ],
+          "risks": [
+            0.907,
+            0.284
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "A report today highlights the steady flow of migrants from North Africa to Italy, where 10,000 have arrived since the weekend.\u00a0Most migrants will then try to move further north, to countries like France, Belgium, the Netherlands and the UK, where economic opportunities are better than in austerity-wracked Italy. \u00a0Others will stay in Italy, trying to eke out a living in the twilight economy as street vendors and beggars.The small group of migrants in Augusta has been taken in by the Italian authorities."
+        },
+        {
+          "id": "ragtruth-9188",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.491
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6491",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.384,
+            0.303
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Taqueria Altamirano is a popular Mexican restaurant located in the Funk Zone of Santa Barbara, California. The restaurant is known for its delicious and authentic Mexican cuisine, including fish tacos, tasty housemade chips, and a variety of meats such as asada, pollo, fish, carnitas, rajas, barbacoa, and pastor. The restaurant has a casual and welcoming atmosphere, with friendly service and unique Mexican beverages. The prices are reasonable, with most items on the menu costing around $1.75. According to customer reviews, the restaurant is highly recommended and has received high ratings for "
+        },
+        {
+          "id": "ragtruth-6592",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.718,
+            0.66,
+            0.419,
+            0.365,
+            0.281
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure! Here's an objective overview of Lucky Dragon based on the provided structured data:\n\nLucky Dragon is a Szechuan restaurant located in Goleta, California. However, one reviewer did mention that they wished there was more beef in the beef noodle dish. Overall, Lucky Dragon appears to be a hidden gem for those looking for authentic Szechuan cuisine in the area."
+        },
+        {
+          "id": "ragtruth-5840",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.688,
+            0.586
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Tupelo Junction Cafe is a restaurant located at 1218 State St in Santa Barbara, CA. The cafe offers a variety of cuisines such as American (Traditional), American (New), Southern, Breakfast & Brunch, and Restaurants. The business is open from Monday to Sunday with different operating hours. The cafe provides parking options including street parking, garage parking, lot parking, and valet parking. Customers can also make reservations for their dining experience. The cafe features outdoor seating and WiFi services. The ambiance of the cafe is casual, with no specific theme or style mentioned. So"
+        },
+        {
+          "id": "ragtruth-10912",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.961,
+            0.953,
+            0.853
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources",
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "This McDonald's is located in Goleta, CA and offers a variety of menu items including burgers, sandwiches, salads, and breakfast items. The restaurant has a rating of 2.5 out of 2 stars based on customer reviews. Specifically, some reviewers have reported receiving cold or overcooked food, and one reviewer noted that the staff did not wear gloves when handling food, which may be a concern during the COVID-19 pandemic. Additionally, several reviewers have expressed disappointment with their overall experience at this McDonald's. Overall, this McDonald's location appears to have mixed reviews an"
+        },
+        {
+          "id": "ragtruth-6486",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.93,
+            0.537
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ]
+          ],
+          "after": "Taqueria Altamirano, located at 217 E Anacapa St, Santa Barbara, CA, is a highly-rated restaurant specializing in Mexican and New American cuisine. It has a 4.5-star business rating and has received rave reviews from customers, especially for its fish tacos and authentic Mexican food. Many customers have praised its affordability, the great atmosphere, and the friendly service, with homemade chips also getting special mentions. The restaurant, situated in the \"Funk Zone\" of Santa Barbara, is family-run and is known for its welcoming vibe. Taqueria Altamirano does not offer outdoor seating or r"
+        },
+        {
+          "id": "ragtruth-6758",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "grounded",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.342,
+            0.387,
+            0.28
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Buena Onda at Mosaic Locale is a restaurant located at 1131 State St, Santa Barbara, CA. The business offers comfort food, bakeries, food, desserts, restaurants, empanadas, and Argentine cuisine.\n\nCustomers can park their vehicles either on the street or in the garage, but there is no valet parking available. The restaurant does not offer reservations, but there is outdoor seating available.\n\nAccording to customer reviews, Buena Onda at Mosaic Locale is a casual restaurant with a shared space that offers coffee, beer, and empanadas. The restaurant has extra-long tables that provide ample count"
+        },
+        {
+          "id": "ragtruth-8206",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.671,
+            0.688,
+            0.625,
+            0.415,
+            0.266
+          ],
+          "changes": [
+            [
+              "replaced with the source sentence it contradicts"
+            ],
+            [
+              "replaced with the source sentence it contradicts"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Adama Vegan Comfort Cuisine is a vegetarian and vegan restaurant located in Santa Barbara, CA. The restaurant offers a unique dining experience with its own gelato and a menu that features vegan and gluten-free options. The menu includes quiche, which is a rare find in vegan cuisine, and the desserts are particularly popular among customers. Some reviewers have noted that the portions are small for the prices, but the food is delicious and unique. name: Adama Vegan Comfort Cuisine"
+        },
+        {
+          "id": "ragtruth-11594",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.957,
+            0.462
+          ],
+          "changes": [
+            [
+              "removed",
+              "replaced with the source sentence it contradicts"
+            ]
+          ],
+          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 3 (2.0 stars, 2020-01-13 18:04:20): Dear IV Drip, The positive reviews praise the taste of the food and drink"
+        },
+        {
+          "id": "ragtruth-8253",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.892,
+            0.572,
+            0.459,
+            0.324
+          ],
+          "changes": [
+            [
+              "removed",
+              "replaced with the value in the sources"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Miso Hungry is a local restaurant located in Santa Barbara, California, serving Japanese cuisine with a focus on sushi. The business has a rating of 4.0 stars and three reviews, with an average rating of 1.0 stars. One customer noted that the restaurant was closed for building maintenance, while another complained about the quality of their shrimp salad and the freshness of the cucumbers. Overall, Miso Hungry appears to have some room for improvement in terms of food quality and delivery services."
+        },
+        {
+          "id": "ragtruth-7910",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.718,
+            0.444,
+            0.371
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Subway is a restaurant located at 1936 State St, Ste B in Santa Barbara, CA. The business offers sandwiches, fast food, delis, and restaurants. The hours of operation are from 8 am to 10 pm on Monday through Saturday and from 10 am to 10 pm on Sunday. The restaurant does not offer parking services, but there are street parking options available. The restaurant offers takeout and is good for groups. The ambiance is not specified. According to customer reviews, the chicken breast sandwich is good, and the help is courteous. However, some customers have complained about long wait times and issues"
+        },
+        {
+          "id": "ragtruth-10155",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.901,
+            0.532
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "GoToCafe is a local restaurant located in Goleta, California, serving a variety of food options including American and Mexican dishes. With an overall rating of 4.5 stars, the cafe is known for its friendly staff, tasty food, and free WiFi. Customers have praised the affordable breakfast burritos ($5) and the quality of the food, with one reviewer stating that it's a \"hidden gem\" and another calling it their \"favorite place to eat.\" The outdoor seating area is also a popular feature, making it a great spot for groups or individuals looking for a relaxed dining experience."
+        },
+        {
+          "id": "ragtruth-8300",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "hallucinated",
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.902,
+            0.69,
+            0.683,
+            0.543,
+            0.417
+          ],
+          "changes": [
+            [
+              "replaced with the value in the sources"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Frankland's Crab is a restaurant located at 1295 Coast Village Rd in Santa Barbara, CA. They offer a variety of dishes such as desserts, seafood, food, salad, live/raw food, nightlife, cocktail bars, restaurants, bars, fish & chips, and sandwiches. The restaurant has several attributes that make it unique, including valet parking, outdoor seating, free Wi-Fi, takeout options, and a good atmosphere for groups. One customer complained about the size of the lobster sandwich, which was microscopic in size and lacked freshness. Despite these issues, many customers have had positive experiences with"
+        },
+        {
+          "id": "ragtruth-10827",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.71,
+            0.727,
+            0.551
+          ],
+          "changes": [
+            [
+              "removed the unsupported clause"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Lilac P\u00e2tisserie is a highly rated local business in Santa Barbara, California, offering a variety of specialty food items, including gluten-free options. Customers have praised the business for its high-quality products and friendly staff. Reviews mention that the gluten-free options are particularly impressive, with one customer stating that everything is \"absolutely delicious\" and another commenting on the beautiful latte art. The business has a rating of 4.5 stars."
+        },
+        {
+          "id": "ragtruth-8252",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.483,
+            0.364,
+            0.238
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Miso Hungry is a restaurant located in Santa Barbara, California. The restaurant serves Japanese cuisine with a focus on sushi bars and do-it-yourself food options. However, according to customer reviews, the quality of food at Miso Hungry does not meet expectations. One customer reported paying over $11 for a shrimp salad and found the cucumbers to be spoiled. Another customer had difficulty with delivery, as they waited over two hours without receiving their food."
+        },
+        {
+          "id": "ragtruth-9713",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.469,
+            0.259
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Java Station is a popular coffee shop located in the heart of Santa Barbara, offering a variety of coffee and tea drinks, breakfast items, sandwiches, and baked goods. The shop has a cozy atmosphere with outdoor seating and provides free Wi-Fi for its customers. According to customer reviews, the bagel with tomato and cream cheese is a must-try item, and the Avocado Toast is also a favorite among regulars. Some customers have noted that the baristas could be friendlier, but overall, the service is good, and the shop offers a welcoming environment for all. While some customers have expressed co"
+        },
+        {
+          "id": "ragtruth-9101",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "uncertain"
+          ],
+          "risks": [
+            0.668,
+            0.597,
+            0.474
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Kimchi Korean BBQ is a popular restaurant located in Santa Barbara, CA, offering a unique dining experience with a variety of delicious Korean-style barbecue dishes. The restaurant has a cozy atmosphere and is known for its friendly and attentive service. The menu includes a range of meats, such as brisket, pork belly, and wagyu steak, as well as seafood options like octopus and shrimp. The meat is seasoned to perfection and cooked to the customer's liking, and the restaurant also offers a variety of sides, including kimchi, seaweed salad, and corn. The restaurant offers both dine-in and take-"
+        },
+        {
+          "id": "ragtruth-10259",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.775,
+            0.724
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Domino's Pizza in Goleta, CA is a popular spot for pizza lovers, offering a variety of pizza options, chicken wings, sandwiches, and more. Located on Embarcadero Del Mar, this restaurant has a casual atmosphere and provides outdoor seating for customers to enjoy their meals. While the restaurant does not offer reservations or validated parking, it does provide free Wi-Fi for customers.\n\nRecent reviews of Domino's Pizza have been mixed, with some customers expressing satisfaction with their experiences and others encountering issues with their orders. One customer praised the restaurant's staff"
+        },
+        {
+          "id": "ragtruth-7172",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.671,
+            0.512,
+            0.448
+          ],
+          "changes": [
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Harry's Plaza Cafe is a restaurant located at 3313 State St, Ste B, in Santa Barbara, CA. They offer event planning and services, American cuisine, and venue rentals. Their hours are Monday through Sunday from 11:00 AM to 9:00 PM. They have outdoor seating and accept takeout orders. They also have a business rating of 3.5 stars, based on customer feedback. Customers have mixed reviews of their experience at Harry's Plaza Cafe. Some customers have reported feeling unwelcome and uncomfortable due to poor service, while others have praised their classic cocktails and hearty portions."
+        },
+        {
+          "id": "ragtruth-10438",
+          "task": "data2text",
+          "label": "hallucinated",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated",
+            "uncertain",
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.723,
+            0.595,
+            0.516,
+            0.381,
+            0.265
+          ],
+          "changes": [
+            [
+              "removed the unsupported clause"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Sure!\n\nBossie's Kitchen is a farm-to-table restaurant located in Santa Barbara, CA, offering American traditional and new cuisine. They offer takeout. According to customer reviews, the Korean Spicy Chicken burger is a popular item, but may not be spicy enough without requesting a spicy sauce. One reviewer noted that the fries were delicious but ordered incorrectly and resulted in an additional plate being added, leading to confusion. Another reviewer enjoyed their meal but noted a longer than expected wait time. Based on the provided data, Bossie's Kitchen has a rating of 4.5 stars."
+        },
+        {
+          "id": "ragtruth-17019",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.103
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-17443",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.267
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-12051",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.242
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15364",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.123
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-14665",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.1
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-15063",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.334
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-12701",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.424,
+            0.229
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Unable to answer based on given passages.\n\nThe provided passages do not contain any information related to using a candy thermometer to measure the temperature of water. Therefore, I cannot provide an answer to the question based on the given passages."
+        },
+        {
+          "id": "ragtruth-14730",
+          "task": "qa",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.1
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-719",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.074
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2279",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.42
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-259",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.359,
+            0.206
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Jurors have found Dzhokhar Tsarnaev guilty on all counts in the Boston Marathon bombing. The focus now shifts to preventing such violence in the future. The fear of an increasing Muslim population contributing to more incidents like this is a concern for many Americans, but the assumption that Islam causes extremism is incorrect. While the Islamic faith forbids murder, a small minority of Muslims commit acts of violence in the name of Islam. Understanding what leads young Muslims like Tsarnaev down a dangerous path requires understanding radicalization. Radical Islam began at the intersection "
+        },
+        {
+          "id": "ragtruth-1217",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.053
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-3039",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.551
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-2529",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.124
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-750",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.115
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-1613",
+          "task": "summary",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.426,
+            0.268
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Amina Ali Qassim and her family fled their home in Yemen during the aerial bombardment, crossing the Bab al-Mandab Strait to Djibouti in a small boat. They were among 25 people who squeezed into the vessel, seeking refuge from the conflict in Yemen. Qassim's daughters are still trapped in Taiz, and she has not been able to reach them. Qassim recounts the terrifying journey and expresses her worries about her daughters' safety."
+        },
+        {
+          "id": "ragtruth-6877",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.422,
+            0.34
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Giovanni's is a local business located at 1187 Coast Village Rd in Santa Barbara, CA. It is a pizza restaurant that offers a lunch special consisting of a slice of pizza and a salad. Customers have mentioned in their reviews that the food at Giovanni's is delicious and the service is quick. The pizza crust is described as being perfect, with the right thickness that is soft and chewy while still holding up. The sauce is also said to have just the right amount of seasoning with oregano.\n\nThe restaurant provides outdoor seating and takeout options. However, it does not offer reservations and doe"
+        },
+        {
+          "id": "ragtruth-5726",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "grounded"
+          ],
+          "risks": [
+            0.208
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-11785",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.369,
+            0.303
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Highway Karaoke and Fresh Tea is a local business located at 7127 Hollister Ave, Ste 23, University Plaza Shopping Ctr, Goleta, CA. It offers a variety of services including juice bars & smoothies, bubble tea, nightlife, karaoke, and food. The business operates from 11:30 am to 11:30 pm from Monday to Sunday, except for Friday and Saturday when it stays open until 1:30 am. The establishment provides free WiFi and offers takeout options. The business has received an average rating of 4.0 stars.\n\nAccording to customer reviews, the boba tea at Highway Karaoke and Fresh Tea is generally good, alth"
+        },
+        {
+          "id": "ragtruth-9591",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "hallucinated",
+            "hallucinated"
+          ],
+          "risks": [
+            0.821,
+            0.677
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Caff\u00e8 is a popular cafe located in Santa Barbara, California, offering a range of beverages and pastries. While the cafe boasts convenient location and free WiFi, customers have mixed opinions regarding its quality and pricing. Some reviews praise the good espresso and breakfast pastries, while others find the prices too high, especially compared to other local cafes. One reviewer noted that the coffee was bitter and expensive, comparing it unfavorably to a pour-over they had at a different cafe later in the day. Overall, Caff\u00e8 seems to cater more towards travelers looking for a quick and conv"
+        },
+        {
+          "id": "ragtruth-9445",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "grounded"
+          ],
+          "risks": [
+            0.379,
+            0.323
+          ],
+          "changes": [
+            [
+              "removed"
+            ]
+          ],
+          "after": "Hugos Restaurant is a local business located at 1049 Casitas Pass Rd in Carpinteria, CA. It is a restaurant that offers a variety of cuisine including Asian Fusion, Breakfast & Brunch, and American (Traditional). The restaurant operates from Tuesday to Sunday, opening at 7:00 am and closing at 2:00 pm.\n\nCustomers have praised the friendly service provided at Hugos Restaurant. The breakfast options were described as hot, delicious, and made with fresh ingredients. Dishes like scrambled eggs with crispy hash browns and sourdough toast, as well as a veggie scramble with zucchini, red peppers, oni"
+        },
+        {
+          "id": "ragtruth-10511",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "hallucinated"
+          ],
+          "risks": [
+            0.669
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-6589",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain"
+          ],
+          "risks": [
+            0.39
+          ],
+          "changes": [],
+          "after": null
+        },
+        {
+          "id": "ragtruth-10789",
+          "task": "data2text",
+          "label": "grounded",
+          "verdicts": [
+            "uncertain",
+            "uncertain",
+            "uncertain"
+          ],
+          "risks": [
+            0.502,
+            0.42,
+            0.384
+          ],
+          "changes": [
+            [
+              "removed",
+              "removed the unsupported clause"
+            ],
+            [
+              "removed"
+            ]
+          ],
+          "after": "Backyard Bowls is a local restaurant located at 3849 State St, Ste I157 in Santa Barbara, CA. It offers a variety of food options, including breakfast and brunch, as well as juice bars and smoothies. Some customers have praised the delicious bowls and great service, although they mentioned that it can take some time to receive their orders and that there have been occasional mistakes. On the other hand, there were complaints about slow service, with one customer mentioning that it took over 30 minutes to receive their order, despite others who ordered later getting served first. However, the o"
+        }
       ]
     }
-  ]
+  }
 }

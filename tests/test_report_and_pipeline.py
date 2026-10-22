@@ -191,3 +191,22 @@ def test_heal_fixes_the_wrong_year_and_rechecks():
     assert healing.answer == "Anne Frank died in 1945 in Bergen-Belsen."
     assert healing.reports[0].verdict == "hallucinated" and healing.reports[-1].verdict == "grounded"
     assert healing.changes[0][0].new == "1945"
+
+
+def test_spread_risk_is_explained_by_the_claim_that_carries_it():
+    from truth_guardian.evaluation import Prediction, SentenceScore
+    from truth_guardian.report import build_report
+
+    sample = make_sample("Anne Frank died in 1945. The camp was liberated weeks later.", [SOURCE])
+    sentences = split_sentences(sample.answer)
+    prediction = Prediction(id="input", score=0.6, sentences=[SentenceScore(start=s.start, end=s.end, score=0.2) for s in sentences])
+    report = build_report(sample, sentences, prediction, [{} for _ in sentences], [[] for _ in sentences], {"response": 0.4, "sentence": 0.3},
+                          contributions=[0.01, 0.3])
+    assert report.verdict == "hallucinated" and report.claims[1].contribution == 0.3
+    assert any("comes mostly from" in w and "liberated" in w for w in report.warnings)
+
+
+def test_claim_contributions_are_computed_live():
+    report = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen. The camp was liberated weeks later.", [SOURCE]))
+    assert all(c.contribution is not None for c in report.claims)
+    assert report.claims[0].contribution > report.claims[1].contribution

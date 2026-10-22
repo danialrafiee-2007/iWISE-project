@@ -27,6 +27,7 @@ from truth_guardian.schema import HallucinationType, Sample
 from truth_guardian.text import Sentence
 
 UNCERTAIN_BAND = 0.1
+SPREAD_RISK_CONTRIBUTION = 0.05
 
 Status = Literal["supported", "contradicted", "unsupported", "insufficient_evidence", "contested"]
 Action = Literal["keep", "replace", "remove", "verify"]
@@ -70,6 +71,7 @@ class ClaimReport(_Strict):
     fixes: list[Fix] = Field(default_factory=list)
     cautions: list[str] = Field(default_factory=list)
     citation: CitationReport | None = None
+    contribution: float | None = None
 
 
 class AgentStepReport(_Strict):
@@ -216,10 +218,13 @@ def claim_report(
     focus: list[tuple[int, int]] | None = None,
     side: tuple[Conflict, str] | None = None,
     citation: CitationCheck | None = None,
+    contribution: float | None = None,
 ) -> ClaimReport:
     """focus: the claim spans that carry the error, kept only when narrower than the whole sentence; side: the source
-    conflict this claim takes a side in and the document it follows; citation: the check of its cited documents."""
+    conflict this claim takes a side in and the document it follows; citation: the check of its cited documents;
+    contribution: how much the answer's risk falls without this claim."""
     extras = {
+        "contribution": contribution,
         "cautions": _cautions(row, citation),
         "citation": CitationReport(cited=citation.cited, supported=not citation.wrong, better_document=citation.best_other if citation.wrong else None) if citation else None,
     }
@@ -334,23 +339,32 @@ def build_report(
     conflicts: list[Conflict] = (),
     sides: list[tuple[Conflict, str] | None] | None = None,
     citations: list[CitationCheck | None] | None = None,
+    contributions: list[float | None] | None = None,
 ) -> Report:
     """rows[i] merges every signal's output for sentence i; fixes[i] are its Fix-it suggestions; focus[i] its error
-    claims; sides[i] the source conflict it takes a side in; citations[i] the check of the documents it cites."""
+    claims; sides[i] the source conflict it takes a side in; citations[i] the check of the documents it cites;
+    contributions[i] how much the answer's risk falls without it."""
     sentence_scores = {(s.start, s.end): s.score for s in prediction.sentences}
     empty = [None for _ in sentences]
     claims = [
-        claim_report(sample, s, sentence_scores.get((s.start, s.end), 0.0), thresholds["sentence"], row, fix, f, side, citation)
-        for s, row, fix, f, side, citation in zip(sentences, rows, fixes, focus or [[] for _ in sentences], sides or empty, citations or empty)
+        claim_report(sample, s, sentence_scores.get((s.start, s.end), 0.0), thresholds["sentence"], row, fix, f, side, citation, contribution)
+        for s, row, fix, f, side, citation, contribution in zip(
+            sentences, rows, fixes, focus or [[] for _ in sentences], sides or empty, citations or empty, contributions or empty
+        )
     ]
     warnings = []
     if claims and all(c.evidence is None for c in claims):
         warnings.append("the sources share almost no words with the answer; they may not be about this question")
     for caveat in (completeness.omitted_caveats if completeness else [])[:2]:
         warnings.append(f'the answer leaves out a condition stated in the sources: "{caveat}"')
+    answer_verdict = verdict(prediction.score, thresholds["response"], claims)
+    carriers = [c for c in claims if (c.contribution or 0.0) >= SPREAD_RISK_CONTRIBUTION]
+    if answer_verdict != "grounded" and carriers and all(c.status == "supported" for c in claims):
+        top = max(carriers, key=lambda c: c.contribution)
+        warnings.append(f'no single claim is flagged; the answer\'s risk comes mostly from "{top.text[:80]}" (+{top.contribution:.2f})')
     return Report(
         id=sample.id,
-        verdict=verdict(prediction.score, thresholds["response"], claims),
+        verdict=answer_verdict,
         risk=prediction.score,
         response_threshold=thresholds["response"],
         sentence_threshold=thresholds["sentence"],

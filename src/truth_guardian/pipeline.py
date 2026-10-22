@@ -2,8 +2,9 @@
 
 Around the score it adds the atomic claim carrying each error, meaning shifts (swapped roles override the score;
 overclaims become cautions), conflicts between sources, citation checks, the key evidence the answer leaves out,
-who is to blame (retriever, generator or conflicting sources), the conformal guarantee, the reliability card and,
-for agent trajectories, the step timeline with the guardian's alerts. `heal` corrects an answer and re-checks it.
+who is to blame (retriever, generator or conflicting sources), the conformal guarantee, the reliability card,
+each claim's contribution to the answer's risk and, for agent trajectories, the step timeline with the guardian's
+alerts. `heal` corrects an answer and re-checks it.
 
 This is what the web app and API call. Signals are computed on the fly (nothing is read from the cache),
 so any question, sources and answer can be checked.
@@ -54,6 +55,29 @@ def make_sample(
     )
 
 
+def _risk(sample: Sample, model, per_signal: dict[str, list[dict]], keep: list[int], use_polarity: bool, use_shifts: bool) -> float:
+    """The answer's risk from a subset of its sentences, reusing their signal rows."""
+    rows = {name: {sample.id: [per_signal[name][i] for i in keep]} for name in model.signals}
+    prediction = model.predictions([sample], build_table([sample], rows, model.signals, model.structure))[0]
+    if use_polarity and "polarity" in per_signal:
+        prediction = apply_polarity(prediction, [per_signal["polarity"][i] for i in keep])
+    if use_shifts and "shifts" in per_signal:
+        prediction = apply_shifts(prediction, [per_signal["shifts"][i] for i in keep])
+    return prediction.score
+
+
+def contributions(sample: Sample, model, per_signal: dict[str, list[dict]], risk: float, use_polarity: bool, use_shifts: bool) -> list[float | None]:
+    """Leave-one-out attribution: how much the answer's risk falls without each sentence (None for one sentence).
+
+    The answer-level model reads all sentences together, so an answer can be risky without any single sentence
+    crossing the sentence threshold; this shows which sentences carry that risk.
+    """
+    n = len(next(iter(per_signal.values()), []))
+    if n < 2:
+        return [None] * n
+    return [risk - _risk(sample, model, per_signal, [j for j in range(n) if j != i], use_polarity, use_shifts) for i in range(n)]
+
+
 def analyze(
     sample: Sample,
     model: FusionModel | EnsembleModel,
@@ -100,13 +124,14 @@ def analyze(
     found = conflicts.find_conflicts(sample, classify)
     sides = [conflicts.contested(s, found) for s in sentences]
     citation_checks = citations.check_sample(sample, sentences, consistency)
-    report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent, focus, omissions, found, sides, citation_checks)
+    shares = contributions(sample, model, per_signal, prediction.score, use_polarity, use_shifts)
+    report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent, focus, omissions, found, sides, citation_checks, shares)
     report = with_diagnosis(report, diagnosis.diagnose(sample, report.verdict != "grounded", encode))
     if calibration is not None:
         report = with_guarantee(report, calibration, alpha, sample.meta.task)
     return report.model_copy(update={"card": build_card(report)})
 
 
-def heal(sample: Sample, model: FusionModel | EnsembleModel, **options) -> Healing:
-    """Correct the answer from its own report and check it again (heal.py); options go to analyze."""
-    return heal_answer(sample, lambda s: analyze(s, model, **options))
+def heal(sample: Sample, model: FusionModel | EnsembleModel, strategy: dict | None = None, **options) -> Healing:
+    """Correct the answer from its own report and check it again (heal.py); strategy goes to heal.heal, options to analyze."""
+    return heal_answer(sample, lambda s: analyze(s, model, **options), **(strategy or {}))
