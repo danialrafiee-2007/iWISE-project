@@ -169,7 +169,7 @@ def test_wrong_citation_becomes_a_caution_and_the_card_shows_it():
     sources = ["Ghee keeps for months without a fridge.", "Anne Frank died in 1945 in Bergen-Belsen."]
     report = run(make_sample("Anne Frank died in 1945 in Bergen-Belsen (Passage 1).", sources), consistency=overlap_consistency)
     (claim,) = report.claims
-    assert claim.citation.cited == [1] and not claim.citation.supported and "supported by document 2" in claim.cautions[0]
+    assert claim.citation.cited == [1] and not claim.citation.supported and "is in document 2" in claim.cautions[0]
     citations = next(d for d in report.card.dimensions if d.name == "citations")
     assert citations.score == 0.0 and report.card.grade in "ABCDF"
 

@@ -202,7 +202,7 @@ def _cautions(row: dict, citation: CitationCheck | None) -> list[str]:
         cautions.append(f"overclaim: {row['shift_detail']}")
     if citation is not None and citation.wrong:
         cited = ", ".join(str(n) for n in citation.cited)
-        cautions.append(f"cites document {cited}, but the claim is supported by document {citation.best_other}")
+        cautions.append(f"cites document {cited}, but the passage that matches this claim is in document {citation.best_other}")
     return cautions
 
 
