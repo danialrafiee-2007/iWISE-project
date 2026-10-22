@@ -9,20 +9,34 @@ from collections.abc import Callable
 from truth_guardian.correct import suggest
 from truth_guardian.fusion import EnsembleModel, FusionModel, build_table
 from truth_guardian.overrides import apply_polarity
-from truth_guardian.report import Report, build_report
-from truth_guardian.schema import Document, Meta, Sample
+from truth_guardian.report import Report, agent_report, build_report
+from truth_guardian.schema import AgentStep, Document, Meta, Sample
 from truth_guardian.signals import SIGNALS
 from truth_guardian.text import split_sentences
+from truth_guardian.tracer import LearnedTracer
 
 SignalFn = Callable[[Sample, list], list[dict]]
 
 
-def make_sample(answer: str, sources: list[str], question: str | None = None, sample_id: str = "input") -> Sample:
+def make_sample(
+    answer: str,
+    sources: list[str],
+    question: str | None = None,
+    agent_steps: list[dict] | None = None,
+    sample_id: str = "input",
+) -> Sample:
+    """agent_steps: dicts with step, kind, content and optionally observation; tool outputs also become sources."""
+    steps = [AgentStep.model_validate(s) for s in agent_steps or []]
+    documents = [Document(id=f"source{i}", text=t) for i, t in enumerate(sources, 1) if t.strip()]
+    documents += [Document(id=f"step{s.step}", text=s.observation, source=f"step {s.step} tool output") for s in steps if s.observation]
+    if not documents and question:
+        documents = [Document(id="task", text=question, source="question")]
     return Sample(
         id=sample_id,
         question=question,
-        documents=[Document(id=f"source{i}", text=t) for i, t in enumerate(sources, 1) if t.strip()],
+        documents=documents,
         answer=answer,
+        agent_log=steps or None,
         meta=Meta(dataset="live", task="live", split="test", group_id=sample_id),
     )
 
@@ -33,7 +47,10 @@ def analyze(
     use_polarity: bool = True,
     signal_fns: dict[str, SignalFn] | None = None,
     model_version: str | None = None,
+    tracer: LearnedTracer | None = None,
+    consistency=None,
 ) -> Report:
+    """consistency overrides HHEM inside the tracer (used by tests)."""
     signal_fns = signal_fns or {name: SIGNALS[name][1] for name in [*model.signals, *(["polarity"] if use_polarity else [])]}
     sentences = split_sentences(sample.answer)
     per_signal = {
@@ -48,4 +65,7 @@ def analyze(
     merged = [{k: v for name in per_signal for k, v in per_signal[name][i].items()} for i in range(len(sentences))]
     flagged = {(s.start, s.end) for s in prediction.sentences if s.score >= model.thresholds["sentence"]}
     fixes = [suggest(sample, s) if (s.start, s.end) in flagged else [] for s in sentences]
-    return build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version)
+    agent = None
+    if tracer is not None and sample.agent_log:
+        agent = agent_report(sample, *tracer.analyse(sample, consistency))
+    return build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent)

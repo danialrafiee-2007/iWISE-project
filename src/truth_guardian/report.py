@@ -54,6 +54,24 @@ class ClaimReport(_Strict):
     fixes: list[Fix] = Field(default_factory=list)
 
 
+class AgentStepReport(_Strict):
+    step: int
+    kind: str
+    role: str | None = None
+    suspicion: float
+    reason: str
+    unsupported: list[str] = Field(default_factory=list)
+    tool_error: bool = False
+
+
+class AgentReport(_Strict):
+    """Timeline of an agent trajectory: how suspicious each step is and where the hallucination most likely began."""
+
+    risk: float
+    suspected_step: int | None
+    steps: list[AgentStepReport]
+
+
 class Report(_Strict):
     id: str
     verdict: Literal["grounded", "hallucinated", "uncertain"]
@@ -61,6 +79,7 @@ class Report(_Strict):
     response_threshold: float
     sentence_threshold: float
     claims: list[ClaimReport]
+    agent: AgentReport | None = None
     warnings: list[str] = Field(default_factory=list)
     model_version: str | None = None
 
@@ -120,6 +139,19 @@ def verdict(risk: float, threshold: float, claims: list[ClaimReport]) -> Literal
     return "hallucinated" if risk >= threshold else "grounded"
 
 
+def agent_report(sample: Sample, traces: list, probabilities, risk: float) -> AgentReport:
+    """traces and probabilities come from LearnedTracer.analyse, in step order."""
+    steps = [
+        AgentStepReport(
+            step=t.step, kind=s.kind, role=s.role, suspicion=float(p), reason=t.reason(),
+            unsupported=sorted({a.text for a in t.unsupported})[:5], tool_error=t.tool_error,
+        )
+        for s, t, p in zip(sample.agent_log or [], traces, probabilities)
+    ]
+    suspected = max(steps, key=lambda s: (s.suspicion, -s.step)).step if steps else None
+    return AgentReport(risk=risk, suspected_step=suspected, steps=steps)
+
+
 def build_report(
     sample: Sample,
     sentences: list[Sentence],
@@ -128,6 +160,7 @@ def build_report(
     fixes: list[list[FixSuggestion]],
     thresholds: dict[str, float],
     model_version: str | None = None,
+    agent: AgentReport | None = None,
 ) -> Report:
     """rows[i] merges every signal's output for sentence i; fixes[i] are its Fix-it suggestions."""
     sentence_scores = {(s.start, s.end): s.score for s in prediction.sentences}
@@ -145,6 +178,7 @@ def build_report(
         response_threshold=thresholds["response"],
         sentence_threshold=thresholds["sentence"],
         claims=claims,
+        agent=agent,
         warnings=warnings,
         model_version=model_version,
     )

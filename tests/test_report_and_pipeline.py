@@ -63,6 +63,32 @@ def test_verdict_is_uncertain_near_threshold_or_with_only_insufficient_evidence(
     assert verdict(0.1, 0.5, [claim("supported")]) == "grounded"
 
 
+def test_agent_trajectory_gets_a_timeline_with_the_suspected_step():
+    from truth_guardian.tracer import fit_tracer, step_features, trace
+
+    def trajectory(i: int, bad: int | None) -> Sample:
+        value = f"{1990 + i % 7}" if bad else "1945"
+        steps = [{"step": 1, "kind": "action", "content": "call search(Anne Frank death)", "observation": "Archive: Anne Frank died in 1945."}]
+        steps += [{"step": k, "kind": "thought", "content": f"So the year was {value}." if k == bad else "Reading the search results carefully."} for k in (2, 3)]
+        steps += [{"step": 4, "kind": "answer", "content": value}]
+        s = make_sample(value, [], question="When did Anne Frank die?", agent_steps=steps, sample_id=f"a{i}")
+        labels = {"response": "hallucinated", "responsible_step": bad} if bad else {"response": "grounded"}
+        return Sample.model_validate(s.model_dump() | {"labels": labels, "meta": s.meta.model_dump() | {"group_id": f"a{i}"}})
+
+    train = [trajectory(i, 2 + i % 2) for i in range(30)] + [trajectory(100 + i, None) for i in range(10)]
+    tracer = fit_tracer(train, {s.id: (trace(s), step_features(s, trace(s)), np.zeros(0)) for s in train})
+    sample = make_sample("1992", [], question="When did Anne Frank die?", agent_steps=[
+        {"step": 1, "kind": "action", "content": "call search(Anne Frank death)", "observation": "Archive: Anne Frank died in 1945."},
+        {"step": 2, "kind": "thought", "content": "So the year was 1992."},
+        {"step": 3, "kind": "thought", "content": "Reading the search results carefully."},
+        {"step": 4, "kind": "answer", "content": "1992"},
+    ])
+    report = analyze(sample, trained_model(), use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic}, tracer=tracer)
+    assert report.agent is not None and report.agent.suspected_step == 2
+    assert [s.step for s in report.agent.steps] == [1, 2, 3, 4]
+    assert "1992" in report.agent.steps[1].unsupported and not report.agent.steps[3].unsupported
+
+
 def test_report_round_trips_as_json():
     model = trained_model()
     report = analyze(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), model, use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic})

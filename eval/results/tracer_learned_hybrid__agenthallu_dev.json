@@ -1,0 +1,62 @@
+{
+  "trajectories": 231,
+  "folds": 5,
+  "detection_auroc_learned": 0.5590266875981161,
+  "detection_auroc_v0": 0.5498037676609105,
+  "localization": {
+    "all": {
+      "learned_exact": 0.35,
+      "learned_within_1": 0.5214285714285715,
+      "learned_top3": 0.7357142857142858,
+      "v0_exact": 0.3142857142857143,
+      "first_step": 0.2714285714285714,
+      "random": 0.17496513338083106,
+      "n": 140
+    },
+    "category: Human-Interaction Hallucination": {
+      "learned_exact": 0.07692307692307693,
+      "learned_within_1": 0.9230769230769231,
+      "learned_top3": 0.6923076923076923,
+      "v0_exact": 0.07692307692307693,
+      "first_step": 0.38461538461538464,
+      "random": 0.22101648351648354,
+      "n": 13
+    },
+    "category: Planning Hallucination": {
+      "learned_exact": 0.6428571428571429,
+      "learned_within_1": 0.7142857142857143,
+      "learned_top3": 0.9642857142857143,
+      "v0_exact": 0.75,
+      "first_step": 0.9642857142857143,
+      "random": 0.20929055717261696,
+      "n": 28
+    },
+    "category: Reasoning Hallucination": {
+      "learned_exact": 0.45714285714285713,
+      "learned_within_1": 0.5714285714285714,
+      "learned_top3": 0.7714285714285715,
+      "v0_exact": 0.37142857142857144,
+      "first_step": 0.11428571428571428,
+      "random": 0.19525664811379093,
+      "n": 35
+    },
+    "category: Retrieval Hallucination": {
+      "learned_exact": 0.06451612903225806,
+      "learned_within_1": 0.25806451612903225,
+      "learned_top3": 0.5161290322580645,
+      "v0_exact": 0.03225806451612903,
+      "first_step": 0.0,
+      "random": 0.17686695025404703,
+      "n": 31
+    },
+    "category: Tool-Use Hallucination": {
+      "learned_exact": 0.36363636363636365,
+      "learned_within_1": 0.3939393939393939,
+      "learned_top3": 0.7272727272727273,
+      "v0_exact": 0.24242424242424243,
+      "first_step": 0.06060606060606061,
+      "random": 0.10439123166395893,
+      "n": 33
+    }
+  }
+}

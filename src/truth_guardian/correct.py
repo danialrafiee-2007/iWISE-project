@@ -12,7 +12,7 @@ from typing import NamedTuple
 from truth_guardian.retrieval import Bm25
 from truth_guardian.schema import Sample
 from truth_guardian.symbolic import NULL_VALUE, Atom, _ner, _numbers_in, check_sample, normalize_number
-from truth_guardian.text import Sentence, split_sentences
+from truth_guardian.text import Sentence, content_words, split_sentences
 
 CANDIDATE_SENTENCES = 3
 _WORD = re.compile(r"\w+")
@@ -118,9 +118,16 @@ def _best_number(atom: Atom, sentence_text: str, candidates: list[str]) -> tuple
     return replacement, sentence, max(0.3, min(1.0, 0.5 + 0.25 * score))
 
 
+MIN_ENTITY_CONTEXT = 0.5
+
+
 def _best_entity(atom: Atom, answer_sentence: str, candidates: list[str]) -> tuple[str, str, float] | None:
+    """Only from a source sentence that shares at least half of the claim's other content words."""
     lowered = answer_sentence.lower()
+    claim_words = content_words(answer_sentence) - content_words(atom.text)
     for rank, sentence in enumerate(candidates):
+        if not claim_words or len(claim_words & content_words(sentence)) / len(claim_words) < MIN_ENTITY_CONTEXT:
+            continue
         for e in _ner()(sentence).ents:
             if e.label_ == atom.label and e.text.lower() not in lowered:
                 return e.text, sentence, max(0.3, 0.8 - 0.2 * rank)

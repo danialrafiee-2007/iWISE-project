@@ -2,23 +2,23 @@
   "samples": 3570,
   "contradicted_spans": 1199,
   "caught_by_symbolic": 103,
-  "with_replacement": 58,
-  "with_replacement_summary": 9,
-  "with_replacement_and_note": 57,
-  "correct": 39,
+  "with_replacement": 53,
+  "with_replacement_summary": 7,
+  "with_replacement_and_note": 52,
+  "correct": 38,
   "correct_summary": 5,
-  "checked_summary": 9,
-  "with_replacement_data2text": 40,
-  "correct_data2text": 29,
-  "checked_data2text": 39,
+  "checked_summary": 7,
+  "with_replacement_data2text": 37,
+  "correct_data2text": 28,
+  "checked_data2text": 36,
   "with_replacement_qa": 9,
   "correct_qa": 5,
   "checked_qa": 9,
-  "precision_vs_notes": 0.6842105263157895,
+  "precision_vs_notes": 0.7307692307692307,
   "precision_by_task": {
     "qa": 0.5555555555555556,
-    "summary": 0.5555555555555556,
-    "data2text": 0.7435897435897436
+    "summary": 0.7142857142857143,
+    "data2text": 0.7777777777777778
   },
   "examples": [
     {
@@ -31,17 +31,6 @@
       ],
       "original_note": "Hellen Titus",
       "correct": true
-    },
-    {
-      "answer": "Houthi leader Abdulmalik al-Houthi vowed to continue fighting.",
-      "suggestions": [
-        [
-          "Abdulmalik al-Houthi",
-          "Houthis"
-        ]
-      ],
-      "original_note": "President Abd Rabbuh Mansur Hadi, who says he's Yemen's legitimate leader\u2026promise to restructure the Yemen military\u2026",
-      "correct": false
     },
     {
       "answer": "79 confirmed and 56 preliminary.",
@@ -99,17 +88,6 @@
       "correct": false
     },
     {
-      "answer": "during a DEA raid in 2018",
-      "suggestions": [
-        [
-          "DEA",
-          "The Underground Trade of Erectile Drugs"
-        ]
-      ],
-      "original_note": "after the Department of Homeland Security stumbled upon Kincer's stash during a search of his residence in 2018",
-      "correct": false
-    },
-    {
       "answer": "7-year-old son, Prince George",
       "suggestions": [
         [
@@ -143,14 +121,36 @@
       "correct": true
     },
     {
-      "answer": "open from 11:00 AM to 5:00 PM, Monday through Saturday,",
+      "answer": "open Monday through Sunday from 11am to 10pm, with a break from 3pm to 5pm on Tuesdays",
       "suggestions": [
         [
-          "Saturday",
-          "Tuesday"
+          "5",
+          "0"
         ]
       ],
-      "original_note": "\"Monday\": \"0:0-0:0\",\n\"Tuesday\": \"11:0-15:0\"",
+      "original_note": "closed on Monday; Tuesday to Thursday, and Sunday: 11am to 8pm, Friday to Saturday: 11am to 3pm (no break schedue mentio",
+      "correct": false
+    },
+    {
+      "answer": "3.5 out of 5 stars.",
+      "suggestions": [
+        [
+          "3.5",
+          "4.0"
+        ]
+      ],
+      "original_note": "\"business_stars\": 4.0",
+      "correct": true
+    },
+    {
+      "answer": "is open from 9am to 11pm",
+      "suggestions": [
+        [
+          "11",
+          "8"
+        ]
+      ],
+      "original_note": "Monday to Friday, 9AM  - 9PM, Saturday and Sunday, 8AM - 9PM",
       "correct": true
     }
   ]

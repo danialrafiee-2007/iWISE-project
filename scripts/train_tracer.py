@@ -16,33 +16,56 @@ from sklearn.metrics import roc_auc_score
 from truth_guardian import fusion
 from truth_guardian.provenance import git_commit
 from truth_guardian.schema import read_jsonl
-from truth_guardian.tracer import fit_tracer, step_features, suspected_step, trace, trajectory_features
+from truth_guardian.tracer import combined_features, fit_tracer, semantic_rows, suspected_step, trace, trajectory_features
 
 ROOT = Path(__file__).resolve().parents[1]
 MODELS = ROOT / "models" / "tracer"
+SEMANTIC_CACHE = ROOT / "data" / "features" / "tracer_semantic"
+
+
+def cached_semantic_rows(samples: list, data_name: str) -> dict:
+    """HHEM-based step features, computed once per trajectory and kept on disk."""
+    from truth_guardian import models
+
+    path = SEMANTIC_CACHE / f"{data_name}.json"
+    cache = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    todo = [s for s in samples if s.id not in cache]
+    for i, s in enumerate(todo, 1):
+        cache[s.id] = semantic_rows(s, models.hhem_consistency)
+        if i % 25 == 0 or i == len(todo):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(cache), encoding="utf-8")
+            print(f"  semantic features: {i}/{len(todo)}", flush=True)
+    return cache
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--folds", type=int, default=5)
+    parser.add_argument("--semantic", action="store_true", help="add HHEM-based step and answer features")
+    parser.add_argument("--content-only", action="store_true", help="drop position and step-kind features")
+    parser.add_argument("--hybrid", action="store_true", help="mix learned probabilities 50/50 with the v0 evidence score")
     parser.add_argument("--no-save", action="store_true")
     args = parser.parse_args()
 
     samples = list(read_jsonl(ROOT / "data/processed/agenthallu_dev.jsonl"))
-    features = {s.id: (traces, step_features(s, traces)) for s in samples for traces in [trace(s)]}
+    semantic = cached_semantic_rows(samples, "agenthallu_dev") if args.semantic else {}
+    features = {s.id: (traces, *combined_features(s, traces, semantic.get(s.id))) for s in samples for traces in [trace(s)]}
     fold_of = fusion.group_folds([s.meta.group_id for s in samples], args.folds)
 
     hits = defaultdict(lambda: defaultdict(list))
     risk = {}
     for k in range(args.folds):
         train = [s for s in samples if fold_of[s.meta.group_id] != k]
-        model = fit_tracer(train, features)
+        model = fit_tracer(train, features, args.semantic, args.content_only)
+        model.hybrid = args.hybrid
         for s in (s for s in samples if fold_of[s.meta.group_id] == k):
-            traces, matrix = features[s.id]
-            risk[s.id] = float(model.detector.predict_proba(trajectory_features(matrix).reshape(1, -1))[:, 1][0])
+            traces, matrix, answer = features[s.id]
+            matrix = matrix[:, model.columns]
+            risk[s.id] = float(model.detector.predict_proba(trajectory_features(matrix, answer).reshape(1, -1))[:, 1][0])
             if s.labels.responsible_step is None or not traces:
                 continue
-            probs = model.step_model.predict_proba(matrix)[:, 1]
+            probs = model.step_scores(traces, matrix)
             ranked = [t.step for _, t in sorted(zip(probs, traces), key=lambda pt: (-pt[0], pt[1].step))]
             gold, steps = s.labels.responsible_step, [t.step for t in traces]
             v0 = suspected_step(traces).step
@@ -64,7 +87,7 @@ def main() -> None:
         "detection_auroc_v0": float(roc_auc_score(y, v0_risk)),
         "localization": {g: {k: float(np.mean(v)) for k, v in h.items()} | {"n": len(h["learned_exact"])} for g, h in sorted(hits.items())},
     }
-    out = ROOT / "eval" / "results" / "tracer_learned__agenthallu_dev.json"
+    out = ROOT / "eval" / "results" / f"tracer_learned{'_semantic' if args.semantic else ''}{'_content' if args.content_only else ''}{'_hybrid' if args.hybrid else ''}__agenthallu_dev.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
     print(f"detection AUROC: learned {report['detection_auroc_learned']:.3f}, v0 {report['detection_auroc_v0']:.3f}")
     print(f"{'group':42} {'n':>4} {'exact':>6} {'+-1':>6} {'top3':>6} | {'v0':>6} {'first':>6} {'random':>6}")
@@ -73,13 +96,17 @@ def main() -> None:
 
     if args.no_save:
         return
-    model = fit_tracer(samples, features)
+    model = fit_tracer(samples, features, args.semantic, args.content_only)
+    model.hybrid = args.hybrid
     created = datetime.now(timezone.utc)
     manifest = {
         "version": f"{created:%Y%m%d-%H%M%S}-tracer",
         "created": created.isoformat(timespec="seconds"),
         "commit": git_commit(ROOT),
         "train": {"data": "agenthallu_dev.jsonl", "trajectories": len(samples)},
+        "semantic": args.semantic,
+        "content_only": args.content_only,
+        "hybrid": args.hybrid,
         "cross_validation": {"folds": args.folds, "exact": report["localization"]["all"]["learned_exact"], "detection_auroc": report["detection_auroc_learned"]},
     }
     folder = fusion.save(model, MODELS, manifest)
