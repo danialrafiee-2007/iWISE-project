@@ -1,0 +1,19 @@
+{
+  "flagged_sentences": 795,
+  "split_into_claims": 284,
+  "whole_sentence": {
+    "precision": 0.3491730422379139,
+    "recall": 0.4203982570929787,
+    "f1": 0.38148963847352624
+  },
+  "symbolic_refined": {
+    "precision": 0.37675421230918127,
+    "recall": 0.24309862753168598,
+    "f1": 0.2955166970039424
+  },
+  "atomic_claims": {
+    "precision": 0.3864104165221212,
+    "recall": 0.237137544885533,
+    "f1": 0.2939065578384464
+  }
+}

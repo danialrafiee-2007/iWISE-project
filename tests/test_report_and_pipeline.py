@@ -1,3 +1,5 @@
+import hashlib
+
 import numpy as np
 
 from truth_guardian import fusion
@@ -8,6 +10,24 @@ from truth_guardian.signals import lexical, symbolic
 from truth_guardian.text import split_sentences
 
 SOURCE = "Anne Frank died in 1945 in Bergen-Belsen. The camp was liberated weeks later."
+GHEE = (
+    "Ghee is made by simmering butter until the milk solids separate. "
+    "However, the solids burn quickly if the heat is too high. "
+    "Ghee keeps for months without refrigeration."
+)
+SIGNAL_FNS = {"lexical": lexical, "symbolic": symbolic}
+
+
+def fake_encode(texts: list[str]) -> np.ndarray:
+    vectors = np.zeros((len(texts), 64))
+    for row, text in enumerate(texts):
+        for word in text.lower().replace(".", "").replace(",", "").replace("?", "").split():
+            vectors[row, int(hashlib.md5(word.encode()).hexdigest(), 16) % 64] += 1
+    return vectors / np.maximum(np.linalg.norm(vectors, axis=1, keepdims=True), 1e-12)
+
+
+def run(sample: Sample, **kwargs):
+    return analyze(sample, trained_model(), use_polarity=False, signal_fns=SIGNAL_FNS, encode=fake_encode, **kwargs)
 
 
 def training_set(n: int = 60) -> tuple[list[Sample], dict]:
@@ -36,9 +56,8 @@ def trained_model():
 
 
 def test_live_analysis_reports_wrong_year_with_fix_and_evidence():
-    model = trained_model()
     sample = make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE])
-    report = analyze(sample, model, use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic})
+    report = run(sample)
     (claim,) = report.claims
     assert report.verdict == "hallucinated" and claim.status == "contradicted"
     assert claim.action == "replace" and claim.fixes[0].replacement == "1945"
@@ -47,8 +66,7 @@ def test_live_analysis_reports_wrong_year_with_fix_and_evidence():
 
 
 def test_live_analysis_supports_a_faithful_answer():
-    model = trained_model()
-    report = analyze(make_sample("Anne Frank died in 1945 in Bergen-Belsen.", [SOURCE]), model, use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic})
+    report = run(make_sample("Anne Frank died in 1945 in Bergen-Belsen.", [SOURCE]))
     assert report.verdict == "grounded" and report.claims[0].status == "supported" and report.claims[0].action == "keep"
 
 
@@ -83,14 +101,38 @@ def test_agent_trajectory_gets_a_timeline_with_the_suspected_step():
         {"step": 3, "kind": "thought", "content": "Reading the search results carefully."},
         {"step": 4, "kind": "answer", "content": "1992"},
     ])
-    report = analyze(sample, trained_model(), use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic}, tracer=tracer)
+    report = run(sample, tracer=tracer)
     assert report.agent is not None and report.agent.suspected_step == 2
+    assert report.agent.guardian_stop == 2 and report.agent.alerts[0].level == "stop"
     assert [s.step for s in report.agent.steps] == [1, 2, 3, 4]
     assert "1992" in report.agent.steps[1].unsupported and not report.agent.steps[3].unsupported
 
 
 def test_report_round_trips_as_json():
-    model = trained_model()
-    report = analyze(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), model, use_polarity=False, signal_fns={"lexical": lexical, "symbolic": symbolic})
+    report = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE], question="Anne Frank died in which year in Bergen-Belsen?"))
     assert type(report).model_validate_json(report.model_dump_json()) == report
     assert np.isfinite(report.risk)
+
+
+def test_focus_narrows_a_flagged_sentence_to_the_claim_with_the_error():
+    answer = "Anne Frank died in 2022 in Bergen-Belsen, and the camp was liberated weeks later."
+    (claim,) = run(make_sample(answer, [SOURCE])).claims
+    assert claim.status != "supported" and len(claim.focus) == 1
+    focus = answer[claim.focus[0][0] : claim.focus[0][1]]
+    assert "2022" in focus and "liberated" not in focus
+
+
+def test_blame_points_to_generation_over_relevant_sources_and_to_retrieval_over_irrelevant_ones():
+    question = "Anne Frank died in which year in Bergen-Belsen?"
+    relevant = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE], question=question))
+    assert relevant.verdict == "hallucinated" and relevant.diagnosis.blame == "generation"
+    irrelevant = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [GHEE], question=question))
+    assert irrelevant.diagnosis.blame == "retrieval" and irrelevant.diagnosis.message in irrelevant.warnings
+    assert run(make_sample("Anne Frank died in 2022.", [SOURCE])).diagnosis.blame == "unknown"
+
+
+def test_omitted_caveat_is_reported_and_warned():
+    report = run(make_sample("Ghee is made by simmering butter until the milk solids separate.", [GHEE], question="How is ghee made and what can go wrong with the heat?"))
+    assert report.completeness.omitted_caveats == ["However, the solids burn quickly if the heat is too high."]
+    assert any("leaves out a condition" in w for w in report.warnings)
+    assert run(make_sample("Anne Frank died in 1945.", [SOURCE])).completeness is None

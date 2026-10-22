@@ -17,12 +17,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from truth_guardian.schema import Sample
+from truth_guardian.schema import AgentStep, Sample
 from truth_guardian.symbolic import Atom, EvidenceIndex
 from truth_guardian.text import content_words
 
 MAX_STEP_CHARS = 20_000
 TOOL_ERROR = re.compile(r"\b(error|exception|traceback|not found|no such|failed|invalid|denied|unable to|cannot)\b", re.IGNORECASE)
+ESCAPED_BREAKS = re.compile(r"(?:\\+[nrt])+")
 WEIGHTS = {"unsupported": 1.0, "propagated": 1.5, "tool_error": 1.0, "novelty": 1.0, "is_first": 0.3}
 
 
@@ -47,37 +48,54 @@ class StepTrace(NamedTuple):
         return "; ".join(parts) or "no specific warning sign"
 
 
-def trace(sample: Sample) -> list[StepTrace]:
-    if not sample.agent_log:
-        return []
-    answer = sample.answer.lower()
-    evidence = EvidenceIndex(sample.question or "")
-    seen_words = content_words(sample.question or "")
-    already_said: set[str] = set()
-    traces = []
-    for i, step in enumerate(sample.agent_log):
-        content = step.content[:MAX_STEP_CHARS]
-        unsupported = evidence.atoms(content) if content else []
-        atoms = [a for a in unsupported if a.text.lower() not in already_said]
-        already_said |= {a.text.lower() for a in unsupported}
-        propagated = [a.text for a in atoms if a.text.lower() in answer]
+def unescape(text: str) -> str:
+    """Some agent logs keep line breaks as literal backslash sequences; left in, they glue words into fake names."""
+    return ESCAPED_BREAKS.sub("\n", text)
+
+
+class TraceState:
+    """Step-by-step tracing state: trace() replays a finished trajectory, the live guardian feeds steps as they happen.
+
+    Without the final answer (live), nothing can be marked as propagated yet.
+    """
+
+    def __init__(self, question: str | None, answer: str | None = None):
+        self.answer = (answer or "").lower()
+        self.evidence = EvidenceIndex(question or "")
+        self.seen_words = content_words(question or "")
+        self.already_said: set[str] = set()
+        self.index = 0
+
+    def add(self, step: AgentStep) -> StepTrace:
+        content = unescape(step.content[:MAX_STEP_CHARS])
+        unsupported = self.evidence.atoms(content) if content else []
+        atoms = [a for a in unsupported if a.text.lower() not in self.already_said]
+        self.already_said |= {a.text.lower() for a in unsupported}
+        propagated = [a.text for a in atoms if self.answer and a.text.lower() in self.answer]
         words = content_words(content)
-        novelty = len(words - seen_words) / len(words) if words else 0.0
+        novelty = len(words - self.seen_words) / len(words) if words else 0.0
         tool_error = bool(step.observation and TOOL_ERROR.search(step.observation[:MAX_STEP_CHARS]))
         score = (
             WEIGHTS["unsupported"] * min(len(atoms), 3)
             + WEIGHTS["propagated"] * min(len(propagated), 3)
             + WEIGHTS["tool_error"] * tool_error
             + WEIGHTS["novelty"] * novelty
-            + WEIGHTS["is_first"] * (i == 0)
+            + WEIGHTS["is_first"] * (self.index == 0)
         )
-        traces.append(StepTrace(step.step, atoms, propagated, novelty, tool_error, score))
-        seen_words |= words
+        self.seen_words |= words
         if step.observation:
-            observation = step.observation[:MAX_STEP_CHARS]
-            evidence.add(observation)
-            seen_words |= content_words(observation)
-    return traces
+            observation = unescape(step.observation[:MAX_STEP_CHARS])
+            self.evidence.add(observation)
+            self.seen_words |= content_words(observation)
+        self.index += 1
+        return StepTrace(step.step, atoms, propagated, novelty, tool_error, score)
+
+
+def trace(sample: Sample) -> list[StepTrace]:
+    if not sample.agent_log:
+        return []
+    state = TraceState(sample.question, sample.answer)
+    return [state.add(step) for step in sample.agent_log]
 
 
 def suspected_step(traces: list[StepTrace]) -> StepTrace | None:

@@ -5,6 +5,7 @@ Add a row every time an AI tool contributes to code, data, text or design. "Veri
 
 | Date | Tool / model | Used by | Purpose | Components affected | Verification by the team | Verified by |
 |---|---|---|---|---|---|---|
+| 2026-10-22 | Claude Code (Claude Opus 5.5) | | Brain extensions: atomic claims and claim focus, retriever-vs-generator blame, omission check, live agent guardian with policies, escaped-text fix and tracer retraining, report and pipeline wiring, decisions D-074 to D-080 | `claims.py`, `diagnosis.py`, `completeness.py`, `guardian.py`, `tracer.py`, `report.py`, `pipeline.py`, `scripts/evaluate_claims.py`, `scripts/evaluate_diagnosis.py`, `scripts/evaluate_completeness.py`, `scripts/evaluate_guardian.py`, tests | Thresholds set on train only (blame, omission); guardian settings fixed in advance and only measured; negative AgentHallu guardian result reported as is; locked test untouched | |
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Analysis of the 25 challenges and choice of Challenge 4 | Project direction | Team read the official challenge text and rules | |
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Project roadmap and phase plan | Planning | Team reviewed the timeline and scope | |
 | 2026-10-21 | Claude Code (Claude Opus 5.5) | | Project scaffold, unified data schema and its unit tests | `src/truth_guardian/schema.py`, `tests/test_schema.py` | Ran `uv run pytest` (11 passed); team to walk through every validator | |

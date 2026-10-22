@@ -1,0 +1,596 @@
+{
+  "agenthallu_dev": {
+    "trajectories": 231,
+    "policies": {
+      "strict": {
+        "policy": "strict",
+        "stop_tpr": 0.8,
+        "stop_fpr": 0.8351648351648352,
+        "youden": -0.03516483516483515,
+        "any_alert_hallucinated": 0.8928571428571429,
+        "any_alert_faithful": 0.8901098901098901,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.6153846153846154,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9428571428571428,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.5757575757575758,
+          "faithful": 0.8351648351648352
+        },
+        "stop_on_responsible_step": 0.25,
+        "stop_no_later_than_responsible_step": 0.9107142857142857,
+        "stop_before_last_step": 0.9553571428571429,
+        "share_of_steps_left_after_stop": 0.7113073938681289
+      },
+      "lenient": {
+        "policy": "lenient",
+        "stop_tpr": 0.014285714285714285,
+        "stop_fpr": 0.0,
+        "youden": 0.014285714285714285,
+        "any_alert_hallucinated": 0.8928571428571429,
+        "any_alert_faithful": 0.8901098901098901,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.0,
+          "Planning Hallucination": 0.0,
+          "Reasoning Hallucination": 0.0,
+          "Retrieval Hallucination": 0.0,
+          "Tool-Use Hallucination": 0.06060606060606061,
+          "faithful": 0.0
+        },
+        "stop_on_responsible_step": 0.0,
+        "stop_no_later_than_responsible_step": 0.0,
+        "stop_before_last_step": 1.0,
+        "share_of_steps_left_after_stop": 0.5416666666666667
+      }
+    },
+    "sensitivity_strict": [
+      {
+        "min_new_values": 1,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.7928571428571428,
+        "stop_fpr": 0.8351648351648352,
+        "youden": -0.04230769230769238,
+        "any_alert_hallucinated": 0.8928571428571429,
+        "any_alert_faithful": 0.8901098901098901,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.6153846153846154,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9428571428571428,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.5454545454545454,
+          "faithful": 0.8351648351648352
+        },
+        "stop_on_responsible_step": 0.25225225225225223,
+        "stop_no_later_than_responsible_step": 0.918918918918919,
+        "stop_before_last_step": 0.954954954954955,
+        "share_of_steps_left_after_stop": 0.7124603133324062
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.8,
+        "stop_fpr": 0.8351648351648352,
+        "youden": -0.03516483516483515,
+        "any_alert_hallucinated": 0.8928571428571429,
+        "any_alert_faithful": 0.8901098901098901,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.6153846153846154,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9428571428571428,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.5757575757575758,
+          "faithful": 0.8351648351648352
+        },
+        "stop_on_responsible_step": 0.25,
+        "stop_no_later_than_responsible_step": 0.9107142857142857,
+        "stop_before_last_step": 0.9553571428571429,
+        "share_of_steps_left_after_stop": 0.7113073938681289
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.9142857142857143,
+        "stop_fpr": 0.9010989010989011,
+        "youden": 0.01318681318681314,
+        "any_alert_hallucinated": 0.95,
+        "any_alert_faithful": 0.9340659340659341,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 1.0,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 1.0,
+          "Retrieval Hallucination": 0.8709677419354839,
+          "Tool-Use Hallucination": 0.7575757575757576,
+          "faithful": 0.9010989010989011
+        },
+        "stop_on_responsible_step": 0.28125,
+        "stop_no_later_than_responsible_step": 0.921875,
+        "stop_before_last_step": 0.9609375,
+        "share_of_steps_left_after_stop": 0.7141850127928435
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.9285714285714286,
+        "stop_fpr": 0.9230769230769231,
+        "youden": 0.005494505494505475,
+        "any_alert_hallucinated": 0.95,
+        "any_alert_faithful": 0.9340659340659341,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 1.0,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 1.0,
+          "Retrieval Hallucination": 0.8709677419354839,
+          "Tool-Use Hallucination": 0.8181818181818182,
+          "faithful": 0.9230769230769231
+        },
+        "stop_on_responsible_step": 0.2692307692307692,
+        "stop_no_later_than_responsible_step": 0.9153846153846154,
+        "stop_before_last_step": 0.9692307692307692,
+        "share_of_steps_left_after_stop": 0.7197768051368231
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.7285714285714285,
+        "stop_fpr": 0.7142857142857143,
+        "youden": 0.014285714285714235,
+        "any_alert_hallucinated": 0.8785714285714286,
+        "any_alert_faithful": 0.8241758241758241,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.6153846153846154,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9142857142857143,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.30303030303030304,
+          "faithful": 0.7142857142857143
+        },
+        "stop_on_responsible_step": 0.2647058823529412,
+        "stop_no_later_than_responsible_step": 0.9411764705882353,
+        "stop_before_last_step": 0.9705882352941176,
+        "share_of_steps_left_after_stop": 0.7313429227331417
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.7428571428571429,
+        "stop_fpr": 0.7142857142857143,
+        "youden": 0.02857142857142858,
+        "any_alert_hallucinated": 0.8785714285714286,
+        "any_alert_faithful": 0.8241758241758241,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.6153846153846154,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9142857142857143,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.36363636363636365,
+          "faithful": 0.7142857142857143
+        },
+        "stop_on_responsible_step": 0.25961538461538464,
+        "stop_no_later_than_responsible_step": 0.9230769230769231,
+        "stop_before_last_step": 0.9711538461538461,
+        "share_of_steps_left_after_stop": 0.727695302424171
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.8071428571428572,
+        "stop_fpr": 0.7692307692307693,
+        "youden": 0.03791208791208789,
+        "any_alert_hallucinated": 0.9357142857142857,
+        "any_alert_faithful": 0.8681318681318682,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.9230769230769231,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9714285714285714,
+          "Retrieval Hallucination": 0.8064516129032258,
+          "Tool-Use Hallucination": 0.42424242424242425,
+          "faithful": 0.7692307692307693
+        },
+        "stop_on_responsible_step": 0.2920353982300885,
+        "stop_no_later_than_responsible_step": 0.9292035398230089,
+        "stop_before_last_step": 0.9734513274336283,
+        "share_of_steps_left_after_stop": 0.7262111422226674
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.8642857142857143,
+        "stop_fpr": 0.8241758241758241,
+        "youden": 0.04010989010989019,
+        "any_alert_hallucinated": 0.9357142857142857,
+        "any_alert_faithful": 0.8681318681318682,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.9230769230769231,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9714285714285714,
+          "Retrieval Hallucination": 0.8709677419354839,
+          "Tool-Use Hallucination": 0.6060606060606061,
+          "faithful": 0.8241758241758241
+        },
+        "stop_on_responsible_step": 0.2727272727272727,
+        "stop_no_later_than_responsible_step": 0.9008264462809917,
+        "stop_before_last_step": 0.9834710743801653,
+        "share_of_steps_left_after_stop": 0.7207229073700341
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.6785714285714286,
+        "stop_fpr": 0.7032967032967034,
+        "youden": -0.02472527472527475,
+        "any_alert_hallucinated": 0.8571428571428571,
+        "any_alert_faithful": 0.8241758241758241,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.5384615384615384,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9142857142857143,
+          "Retrieval Hallucination": 0.7419354838709677,
+          "Tool-Use Hallucination": 0.15151515151515152,
+          "faithful": 0.7032967032967034
+        },
+        "stop_on_responsible_step": 0.28421052631578947,
+        "stop_no_later_than_responsible_step": 0.968421052631579,
+        "stop_before_last_step": 0.9894736842105263,
+        "share_of_steps_left_after_stop": 0.7610229108576723
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.6928571428571428,
+        "stop_fpr": 0.7032967032967034,
+        "youden": -0.010439560439560513,
+        "any_alert_hallucinated": 0.8571428571428571,
+        "any_alert_faithful": 0.8241758241758241,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.5384615384615384,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9142857142857143,
+          "Retrieval Hallucination": 0.7419354838709677,
+          "Tool-Use Hallucination": 0.21212121212121213,
+          "faithful": 0.7032967032967034
+        },
+        "stop_on_responsible_step": 0.27835051546391754,
+        "stop_no_later_than_responsible_step": 0.9484536082474226,
+        "stop_before_last_step": 0.9896907216494846,
+        "share_of_steps_left_after_stop": 0.7565001016990948
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.7214285714285714,
+        "stop_fpr": 0.7472527472527473,
+        "youden": -0.025824175824175843,
+        "any_alert_hallucinated": 0.9,
+        "any_alert_faithful": 0.8681318681318682,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.7692307692307693,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9714285714285714,
+          "Retrieval Hallucination": 0.7741935483870968,
+          "Tool-Use Hallucination": 0.15151515151515152,
+          "faithful": 0.7472527472527473
+        },
+        "stop_on_responsible_step": 0.3069306930693069,
+        "stop_no_later_than_responsible_step": 0.9504950495049505,
+        "stop_before_last_step": 0.9900990099009901,
+        "share_of_steps_left_after_stop": 0.7559126389255331
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.7857142857142857,
+        "stop_fpr": 0.8131868131868132,
+        "youden": -0.027472527472527486,
+        "any_alert_hallucinated": 0.9,
+        "any_alert_faithful": 0.8681318681318682,
+        "stop_rate_by_category": {
+          "Human-Interaction Hallucination": 0.7692307692307693,
+          "Planning Hallucination": 1.0,
+          "Reasoning Hallucination": 0.9714285714285714,
+          "Retrieval Hallucination": 0.8387096774193549,
+          "Tool-Use Hallucination": 0.36363636363636365,
+          "faithful": 0.8131868131868132
+        },
+        "stop_on_responsible_step": 0.2818181818181818,
+        "stop_no_later_than_responsible_step": 0.9090909090909091,
+        "stop_before_last_step": 0.990909090909091,
+        "share_of_steps_left_after_stop": 0.740843538655378
+      }
+    ]
+  },
+  "tg_agent_dev": {
+    "trajectories": 220,
+    "policies": {
+      "strict": {
+        "policy": "strict",
+        "stop_tpr": 0.8625,
+        "stop_fpr": 0.3333333333333333,
+        "youden": 0.5291666666666668,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.3333333333333333,
+          "synthetic: answer addition": 1.0,
+          "synthetic: fabricated fact": 0.65,
+          "synthetic: ignored tool error": 0.8666666666666667
+        },
+        "stop_on_responsible_step": 0.8985507246376812,
+        "stop_no_later_than_responsible_step": 0.8985507246376812,
+        "stop_before_last_step": 0.463768115942029,
+        "share_of_steps_left_after_stop": 0.11594202898550725
+      },
+      "lenient": {
+        "policy": "lenient",
+        "stop_tpr": 0.2375,
+        "stop_fpr": 0.0,
+        "youden": 0.2375,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.0,
+          "synthetic: answer addition": 0.0,
+          "synthetic: fabricated fact": 0.0,
+          "synthetic: ignored tool error": 0.6333333333333333
+        },
+        "stop_on_responsible_step": 1.0,
+        "stop_no_later_than_responsible_step": 1.0,
+        "stop_before_last_step": 1.0,
+        "share_of_steps_left_after_stop": 0.25
+      }
+    },
+    "sensitivity_strict": [
+      {
+        "min_new_values": 1,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.8125,
+        "stop_fpr": 0.3333333333333333,
+        "youden": 0.4791666666666667,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.3333333333333333,
+          "synthetic: answer addition": 1.0,
+          "synthetic: fabricated fact": 0.65,
+          "synthetic: ignored tool error": 0.7333333333333333
+        },
+        "stop_on_responsible_step": 0.7846153846153846,
+        "stop_no_later_than_responsible_step": 0.7846153846153846,
+        "stop_before_last_step": 0.3230769230769231,
+        "share_of_steps_left_after_stop": 0.08076923076923077
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.8625,
+        "stop_fpr": 0.3333333333333333,
+        "youden": 0.5291666666666668,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.3333333333333333,
+          "synthetic: answer addition": 1.0,
+          "synthetic: fabricated fact": 0.65,
+          "synthetic: ignored tool error": 0.8666666666666667
+        },
+        "stop_on_responsible_step": 0.8985507246376812,
+        "stop_no_later_than_responsible_step": 0.8985507246376812,
+        "stop_before_last_step": 0.463768115942029,
+        "share_of_steps_left_after_stop": 0.11594202898550725
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.8125,
+        "stop_fpr": 0.3333333333333333,
+        "youden": 0.4791666666666667,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.3333333333333333,
+          "synthetic: answer addition": 1.0,
+          "synthetic: fabricated fact": 0.65,
+          "synthetic: ignored tool error": 0.7333333333333333
+        },
+        "stop_on_responsible_step": 0.7846153846153846,
+        "stop_no_later_than_responsible_step": 0.7846153846153846,
+        "stop_before_last_step": 0.3230769230769231,
+        "share_of_steps_left_after_stop": 0.08076923076923077
+      },
+      {
+        "min_new_values": 1,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.8625,
+        "stop_fpr": 0.3333333333333333,
+        "youden": 0.5291666666666668,
+        "any_alert_hallucinated": 0.9125,
+        "any_alert_faithful": 0.3333333333333333,
+        "stop_rate_by_category": {
+          "faithful": 0.3333333333333333,
+          "synthetic: answer addition": 1.0,
+          "synthetic: fabricated fact": 0.65,
+          "synthetic: ignored tool error": 0.8666666666666667
+        },
+        "stop_on_responsible_step": 0.8985507246376812,
+        "stop_no_later_than_responsible_step": 0.8985507246376812,
+        "stop_before_last_step": 0.463768115942029,
+        "share_of_steps_left_after_stop": 0.11594202898550725
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.36875,
+        "stop_fpr": 0.16666666666666666,
+        "youden": 0.20208333333333336,
+        "any_alert_hallucinated": 0.55,
+        "any_alert_faithful": 0.16666666666666666,
+        "stop_rate_by_category": {
+          "faithful": 0.16666666666666666,
+          "synthetic: answer addition": 0.3333333333333333,
+          "synthetic: fabricated fact": 0.2,
+          "synthetic: ignored tool error": 0.5166666666666667
+        },
+        "stop_on_responsible_step": 0.4406779661016949,
+        "stop_no_later_than_responsible_step": 0.4406779661016949,
+        "stop_before_last_step": 0.1016949152542373,
+        "share_of_steps_left_after_stop": 0.025423728813559324
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.4625,
+        "stop_fpr": 0.16666666666666666,
+        "youden": 0.2958333333333334,
+        "any_alert_hallucinated": 0.55,
+        "any_alert_faithful": 0.16666666666666666,
+        "stop_rate_by_category": {
+          "faithful": 0.16666666666666666,
+          "synthetic: answer addition": 0.3333333333333333,
+          "synthetic: fabricated fact": 0.2,
+          "synthetic: ignored tool error": 0.7666666666666667
+        },
+        "stop_on_responsible_step": 0.8108108108108109,
+        "stop_no_later_than_responsible_step": 0.8108108108108109,
+        "stop_before_last_step": 0.5405405405405406,
+        "share_of_steps_left_after_stop": 0.13513513513513514
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.36875,
+        "stop_fpr": 0.16666666666666666,
+        "youden": 0.20208333333333336,
+        "any_alert_hallucinated": 0.55,
+        "any_alert_faithful": 0.16666666666666666,
+        "stop_rate_by_category": {
+          "faithful": 0.16666666666666666,
+          "synthetic: answer addition": 0.3333333333333333,
+          "synthetic: fabricated fact": 0.2,
+          "synthetic: ignored tool error": 0.5166666666666667
+        },
+        "stop_on_responsible_step": 0.4406779661016949,
+        "stop_no_later_than_responsible_step": 0.4406779661016949,
+        "stop_before_last_step": 0.1016949152542373,
+        "share_of_steps_left_after_stop": 0.025423728813559324
+      },
+      {
+        "min_new_values": 2,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.4625,
+        "stop_fpr": 0.16666666666666666,
+        "youden": 0.2958333333333334,
+        "any_alert_hallucinated": 0.55,
+        "any_alert_faithful": 0.16666666666666666,
+        "stop_rate_by_category": {
+          "faithful": 0.16666666666666666,
+          "synthetic: answer addition": 0.3333333333333333,
+          "synthetic: fabricated fact": 0.2,
+          "synthetic: ignored tool error": 0.7666666666666667
+        },
+        "stop_on_responsible_step": 0.8108108108108109,
+        "stop_no_later_than_responsible_step": 0.8108108108108109,
+        "stop_before_last_step": 0.5405405405405406,
+        "share_of_steps_left_after_stop": 0.13513513513513514
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": false,
+        "after_error_novelty": null,
+        "stop_tpr": 0.2,
+        "stop_fpr": 0.06666666666666667,
+        "youden": 0.13333333333333336,
+        "any_alert_hallucinated": 0.4625,
+        "any_alert_faithful": 0.06666666666666667,
+        "stop_rate_by_category": {
+          "faithful": 0.06666666666666667,
+          "synthetic: answer addition": 0.16666666666666666,
+          "synthetic: fabricated fact": 0.1,
+          "synthetic: ignored tool error": 0.3
+        },
+        "stop_on_responsible_step": 0.46875,
+        "stop_no_later_than_responsible_step": 0.46875,
+        "stop_before_last_step": 0.15625,
+        "share_of_steps_left_after_stop": 0.0390625
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": false,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.3625,
+        "stop_fpr": 0.06666666666666667,
+        "youden": 0.29583333333333334,
+        "any_alert_hallucinated": 0.4625,
+        "any_alert_faithful": 0.06666666666666667,
+        "stop_rate_by_category": {
+          "faithful": 0.06666666666666667,
+          "synthetic: answer addition": 0.16666666666666666,
+          "synthetic: fabricated fact": 0.1,
+          "synthetic: ignored tool error": 0.7333333333333333
+        },
+        "stop_on_responsible_step": 0.8620689655172413,
+        "stop_no_later_than_responsible_step": 0.8620689655172413,
+        "stop_before_last_step": 0.6896551724137931,
+        "share_of_steps_left_after_stop": 0.1724137931034483
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": true,
+        "after_error_novelty": null,
+        "stop_tpr": 0.2,
+        "stop_fpr": 0.06666666666666667,
+        "youden": 0.13333333333333336,
+        "any_alert_hallucinated": 0.4625,
+        "any_alert_faithful": 0.06666666666666667,
+        "stop_rate_by_category": {
+          "faithful": 0.06666666666666667,
+          "synthetic: answer addition": 0.16666666666666666,
+          "synthetic: fabricated fact": 0.1,
+          "synthetic: ignored tool error": 0.3
+        },
+        "stop_on_responsible_step": 0.46875,
+        "stop_no_later_than_responsible_step": 0.46875,
+        "stop_before_last_step": 0.15625,
+        "share_of_steps_left_after_stop": 0.0390625
+      },
+      {
+        "min_new_values": 3,
+        "watch_actions": true,
+        "after_error_novelty": 0.5,
+        "stop_tpr": 0.3625,
+        "stop_fpr": 0.06666666666666667,
+        "youden": 0.29583333333333334,
+        "any_alert_hallucinated": 0.4625,
+        "any_alert_faithful": 0.06666666666666667,
+        "stop_rate_by_category": {
+          "faithful": 0.06666666666666667,
+          "synthetic: answer addition": 0.16666666666666666,
+          "synthetic: fabricated fact": 0.1,
+          "synthetic: ignored tool error": 0.7333333333333333
+        },
+        "stop_on_responsible_step": 0.8620689655172413,
+        "stop_no_later_than_responsible_step": 0.8620689655172413,
+        "stop_before_last_step": 0.6896551724137931,
+        "share_of_steps_left_after_stop": 0.1724137931034483
+      }
+    ]
+  }
+}

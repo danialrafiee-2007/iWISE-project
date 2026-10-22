@@ -1,7 +1,7 @@
 {
   "data": "tg_agent_dev.jsonl",
   "trajectories": 220,
-  "seconds_per_trajectory": 0.032777362727277,
+  "seconds_per_trajectory": 0.026012202272712868,
   "detection_auroc": 0.7766666666666666,
   "detection_auroc_length_only": 0.5,
   "localization": {

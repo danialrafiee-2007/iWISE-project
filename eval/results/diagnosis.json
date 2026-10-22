@@ -1,0 +1,19 @@
+{
+  "threshold": 0.43,
+  "train_balanced_accuracy": 0.9913907284768212,
+  "ragtruth_dev": {
+    "pairs": 168,
+    "auroc": 1.0,
+    "balanced_accuracy": 0.9761904761904762
+  },
+  "halueval_xdev_qa": {
+    "pairs": 500,
+    "auroc": 0.999136,
+    "balanced_accuracy": 0.954
+  },
+  "natural_dev_hallucinations": {
+    "n": 176,
+    "retrieval": 0.06818181818181818,
+    "generation": 0.9318181818181818
+  }
+}
