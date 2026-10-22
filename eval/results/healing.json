@@ -1,0 +1,145 @@
+{
+  "model_version": "20261022-082833-ensemble",
+  "hallucinated": {
+    "n": 60,
+    "flagged": 0.8,
+    "changed": 0.5166666666666667,
+    "grounded_after_among_flagged": 0.14583333333333334,
+    "mean_risk_before": 0.5650112116393261,
+    "mean_risk_after": 0.43087805777216553,
+    "gold_text_removed_among_flagged": 0.3659722222222222,
+    "text_kept": 0.9473655178943852
+  },
+  "grounded": {
+    "n": 24,
+    "flagged": 0.5,
+    "changed": 0.08333333333333333,
+    "grounded_after_among_flagged": 0.08333333333333333,
+    "mean_risk_before": 0.31565715416392,
+    "mean_risk_after": 0.3025842377807267,
+    "gold_text_removed_among_flagged": null,
+    "text_kept": 0.9911771906318886
+  },
+  "examples": [
+    {
+      "id": "ragtruth-13256",
+      "label": "hallucinated",
+      "before": "To harvest pine nuts in BC, you need to follow the steps outlined in the passages. You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. Once you have identified the pine cones, wait for them to open and shake them gently to release the seeds. If the pine cone is closed, you may need to use a tool like a hammer or mallet to crack it open before removing the seeds. Collect the seeds into cloth or paper bags for sto",
+      "after": "To harvest pine nuts in BC, you need to follow the steps outlined in the passages. You can either grow your own pines or find stands of appropriate pine species on privately owned land with the owner's permission. Alternatively, you can find wild stands of native, nut-bearing pines on land where it's legal to harvest. If the pine cone is closed, you may need to use a tool like a hammer or mallet to crack it open before removing the seeds. Collect the seeds into cloth or paper bags for storage and consumption.",
+      "risk": [
+        0.703,
+        0.566
+      ]
+    },
+    {
+      "id": "ragtruth-14428",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here are the steps to create a twist braid:\n\nPassage 1:\n\n1. Start with a small section of hair from the crown of your head.\n2. Divide the section into three equal parts.\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\n\nPassage 2:\n\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you r",
+      "after": "Based on the given passages, here are the steps to create a twist braid:\nPassage 1:\n2. Divide the section into three equal parts.\n3. Twist the right and left parts over the middle part.\n4. Add a new thin section of hair to the front piece.\n5. Repeat steps 2-4 for the remainder of the twist braid.\nPassage 2:\n1. Wrap the left section over the right to form the rope twist.\n2. Swap hands as you wrap the section to keep tension in the braid.\n3. Continue twisting the sections to the left and wrapping them to the right until you reach the end of your ponytail.\n4. Secure the end with a clear elastic.\n",
+      "risk": [
+        0.506,
+        0.43
+      ]
+    },
+    {
+      "id": "ragtruth-12376",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here is how to cook a turkey leg:\n\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 d",
+      "after": "Based on the given passages, here is how to cook a turkey leg:\n1. Preheat the oven to 350 degrees F (passage 3).\n2. Place the turkey legs in a pan (passage 3).\n3. Roast the turkey legs for one hour and twenty minutes (passage 3).\n4. Check the internal temperature of the turkey legs after one hour, as ovens may vary (passage 3).\n5. The turkey temperature should reach 175 degrees F when taken from the oven (passage 3).\n6. Let the turkey legs rest for 15 minutes to redistribute the juices (passage 3).\n7. Use a meat thermometer to ensure the turkey has reached a safe internal temperature of 180 de",
+      "risk": [
+        0.57,
+        0.506
+      ]
+    },
+    {
+      "id": "ragtruth-16996",
+      "label": "hallucinated",
+      "before": "Sure, here are some important facts about recycling based on the provided passages:\n\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 75% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Recycling one ton of newspaper saves 15 trees, 4100 kWh of energy, and reduces greenhouse gas emissions by 96%. (Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubi",
+      "after": "Sure, here are some important facts about recycling based on the provided passages:\n1. Recycling helps reduce energy consumption and conserves natural resources. (Passage 1, Fact 1)\n2. Recycling is part of the waste disposal hierarchy, along with reduction and reuse. (Passage 1, Fact 2)\n3. Aluminum cans are the most recycled item, with over 1% of all aluminum produced globally being recycled. (Passage 1, Fact 4)\n4. Recycling one ton of newspaper saves 15 trees, 4100 kWh of energy, and reduces greenhouse gas emissions by 96%. (Passage 2, Point 3)\n5. Recycling one ton of cardboard saves 9 cubic ",
+      "risk": [
+        0.78,
+        0.478
+      ]
+    },
+    {
+      "id": "ragtruth-11882",
+      "label": "hallucinated",
+      "before": "To soak off gel polish, you can follow these steps:\n\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails.\n6. Allow the remaining polish to soak off naturally by leaving the nails in warm water",
+      "after": "To soak off gel polish, you can follow these steps:\n1. Gather materials: a bottle of acetone remover, cotton balls, aluminum foil, and an orange stick or cuticle pusher.\n2. Place a cotton ball soaked with acetone remover onto one of your fingernails.\n3. Wrap the finger with the cotton ball in foil and squeeze it tightly to keep it in contact with the nail.\n4. Remove the foil from the finger and push the polish off the nail using the orange stick or cuticle pusher.\n5. Repeat this step for each of your nails.",
+      "risk": [
+        0.74,
+        0.286
+      ]
+    },
+    {
+      "id": "ragtruth-12082",
+      "label": "hallucinated",
+      "before": "Based on the provided passages, here is how to freeze hash browns:\n\n1. Place cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\n\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freeze",
+      "after": "Based on the provided passages, here is how to freeze hash browns:\n1. Place cubed or grated hash browns in moisture- and air-proof containers, such as rigid plastic freezer containers or resealable plastic bags.\n2. If using grated hash browns, place the frozen patties in a plastic freezer container or resealable bag. To simplify serving, separate each patty with a piece of freezer wrap or wrap each patty in an individual resealable bag.\n3. Freeze the hash browns until you're ready to use them.\nWhen you're ready to cook the frozen hash browns, you can either cook them directly from the freezer ",
+      "risk": [
+        0.708,
+        0.483
+      ]
+    },
+    {
+      "id": "ragtruth-16503",
+      "label": "hallucinated",
+      "before": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act. The CSA categorizes drugs into various schedules based on their potential for abuse, and sets penalties for illegal distribution and possession of controlled substances",
+      "after": "Based on the provided passages, the Comprehensive Drug Abuse Prevention and Control Act of 1970 is a federal law that established the legal framework for regulating drugs in the United States. Specifically, it created the Drug Enforcement Administration (DEA) to enforce controlled substance laws, including the Controlled Substances Act (CSA), which is an important part of the Comprehensive Drug Abuse Prevention and Control Act.",
+      "risk": [
+        0.41,
+        0.184
+      ]
+    },
+    {
+      "id": "ragtruth-13259",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here's how you can harvest pine nuts in BC:\n\n1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags.\n\nIt's important to note that harvesti",
+      "after": "Based on the given passages, here's how you can harvest pine nuts in BC:\n1. Find stands of appropriate pine species on privately owned land, get the owner's permission, or find wild stands of native, nut-bearing pines on land where it's legal to harvest.\n2. Check if the pine cones have opened on the tree and still contain the seeds. If they have, place a tarp under the area you intend to harvest.\n3. Using a ladder, get close to the pine cones and knock the cones with a stick. The seeds should fall on the tarp.\n4. Gather the seeds into cloth or paper bags.",
+      "risk": [
+        0.474,
+        0.372
+      ]
+    },
+    {
+      "id": "ragtruth-16786",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here's how to make pork chops:\n\n1. Preheat the oven to 425\u00b0F (220\u00b0C).\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (63\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving.\n\nNote: If you prefer to saut\u00e9 ",
+      "after": "Based on the given passages, here's how to make pork chops:\n1. Preheat the oven to 425\u00b0F (220\u00b0C).\n2. Cut a pocket in the side of each pork chop to create a space for stuffing (if desired).\n3. Stuff each pork chop with a mixture of feta cheese, pesto, and pine nuts (if using).\n4. Secure the edges of each pocket with wooden toothpicks (if necessary).\n5. Place the stuffed pork chops on a baking sheet and bake for 20 minutes or until the chops reach an internal temperature of 145\u00b0F (425\u00b0C).\n6. Allow the chops to stand for 3 minutes at room temperature before serving.\nNote: If you prefer to saut\u00e9 t",
+      "risk": [
+        0.615,
+        0.472
+      ]
+    },
+    {
+      "id": "ragtruth-15082",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here is how you can get copies of your income tax returns:\n\nTo obtain a copy of your federal income tax return, you can:\n\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-800-908-9243 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 4506, Request for Copy of Tax Return.\n\nTo obtain a co",
+      "after": "Based on the given passages, here is how you can get copies of your income tax returns:\nTo obtain a copy of your federal income tax return, you can:\n1. Go to IRS.gov and use the Order a Transcript tool to request a transcript online. This will provide you with a summary of your tax return, including your marital status, the type of return you filed, your adjusted gross income, and taxable income.\n2. Call the IRS at 1-3516-3516-3516 to request a transcript by phone.\n3. Mail a written request to the address listed in the instructions for Form 3516, Request for Copy of Tax Return.\nTo obtain a cop",
+      "risk": [
+        0.977,
+        0.399
+      ]
+    },
+    {
+      "id": "ragtruth-11962",
+      "label": "hallucinated",
+      "before": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with ",
+      "after": "Based on the given passages, here are the steps to cook a prime beef roast in the oven:\n1. Remove the prime rib from the refrigerator and let it come to room temperature for 3 hours, depending on the size of the roast.\n2. Preheat the oven to 425 degrees F (220 degrees C).\n3. Line a roasting pan with aluminum foil and coat the roast with a flour mixture made of flour, pepper, salt, paprika, onion powder, garlic powder, and celery seed.\n4. Place the roast in the preheated oven and roast for 4 1/2 hours (20 minutes per pound) for medium-rare.\n5. After 15 minutes, check the oven temperature with a",
+      "risk": [
+        0.812,
+        0.245
+      ]
+    },
+    {
+      "id": "ragtruth-15573",
+      "label": "hallucinated",
+      "before": "Based on the provided passages, the main differences between HALT and HASS are:\n\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design we",
+      "after": "Based on the provided passages, the main differences between HALT and HASS are:\n1. Purpose: HALT is used for stress testing during the engineering development phase of a product to reveal design weaknesses, while HASS is used as a production screen to identify weak components and ensure they are properly tested.\n2. Focus: HALT focuses on finding design weaknesses through accelerated stress testing, while HASS focuses on identifying weak components and evaluating their performance under different stresses.\n3. Stress levels: HALT uses higher stress levels than HASS to expose potential design wea",
+      "risk": [
+        0.631,
+        0.399
+      ]
+    }
+  ]
+}

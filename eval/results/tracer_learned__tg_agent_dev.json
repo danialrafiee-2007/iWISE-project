@@ -1,14 +1,14 @@
 {
   "data": "tg_agent_dev.jsonl",
   "trajectories": 220,
-  "seconds_per_trajectory": 0.02735560409088397,
-  "detection_auroc": 0.7610416666666666,
+  "seconds_per_trajectory": 0.05467710409092516,
+  "detection_auroc": 0.7599999999999999,
   "detection_auroc_length_only": 0.5,
   "localization": {
     "all": {
-      "tracer_exact": 0.3875,
-      "tracer_within_1": 0.8375,
-      "tracer_top3": 0.65625,
+      "tracer_exact": 0.39375,
+      "tracer_within_1": 0.83125,
+      "tracer_top3": 0.65,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.375,
       "baseline_random": 0.25,
@@ -25,7 +25,7 @@
     },
     "category: synthetic: fabricated fact": {
       "tracer_exact": 0.05,
-      "tracer_within_1": 0.45,
+      "tracer_within_1": 0.425,
       "tracer_top3": 0.475,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
@@ -33,18 +33,18 @@
       "n": 40
     },
     "category: synthetic: ignored tool error": {
-      "tracer_exact": 0.06666666666666667,
+      "tracer_exact": 0.08333333333333333,
       "tracer_within_1": 1.0,
-      "tracer_top3": 0.43333333333333335,
+      "tracer_top3": 0.4166666666666667,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
       "baseline_random": 0.25,
       "n": 60
     },
     "domain: agent": {
-      "tracer_exact": 0.3875,
-      "tracer_within_1": 0.8375,
-      "tracer_top3": 0.65625,
+      "tracer_exact": 0.39375,
+      "tracer_within_1": 0.83125,
+      "tracer_top3": 0.65,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.375,
       "baseline_random": 0.25,
@@ -61,7 +61,7 @@
     },
     "framework: fabricated_fact": {
       "tracer_exact": 0.05,
-      "tracer_within_1": 0.45,
+      "tracer_within_1": 0.425,
       "tracer_top3": 0.475,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
@@ -69,9 +69,9 @@
       "n": 40
     },
     "framework: ignored_tool_error": {
-      "tracer_exact": 0.06666666666666667,
+      "tracer_exact": 0.08333333333333333,
       "tracer_within_1": 1.0,
-      "tracer_top3": 0.43333333333333335,
+      "tracer_top3": 0.4166666666666667,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
       "baseline_random": 0.25,

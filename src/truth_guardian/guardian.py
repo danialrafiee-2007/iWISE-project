@@ -6,7 +6,7 @@ outputs). Two signals:
 - right after a failed tool call, the agent reports mostly new content as if the tool had answered.
 The second always stops the agent. The first depends on the policy: "strict" (every stated fact must come from a tool,
 as in retrieval agents) stops; "lenient" (the agent may use its own knowledge) only warns, because faithful natural
-agents do this routinely (81% of faithful AgentHallu dev runs). A failed tool call on its own is a warning.
+agents do this routinely (80% of faithful AgentHallu dev runs). A failed tool call on its own is a warning.
 Settings are fixed by design, not tuned; scripts/evaluate_guardian.py reports their sensitivity.
 """
 

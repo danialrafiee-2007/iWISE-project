@@ -1,14 +1,14 @@
 {
   "trajectories": 231,
   "folds": 5,
-  "detection_auroc_learned": 0.5562009419152276,
-  "detection_auroc_v0": 0.5466640502354788,
+  "detection_auroc_learned": 0.555337519623234,
+  "detection_auroc_v0": 0.5448587127158555,
   "localization": {
     "all": {
       "learned_exact": 0.37857142857142856,
       "learned_within_1": 0.5642857142857143,
-      "learned_top3": 0.7071428571428572,
-      "v0_exact": 0.32142857142857145,
+      "learned_top3": 0.7142857142857143,
+      "v0_exact": 0.30714285714285716,
       "first_step": 0.2714285714285714,
       "random": 0.17496513338083106,
       "n": 140
@@ -35,7 +35,7 @@
       "learned_exact": 0.4857142857142857,
       "learned_within_1": 0.6285714285714286,
       "learned_top3": 0.7714285714285715,
-      "v0_exact": 0.4,
+      "v0_exact": 0.37142857142857144,
       "first_step": 0.11428571428571428,
       "random": 0.19525664811379093,
       "n": 35
@@ -43,8 +43,8 @@
     "category: Retrieval Hallucination": {
       "learned_exact": 0.06451612903225806,
       "learned_within_1": 0.2903225806451613,
-      "learned_top3": 0.3548387096774194,
-      "v0_exact": 0.03225806451612903,
+      "learned_top3": 0.3870967741935484,
+      "v0_exact": 0.0,
       "first_step": 0.0,
       "random": 0.17686695025404703,
       "n": 31

@@ -1,14 +1,14 @@
 {
   "data": "agenthallu_dev.jsonl",
   "trajectories": 231,
-  "seconds_per_trajectory": 0.31622471125539164,
-  "detection_auroc": 0.5466640502354788,
+  "seconds_per_trajectory": 0.2998575943722984,
+  "detection_auroc": 0.5448587127158555,
   "detection_auroc_length_only": 0.48500784929356355,
   "localization": {
     "all": {
-      "tracer_exact": 0.32142857142857145,
-      "tracer_within_1": 0.5071428571428571,
-      "tracer_top3": 0.7,
+      "tracer_exact": 0.30714285714285716,
+      "tracer_within_1": 0.4857142857142857,
+      "tracer_top3": 0.6857142857142857,
       "baseline_first_step": 0.2714285714285714,
       "baseline_last_step": 0.03571428571428571,
       "baseline_random": 0.17496513338083106,
@@ -16,7 +16,7 @@
     },
     "category: Human-Interaction Hallucination": {
       "tracer_exact": 0.07692307692307693,
-      "tracer_within_1": 0.7692307692307693,
+      "tracer_within_1": 0.6923076923076923,
       "tracer_top3": 0.6153846153846154,
       "baseline_first_step": 0.38461538461538464,
       "baseline_last_step": 0.0,
@@ -25,7 +25,7 @@
     },
     "category: Planning Hallucination": {
       "tracer_exact": 0.75,
-      "tracer_within_1": 0.8214285714285714,
+      "tracer_within_1": 0.7857142857142857,
       "tracer_top3": 0.9642857142857143,
       "baseline_first_step": 0.9642857142857143,
       "baseline_last_step": 0.0,
@@ -33,18 +33,18 @@
       "n": 28
     },
     "category: Reasoning Hallucination": {
-      "tracer_exact": 0.4,
-      "tracer_within_1": 0.5142857142857142,
-      "tracer_top3": 0.8,
+      "tracer_exact": 0.37142857142857144,
+      "tracer_within_1": 0.4857142857142857,
+      "tracer_top3": 0.7714285714285715,
       "baseline_first_step": 0.11428571428571428,
       "baseline_last_step": 0.14285714285714285,
       "baseline_random": 0.19525664811379093,
       "n": 35
     },
     "category: Retrieval Hallucination": {
-      "tracer_exact": 0.03225806451612903,
+      "tracer_exact": 0.0,
       "tracer_within_1": 0.25806451612903225,
-      "tracer_top3": 0.41935483870967744,
+      "tracer_top3": 0.3870967741935484,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
       "baseline_random": 0.17686695025404703,
@@ -62,7 +62,7 @@
     "domain: general_assistant": {
       "tracer_exact": 0.07692307692307693,
       "tracer_within_1": 0.15384615384615385,
-      "tracer_top3": 0.46153846153846156,
+      "tracer_top3": 0.38461538461538464,
       "baseline_first_step": 0.23076923076923078,
       "baseline_last_step": 0.07692307692307693,
       "baseline_random": 0.12645590843265261,
@@ -70,16 +70,16 @@
     },
     "domain: math": {
       "tracer_exact": 0.4230769230769231,
-      "tracer_within_1": 0.6538461538461539,
-      "tracer_top3": 0.8076923076923077,
+      "tracer_within_1": 0.6153846153846154,
+      "tracer_top3": 0.7692307692307693,
       "baseline_first_step": 0.4230769230769231,
       "baseline_last_step": 0.038461538461538464,
       "baseline_random": 0.21006771006771002,
       "n": 26
     },
     "domain: science": {
-      "tracer_exact": 0.5,
-      "tracer_within_1": 0.7941176470588235,
+      "tracer_exact": 0.47058823529411764,
+      "tracer_within_1": 0.7352941176470589,
       "tracer_top3": 0.7941176470588235,
       "baseline_first_step": 0.5,
       "baseline_last_step": 0.058823529411764705,
@@ -96,7 +96,7 @@
       "n": 33
     },
     "domain: world_knowledge": {
-      "tracer_exact": 0.23529411764705882,
+      "tracer_exact": 0.20588235294117646,
       "tracer_within_1": 0.38235294117647056,
       "tracer_top3": 0.6470588235294118,
       "baseline_first_step": 0.14705882352941177,
@@ -125,7 +125,7 @@
     "framework: Magentic_One": {
       "tracer_exact": 0.3333333333333333,
       "tracer_within_1": 0.3333333333333333,
-      "tracer_top3": 0.8333333333333334,
+      "tracer_top3": 0.7777777777777778,
       "baseline_first_step": 0.4444444444444444,
       "baseline_last_step": 0.0,
       "baseline_random": 0.14301477305353275,
@@ -150,9 +150,9 @@
       "n": 23
     },
     "framework: OpenManus": {
-      "tracer_exact": 0.35,
-      "tracer_within_1": 0.65,
-      "tracer_top3": 0.8,
+      "tracer_exact": 0.25,
+      "tracer_within_1": 0.55,
+      "tracer_top3": 0.75,
       "baseline_first_step": 0.45,
       "baseline_last_step": 0.0,
       "baseline_random": 0.20538690476190474,
@@ -160,7 +160,7 @@
     },
     "framework: SmolAgents": {
       "tracer_exact": 0.4583333333333333,
-      "tracer_within_1": 0.625,
+      "tracer_within_1": 0.5833333333333334,
       "tracer_top3": 0.8333333333333334,
       "baseline_first_step": 0.4166666666666667,
       "baseline_last_step": 0.125,

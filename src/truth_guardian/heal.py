@@ -47,11 +47,12 @@ def corrections(report: Report) -> list[Change]:
 
 
 def apply(text: str, changes: list[Change]) -> str:
-    """Apply non-overlapping changes from the end backwards, then drop lines left empty and doubled spaces."""
+    """Apply non-overlapping changes from the end backwards, then drop list markers left bare and doubled spaces."""
     for change in sorted(changes, key=lambda c: -c.start):
         text = text[: change.start] + change.new + text[change.end :]
     lines = [re.sub(r"[ \t]{2,}", " ", line).strip() for line in text.splitlines()]
-    return "\n".join(line for line in lines if not _BARE_LINE.match(line)).strip()
+    kept = "\n".join(line for line in lines if not (line and _BARE_LINE.match(line)))
+    return re.sub(r"\n{3,}", "\n\n", kept).strip()
 
 
 def heal(sample: Sample, analyze: Callable[[Sample], Report], max_rounds: int = MAX_ROUNDS) -> Healing:

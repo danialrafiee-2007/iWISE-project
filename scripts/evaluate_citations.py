@@ -67,7 +67,7 @@ def main() -> None:
 def _pairs(sample, sentence):
     from truth_guardian.citations import _premise
 
-    claim = CITATION.sub("", sentence.text).strip(" ()[],.;:") or sentence.text
+    claim = CITATION.sub("", sentence.text).strip(" ()[],.;:")
     return [(_premise(d.text, claim), claim) for d in sample.documents]
 
 

@@ -37,3 +37,8 @@ def test_sentences_without_citations_are_skipped():
 
 def test_cite_adds_markers_before_the_full_stop():
     assert cite("Ghee keeps. Frank died.", [(0, 11, 1), (12, 23, 2)]) == "Ghee keeps [1]. Frank died [2]."
+
+
+def test_citation_only_lines_are_skipped():
+    s = sample("Passage 2:\nAnne Frank died in 1945 in Bergen-Belsen.")
+    assert check_sample(s, split_sentences(s.answer), word_overlap)[0] is None

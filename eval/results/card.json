@@ -1,0 +1,149 @@
+{
+  "model_version": "20261022-082833-ensemble",
+  "grades": {
+    "A": 0.1,
+    "B": 0.25,
+    "C": 0.4,
+    "D": 0.7
+  },
+  "ragtruth_dev": {
+    "by_grade": {
+      "A": {
+        "n": 180,
+        "share": 0.11952191235059761,
+        "mean_risk": 0.06578123782681922,
+        "hallucination_rate": 0.044444444444444446
+      },
+      "B": {
+        "n": 260,
+        "share": 0.17264276228419656,
+        "mean_risk": 0.17717374039464073,
+        "hallucination_rate": 0.16153846153846155
+      },
+      "C": {
+        "n": 273,
+        "share": 0.18127490039840638,
+        "mean_risk": 0.3260424039185637,
+        "hallucination_rate": 0.3076923076923077
+      },
+      "D": {
+        "n": 441,
+        "share": 0.29282868525896416,
+        "mean_risk": 0.5352552070018124,
+        "hallucination_rate": 0.5170068027210885
+      },
+      "F": {
+        "n": 352,
+        "share": 0.2337317397078353,
+        "mean_risk": 0.8391959358468665,
+        "hallucination_rate": 0.8693181818181818
+      }
+    },
+    "monotonic": true
+  },
+  "xdev_halueval_qa": {
+    "by_grade": {
+      "A": {
+        "n": 283,
+        "share": 0.566,
+        "mean_risk": 0.04734002713762416,
+        "hallucination_rate": 0.19434628975265017
+      },
+      "B": {
+        "n": 80,
+        "share": 0.16,
+        "mean_risk": 0.16998772649034213,
+        "hallucination_rate": 0.75
+      },
+      "C": {
+        "n": 26,
+        "share": 0.052,
+        "mean_risk": 0.3126885149999486,
+        "hallucination_rate": 0.9230769230769231
+      },
+      "D": {
+        "n": 29,
+        "share": 0.058,
+        "mean_risk": 0.5158416434522575,
+        "hallucination_rate": 1.0
+      },
+      "F": {
+        "n": 82,
+        "share": 0.164,
+        "mean_risk": 0.9086269620359333,
+        "hallucination_rate": 1.0
+      }
+    },
+    "monotonic": true
+  },
+  "xdev_halueval_dialogue": {
+    "by_grade": {
+      "A": {
+        "n": 16,
+        "share": 0.032,
+        "mean_risk": 0.057446077027835316,
+        "hallucination_rate": 0.125
+      },
+      "B": {
+        "n": 28,
+        "share": 0.056,
+        "mean_risk": 0.18032180456006144,
+        "hallucination_rate": 0.25
+      },
+      "C": {
+        "n": 24,
+        "share": 0.048,
+        "mean_risk": 0.34090517461499686,
+        "hallucination_rate": 0.25
+      },
+      "D": {
+        "n": 116,
+        "share": 0.232,
+        "mean_risk": 0.5614041096265655,
+        "hallucination_rate": 0.3620689655172414
+      },
+      "F": {
+        "n": 316,
+        "share": 0.632,
+        "mean_risk": 0.8716395818932173,
+        "hallucination_rate": 0.6107594936708861
+      }
+    },
+    "monotonic": true
+  },
+  "xdev_halueval_summary": {
+    "by_grade": {
+      "A": {
+        "n": 106,
+        "share": 0.212,
+        "mean_risk": 0.0623597782338397,
+        "hallucination_rate": 0.19811320754716982
+      },
+      "B": {
+        "n": 150,
+        "share": 0.3,
+        "mean_risk": 0.16811195038204949,
+        "hallucination_rate": 0.41333333333333333
+      },
+      "C": {
+        "n": 92,
+        "share": 0.184,
+        "mean_risk": 0.3166049555655531,
+        "hallucination_rate": 0.6956521739130435
+      },
+      "D": {
+        "n": 97,
+        "share": 0.194,
+        "mean_risk": 0.5410044498425868,
+        "hallucination_rate": 0.7422680412371134
+      },
+      "F": {
+        "n": 55,
+        "share": 0.11,
+        "mean_risk": 0.8378226740040051,
+        "hallucination_rate": 0.5636363636363636
+      }
+    },
+    "monotonic": false
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "model_version": "20261022-082833-ensemble",
+  "data": "ragtruth_dev.jsonl",
+  "pooled": [
+    {
+      "alpha": 0.05,
+      "catch": 0.20249666332750416,
+      "alarm": 0.7059162394961879,
+      "hallucinated": 668,
+      "grounded": 838
+    },
+    {
+      "alpha": 0.1,
+      "catch": 0.2773416429247171,
+      "alarm": 0.616706815369804,
+      "hallucinated": 668,
+      "grounded": 838
+    },
+    {
+      "alpha": 0.2,
+      "catch": 0.39548053436418007,
+      "alarm": 0.4667750060583343,
+      "hallucinated": 668,
+      "grounded": 838
+    }
+  ],
+  "by_task": {
+    "data2text": [
+      {
+        "alpha": 0.05,
+        "catch": 0.4148459720474328,
+        "alarm": 0.8412861641687193,
+        "hallucinated": 357,
+        "grounded": 171
+      },
+      {
+        "alpha": 0.1,
+        "catch": 0.49253612570633776,
+        "alarm": 0.7215487084158716,
+        "hallucinated": 357,
+        "grounded": 171
+      },
+      {
+        "alpha": 0.2,
+        "catch": 0.5993595485012555,
+        "alarm": 0.6644108947595748,
+        "hallucinated": 357,
+        "grounded": 171
+      }
+    ],
+    "qa": [
+      {
+        "alpha": 0.05,
+        "catch": 0.196755584190759,
+        "alarm": 0.6408045013871988,
+        "hallucinated": 176,
+        "grounded": 328
+      },
+      {
+        "alpha": 0.1,
+        "catch": 0.238255412312743,
+        "alarm": 0.48109394609547673,
+        "hallucinated": 176,
+        "grounded": 328
+      },
+      {
+        "alpha": 0.2,
+        "catch": 0.33117163060777344,
+        "alarm": 0.3858887328341913,
+        "hallucinated": 176,
+        "grounded": 328
+      }
+    ],
+    "summary": [
+      {
+        "alpha": 0.05,
+        "catch": 0.08416048589582842,
+        "alarm": 0.5987889072060022,
+        "hallucinated": 135,
+        "grounded": 339
+      },
+      {
+        "alpha": 0.1,
+        "catch": 0.1739928439751499,
+        "alarm": 0.4781392380811642,
+        "hallucinated": 135,
+        "grounded": 339
+      },
+      {
+        "alpha": 0.2,
+        "catch": 0.24341602694053505,
+        "alarm": 0.4054166193524117,
+        "hallucinated": 135,
+        "grounded": 339
+      }
+    ]
+  }
+}

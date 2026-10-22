@@ -2,7 +2,8 @@
 
 Each citing sentence is scored with HHEM against the best-matching sentences of the cited documents and of every other
 document. The citation is wrong when the cited documents do not support the claim but another document clearly does;
-a claim no document supports is left to the main check. Documents are numbered in the order they were given.
+a claim no document supports is left to the main check, and citation-only lines ("Passage 3:") are skipped. Documents
+are numbered in the order they were given.
 `cite` goes the other way: it adds [n] markers to supported claims from their evidence document.
 """
 
@@ -13,12 +14,13 @@ from truth_guardian import models
 from truth_guardian.correct import _singular
 from truth_guardian.retrieval import Bm25
 from truth_guardian.schema import Sample
-from truth_guardian.text import Sentence, split_sentences
+from truth_guardian.text import Sentence, content_words, split_sentences
 
 CITATION = re.compile(r"\b(?:passages?|sources?|documents?)\s*#?\s*(\d+(?:\s*(?:,|&|and|or)\s*(?:passages?\s*)?\d+)*)|\[(\d+(?:\s*,\s*\d+)*)\]", re.IGNORECASE)
 SUPPORT = 0.5
 MARGIN = 0.3
 PREMISE_SENTENCES = 3
+MIN_CLAIM_WORDS = 3
 
 
 class CitationCheck(NamedTuple):
@@ -58,7 +60,10 @@ def check_sample(sample: Sample, sentences: list[Sentence], consistency=models.h
         if not cited:
             plans.append(None)
             continue
-        claim = CITATION.sub("", s.text).strip(" ()[],.;:") or s.text
+        claim = CITATION.sub("", s.text).strip(" ()[],.;:")
+        if len(content_words(claim)) < MIN_CLAIM_WORDS:
+            plans.append(None)
+            continue
         plans.append((cited, len(pairs)))
         pairs += [(_premise(d, claim), claim) for d in documents]
     scores = consistency(pairs) if pairs else []

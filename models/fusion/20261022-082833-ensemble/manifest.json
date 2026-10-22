@@ -1,0 +1,37 @@
+{
+  "version": "20261022-082833-ensemble",
+  "name": "fusion-ensemble-lexical+symbolic+dense+hhem-nostructure",
+  "created": "2026-10-22T08:28:33+00:00",
+  "commit": "0414d2b",
+  "kind": "ensemble",
+  "structure": false,
+  "signals": {
+    "lexical": "v1",
+    "symbolic": "v2",
+    "dense": "v1:sentence-transformers/all-MiniLM-L6-v2",
+    "hhem": "v1:de9a5e6b:hybrid-top5"
+  },
+  "train": {
+    "data": "ragtruth_train.jsonl",
+    "oof_sentence_auroc": 0.8153077866095333,
+    "oof_response_auroc": 0.8435159358546682,
+    "samples": 8089,
+    "groups": 1360,
+    "sentences": 65759,
+    "excluded_quality": 136
+  },
+  "folds": 5,
+  "thresholds": {
+    "response": 0.4538356475415264,
+    "sentence": 0.31042325738681364
+  },
+  "dev": {
+    "data": "ragtruth_dev.jsonl",
+    "n": 1506,
+    "auroc": 0.844925899989996,
+    "f1": 0.7402402402402403,
+    "ece": 0.03294192265733866,
+    "span_f1": 0.3760285386938861
+  },
+  "model_sha256": "ab875c589069021ab1c1bb13fa9dde242b4e9fe2ef63a0fcdae7fb127dbbbbf2"
+}

@@ -1,0 +1,104 @@
+{
+  "citing_sentences": {
+    "grounded": 157,
+    "hallucinated": 173
+  },
+  "flagged_wrong_rate": {
+    "grounded": 0.044585987261146494,
+    "hallucinated": 0.005780346820809248
+  },
+  "swapped_citations": 117,
+  "swapped_detected": 1.0,
+  "control_flagged": 0.0,
+  "examples": [
+    {
+      "id": "ragtruth-12579",
+      "label": "grounded",
+      "sentence": "Step 2 (as described in passage 3): Fold the strips like in the diagram and hold the position for a while.",
+      "cited": [
+        3
+      ],
+      "cited_support": 0.1,
+      "better": 2,
+      "better_support": 0.949
+    },
+    {
+      "id": "ragtruth-14015",
+      "label": "grounded",
+      "sentence": "The marinade recipe mentioned in passage 2 can be used to add flavor to the tuna steaks.",
+      "cited": [
+        2
+      ],
+      "cited_support": 0.049,
+      "better": 1,
+      "better_support": 0.679
+    },
+    {
+      "id": "ragtruth-14781",
+      "label": "grounded",
+      "sentence": "If your laptop is asleep, things may get trickier according to Passage 2.",
+      "cited": [
+        2
+      ],
+      "cited_support": 0.026,
+      "better": 1,
+      "better_support": 0.949
+    },
+    {
+      "id": "ragtruth-15255",
+      "label": "grounded",
+      "sentence": "Squats: According to passage 1, doing squats can help tone and strengthen the legs, thighs, and buttocks.",
+      "cited": [
+        1
+      ],
+      "cited_support": 0.047,
+      "better": 3,
+      "better_support": 0.783
+    },
+    {
+      "id": "ragtruth-15406",
+      "label": "grounded",
+      "sentence": "Therefore, to cook cauliflower, you need to cut it into large pieces, break it apart into florets, and then cook it using one of the methods mentioned in Passage 2 or Passage 3.",
+      "cited": [
+        2,
+        3
+      ],
+      "cited_support": 0.029,
+      "better": 1,
+      "better_support": 0.974
+    },
+    {
+      "id": "ragtruth-15525",
+      "label": "grounded",
+      "sentence": "Leg raises: Passage 2 suggests doing leg raises as part of an exercise routine to target the lower belly fat.",
+      "cited": [
+        2
+      ],
+      "cited_support": 0.206,
+      "better": 1,
+      "better_support": 0.849
+    },
+    {
+      "id": "ragtruth-15526",
+      "label": "grounded",
+      "sentence": "Crunches: Passage 2 describes crunches as an exercise that can be done to lose belly fat, specifically targeting the lower belly fat.",
+      "cited": [
+        2
+      ],
+      "cited_support": 0.381,
+      "better": 1,
+      "better_support": 0.982
+    },
+    {
+      "id": "ragtruth-16995",
+      "label": "hallucinated",
+      "sentence": "Aluminum cans are the most commonly recycled item in the United States, and they can be recycled into various products such as soda cans, pie plates, license plates, and thumbtacks (Passage 2, Fact 1)",
+      "cited": [
+        2
+      ],
+      "cited_support": 0.014,
+      "better": 3,
+      "better_support": 0.798
+    }
+  ]
+}

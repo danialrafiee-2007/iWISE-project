@@ -1,13 +1,13 @@
 {
   "data": "tg_agent_dev.jsonl",
   "trajectories": 220,
-  "seconds_per_trajectory": 0.026012202272712868,
-  "detection_auroc": 0.7766666666666666,
+  "seconds_per_trajectory": 0.05312927772730208,
+  "detection_auroc": 0.7825520833333334,
   "detection_auroc_length_only": 0.5,
   "localization": {
     "all": {
       "tracer_exact": 0.53125,
-      "tracer_within_1": 0.91875,
+      "tracer_within_1": 0.9125,
       "tracer_top3": 0.8375,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.375,
@@ -25,7 +25,7 @@
     },
     "category: synthetic: fabricated fact": {
       "tracer_exact": 0.35,
-      "tracer_within_1": 0.675,
+      "tracer_within_1": 0.65,
       "tracer_top3": 0.875,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,
@@ -43,7 +43,7 @@
     },
     "domain: agent": {
       "tracer_exact": 0.53125,
-      "tracer_within_1": 0.91875,
+      "tracer_within_1": 0.9125,
       "tracer_top3": 0.8375,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.375,
@@ -61,7 +61,7 @@
     },
     "framework: fabricated_fact": {
       "tracer_exact": 0.35,
-      "tracer_within_1": 0.675,
+      "tracer_within_1": 0.65,
       "tracer_top3": 0.875,
       "baseline_first_step": 0.0,
       "baseline_last_step": 0.0,

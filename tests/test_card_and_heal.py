@@ -37,3 +37,7 @@ def test_corrections_replace_values_swap_in_evidence_and_remove_unsupported():
 def test_contested_claims_are_kept_and_empty_list_items_dropped():
     assert corrections(report([claim(0, 5, "a", "contested")])) == []
     assert apply("Steps:\n1. Mix.\n2. Bake.", [Change(15, 23, "2. Bake.", "", "removed")]) == "Steps:\n1. Mix."
+
+
+def test_paragraph_breaks_survive():
+    assert apply("Intro.\n\nFact one. Fact two.", [Change(18, 27, "Fact two.", "", "removed")]) == "Intro.\n\nFact one."
