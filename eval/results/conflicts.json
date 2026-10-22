@@ -1,0 +1,17 @@
+{
+  "natural": {
+    "qa_samples": 504,
+    "source_groups": 84,
+    "groups_with_conflict": 0,
+    "rate": 0.0,
+    "contested_answer_sentences": 0,
+    "examples": []
+  },
+  "injected": {
+    "samples": 138,
+    "conflict_found": 0.8333333333333334,
+    "answer_marked_contested": 0.644927536231884,
+    "follows_original_passage": 0.644927536231884,
+    "edited_answer_follows_injected_passage": 0.6304347826086957
+  }
+}

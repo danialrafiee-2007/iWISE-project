@@ -1,7 +1,9 @@
 """Build the "Fool the Guardian" suite: grounded dev answers, each edited once per kind, plus unedited controls.
 
 Bases come from dev (never train), one answer per source group, so the suite tests the trained model
-on edits it has never seen. Output: data/processed/perturb_dev.jsonl
+on edits it has never seen. Edit kinds that apply to few of the 60 bases (role swaps, hedges, quantifiers) are
+topped up from further grounded dev answers, one per unused group, up to MIN_PER_KIND edits.
+Output: data/processed/perturb_dev.jsonl
 """
 
 import hashlib
@@ -15,6 +17,8 @@ from truth_guardian.schema import read_jsonl, write_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
 BASES_PER_TASK = 20
+MIN_PER_KIND = 30
+TOP_UP_KINDS = ("role_swap", "quantifier", "certainty")
 
 
 def main() -> None:
@@ -37,6 +41,20 @@ def main() -> None:
         for kind in KINDS:
             seed = int(hashlib.sha256(f"{base.id}:{kind}".encode()).hexdigest()[:8], 16)
             edited = perturb(base, kind, random.Random(seed), pool)
+            if edited is not None:
+                suite.append(edited)
+                counts[kind] += 1
+
+    used = {b.meta.group_id for b in bases}
+    for s in sample_groups(grounded, 10_000, seed="tg-perturb-topup-v1"):
+        if s.meta.group_id in used:
+            continue
+        used.add(s.meta.group_id)
+        for kind in TOP_UP_KINDS:
+            if counts[kind] >= MIN_PER_KIND:
+                continue
+            seed = int(hashlib.sha256(f"{s.id}:{kind}".encode()).hexdigest()[:8], 16)
+            edited = perturb(s, kind, random.Random(seed), pool)
             if edited is not None:
                 suite.append(edited)
                 counts[kind] += 1

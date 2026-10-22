@@ -136,3 +136,58 @@ def test_omitted_caveat_is_reported_and_warned():
     assert report.completeness.omitted_caveats == ["However, the solids burn quickly if the heat is too high."]
     assert any("leaves out a condition" in w for w in report.warnings)
     assert run(make_sample("Anne Frank died in 1945.", [SOURCE])).completeness is None
+
+
+def overlap_consistency(pairs):
+    return [len(set(p.lower().split()) & set(h.lower().split())) / max(len(h.split()), 1) for p, h in pairs]
+
+
+def always_contradiction(pairs):
+    return np.tile([0.9, 0.05, 0.05], (len(pairs), 1))
+
+
+def test_confirmed_role_swap_overrides_and_explains():
+    def swapped(sample, sentences):
+        return [{"shift_kind": "role_swap", "shift_candidate": 1, "shift_confirmed": 1, "shift_overrides": 1, "shift_entailment": 0.9,
+                 "shift_spans": [[0, 6], [16, 23]], "shift_evidence": "Brazil defeated Germany.", "shift_detail": "the source has brazil acting on germany, the answer the reverse"} for _ in sentences]
+
+    report = analyze(make_sample("Germany defeated Brazil.", ["Brazil defeated Germany."]), trained_model(), use_polarity=False,
+                     signal_fns={**SIGNAL_FNS, "shifts": swapped}, encode=fake_encode)
+    (claim,) = report.claims
+    assert claim.status == "contradicted" and "swaps who did what" in claim.explanation and claim.evidence.text == "Brazil defeated Germany."
+
+
+def test_answer_following_one_of_two_disagreeing_sources_is_contested():
+    sources = ["The Eiffel Tower is 324 metres tall, including its antennas.", "The Eiffel Tower is 300 metres tall, including its antennas."]
+    report = run(make_sample("The Eiffel Tower is 300 metres tall, including its antennas.", sources), classify=always_contradiction)
+    (claim,) = report.claims
+    assert claim.status == "contested" and claim.evidence.document_id == "source2" and len(report.conflicts) == 1
+    assert report.verdict == "uncertain" and report.diagnosis.blame == "conflicting_sources"
+
+
+def test_wrong_citation_becomes_a_caution_and_the_card_shows_it():
+    sources = ["Ghee keeps for months without a fridge.", "Anne Frank died in 1945 in Bergen-Belsen."]
+    report = run(make_sample("Anne Frank died in 1945 in Bergen-Belsen (Passage 1).", sources), consistency=overlap_consistency)
+    (claim,) = report.claims
+    assert claim.citation.cited == [1] and not claim.citation.supported and "supported by document 2" in claim.cautions[0]
+    citations = next(d for d in report.card.dimensions if d.name == "citations")
+    assert citations.score == 0.0 and report.card.grade in "ABCDF"
+
+
+def test_guarantee_and_cited_answer():
+    from truth_guardian.conformal import Calibration, calibrate
+
+    table = calibrate([0.9, 0.8, 0.7, 0.2, 0.1, 0.05] * 5, [1, 1, 1, 0, 0, 0] * 5)
+    report = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), calibration=Calibration(model_version="m", data="unit", pooled=table, by_task={}))
+    assert report.guarantee.alpha == 0.1 and report.guarantee.flagged_with_catch_guarantee == (report.risk >= report.guarantee.catch_threshold)
+    faithful = run(make_sample("Anne Frank died in 1945 in Bergen-Belsen.", [SOURCE]))
+    assert faithful.cited_answer == "Anne Frank died in 1945 in Bergen-Belsen [1]."
+
+
+def test_heal_fixes_the_wrong_year_and_rechecks():
+    from truth_guardian.pipeline import heal
+
+    healing = heal(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), trained_model(), use_polarity=False, signal_fns=SIGNAL_FNS, encode=fake_encode)
+    assert healing.answer == "Anne Frank died in 1945 in Bergen-Belsen."
+    assert healing.reports[0].verdict == "hallucinated" and healing.reports[-1].verdict == "grounded"
+    assert healing.changes[0][0].new == "1945"

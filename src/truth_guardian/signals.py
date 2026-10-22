@@ -95,6 +95,30 @@ def polarity(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     ]
 
 
+def shifts(sample: Sample, sentences: list[Sentence]) -> list[dict]:
+    from truth_guardian.shifts import check_sample as shift_check
+
+    return [
+        {
+            "shift_kind": c.kind if c.confirmed else "",
+            "shift_candidate": int(c.candidate),
+            "shift_confirmed": int(c.confirmed),
+            "shift_overrides": int(c.overrides),
+            "shift_entailment": c.entailment if c.entailment is not None else 1.0,
+            "shift_spans": [list(x) for x in c.spans] if c.confirmed else [],
+            "shift_evidence": c.evidence if c.confirmed else "",
+            "shift_detail": c.detail if c.confirmed else "",
+        }
+        for c in shift_check(sample, sentences)
+    ]
+
+
+def _shift_version() -> str:
+    from truth_guardian.shifts import CONFIRM_ENTAILMENT
+
+    return f"v2:wordnet3.0:{models.NLI_MODEL}:" + ":".join(f"{k}{v}" for k, v in CONFIRM_ENTAILMENT.items())
+
+
 def spans_per_sentence(spans: list[dict], sentences: list[Sentence]) -> list[dict]:
     """Share of each sentence covered by predicted spans, and the highest span confidence touching it."""
     rows = []
@@ -117,10 +141,11 @@ def lettuce(sample: Sample, sentences: list[Sentence]) -> list[dict]:
 SIGNALS: dict[str, tuple[str, Callable]] = {
     "lexical": ("v1", lexical),
     "dense": (f"v1:{models.EMBEDDING_MODEL}", dense),
-    "symbolic": ("v1", symbolic),
+    "symbolic": ("v2", symbolic),
     "nli": (f"v1:{models.NLI_MODEL}:hybrid-top{PREMISE_SENTENCES}", nli),
     "nli_large": (f"v1:{models.NLI_LARGE_MODEL}:hybrid-top{PREMISE_SENTENCES}", nli_large),
     "hhem": (f"v1:{models.HHEM_REVISION[:8]}:hybrid-top{PREMISE_SENTENCES}", hhem),
     "lettuce": (f"v1:{models.LETTUCE_MODEL}", lettuce),
     "polarity": (f"v2:wordnet3.0:{models.NLI_MODEL}:overlap0.65:ratio2.5:confirm0.8", polarity),
+    "shifts": (_shift_version(), shifts),
 }

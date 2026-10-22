@@ -1,0 +1,297 @@
+{
+  "answers": 1500,
+  "grounded_answers": 797,
+  "rules": {
+    "role_swap": {
+      "candidates": 0,
+      "overrides_verdict": true,
+      "loosest_cutoff_without_false_alarms": 1.01,
+      "setting": 1.01,
+      "grounded_answers_flagged_at_setting": 0,
+      "grounded_rate_at_setting": 0.0,
+      "grid": {
+        "0.05": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.1": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.2": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.3": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.4": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.5": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.6": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.7": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.8": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.9": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "1.01": {
+          "grounded_answers_flagged": 0,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        }
+      },
+      "examples": []
+    },
+    "quantifier": {
+      "candidates": 1,
+      "overrides_verdict": false,
+      "loosest_cutoff_without_false_alarms": 0.0,
+      "setting": 0.5,
+      "grounded_answers_flagged_at_setting": 1,
+      "grounded_rate_at_setting": 0.0012547051442910915,
+      "grid": {
+        "0.05": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.1": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.2": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.3": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.4": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.5": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.6": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.7": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.8": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "0.9": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        },
+        "1.01": {
+          "grounded_answers_flagged": 1,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 0
+        }
+      },
+      "examples": [
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.0,
+          "detail": "the source says \"some\", the answer \"most\"",
+          "evidence": "The skin remains extremely red for 3 weeks, up to 2 months for some people."
+        }
+      ]
+    },
+    "certainty": {
+      "candidates": 12,
+      "overrides_verdict": false,
+      "loosest_cutoff_without_false_alarms": 0.0,
+      "setting": 0.5,
+      "grounded_answers_flagged_at_setting": 2,
+      "grounded_rate_at_setting": 0.002509410288582183,
+      "grid": {
+        "0.05": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.1": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.2": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.3": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.4": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.5": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.6": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.7": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.8": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "0.9": {
+          "grounded_answers_flagged": 2,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 3
+        },
+        "1.01": {
+          "grounded_answers_flagged": 8,
+          "hallucinated_on_span": 0,
+          "hallucinated_off_span": 4
+        }
+      },
+      "examples": [
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.998,
+          "detail": "the source hedges with \"alleged\", the answer states it as fact",
+          "evidence": "The cause of this surge in violence is murky, with some blaming alleged inflammatory comments about foreign nationals from the Zulu king, local media reported, others saying a labor dispute between lo"
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.998,
+          "detail": "the source hedges with \"allegedly\", the answer states it as fact",
+          "evidence": "Abdirahman Sheik Mohamud, 23, of Columbus, allegedly traveled to Syria for training and wanted to return home to kill Americans -- particularly U.S. soldiers, execution style, the U.S. Department of J"
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.006,
+          "detail": "the source hedges with \"may\", the answer states it as fact",
+          "evidence": "When a vertical does not adjust, many times slats can pop off or the blind gets completely stuck or twisted and won't open.ccasionally it does not adjust on its own or the vertical may be an older mod"
+        },
+        {
+          "label": "hallucinated",
+          "on_span": false,
+          "entailment": 0.0,
+          "detail": "the source hedges with \"reportedly\", the answer states it as fact",
+          "evidence": "And thus far, the ACA has reportedly been unable to provide documentation that the forums created any new jobs in the state."
+        },
+        {
+          "label": "hallucinated",
+          "on_span": false,
+          "entailment": 0.0,
+          "detail": "the source hedges with \"reportedly\", the answer states it as fact",
+          "evidence": "Nesbitt is reportedly serving a 24-year prison sentence concerning an unrelated weapons charge."
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.996,
+          "detail": "the source hedges with \"preliminary\", the answer states it as fact",
+          "evidence": "We need to encourage our Iranian partners,\" Putin said, referring to a preliminary deal to limit Iran's nuclear program."
+        },
+        {
+          "label": "hallucinated",
+          "on_span": false,
+          "entailment": 0.013,
+          "detail": "the source hedges with \"may\", the answer states it as fact",
+          "evidence": "Roth 401(k) contributions are taxable but qualified distributions are not.oth IRA contributions are taxed (although the individual's contribution may still qualify for the Saver's Credit) but the asse"
+        },
+        {
+          "label": "hallucinated",
+          "on_span": false,
+          "entailment": 0.998,
+          "detail": "the source hedges with \"alleged\", the answer states it as fact",
+          "evidence": "Panama City Beach, Florida (CNN)A third person has been arrested in the case of an alleged spring break gang rape that was videotaped on a crowded stretch of Panama City Beach, the Bay County, Florida"
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.0,
+          "detail": "the source hedges with \"perhaps\", the answer states it as fact",
+          "evidence": "Corliss died a week after suffering a major stroke, according to a tribute on Time's website by colleague Richard Zoglin, who called him \"perhaps the magazine's most quoted writer of all time.\""
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.997,
+          "detail": "the source hedges with \"might\", the answer states it as fact",
+          "evidence": "Rinsing your mouth several times daily with a simple salt water solution helps keep the area clean and might provide temporary pain relief caused by tongue ulcers."
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.998,
+          "detail": "the source hedges with \"preliminary\", the answer states it as fact",
+          "evidence": "According to Paris prosecutor's spokeswoman Agnes Thibault-Lecuivre, the lawsuit was filed March 27 and a preliminary investigation was opened by the prosecutor's office Wednesday."
+        },
+        {
+          "label": "grounded",
+          "on_span": false,
+          "entailment": 0.998,
+          "detail": "the source hedges with \"appears to\", the answer states it as fact",
+          "evidence": "But many experts say North Korea appears to be investing more in cyberwarfare because it is cheaper than spending on conventional weapons and can cause significant economic damage to its southern riva"
+        }
+      ]
+    }
+  }
+}

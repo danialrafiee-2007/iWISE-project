@@ -15,6 +15,7 @@ class HallucinationType(StrEnum):
     NUMERIC_ENTITY_MISMATCH = "numeric_entity_mismatch"
     WEAK_EVIDENCE = "weak_evidence"
     AGENT_INTRODUCED = "agent_introduced"
+    OVERCLAIM = "overclaim"
 
 
 class _Strict(BaseModel):

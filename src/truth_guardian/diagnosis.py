@@ -18,12 +18,13 @@ from truth_guardian.text import content_words
 
 RELEVANCE_THRESHOLD = 0.43
 
-Blame = Literal["retrieval", "generation", "weak_sources", "none", "unknown"]
+Blame = Literal["retrieval", "generation", "weak_sources", "conflicting_sources", "none", "unknown"]
 
 MESSAGES = {
     "retrieval": "The sources barely address the question, so the model filled the gap: fix retrieval first.",
     "generation": "The sources address the question, but the answer departs from them: the generator is at fault.",
     "weak_sources": "The answer matches the sources, but the sources barely address the question: check they are the right documents.",
+    "conflicting_sources": "The sources contradict each other on a fact the answer uses: the answer did not invent it, but which source is right must be checked.",
     "none": "The sources address the question and the answer stays with them.",
     "unknown": "No question was given, so retrieval quality cannot be judged.",
 }

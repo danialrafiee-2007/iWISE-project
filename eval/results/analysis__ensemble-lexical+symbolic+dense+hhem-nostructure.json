@@ -8,19 +8,19 @@
     "xdev_summary_auroc": 500
   },
   "full": {
-    "oof_response_auroc": 0.8416095074091137,
-    "dev_auroc": 0.8440916496362882,
-    "xdev_qa_auroc": 0.920352,
-    "xdev_dialogue_auroc": 0.673856,
-    "xdev_summary_auroc": 0.702928
+    "oof_response_auroc": 0.8435159358546682,
+    "dev_auroc": 0.844925899989996,
+    "xdev_qa_auroc": 0.913744,
+    "xdev_dialogue_auroc": 0.6872640000000001,
+    "xdev_summary_auroc": 0.7015520000000001
   },
   "ablation": {
     "without lexical": {
-      "oof_response_auroc": 0.8349619882950536,
-      "dev_auroc": 0.8426428765380932,
-      "xdev_qa_auroc": 0.795536,
-      "xdev_dialogue_auroc": 0.6808480000000001,
-      "xdev_summary_auroc": 0.6679039999999999
+      "oof_response_auroc": 0.8377089716280263,
+      "dev_auroc": 0.8420283537936061,
+      "xdev_qa_auroc": 0.7907520000000001,
+      "xdev_dialogue_auroc": 0.686736,
+      "xdev_summary_auroc": 0.671888
     },
     "without symbolic": {
       "oof_response_auroc": 0.815265339941197,
@@ -30,64 +30,64 @@
       "xdev_summary_auroc": 0.72712
     },
     "without dense": {
-      "oof_response_auroc": 0.8411652388445927,
-      "dev_auroc": 0.8429733611535879,
-      "xdev_qa_auroc": 0.884512,
-      "xdev_dialogue_auroc": 0.650288,
-      "xdev_summary_auroc": 0.686272
+      "oof_response_auroc": 0.8413867857153898,
+      "dev_auroc": 0.8479949409057779,
+      "xdev_qa_auroc": 0.886896,
+      "xdev_dialogue_auroc": 0.661496,
+      "xdev_summary_auroc": 0.6979040000000001
     },
     "without hhem": {
-      "oof_response_auroc": 0.819879735232012,
-      "dev_auroc": 0.8147910622668744,
-      "xdev_qa_auroc": 0.918688,
-      "xdev_dialogue_auroc": 0.6650239999999998,
-      "xdev_summary_auroc": 0.662048
+      "oof_response_auroc": 0.8231772776879485,
+      "dev_auroc": 0.8213114344104153,
+      "xdev_qa_auroc": 0.917888,
+      "xdev_dialogue_auroc": 0.657672,
+      "xdev_summary_auroc": 0.6707359999999999
     }
   },
   "learning_curve": {},
   "train_errors": {
     "response_auroc_by_task": {
-      "data2text": 0.793396753717508,
-      "qa": 0.8406215804383175,
-      "summary": 0.7550955657492355
+      "data2text": 0.7998904255142529,
+      "qa": 0.8419107871511409,
+      "summary": 0.7558937308868501
     },
     "response_auroc_by_generator": {
-      "gpt-3.5-turbo-0613": 0.777917720064353,
-      "gpt-4-0613": 0.8148264856421316,
-      "llama-2-13b-chat": 0.8493521420409363,
-      "llama-2-70b-chat": 0.8489122130777511,
-      "llama-2-7b-chat": 0.7703863367118601,
-      "mistral-7B-instruct": 0.8542646402358633
+      "gpt-3.5-turbo-0613": 0.785322914272581,
+      "gpt-4-0613": 0.8184232678950045,
+      "llama-2-13b-chat": 0.8496350299928054,
+      "llama-2-70b-chat": 0.8478595860679932,
+      "llama-2-7b-chat": 0.7672060399781869,
+      "mistral-7B-instruct": 0.8556713071101562
     },
     "sentence_auroc_vs_clean_sentences": {
-      "Evident Baseless Info": 0.8675791347540994,
-      "Evident Conflict": 0.7744492327712365,
-      "Subtle Baseless Info": 0.8149845554877075,
-      "Subtle Conflict": 0.5785793844359847,
-      "due_to_null": 0.9736663198914494,
-      "implicit_true": 0.804019711646917
+      "Evident Baseless Info": 0.8679697559413961,
+      "Evident Conflict": 0.775363851590771,
+      "Subtle Baseless Info": 0.8152462679666628,
+      "Subtle Conflict": 0.5814762993550149,
+      "due_to_null": 0.9738750131113693,
+      "implicit_true": 0.8037449735876518
     }
   },
   "dev_spans_and_types": {
-    "sentence_threshold": 0.30882684381212017,
+    "sentence_threshold": 0.31042325738681364,
     "spans_whole_sentences": {
-      "precision": 0.3512141908556251,
-      "recall": 0.4203982570929787,
-      "f1": 0.38270464426685963
+      "precision": 0.3473105737202227,
+      "recall": 0.40992378330045276,
+      "f1": 0.3760285386938861
     },
     "spans_refined_with_symbolic": {
-      "precision": 0.37745994666901733,
-      "recall": 0.24309862753168598,
-      "f1": 0.2957335497349655
+      "precision": 0.37221859351186587,
+      "recall": 0.24264444980626482,
+      "f1": 0.2937785147825788
     },
     "type_confusion": {
-      "contradicted -> numeric_entity_mismatch": 45,
-      "contradicted -> unsupported": 50,
-      "unsupported -> numeric_entity_mismatch": 128,
-      "unsupported -> unsupported": 211,
-      "unsupported -> weak_evidence": 15
+      "contradicted -> numeric_entity_mismatch": 42,
+      "contradicted -> unsupported": 51,
+      "unsupported -> numeric_entity_mismatch": 122,
+      "unsupported -> unsupported": 214,
+      "unsupported -> weak_evidence": 16
     },
-    "contradiction_vs_other_accuracy": 0.7884187082405345,
-    "majority_baseline_accuracy": 0.7884187082405345
+    "contradiction_vs_other_accuracy": 0.7910112359550562,
+    "majority_baseline_accuracy": 0.7910112359550562
   }
 }

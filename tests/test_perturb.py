@@ -5,8 +5,8 @@ import pytest
 from truth_guardian.perturb import KINDS, perturb
 from truth_guardian.schema import Sample
 
-SOURCE = "Anne Frank died in 1945 in Bergen-Belsen. The museum is open and attendance increased."
-ANSWER = "Anne Frank died in 1945 in Bergen-Belsen. The museum is open, and attendance increased."
+SOURCE = "Anne Frank died in 1945 in Bergen-Belsen. The museum is open and attendance increased. Otto Frank thanked Miep Gies. Some visitors may return."
+ANSWER = "Anne Frank died in 1945 in Bergen-Belsen. The museum is open, and attendance increased. Otto Frank thanked Miep Gies. Some visitors may return."
 
 
 def base() -> Sample:
@@ -53,3 +53,10 @@ def test_inapplicable_edit_returns_none():
 def test_edits_are_deterministic_for_a_seed():
     first = perturb(base(), "addition", random.Random(7))
     assert first.answer == perturb(base(), "addition", random.Random(7)).answer
+
+
+def test_meaning_shift_edits():
+    swapped = perturb(base(), "role_swap", random.Random(0))
+    assert "Miep Gies thanked Otto Frank" in swapped.answer
+    assert "All visitors" in perturb(base(), "quantifier", random.Random(0)).answer
+    assert "will return" in perturb(base(), "certainty", random.Random(0)).answer

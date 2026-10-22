@@ -81,3 +81,36 @@ def test_supported_sentence_is_clean():
     sample = make_sample("Paris is the capital of France.", [("d", "Paris is the capital of France.")])
     (result,) = check(sample)
     assert result.spans == [] and result.numbers_unmatched == result.entities_unmatched == result.null_mentions == 0
+
+
+def spans_of(answer: str, source: str, question: str | None = None) -> list[str]:
+    sample = make_sample(answer, [("d", source)], question)
+    return [sample.answer[a:b] for r in check(sample) for a, b in r.spans]
+
+
+def test_surface_variants_are_not_flagged():
+    assert spans_of("Three people and 2 dogs were rescued.", "Three people and two dogs were rescued.") == []
+    assert spans_of("It was the 21st meeting.", "It was the twenty-first meeting.") == []
+    assert spans_of("The city has 1,500,000 residents.", "The city has 1.5 million residents.") == []
+    assert spans_of("The UN Security Council met.", "The United Nations Security Council met.") == []
+    assert spans_of("Officials in the United States agreed.", "U.S. officials agreed.") == []
+    assert spans_of("Mexican officials and French police met.", "Officials from Mexico met police in France.") == []
+    assert spans_of("The café offers Wi-Fi.", "The cafe offers WiFi.") == []
+    assert spans_of("Set it to 350 Fahrenheit.", "Bake at 350 F.") == []
+    assert spans_of("A review from January 2015 praised it.", "date: 2015-01-12, stars: 5, text: Great.") == []
+    assert spans_of("Kossuth High School's team won.", "The Kossuth High School team won.") == []
+
+
+def test_references_are_not_claims():
+    assert spans_of("Repeat steps 1-3 as described in Passage 1.", "Mix the flour.") == []
+
+
+def test_race_time_is_one_number():
+    assert spans_of("He finished in 1:39.87.", "He finished in 1:39.87.") == []
+    assert spans_of("He finished in 1:41.20.", "He finished in 1:39.87.") == ["1:41.20"]
+
+
+def test_real_mismatches_still_flagged():
+    assert spans_of("Four people were rescued.", "Three people were rescued.") == []
+    assert spans_of("The city has 2,500,000 residents.", "The city has 1.5 million residents.") == ["2,500,000"]
+    assert spans_of("German officials agreed.", "French officials agreed.") == ["German"]

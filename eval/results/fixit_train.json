@@ -2,23 +2,23 @@
   "samples": 3570,
   "contradicted_spans": 1199,
   "caught_by_symbolic": 103,
-  "with_replacement": 53,
+  "with_replacement": 55,
   "with_replacement_summary": 7,
-  "with_replacement_and_note": 52,
-  "correct": 38,
+  "with_replacement_and_note": 54,
+  "correct": 39,
   "correct_summary": 5,
   "checked_summary": 7,
-  "with_replacement_data2text": 37,
-  "correct_data2text": 28,
-  "checked_data2text": 36,
+  "with_replacement_data2text": 39,
+  "correct_data2text": 29,
+  "checked_data2text": 38,
   "with_replacement_qa": 9,
   "correct_qa": 5,
   "checked_qa": 9,
-  "precision_vs_notes": 0.7307692307692307,
+  "precision_vs_notes": 0.7222222222222222,
   "precision_by_task": {
     "qa": 0.5555555555555556,
     "summary": 0.7142857142857143,
-    "data2text": 0.7777777777777778
+    "data2text": 0.7631578947368421
   },
   "examples": [
     {

@@ -58,7 +58,7 @@ def _number_kind(text: str, next_word: str = "") -> str:
 
 def _format_like(original: str, value: str) -> str:
     """Keep the answer's style: "10 PM" against a source "21:0" becomes "9", "9:30" stays 12-hour."""
-    if ":" not in value:
+    if ":" not in value or not value.replace(":", "").isdigit() or value.count(":") != 1:
         return value
     hour, minute = (int(p) for p in value.split(":"))
     original_hour = int(original.split(":")[0]) if ":" in original else int(original.replace(",", "").split(".")[0])

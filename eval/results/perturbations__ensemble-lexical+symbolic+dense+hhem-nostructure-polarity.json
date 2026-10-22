@@ -8,43 +8,62 @@
   "kind": "ensemble",
   "structure": false,
   "polarity_override": true,
-  "dev_auroc": 0.8388824975347635,
+  "shift_override": false,
+  "dev_auroc": 0.8397274663084332,
   "train_samples": 8089,
-  "response_threshold": 0.3940764816209258,
-  "sentence_threshold": 0.3096845770413161,
-  "control_false_alarm_rate": 0.2833333333333333,
+  "response_threshold": 0.4538356475415264,
+  "sentence_threshold": 0.311311935178789,
+  "control_false_alarm_rate": 0.25,
   "by_edit": {
     "number": {
       "n": 53,
-      "detected": 0.7924528301886793,
-      "auroc_vs_controls": 0.8161949685534592,
+      "detected": 0.7547169811320755,
+      "auroc_vs_controls": 0.8250000000000001,
       "located": 0.9245283018867925,
-      "fixed_exactly": 0.7547169811320755
+      "fixed_exactly": 0.7169811320754716
     },
     "entity": {
       "n": 51,
-      "detected": 0.6862745098039216,
-      "auroc_vs_controls": 0.7831699346405228,
-      "located": 0.5490196078431373,
-      "fixed_exactly": 0.29411764705882354
+      "detected": 0.6470588235294118,
+      "auroc_vs_controls": 0.7792483660130719,
+      "located": 0.6862745098039216,
+      "fixed_exactly": 0.19607843137254902
     },
     "negation": {
       "n": 58,
-      "detected": 0.6379310344827587,
-      "auroc_vs_controls": 0.7804597701149425,
-      "located": 0.46551724137931033
+      "detected": 0.5517241379310345,
+      "auroc_vs_controls": 0.7781609195402299,
+      "located": 0.43103448275862066
     },
     "antonym": {
       "n": 49,
-      "detected": 0.5102040816326531,
-      "auroc_vs_controls": 0.6401360544217687,
+      "detected": 0.4489795918367347,
+      "auroc_vs_controls": 0.6465986394557822,
       "located": 0.22448979591836735
     },
     "addition": {
       "n": 60,
-      "detected": 0.95,
-      "auroc_vs_controls": 0.8870833333333332,
+      "detected": 0.9166666666666666,
+      "auroc_vs_controls": 0.8912500000000001,
       "located": 0.9833333333333333
+    },
+    "role_swap": {
+      "n": 41,
+      "detected": 0.34146341463414637,
+      "auroc_vs_controls": 0.5869918699186992,
+      "located": 0.12195121951219512
+    },
+    "quantifier": {
+      "n": 30,
+      "detected": 0.36666666666666664,
+      "auroc_vs_controls": 0.6455555555555555,
+      "located": 0.13333333333333333
+    },
+    "certainty": {
+      "n": 30,
+      "detected": 0.2,
+      "auroc_vs_controls": 0.5522222222222223,
+      "located": 0.0
     }
   }
 }

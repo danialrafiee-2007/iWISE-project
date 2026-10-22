@@ -12,7 +12,7 @@ from truth_guardian.schema import HallucinationType, Labels, Sample, Span
 from truth_guardian.symbolic import _ner, _numbers_in, normalize_number
 from truth_guardian.text import split_sentences
 
-KINDS = ("number", "entity", "negation", "antonym", "addition")
+KINDS = ("number", "entity", "negation", "antonym", "addition", "role_swap", "quantifier", "certainty")
 ENTITY_LABELS = ("PERSON", "ORG", "GPE", "NORP", "LOC")
 
 _AUXILIARY = re.compile(r"\b(is|are|was|were|has|have|had|can|will|does|did|should|could|would)\b(?!\s+not\b)", re.IGNORECASE)
@@ -23,6 +23,17 @@ _ANTONYMS = {
     "cheap": "expensive", "many": "few", "large": "small", "popular": "unpopular", "available": "unavailable",
 }
 _ANTONYMS |= {v: k for k, v in _ANTONYMS.items()}
+_STRONGER = {
+    "some": "all", "several": "all", "many": "all", "most": "all", "often": "always", "sometimes": "always",
+    "occasionally": "always", "usually": "always", "frequently": "always", "generally": "always", "typically": "always",
+    "commonly": "always", "mostly": "entirely", "largely": "entirely", "mainly": "entirely", "partly": "entirely",
+}
+_CERTAIN = {
+    "may": "will", "might": "will", "possibly": "definitely", "probably": "certainly", "perhaps": "certainly",
+    "reportedly": "definitely", "allegedly": "definitely", "potentially": "definitely", "apparently": "clearly",
+    "suggests": "proves", "suggest": "prove", "suggested": "proved", "likely": "certainly",
+}
+_BE = {"is", "are", "was", "were", "be", "been", "being"}
 _ADDITIONS = (
     ", which was founded in {year}",
     ", according to a {year} survey",
@@ -47,6 +58,8 @@ def _source_numbers(sample: Sample) -> set[str]:
 def _changed_number(text: str, rng: random.Random, taken: set[str]) -> str | None:
     for _ in range(20):
         if ":" in text:
+            if len(text.split(":")) != 2 or not text.replace(":", "").isdigit():
+                return None
             hour, minute = (int(p) for p in text.split(":"))
             new = f"{(hour + rng.choice([-2, -1, 1, 2])) % 24}:{minute:02d}"
         elif "." in text.replace(",", ""):
@@ -117,6 +130,66 @@ def _edit_addition(sample: Sample, rng: random.Random) -> Edit | None:
     return Edit(insert_at, insert_at, "", text, "addition")
 
 
+MAX_PARTICIPANT_WORDS = 5
+
+
+def _participant(token) -> tuple[int, int, bool] | None:
+    """(start, end, starts with a determiner) of the short noun phrase headed by a noun or name; None otherwise."""
+    chunk = next((c for c in token.doc.noun_chunks if c.root.i == token.i), None)
+    if chunk is None or token.pos_ not in {"NOUN", "PROPN"} or len(chunk) > MAX_PARTICIPANT_WORDS:
+        return None
+    if any(t.pos_ in {"PRON", "NUM"} or t.dep_ == "poss" for t in chunk):
+        return None
+    return chunk.start_char, chunk.end_char, chunk[0].dep_ == "det"
+
+
+def _recase(phrase: str, determiner: bool, sentence_start: bool) -> str:
+    """A phrase moved into or out of sentence-initial position keeps a determiner's case right."""
+    if not determiner:
+        return phrase
+    return phrase[0].upper() + phrase[1:] if sentence_start else phrase[0].lower() + phrase[1:]
+
+
+def _edit_role_swap(sample: Sample, rng: random.Random) -> Edit | None:
+    """Exchange the subject and object of an active verb ("Germany beat Brazil" -> "Brazil beat Germany")."""
+    from truth_guardian.polarity import lemmas
+    from truth_guardian.shifts import SYMMETRIC_VERBS, _parser
+
+    options = []
+    for sentence in split_sentences(sample.answer):
+        for verb in _parser()(sentence.text):
+            subject = next((c for c in verb.children if c.dep_ == "nsubj"), None)
+            obj = next((c for c in verb.children if c.dep_ == "dobj"), None)
+            if verb.pos_ != "VERB" or subject is None or obj is None or lemmas(verb.text) & SYMMETRIC_VERBS:
+                continue
+            first, second = _participant(subject), _participant(obj)
+            if not first or not second or first[1] > second[0]:
+                continue
+            a1, b1, d1 = first
+            a2, b2, d2 = second
+            one, two = sentence.text[a1:b1], sentence.text[a2:b2]
+            if subject.text.lower() == obj.text.lower():
+                continue
+            moved = _recase(two, d2, a1 == 0) + sentence.text[b1:a2] + _recase(one, d1, False)
+            options.append((sentence.start + a1, sentence.start + b2, moved))
+    if not options:
+        return None
+    start, end, moved = rng.choice(options)
+    return Edit(start, end, sample.answer[start:end], moved, "role_swap")
+
+
+def _replace_word(sample: Sample, rng: random.Random, table: dict[str, str], kind: str) -> Edit | None:
+    matches = [m for m in re.finditer(r"\b[A-Za-z]+\b", sample.answer) if m.group().lower() in table]
+    if not matches:
+        return None
+    m = rng.choice(matches)
+    new = table[m.group().lower()]
+    previous = re.findall(r"[A-Za-z]+", sample.answer[: m.start()])[-1:]
+    if m.group().lower() == "likely" and previous and previous[0].lower() in _BE:
+        new = "certain"
+    return Edit(m.start(), m.end(), m.group(), new.capitalize() if m.group()[0].isupper() else new, kind)
+
+
 def perturb(sample: Sample, kind: str, rng: random.Random, entity_pool: dict[str, list[str]] | None = None) -> Sample | None:
     """A hallucinated copy of a grounded sample with one edit of the given kind, or None if it does not apply."""
     edit = {
@@ -125,6 +198,9 @@ def perturb(sample: Sample, kind: str, rng: random.Random, entity_pool: dict[str
         "negation": lambda: _edit_negation(sample, rng),
         "antonym": lambda: _edit_antonym(sample, rng),
         "addition": lambda: _edit_addition(sample, rng),
+        "role_swap": lambda: _edit_role_swap(sample, rng),
+        "quantifier": lambda: _replace_word(sample, rng, _STRONGER, "quantifier"),
+        "certainty": lambda: _replace_word(sample, rng, _CERTAIN, "certainty"),
     }[kind]()
     if edit is None:
         return None
@@ -133,6 +209,8 @@ def perturb(sample: Sample, kind: str, rng: random.Random, entity_pool: dict[str
         "number": HallucinationType.NUMERIC_ENTITY_MISMATCH,
         "entity": HallucinationType.NUMERIC_ENTITY_MISMATCH,
         "addition": HallucinationType.UNSUPPORTED,
+        "quantifier": HallucinationType.OVERCLAIM,
+        "certainty": HallucinationType.OVERCLAIM,
     }.get(kind, HallucinationType.CONTRADICTED)
     span = Span(start=edit.start, end=edit.start + len(edit.new), text=edit.new, type=span_type, source_label=f"perturb:{kind}", note=f"Original: {edit.original}")
     return sample.model_copy(update={

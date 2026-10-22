@@ -1,20 +1,25 @@
 """The report contract: what every interface (web app, API, batch file) receives for one checked answer.
 
 Per claim (sentence): status, risk, error type, exact words, evidence, a plain-language explanation,
-a suggested action, Fix-it replacements and the atomic claim that carries the error. Per answer: verdict,
-calibrated risk, who is to blame (retriever or generator), which key evidence it leaves out, and warnings.
-"Insufficient evidence" is kept apart from "contradicted" and "unsupported", and an answer whose risk
-sits close to the decision threshold is reported as "uncertain" instead of forcing a verdict.
+a suggested action, Fix-it replacements, the atomic claim that carries the error, cautions (overclaims, wrong
+citations) and whether the sources disagree about it. Per answer: verdict, calibrated risk, who is to blame
+(retriever, generator or conflicting sources), which key evidence it leaves out, conflicts between sources, the
+conformal guarantee, the reliability card and warnings. "Insufficient evidence" and "contested" are kept apart from
+"contradicted" and "unsupported", and an answer whose risk sits close to the decision threshold is reported as
+"uncertain" instead of forcing a verdict.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from truth_guardian.citations import CitationCheck, cite
 from truth_guardian.completeness import Completeness
+from truth_guardian.conflicts import Conflict
+from truth_guardian.conformal import Calibration
 from truth_guardian.correct import Suggestion as FixSuggestion
 from truth_guardian.correct import _source_index, _singular
-from truth_guardian.diagnosis import Blame, Diagnosis
+from truth_guardian.diagnosis import MESSAGES, Blame, Diagnosis
 from truth_guardian.evaluation import Prediction
 from truth_guardian.explain import explain_sentence
 from truth_guardian.guardian import Alert
@@ -23,7 +28,7 @@ from truth_guardian.text import Sentence
 
 UNCERTAIN_BAND = 0.1
 
-Status = Literal["supported", "contradicted", "unsupported", "insufficient_evidence"]
+Status = Literal["supported", "contradicted", "unsupported", "insufficient_evidence", "contested"]
 Action = Literal["keep", "replace", "remove", "verify"]
 
 
@@ -44,6 +49,12 @@ class Fix(_Strict):
     confidence: float
 
 
+class CitationReport(_Strict):
+    cited: list[int]
+    supported: bool
+    better_document: int | None = None
+
+
 class ClaimReport(_Strict):
     start: int
     end: int
@@ -57,6 +68,8 @@ class ClaimReport(_Strict):
     explanation: str
     action: Action
     fixes: list[Fix] = Field(default_factory=list)
+    cautions: list[str] = Field(default_factory=list)
+    citation: CitationReport | None = None
 
 
 class AgentStepReport(_Strict):
@@ -105,6 +118,41 @@ class CompletenessReport(_Strict):
     omitted_caveats: list[str] = Field(default_factory=list)
 
 
+class ConflictReport(_Strict):
+    first: str
+    first_document: str
+    second: str
+    second_document: str
+    first_value: str
+    second_value: str
+
+
+class GuaranteeReport(_Strict):
+    """Split-conformal thresholds: flagging at `catch_threshold` misses at most alpha of hallucinated answers, flagging
+    above `alarm_threshold` raises at most alpha false alarms, for answers like the calibration data."""
+
+    alpha: float
+    catch_threshold: float
+    alarm_threshold: float
+    flagged_with_catch_guarantee: bool
+    flagged_with_alarm_guarantee: bool
+    calibrated_on: str
+
+
+class Dimension(_Strict):
+    name: str
+    score: float | None
+    note: str
+
+
+class Card(_Strict):
+    """Reliability card: a grade from the calibrated risk alone, with the other dimensions shown beside it."""
+
+    grade: Literal["A", "B", "C", "D", "F"]
+    risk: float
+    dimensions: list[Dimension]
+
+
 class Report(_Strict):
     id: str
     verdict: Literal["grounded", "hallucinated", "uncertain"]
@@ -115,6 +163,10 @@ class Report(_Strict):
     agent: AgentReport | None = None
     diagnosis: DiagnosisReport | None = None
     completeness: CompletenessReport | None = None
+    conflicts: list[ConflictReport] = Field(default_factory=list)
+    guarantee: GuaranteeReport | None = None
+    card: Card | None = None
+    cited_answer: str | None = None
     warnings: list[str] = Field(default_factory=list)
     model_version: str | None = None
 
@@ -126,6 +178,7 @@ _STATUS = {
     HallucinationType.UNSUPPORTED: "unsupported",
     HallucinationType.WEAK_EVIDENCE: "insufficient_evidence",
     HallucinationType.AGENT_INTRODUCED: "unsupported",
+    HallucinationType.OVERCLAIM: "unsupported",
 }
 
 
@@ -143,13 +196,49 @@ def best_evidence(sample: Sample, sentence: Sentence) -> Evidence | None:
     return best
 
 
+def _cautions(row: dict, citation: CitationCheck | None) -> list[str]:
+    cautions = []
+    if row.get("shift_confirmed") and not row.get("shift_overrides"):
+        cautions.append(f"overclaim: {row['shift_detail']}")
+    if citation is not None and citation.wrong:
+        cited = ", ".join(str(n) for n in citation.cited)
+        cautions.append(f"cites document {cited}, but the claim is supported by document {citation.best_other}")
+    return cautions
+
+
 def claim_report(
-    sample: Sample, sentence: Sentence, risk: float, threshold: float, row: dict, fixes: list[FixSuggestion], focus: list[tuple[int, int]] | None = None
+    sample: Sample,
+    sentence: Sentence,
+    risk: float,
+    threshold: float,
+    row: dict,
+    fixes: list[FixSuggestion],
+    focus: list[tuple[int, int]] | None = None,
+    side: tuple[Conflict, str] | None = None,
+    citation: CitationCheck | None = None,
 ) -> ClaimReport:
-    """focus: the claim spans that carry the error; kept only when narrower than the whole sentence."""
-    evidence = Evidence(text=row["pol_evidence"]) if row.get("pol_confirmed") and row.get("pol_evidence") else best_evidence(sample, sentence)
+    """focus: the claim spans that carry the error, kept only when narrower than the whole sentence; side: the source
+    conflict this claim takes a side in and the document it follows; citation: the check of its cited documents."""
+    extras = {
+        "cautions": _cautions(row, citation),
+        "citation": CitationReport(cited=citation.cited, supported=not citation.wrong, better_document=citation.best_other if citation.wrong else None) if citation else None,
+    }
+    if side is not None:
+        conflict, document = side
+        followed = conflict.first if document == conflict.first_document else conflict.second
+        explanation = f'the sources disagree: {conflict.first_document} says "{conflict.first_value}", {conflict.second_document} says "{conflict.second_value}"; the answer follows {document}'
+        return ClaimReport(
+            start=sentence.start, end=sentence.end, text=sentence.text, status="contested", risk=risk,
+            evidence=Evidence(text=followed, document_id=document), explanation=explanation, action="verify", **extras,
+        )
+    if row.get("pol_confirmed") and row.get("pol_evidence"):
+        evidence = Evidence(text=row["pol_evidence"])
+    elif row.get("shift_overrides") and row.get("shift_evidence"):
+        evidence = Evidence(text=row["shift_evidence"])
+    else:
+        evidence = best_evidence(sample, sentence)
     if risk < threshold and not row.get("pol_confirmed"):
-        return ClaimReport(start=sentence.start, end=sentence.end, text=sentence.text, status="supported", risk=risk, evidence=evidence, explanation="the sources support this claim", action="keep")
+        return ClaimReport(start=sentence.start, end=sentence.end, text=sentence.text, status="supported", risk=risk, evidence=evidence, explanation="the sources support this claim", action="keep", **extras)
     explanation = explain_sentence(row, sentence.start, sentence.end)
     status: Status = _STATUS[explanation.type]
     replacements = [Fix(start=f.start, end=f.end, original=f.original, replacement=f.replacement, confidence=f.confidence) for f in fixes]
@@ -163,7 +252,7 @@ def claim_report(
         start=sentence.start, end=sentence.end, text=sentence.text, status=status, risk=risk,
         type=explanation.type, spans=explanation.spans, evidence=evidence,
         focus=[f for f in focus or [] if f != (sentence.start, sentence.end)],
-        explanation=explanation.reason, action=action, fixes=replacements,
+        explanation=explanation.reason, action=action, fixes=replacements, **extras,
     )
 
 
@@ -173,7 +262,7 @@ def verdict(risk: float, threshold: float, claims: list[ClaimReport]) -> Literal
     if abs(risk - threshold) < UNCERTAIN_BAND:
         return "uncertain"
     flagged = [c for c in claims if c.status != "supported"]
-    if flagged and all(c.status == "insufficient_evidence" for c in flagged):
+    if flagged and all(c.status in ("insufficient_evidence", "contested") for c in flagged):
         return "uncertain"
     return "hallucinated" if risk >= threshold else "grounded"
 
@@ -202,12 +291,33 @@ def completeness_report(c: Completeness) -> CompletenessReport | None:
 
 
 def with_diagnosis(report: Report, d: Diagnosis) -> Report:
-    """Diagnosis needs the verdict, so it is attached after the report is built; doubtful sources also become a warning."""
+    """Diagnosis needs the verdict, so it is attached after the report is built; doubtful sources also become a warning.
+    When every flagged claim is contested, the sources themselves are to blame."""
+    flagged = [c for c in report.claims if c.status != "supported"]
+    if flagged and all(c.status == "contested" for c in flagged):
+        d = d._replace(blame="conflicting_sources", message=MESSAGES["conflicting_sources"])
     diagnosis = DiagnosisReport(
         blame=d.blame, message=d.message, relevance=d.relevance, question_similarity=d.question_similarity, question_coverage=d.question_coverage,
     )
     warnings = report.warnings + ([d.message] if d.blame in ("retrieval", "weak_sources") else [])
     return report.model_copy(update={"diagnosis": diagnosis, "warnings": warnings})
+
+
+def with_guarantee(report: Report, calibration: Calibration, alpha: float, task: str | None = None) -> Report:
+    t = calibration.get(alpha, task)
+    guarantee = GuaranteeReport(
+        alpha=alpha, catch_threshold=t.catch, alarm_threshold=t.alarm,
+        flagged_with_catch_guarantee=report.risk >= t.catch, flagged_with_alarm_guarantee=report.risk > t.alarm,
+        calibrated_on=f"{calibration.data} ({t.hallucinated} hallucinated, {t.grounded} grounded answers)",
+    )
+    return report.model_copy(update={"guarantee": guarantee})
+
+
+def cited_answer(sample: Sample, claims: list[ClaimReport]) -> str | None:
+    """The answer with [n] after each supported claim, n being its evidence document's position."""
+    numbers = {d.id: i for i, d in enumerate(sample.documents, 1)}
+    marks = [(c.start, c.end, numbers.get(c.evidence.document_id)) for c in claims if c.status == "supported" and c.evidence]
+    return cite(sample.answer, marks) if any(n for _, _, n in marks) else None
 
 
 def build_report(
@@ -221,13 +331,17 @@ def build_report(
     agent: AgentReport | None = None,
     focus: list[list[tuple[int, int]]] | None = None,
     completeness: CompletenessReport | None = None,
+    conflicts: list[Conflict] = (),
+    sides: list[tuple[Conflict, str] | None] | None = None,
+    citations: list[CitationCheck | None] | None = None,
 ) -> Report:
-    """rows[i] merges every signal's output for sentence i; fixes[i] are its Fix-it suggestions; focus[i] its error claims."""
+    """rows[i] merges every signal's output for sentence i; fixes[i] are its Fix-it suggestions; focus[i] its error
+    claims; sides[i] the source conflict it takes a side in; citations[i] the check of the documents it cites."""
     sentence_scores = {(s.start, s.end): s.score for s in prediction.sentences}
-    focus = focus or [[] for _ in sentences]
+    empty = [None for _ in sentences]
     claims = [
-        claim_report(sample, s, sentence_scores.get((s.start, s.end), 0.0), thresholds["sentence"], row, fix, f)
-        for s, row, fix, f in zip(sentences, rows, fixes, focus)
+        claim_report(sample, s, sentence_scores.get((s.start, s.end), 0.0), thresholds["sentence"], row, fix, f, side, citation)
+        for s, row, fix, f, side, citation in zip(sentences, rows, fixes, focus or [[] for _ in sentences], sides or empty, citations or empty)
     ]
     warnings = []
     if claims and all(c.evidence is None for c in claims):
@@ -243,6 +357,11 @@ def build_report(
         claims=claims,
         agent=agent,
         completeness=completeness,
+        conflicts=[
+            ConflictReport(first=c.first, first_document=c.first_document, second=c.second, second_document=c.second_document, first_value=c.first_value, second_value=c.second_value)
+            for c in conflicts
+        ],
+        cited_answer=cited_answer(sample, claims),
         warnings=warnings,
         model_version=model_version,
     )

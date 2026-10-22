@@ -17,7 +17,7 @@ def trajectory(steps: list[dict], answer: str) -> Sample:
 
 def test_unmatched_atoms_against_evidence():
     atoms = unmatched_atoms("The record is 1:41.614 set by Mario Rossi.", "Records: Yoshi Circuit 1:43.20 by Luigi Bianchi")
-    assert {"1:41", "614"} <= {a.text for a in atoms}
+    assert "1:41.614" in {a.text for a in atoms}
     assert unmatched_atoms("The record is 1:43.20.", "Records: Yoshi Circuit 1:43.20 by Luigi Bianchi") == []
 
 
@@ -30,7 +30,7 @@ def test_step_that_introduces_an_unsupported_number_reaching_the_answer_is_suspe
     traces = trace(trajectory(steps, "1:39.87"))
     suspect = suspected_step(traces)
     assert suspect.step == 2
-    assert "1:39" in suspect.propagated
+    assert "1:39.87" in suspect.propagated
     assert "reaches the final answer" in suspect.reason()
 
 
