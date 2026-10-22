@@ -1,0 +1,432 @@
+{"id": "perturb-control-ragtruth-11880", "score": 0.0988179709924214, "spans": []}
+{"id": "perturb-number-ragtruth-11880", "score": 0.523808662265788, "spans": [[669, 733]]}
+{"id": "perturb-entity-ragtruth-11880", "score": 0.4542657861424164, "spans": [[400, 479]]}
+{"id": "perturb-negation-ragtruth-11880", "score": 0.999822199344635, "spans": [[400, 481]]}
+{"id": "perturb-antonym-ragtruth-11880", "score": 0.08924143095877293, "spans": []}
+{"id": "perturb-addition-ragtruth-11880", "score": 0.6497827929658817, "spans": [[669, 761]]}
+{"id": "perturb-role_swap-ragtruth-11880", "score": 0.9, "spans": [[0, 130]]}
+{"id": "perturb-control-ragtruth-11958", "score": 0.09690640511574301, "spans": []}
+{"id": "perturb-number-ragtruth-11958", "score": 0.5902093775587275, "spans": [[603, 691]]}
+{"id": "perturb-entity-ragtruth-11958", "score": 0.4079348661910135, "spans": [[326, 438]]}
+{"id": "perturb-negation-ragtruth-11958", "score": 0.27080773692959187, "spans": []}
+{"id": "perturb-antonym-ragtruth-11958", "score": 0.09692016423769223, "spans": []}
+{"id": "perturb-addition-ragtruth-11958", "score": 0.5716819140945862, "spans": [[757, 955]]}
+{"id": "perturb-control-ragtruth-11994", "score": 0.2153503387223792, "spans": []}
+{"id": "perturb-entity-ragtruth-11994", "score": 0.4837932172260908, "spans": [[245, 362]]}
+{"id": "perturb-negation-ragtruth-11994", "score": 0.2146122815606954, "spans": []}
+{"id": "perturb-antonym-ragtruth-11994", "score": 0.9899263381958008, "spans": [[129, 244]]}
+{"id": "perturb-addition-ragtruth-11994", "score": 0.6712889635638319, "spans": [[647, 794]]}
+{"id": "perturb-role_swap-ragtruth-11994", "score": 0.9, "spans": [[564, 646]]}
+{"id": "perturb-quantifier-ragtruth-11994", "score": 0.2085828762809009, "spans": []}
+{"id": "perturb-control-ragtruth-12048", "score": 0.09699189518725612, "spans": []}
+{"id": "perturb-number-ragtruth-12048", "score": 0.5325850139237592, "spans": [[374, 485]]}
+{"id": "perturb-entity-ragtruth-12048", "score": 0.45815156472898144, "spans": [[374, 492]]}
+{"id": "perturb-negation-ragtruth-12048", "score": 0.22329172500566766, "spans": []}
+{"id": "perturb-antonym-ragtruth-12048", "score": 0.11901881458942984, "spans": []}
+{"id": "perturb-addition-ragtruth-12048", "score": 0.7002834787447463, "spans": [[565, 654]]}
+{"id": "perturb-control-ragtruth-12078", "score": 0.06820008607720435, "spans": []}
+{"id": "perturb-number-ragtruth-12078", "score": 0.36486261007853693, "spans": [[149, 208]]}
+{"id": "perturb-negation-ragtruth-12078", "score": 0.10805512277361372, "spans": []}
+{"id": "perturb-antonym-ragtruth-12078", "score": 0.07972413893135474, "spans": []}
+{"id": "perturb-addition-ragtruth-12078", "score": 0.424823156334158, "spans": [[634, 822]]}
+{"id": "perturb-control-ragtruth-12114", "score": 0.038756666831018964, "spans": []}
+{"id": "perturb-entity-ragtruth-12114", "score": 0.3232647223141031, "spans": [[354, 457]]}
+{"id": "perturb-negation-ragtruth-12114", "score": 0.12068277160139532, "spans": []}
+{"id": "perturb-antonym-ragtruth-12114", "score": 0.045526129758624564, "spans": []}
+{"id": "perturb-addition-ragtruth-12114", "score": 0.5616242196576645, "spans": [[354, 480]]}
+{"id": "perturb-role_swap-ragtruth-12114", "score": 0.035938086454997936, "spans": []}
+{"id": "perturb-control-ragtruth-12366", "score": 0.03600963287244759, "spans": []}
+{"id": "perturb-number-ragtruth-12366", "score": 0.4745817981321945, "spans": [[398, 495]]}
+{"id": "perturb-entity-ragtruth-12366", "score": 0.049205905620565045, "spans": []}
+{"id": "perturb-addition-ragtruth-12366", "score": 0.6519797654777124, "spans": [[710, 795]]}
+{"id": "perturb-role_swap-ragtruth-12366", "score": 0.9, "spans": [[272, 397]]}
+{"id": "perturb-control-ragtruth-12372", "score": 0.11723528452054785, "spans": []}
+{"id": "perturb-number-ragtruth-12372", "score": 0.3757142602291843, "spans": [[254, 377]]}
+{"id": "perturb-negation-ragtruth-12372", "score": 0.11739797894751855, "spans": []}
+{"id": "perturb-antonym-ragtruth-12372", "score": 0.11655053795441689, "spans": []}
+{"id": "perturb-addition-ragtruth-12372", "score": 0.4747669326839373, "spans": [[698, 813]]}
+{"id": "perturb-role_swap-ragtruth-12372", "score": 0.9, "spans": [[0, 253]]}
+{"id": "perturb-control-ragtruth-12414", "score": 0.27177918183967975, "spans": []}
+{"id": "perturb-number-ragtruth-12414", "score": 0.29559054879675195, "spans": [[338, 479]]}
+{"id": "perturb-entity-ragtruth-12414", "score": 0.34467849683940927, "spans": []}
+{"id": "perturb-negation-ragtruth-12414", "score": 0.9495081305503845, "spans": [[338, 483]]}
+{"id": "perturb-antonym-ragtruth-12414", "score": 0.27383863287000393, "spans": []}
+{"id": "perturb-addition-ragtruth-12414", "score": 0.5741412684526621, "spans": [[893, 990]]}
+{"id": "perturb-quantifier-ragtruth-12414", "score": 0.27860699464124916, "spans": []}
+{"id": "perturb-control-ragtruth-12420", "score": 0.03249625640543581, "spans": []}
+{"id": "perturb-number-ragtruth-12420", "score": 0.36719131558241513, "spans": [[154, 207]]}
+{"id": "perturb-negation-ragtruth-12420", "score": 0.9998884201049805, "spans": [[82, 157]]}
+{"id": "perturb-antonym-ragtruth-12420", "score": 0.13992292659341599, "spans": []}
+{"id": "perturb-addition-ragtruth-12420", "score": 0.5244949622040971, "spans": [[504, 632]]}
+{"id": "perturb-quantifier-ragtruth-12420", "score": 0.031076739640665797, "spans": []}
+{"id": "perturb-control-ragtruth-12570", "score": 0.07043940162913942, "spans": []}
+{"id": "perturb-entity-ragtruth-12570", "score": 0.7129920136508028, "spans": [[482, 587]]}
+{"id": "perturb-negation-ragtruth-12570", "score": 0.99991774559021, "spans": [[482, 576]]}
+{"id": "perturb-antonym-ragtruth-12570", "score": 0.9986543655395508, "spans": [[354, 480]]}
+{"id": "perturb-addition-ragtruth-12570", "score": 0.7316438999130014, "spans": [[482, 613]]}
+{"id": "perturb-role_swap-ragtruth-12570", "score": 0.9, "spans": [[354, 481]]}
+{"id": "perturb-quantifier-ragtruth-12570", "score": 0.06891494950380538, "spans": []}
+{"id": "perturb-control-ragtruth-12576", "score": 0.04054439911342059, "spans": []}
+{"id": "perturb-number-ragtruth-12576", "score": 0.09859289289766673, "spans": []}
+{"id": "perturb-negation-ragtruth-12576", "score": 0.9990001320838928, "spans": [[760, 839]]}
+{"id": "perturb-addition-ragtruth-12576", "score": 0.3785418069661385, "spans": [[760, 862]]}
+{"id": "perturb-control-ragtruth-12582", "score": 0.04352503279049876, "spans": []}
+{"id": "perturb-number-ragtruth-12582", "score": 0.35479038666037654, "spans": [[680, 809]]}
+{"id": "perturb-negation-ragtruth-12582", "score": 0.9998176693916321, "spans": [[366, 520]]}
+{"id": "perturb-addition-ragtruth-12582", "score": 0.5713115750323033, "spans": [[810, 914]]}
+{"id": "perturb-role_swap-ragtruth-12582", "score": 0.04229854333687352, "spans": []}
+{"id": "perturb-control-ragtruth-12624", "score": 0.023326942862143842, "spans": []}
+{"id": "perturb-number-ragtruth-12624", "score": 0.16050853219293404, "spans": [[282, 457]]}
+{"id": "perturb-entity-ragtruth-12624", "score": 0.19017691861221953, "spans": [[282, 451]]}
+{"id": "perturb-negation-ragtruth-12624", "score": 0.9978294968605042, "spans": [[459, 542]]}
+{"id": "perturb-addition-ragtruth-12624", "score": 0.4437985326438526, "spans": [[726, 825]]}
+{"id": "perturb-role_swap-ragtruth-12624", "score": 0.023164506918082577, "spans": []}
+{"id": "perturb-certainty-ragtruth-12624", "score": 0.023350142862080817, "spans": []}
+{"id": "perturb-control-ragtruth-12696", "score": 0.9998036026954651, "spans": [[153, 307]]}
+{"id": "perturb-number-ragtruth-12696", "score": 0.9998036026954651, "spans": [[153, 307], [430, 560]]}
+{"id": "perturb-entity-ragtruth-12696", "score": 0.9998036026954651, "spans": [[153, 307]]}
+{"id": "perturb-negation-ragtruth-12696", "score": 0.943677544593811, "spans": [[153, 311]]}
+{"id": "perturb-addition-ragtruth-12696", "score": 0.9998036026954651, "spans": [[153, 307], [430, 601]]}
+{"id": "perturb-role_swap-ragtruth-12696", "score": 0.9898949265480042, "spans": [[153, 307]]}
+{"id": "perturb-control-ragtruth-12720", "score": 0.1866786308369292, "spans": []}
+{"id": "perturb-number-ragtruth-12720", "score": 0.4076286604998888, "spans": []}
+{"id": "perturb-negation-ragtruth-12720", "score": 0.2635278707774056, "spans": []}
+{"id": "perturb-antonym-ragtruth-12720", "score": 0.18712855174796073, "spans": []}
+{"id": "perturb-addition-ragtruth-12720", "score": 0.6835255990986662, "spans": [[496, 632]]}
+{"id": "perturb-control-ragtruth-12822", "score": 0.05005708400541857, "spans": []}
+{"id": "perturb-number-ragtruth-12822", "score": 0.3693839114868892, "spans": [[171, 266]]}
+{"id": "perturb-negation-ragtruth-12822", "score": 0.9995405673980713, "spans": [[367, 446]]}
+{"id": "perturb-antonym-ragtruth-12822", "score": 0.07142339238549597, "spans": []}
+{"id": "perturb-addition-ragtruth-12822", "score": 0.5145373473584085, "spans": [[443, 614]]}
+{"id": "perturb-control-ragtruth-13146", "score": 0.193040842430436, "spans": []}
+{"id": "perturb-number-ragtruth-13146", "score": 0.5095497453439432, "spans": [[175, 209]]}
+{"id": "perturb-negation-ragtruth-13146", "score": 0.17711756274224805, "spans": []}
+{"id": "perturb-antonym-ragtruth-13146", "score": 0.21677350528406297, "spans": []}
+{"id": "perturb-addition-ragtruth-13146", "score": 0.6941100888820888, "spans": [[694, 847]]}
+{"id": "perturb-quantifier-ragtruth-13146", "score": 0.2339662592515383, "spans": []}
+{"id": "perturb-control-ragtruth-13242", "score": 0.09144184169865363, "spans": []}
+{"id": "perturb-number-ragtruth-13242", "score": 0.32047680758117614, "spans": [[321, 437]]}
+{"id": "perturb-entity-ragtruth-13242", "score": 0.13561406033668422, "spans": []}
+{"id": "perturb-negation-ragtruth-13242", "score": 0.9991777539253235, "spans": [[321, 441]]}
+{"id": "perturb-antonym-ragtruth-13242", "score": 0.9601806998252869, "spans": [[212, 319]]}
+{"id": "perturb-addition-ragtruth-13242", "score": 0.6391146800459522, "spans": [[503, 621]]}
+{"id": "perturb-quantifier-ragtruth-13242", "score": 0.09145634767995182, "spans": []}
+{"id": "perturb-control-ragtruth-13254", "score": 0.10512925022735328, "spans": []}
+{"id": "perturb-entity-ragtruth-13254", "score": 0.26902013004087055, "spans": [[0, 217]]}
+{"id": "perturb-negation-ragtruth-13254", "score": 0.9973479509353638, "spans": [[0, 206]]}
+{"id": "perturb-antonym-ragtruth-13254", "score": 0.14896222941980133, "spans": []}
+{"id": "perturb-addition-ragtruth-13254", "score": 0.667881045843632, "spans": [[592, 687]]}
+{"id": "perturb-control-ragtruth-115", "score": 0.11286920821689045, "spans": []}
+{"id": "perturb-number-ragtruth-115", "score": 0.48295068746754044, "spans": [[606, 784]]}
+{"id": "perturb-entity-ragtruth-115", "score": 0.2782478611393529, "spans": [[164, 291]]}
+{"id": "perturb-negation-ragtruth-115", "score": 0.25257075957942, "spans": []}
+{"id": "perturb-antonym-ragtruth-115", "score": 0.9852209687232971, "spans": [[1206, 1285]]}
+{"id": "perturb-addition-ragtruth-115", "score": 0.6110472765703864, "spans": [[1397, 1461]]}
+{"id": "perturb-control-ragtruth-163", "score": 0.2678170615621669, "spans": []}
+{"id": "perturb-entity-ragtruth-163", "score": 0.48618545346842085, "spans": [[0, 148]]}
+{"id": "perturb-negation-ragtruth-163", "score": 0.9946777820587158, "spans": [[1112, 1243]]}
+{"id": "perturb-addition-ragtruth-163", "score": 0.7632475752671757, "spans": [[1112, 1285]]}
+{"id": "perturb-role_swap-ragtruth-163", "score": 0.27278748793630614, "spans": []}
+{"id": "perturb-control-ragtruth-216", "score": 0.13317545671425177, "spans": []}
+{"id": "perturb-number-ragtruth-216", "score": 0.6931295090524432, "spans": [[0, 186]]}
+{"id": "perturb-entity-ragtruth-216", "score": 0.6929205191947123, "spans": [[0, 194]]}
+{"id": "perturb-negation-ragtruth-216", "score": 0.2856556944016624, "spans": []}
+{"id": "perturb-antonym-ragtruth-216", "score": 0.1479445071038824, "spans": []}
+{"id": "perturb-addition-ragtruth-216", "score": 0.6935059848112959, "spans": [[646, 776]]}
+{"id": "perturb-certainty-ragtruth-216", "score": 0.15098474641931137, "spans": []}
+{"id": "perturb-control-ragtruth-222", "score": 0.15587658391981693, "spans": []}
+{"id": "perturb-number-ragtruth-222", "score": 0.5276047551713364, "spans": [[180, 379]]}
+{"id": "perturb-entity-ragtruth-222", "score": 0.4270327871962567, "spans": [[584, 736]]}
+{"id": "perturb-negation-ragtruth-222", "score": 0.9988327622413635, "spans": [[0, 183]]}
+{"id": "perturb-antonym-ragtruth-222", "score": 0.17458874525968593, "spans": []}
+{"id": "perturb-addition-ragtruth-222", "score": 0.6962870752754354, "spans": [[738, 894]]}
+{"id": "perturb-role_swap-ragtruth-222", "score": 0.15886110910948043, "spans": []}
+{"id": "perturb-control-ragtruth-258", "score": 0.04714375051559322, "spans": []}
+{"id": "perturb-number-ragtruth-258", "score": 0.15456927888948974, "spans": [[464, 515]]}
+{"id": "perturb-entity-ragtruth-258", "score": 0.23868846609198047, "spans": [[243, 408]]}
+{"id": "perturb-negation-ragtruth-258", "score": 0.9720689654350281, "spans": [[715, 797]]}
+{"id": "perturb-antonym-ragtruth-258", "score": 0.9949434399604797, "spans": [[715, 792]]}
+{"id": "perturb-addition-ragtruth-258", "score": 0.3538851708034231, "spans": [[936, 1133]]}
+{"id": "perturb-role_swap-ragtruth-258", "score": 0.9, "spans": [[715, 793]]}
+{"id": "perturb-quantifier-ragtruth-258", "score": 0.9989308714866638, "spans": [[464, 514]]}
+{"id": "perturb-certainty-ragtruth-258", "score": 0.047328610208025285, "spans": []}
+{"id": "perturb-control-ragtruth-318", "score": 0.2303784274712961, "spans": []}
+{"id": "perturb-number-ragtruth-318", "score": 0.6103880552422699, "spans": [[393, 533]]}
+{"id": "perturb-entity-ragtruth-318", "score": 0.46312919765352684, "spans": [[247, 393]]}
+{"id": "perturb-negation-ragtruth-318", "score": 0.22194042546795195, "spans": []}
+{"id": "perturb-antonym-ragtruth-318", "score": 0.19958624434359806, "spans": []}
+{"id": "perturb-addition-ragtruth-318", "score": 0.7415103255478619, "spans": [[393, 575]]}
+{"id": "perturb-role_swap-ragtruth-318", "score": 0.27221907989684246, "spans": []}
+{"id": "perturb-control-ragtruth-342", "score": 0.09775609675419442, "spans": []}
+{"id": "perturb-number-ragtruth-342", "score": 0.6017971810066971, "spans": [[0, 217]]}
+{"id": "perturb-entity-ragtruth-342", "score": 0.4625811087628534, "spans": [[317, 455]]}
+{"id": "perturb-negation-ragtruth-342", "score": 0.18035846189969396, "spans": []}
+{"id": "perturb-addition-ragtruth-342", "score": 0.6204545118357481, "spans": [[566, 732]]}
+{"id": "perturb-role_swap-ragtruth-342", "score": 0.9, "spans": [[458, 565]]}
+{"id": "perturb-control-ragtruth-414", "score": 0.1258964223297822, "spans": []}
+{"id": "perturb-number-ragtruth-414", "score": 0.47920372306254555, "spans": []}
+{"id": "perturb-entity-ragtruth-414", "score": 0.6468481057938034, "spans": [[145, 329]]}
+{"id": "perturb-negation-ragtruth-414", "score": 0.16816113704858193, "spans": []}
+{"id": "perturb-addition-ragtruth-414", "score": 0.6871958958088904, "spans": [[405, 543]]}
+{"id": "perturb-role_swap-ragtruth-414", "score": 0.12598659003693186, "spans": []}
+{"id": "perturb-control-ragtruth-516", "score": 0.6492247921218071, "spans": [[0, 187]]}
+{"id": "perturb-number-ragtruth-516", "score": 0.697015069290386, "spans": [[0, 187]]}
+{"id": "perturb-entity-ragtruth-516", "score": 0.9326965361313168, "spans": [[0, 187], [290, 388]]}
+{"id": "perturb-negation-ragtruth-516", "score": 0.6559810076252941, "spans": [[0, 187]]}
+{"id": "perturb-antonym-ragtruth-516", "score": 0.7564003723419703, "spans": [[0, 187]]}
+{"id": "perturb-addition-ragtruth-516", "score": 0.8235933873186181, "spans": [[0, 187], [400, 517]]}
+{"id": "perturb-role_swap-ragtruth-516", "score": 0.6459318231782947, "spans": [[0, 187]]}
+{"id": "perturb-control-ragtruth-522", "score": 0.23377579411094962, "spans": []}
+{"id": "perturb-number-ragtruth-522", "score": 0.7135286690792721, "spans": [[363, 505]]}
+{"id": "perturb-entity-ragtruth-522", "score": 0.32191725422387696, "spans": []}
+{"id": "perturb-negation-ragtruth-522", "score": 0.23510372421306508, "spans": []}
+{"id": "perturb-antonym-ragtruth-522", "score": 0.2380641311420288, "spans": []}
+{"id": "perturb-addition-ragtruth-522", "score": 0.7238190438462453, "spans": [[875, 1010]]}
+{"id": "perturb-role_swap-ragtruth-522", "score": 0.9, "spans": [[0, 94]]}
+{"id": "perturb-quantifier-ragtruth-522", "score": 0.23934473914208554, "spans": []}
+{"id": "perturb-control-ragtruth-576", "score": 0.2549663542055372, "spans": []}
+{"id": "perturb-number-ragtruth-576", "score": 0.9979109168052673, "spans": [[0, 168]]}
+{"id": "perturb-entity-ragtruth-576", "score": 0.608734584768159, "spans": [[652, 798]]}
+{"id": "perturb-negation-ragtruth-576", "score": 0.9997486472129822, "spans": [[0, 172]]}
+{"id": "perturb-antonym-ragtruth-576", "score": 0.996338963508606, "spans": [[388, 522]]}
+{"id": "perturb-addition-ragtruth-576", "score": 0.40796106835935886, "spans": []}
+{"id": "perturb-role_swap-ragtruth-576", "score": 0.24547013916875599, "spans": []}
+{"id": "perturb-quantifier-ragtruth-576", "score": 0.2580360467597568, "spans": []}
+{"id": "perturb-control-ragtruth-648", "score": 0.2000006459162317, "spans": []}
+{"id": "perturb-number-ragtruth-648", "score": 0.6693704102358167, "spans": [[370, 582]]}
+{"id": "perturb-entity-ragtruth-648", "score": 0.5054248550151599, "spans": [[370, 589]]}
+{"id": "perturb-negation-ragtruth-648", "score": 0.9966008067131042, "spans": [[166, 290]]}
+{"id": "perturb-addition-ragtruth-648", "score": 0.7227698512274368, "spans": [[583, 760]]}
+{"id": "perturb-role_swap-ragtruth-648", "score": 0.24034262470444978, "spans": []}
+{"id": "perturb-control-ragtruth-714", "score": 0.13159629408333273, "spans": []}
+{"id": "perturb-entity-ragtruth-714", "score": 0.6480007755142896, "spans": [[0, 128]]}
+{"id": "perturb-addition-ragtruth-714", "score": 0.8080808903440786, "spans": [[255, 281]]}
+{"id": "perturb-control-ragtruth-750", "score": 0.11460983565906546, "spans": []}
+{"id": "perturb-number-ragtruth-750", "score": 0.567406958810985, "spans": [[0, 194]]}
+{"id": "perturb-entity-ragtruth-750", "score": 0.23833726474091338, "spans": []}
+{"id": "perturb-negation-ragtruth-750", "score": 0.2579831270116313, "spans": []}
+{"id": "perturb-antonym-ragtruth-750", "score": 0.1452791271735828, "spans": []}
+{"id": "perturb-addition-ragtruth-750", "score": 0.6124340306955136, "spans": [[266, 354]]}
+{"id": "perturb-certainty-ragtruth-750", "score": 0.16695273095007998, "spans": []}
+{"id": "perturb-control-ragtruth-780", "score": 0.13603535127337252, "spans": []}
+{"id": "perturb-number-ragtruth-780", "score": 0.509572531596831, "spans": [[166, 320]]}
+{"id": "perturb-entity-ragtruth-780", "score": 0.2815761824661208, "spans": []}
+{"id": "perturb-negation-ragtruth-780", "score": 0.99981290102005, "spans": [[0, 169]]}
+{"id": "perturb-addition-ragtruth-780", "score": 0.5569606655128178, "spans": [[404, 619]]}
+{"id": "perturb-control-ragtruth-822", "score": 0.06367463847815957, "spans": []}
+{"id": "perturb-negation-ragtruth-822", "score": 0.28367248920335836, "spans": []}
+{"id": "perturb-antonym-ragtruth-822", "score": 0.314817193948517, "spans": []}
+{"id": "perturb-addition-ragtruth-822", "score": 0.7275100579458722, "spans": [[142, 246]]}
+{"id": "perturb-control-ragtruth-1002", "score": 0.2095002134514267, "spans": []}
+{"id": "perturb-number-ragtruth-1002", "score": 0.6378908303929156, "spans": [[245, 326]]}
+{"id": "perturb-entity-ragtruth-1002", "score": 0.45212924563370427, "spans": [[327, 505]]}
+{"id": "perturb-negation-ragtruth-1002", "score": 0.27015290752249754, "spans": []}
+{"id": "perturb-antonym-ragtruth-1002", "score": 0.19825941444923711, "spans": []}
+{"id": "perturb-addition-ragtruth-1002", "score": 0.6139362980378203, "spans": [[327, 529]]}
+{"id": "perturb-role_swap-ragtruth-1002", "score": 0.21995020917125743, "spans": []}
+{"id": "perturb-control-ragtruth-1188", "score": 0.07856809550255016, "spans": []}
+{"id": "perturb-number-ragtruth-1188", "score": 0.2482725682721793, "spans": [[499, 660]]}
+{"id": "perturb-entity-ragtruth-1188", "score": 0.2512541137778208, "spans": []}
+{"id": "perturb-negation-ragtruth-1188", "score": 0.11358891944187113, "spans": []}
+{"id": "perturb-antonym-ragtruth-1188", "score": 0.07847680859727979, "spans": []}
+{"id": "perturb-addition-ragtruth-1188", "score": 0.5548137645568221, "spans": [[1065, 1262]]}
+{"id": "perturb-role_swap-ragtruth-1188", "score": 0.07851192491584105, "spans": []}
+{"id": "perturb-quantifier-ragtruth-1188", "score": 0.07858728014925113, "spans": []}
+{"id": "perturb-certainty-ragtruth-1188", "score": 0.10545229018649813, "spans": []}
+{"id": "perturb-control-ragtruth-1212", "score": 0.11022847839147787, "spans": []}
+{"id": "perturb-number-ragtruth-1212", "score": 0.5699012972597657, "spans": [[0, 170]]}
+{"id": "perturb-entity-ragtruth-1212", "score": 0.09460553650298159, "spans": []}
+{"id": "perturb-negation-ragtruth-1212", "score": 0.12489777501832151, "spans": []}
+{"id": "perturb-antonym-ragtruth-1212", "score": 0.11753534723337308, "spans": []}
+{"id": "perturb-addition-ragtruth-1212", "score": 0.6286388531160904, "spans": [[171, 234]]}
+{"id": "perturb-control-ragtruth-1224", "score": 0.08107847540200905, "spans": []}
+{"id": "perturb-number-ragtruth-1224", "score": 0.27188141944390826, "spans": []}
+{"id": "perturb-entity-ragtruth-1224", "score": 0.2554423127190547, "spans": []}
+{"id": "perturb-negation-ragtruth-1224", "score": 0.999442994594574, "spans": [[314, 390]]}
+{"id": "perturb-antonym-ragtruth-1224", "score": 0.07964185147210232, "spans": []}
+{"id": "perturb-addition-ragtruth-1224", "score": 0.7112861040743133, "spans": [[314, 413]]}
+{"id": "perturb-role_swap-ragtruth-1224", "score": 0.9, "spans": [[0, 109]]}
+{"id": "perturb-control-ragtruth-5659", "score": 0.4335295486016895, "spans": [[845, 934]]}
+{"id": "perturb-number-ragtruth-5659", "score": 0.8072337621923908, "spans": [[206, 294], [845, 934]]}
+{"id": "perturb-entity-ragtruth-5659", "score": 0.7047255625661679, "spans": [[845, 934], [1379, 1483]]}
+{"id": "perturb-negation-ragtruth-5659", "score": 0.4502625924869352, "spans": []}
+{"id": "perturb-antonym-ragtruth-5659", "score": 0.45856831137736687, "spans": [[845, 934]]}
+{"id": "perturb-addition-ragtruth-5659", "score": 0.7603594459082498, "spans": [[845, 934], [1494, 1676]]}
+{"id": "perturb-role_swap-ragtruth-5659", "score": 0.44128774080453864, "spans": [[845, 934]]}
+{"id": "perturb-quantifier-ragtruth-5659", "score": 0.4344855094550904, "spans": [[844, 933]]}
+{"id": "perturb-control-ragtruth-5724", "score": 0.36316335992495014, "spans": []}
+{"id": "perturb-number-ragtruth-5724", "score": 0.689326439332878, "spans": [[0, 129]]}
+{"id": "perturb-entity-ragtruth-5724", "score": 0.4690510696666864, "spans": [[222, 330]]}
+{"id": "perturb-negation-ragtruth-5724", "score": 0.362914131553715, "spans": []}
+{"id": "perturb-antonym-ragtruth-5724", "score": 0.40423903383625426, "spans": []}
+{"id": "perturb-addition-ragtruth-5724", "score": 0.8253266650077931, "spans": [[671, 805]]}
+{"id": "perturb-quantifier-ragtruth-5724", "score": 0.3562237703400305, "spans": []}
+{"id": "perturb-control-ragtruth-5808", "score": 0.8689062689580243, "spans": [[521, 695], [696, 828]]}
+{"id": "perturb-number-ragtruth-5808", "score": 0.9686061835876496, "spans": [[346, 410], [520, 694], [695, 827]]}
+{"id": "perturb-entity-ragtruth-5808", "score": 0.9508074763076553, "spans": [[0, 147], [524, 698], [699, 831]]}
+{"id": "perturb-negation-ragtruth-5808", "score": 0.8750720612306129, "spans": [[521, 695], [696, 832]]}
+{"id": "perturb-antonym-ragtruth-5808", "score": 0.8715107791605446, "spans": [[523, 697], [698, 830]]}
+{"id": "perturb-addition-ragtruth-5808", "score": 0.9630642686378701, "spans": [[521, 695], [696, 828], [829, 928]]}
+{"id": "perturb-role_swap-ragtruth-5808", "score": 0.8648742552974742, "spans": [[521, 695], [696, 828]]}
+{"id": "perturb-quantifier-ragtruth-5808", "score": 0.8897496665581803, "spans": [[521, 695], [696, 827]]}
+{"id": "perturb-control-ragtruth-5838", "score": 0.4961368443420877, "spans": [[413, 473]]}
+{"id": "perturb-number-ragtruth-5838", "score": 0.8639278289490031, "spans": [[0, 88], [413, 473]]}
+{"id": "perturb-entity-ragtruth-5838", "score": 0.7962847020413677, "spans": [[89, 189], [413, 473]]}
+{"id": "perturb-negation-ragtruth-5838", "score": 0.4729207351365304, "spans": [[417, 477]]}
+{"id": "perturb-antonym-ragtruth-5838", "score": 0.5061641748927583, "spans": [[190, 301], [415, 475]]}
+{"id": "perturb-addition-ragtruth-5838", "score": 0.8714115678708179, "spans": [[413, 473], [597, 785]]}
+{"id": "perturb-role_swap-ragtruth-5838", "score": 0.6933965949145833, "spans": [[413, 473], [474, 596]]}
+{"id": "perturb-quantifier-ragtruth-5838", "score": 0.4881294642612577, "spans": [[413, 473]]}
+{"id": "perturb-certainty-ragtruth-5838", "score": 0.49545123830227983, "spans": [[413, 473]]}
+{"id": "perturb-control-ragtruth-6066", "score": 0.7881989123724105, "spans": [[118, 237]]}
+{"id": "perturb-number-ragtruth-6066", "score": 0.9441619145380016, "spans": [[118, 237]]}
+{"id": "perturb-entity-ragtruth-6066", "score": 0.9362493806090876, "spans": [[0, 126], [127, 246]]}
+{"id": "perturb-negation-ragtruth-6066", "score": 0.7614445723106099, "spans": [[118, 241]]}
+{"id": "perturb-antonym-ragtruth-6066", "score": 0.7721820074299633, "spans": [[118, 237], [545, 663]]}
+{"id": "perturb-addition-ragtruth-6066", "score": 0.9368076192625908, "spans": [[118, 237], [665, 817]]}
+{"id": "perturb-role_swap-ragtruth-6066", "score": 0.7891697877971662, "spans": [[118, 237]]}
+{"id": "perturb-quantifier-ragtruth-6066", "score": 0.7880743244060436, "spans": [[118, 237]]}
+{"id": "perturb-certainty-ragtruth-6066", "score": 0.7906877087859121, "spans": [[118, 237]]}
+{"id": "perturb-control-ragtruth-6072", "score": 0.3620732307427693, "spans": []}
+{"id": "perturb-number-ragtruth-6072", "score": 0.6965552628998746, "spans": [[0, 84]]}
+{"id": "perturb-entity-ragtruth-6072", "score": 0.52649349838056, "spans": []}
+{"id": "perturb-negation-ragtruth-6072", "score": 0.9805425405502319, "spans": [[710, 791]]}
+{"id": "perturb-antonym-ragtruth-6072", "score": 0.4051212194860222, "spans": []}
+{"id": "perturb-addition-ragtruth-6072", "score": 0.6666334891552227, "spans": [[710, 834]]}
+{"id": "perturb-role_swap-ragtruth-6072", "score": 0.3588703444326604, "spans": []}
+{"id": "perturb-quantifier-ragtruth-6072", "score": 0.343627749130631, "spans": []}
+{"id": "perturb-control-ragtruth-6109", "score": 0.43670695291455547, "spans": [[490, 545], [800, 915]]}
+{"id": "perturb-number-ragtruth-6109", "score": 0.6127639079639042, "spans": [[0, 95], [491, 546], [801, 916]]}
+{"id": "perturb-entity-ragtruth-6109", "score": 0.6531951323547567, "spans": [[410, 486], [489, 544], [799, 914]]}
+{"id": "perturb-negation-ragtruth-6109", "score": 0.4534535594744138, "spans": [[494, 549], [804, 919]]}
+{"id": "perturb-antonym-ragtruth-6109", "score": 0.4763102816079804, "spans": [[490, 545], [800, 915]]}
+{"id": "perturb-addition-ragtruth-6109", "score": 0.7705744022049383, "spans": [[490, 545], [800, 915], [1370, 1503]]}
+{"id": "perturb-role_swap-ragtruth-6109", "score": 0.4431413019876319, "spans": [[490, 545], [800, 915]]}
+{"id": "perturb-control-ragtruth-6240", "score": 0.6547971676716515, "spans": [[108, 175], [627, 751]]}
+{"id": "perturb-number-ragtruth-6240", "score": 0.8078052304539568, "spans": [[108, 175], [627, 751]]}
+{"id": "perturb-entity-ragtruth-6240", "score": 0.7805370820842199, "spans": [[108, 175], [402, 446], [628, 752]]}
+{"id": "perturb-negation-ragtruth-6240", "score": 0.62111962856164, "spans": [[108, 175], [631, 755]]}
+{"id": "perturb-antonym-ragtruth-6240", "score": 0.6566716022271444, "spans": [[108, 175], [627, 750]]}
+{"id": "perturb-addition-ragtruth-6240", "score": 0.8439366546948595, "spans": [[108, 175], [627, 779]]}
+{"id": "perturb-role_swap-ragtruth-6240", "score": 0.6599437486615689, "spans": [[108, 175], [627, 751]]}
+{"id": "perturb-quantifier-ragtruth-6240", "score": 0.6507652757714795, "spans": [[108, 175], [627, 750]]}
+{"id": "perturb-control-ragtruth-6367", "score": 0.617191207789767, "spans": [[913, 957], [1154, 1214]]}
+{"id": "perturb-number-ragtruth-6367", "score": 0.9559019748113442, "spans": [[0, 85], [913, 957], [1154, 1214]]}
+{"id": "perturb-entity-ragtruth-6367", "score": 0.6477136745261016, "spans": [[913, 957]]}
+{"id": "perturb-negation-ragtruth-6367", "score": 0.6113598492698732, "spans": [[913, 957], [1158, 1218]]}
+{"id": "perturb-antonym-ragtruth-6367", "score": 0.6159155891188626, "spans": [[913, 957], [1156, 1216]]}
+{"id": "perturb-addition-ragtruth-6367", "score": 0.9258755572699584, "spans": [[913, 957], [1154, 1214], [1216, 1447]]}
+{"id": "perturb-role_swap-ragtruth-6367", "score": 0.6102031184105828, "spans": [[913, 957], [1154, 1214]]}
+{"id": "perturb-control-ragtruth-6420", "score": 0.7150161996032348, "spans": [[515, 743]]}
+{"id": "perturb-number-ragtruth-6420", "score": 0.9158686115811354, "spans": [[152, 196], [515, 743]]}
+{"id": "perturb-entity-ragtruth-6420", "score": 0.7661869228948888, "spans": [[518, 746]]}
+{"id": "perturb-negation-ragtruth-6420", "score": 0.7215397047279901, "spans": [[515, 747]]}
+{"id": "perturb-antonym-ragtruth-6420", "score": 0.7172177155244337, "spans": [[513, 741]]}
+{"id": "perturb-addition-ragtruth-6420", "score": 0.9552610243099393, "spans": [[515, 743], [744, 833]]}
+{"id": "perturb-role_swap-ragtruth-6420", "score": 0.7209626710422051, "spans": [[515, 743]]}
+{"id": "perturb-quantifier-ragtruth-6420", "score": 0.7696977743616412, "spans": [[514, 742]]}
+{"id": "perturb-control-ragtruth-6511", "score": 0.8560736285247693, "spans": [[94, 189], [324, 390], [392, 449], [562, 740], [975, 1103]]}
+{"id": "perturb-number-ragtruth-6511", "score": 0.9362891156962113, "spans": [[0, 93], [94, 189], [324, 390], [392, 449], [562, 740], [975, 1103]]}
+{"id": "perturb-entity-ragtruth-6511", "score": 0.9505415151352372, "spans": [[94, 189], [324, 390], [392, 449], [450, 561], [562, 740], [975, 1103]]}
+{"id": "perturb-negation-ragtruth-6511", "score": 0.8580542650952473, "spans": [[94, 189], [324, 390], [392, 449], [566, 744], [979, 1107]]}
+{"id": "perturb-antonym-ragtruth-6511", "score": 0.8396383926933331, "spans": [[94, 189], [324, 390], [392, 449], [560, 738], [973, 1101]]}
+{"id": "perturb-addition-ragtruth-6511", "score": 0.9549013186946371, "spans": [[94, 189], [324, 390], [392, 449], [562, 740], [975, 1150]]}
+{"id": "perturb-role_swap-ragtruth-6511", "score": 0.8474172235439894, "spans": [[94, 189], [324, 390], [392, 449], [562, 740], [975, 1103]]}
+{"id": "perturb-control-ragtruth-6588", "score": 0.365315152132967, "spans": []}
+{"id": "perturb-number-ragtruth-6588", "score": 0.640179371565349, "spans": [[418, 468]]}
+{"id": "perturb-entity-ragtruth-6588", "score": 0.7787311141671391, "spans": [[683, 767]]}
+{"id": "perturb-negation-ragtruth-6588", "score": 0.34544548520556906, "spans": []}
+{"id": "perturb-antonym-ragtruth-6588", "score": 0.38322817655209984, "spans": []}
+{"id": "perturb-addition-ragtruth-6588", "score": 0.7037384479658175, "spans": [[773, 917]]}
+{"id": "perturb-role_swap-ragtruth-6588", "score": 0.37633142672404146, "spans": []}
+{"id": "perturb-quantifier-ragtruth-6588", "score": 0.3539735143015446, "spans": []}
+{"id": "perturb-control-ragtruth-6600", "score": 0.2953602964982247, "spans": [[601, 708]]}
+{"id": "perturb-number-ragtruth-6600", "score": 0.5516227770254121, "spans": [[0, 92], [601, 708]]}
+{"id": "perturb-entity-ragtruth-6600", "score": 0.3438871563674981, "spans": [[604, 711]]}
+{"id": "perturb-negation-ragtruth-6600", "score": 0.9981849789619446, "spans": [[226, 313], [605, 712]]}
+{"id": "perturb-antonym-ragtruth-6600", "score": 0.295798675318688, "spans": [[600, 707]]}
+{"id": "perturb-addition-ragtruth-6600", "score": 0.588592857819471, "spans": [[601, 708], [709, 879]]}
+{"id": "perturb-role_swap-ragtruth-6600", "score": 0.2973269427046993, "spans": [[601, 708]]}
+{"id": "perturb-quantifier-ragtruth-6600", "score": 0.30006004152886107, "spans": [[600, 707]]}
+{"id": "perturb-control-ragtruth-6696", "score": 0.579066460300497, "spans": [[213, 352], [573, 682]]}
+{"id": "perturb-number-ragtruth-6696", "score": 0.775173579702388, "spans": [[213, 352], [573, 682], [683, 753]]}
+{"id": "perturb-entity-ragtruth-6696", "score": 0.8221704038219342, "spans": [[212, 351], [572, 681]]}
+{"id": "perturb-negation-ragtruth-6696", "score": 0.5467666357130738, "spans": [[213, 356], [577, 686]]}
+{"id": "perturb-antonym-ragtruth-6696", "score": 0.5846565113105355, "spans": [[213, 354], [575, 684]]}
+{"id": "perturb-addition-ragtruth-6696", "score": 0.9138613550064769, "spans": [[213, 352], [573, 682], [754, 823]]}
+{"id": "perturb-role_swap-ragtruth-6696", "score": 0.5913109922783741, "spans": [[213, 352], [573, 682]]}
+{"id": "perturb-quantifier-ragtruth-6696", "score": 0.554386611052897, "spans": [[213, 352], [573, 681]]}
+{"id": "perturb-control-ragtruth-6726", "score": 0.4611682559938489, "spans": []}
+{"id": "perturb-number-ragtruth-6726", "score": 0.8175671944212005, "spans": [[259, 374]]}
+{"id": "perturb-entity-ragtruth-6726", "score": 0.7386525478096684, "spans": [[0, 152]]}
+{"id": "perturb-negation-ragtruth-6726", "score": 0.42180177487449955, "spans": []}
+{"id": "perturb-antonym-ragtruth-6726", "score": 0.46040900700474047, "spans": []}
+{"id": "perturb-addition-ragtruth-6726", "score": 0.8308503155552218, "spans": [[784, 875]]}
+{"id": "perturb-role_swap-ragtruth-6726", "score": 0.46401920233053684, "spans": []}
+{"id": "perturb-quantifier-ragtruth-6726", "score": 0.4629073059864185, "spans": []}
+{"id": "perturb-certainty-ragtruth-6726", "score": 0.46052630079471507, "spans": []}
+{"id": "perturb-control-ragtruth-6756", "score": 0.568806890798237, "spans": []}
+{"id": "perturb-number-ragtruth-6756", "score": 0.791992365197756, "spans": [[360, 455]]}
+{"id": "perturb-entity-ragtruth-6756", "score": 0.717245409342689, "spans": [[549, 750]]}
+{"id": "perturb-negation-ragtruth-6756", "score": 0.5954010966920794, "spans": []}
+{"id": "perturb-antonym-ragtruth-6756", "score": 0.5206488609299037, "spans": []}
+{"id": "perturb-addition-ragtruth-6756", "score": 0.8169371798713867, "spans": [[750, 964]]}
+{"id": "perturb-role_swap-ragtruth-6756", "score": 0.5175147787269299, "spans": []}
+{"id": "perturb-quantifier-ragtruth-6756", "score": 0.572144732215248, "spans": []}
+{"id": "perturb-control-ragtruth-6877", "score": 0.4220900443971984, "spans": []}
+{"id": "perturb-number-ragtruth-6877", "score": 0.8118922349136994, "spans": [[0, 85]]}
+{"id": "perturb-entity-ragtruth-6877", "score": 0.924779932162145, "spans": [[183, 308]]}
+{"id": "perturb-negation-ragtruth-6877", "score": 0.4498365364181067, "spans": []}
+{"id": "perturb-antonym-ragtruth-6877", "score": 0.41864141609429445, "spans": []}
+{"id": "perturb-addition-ragtruth-6877", "score": 0.8450076854892217, "spans": [[1161, 1269]]}
+{"id": "perturb-role_swap-ragtruth-6877", "score": 0.4143842401843012, "spans": []}
+{"id": "perturb-quantifier-ragtruth-6877", "score": 0.4519262904671366, "spans": []}
+{"id": "perturb-control-ragtruth-7171", "score": 0.4592362742289537, "spans": [[562, 633]]}
+{"id": "perturb-number-ragtruth-7171", "score": 0.8670474786338405, "spans": [[210, 274], [562, 633]]}
+{"id": "perturb-entity-ragtruth-7171", "score": 0.6802780599370366, "spans": [[0, 96], [558, 629]]}
+{"id": "perturb-negation-ragtruth-7171", "score": 0.44350543819123134, "spans": [[566, 637]]}
+{"id": "perturb-antonym-ragtruth-7171", "score": 0.4595129429312995, "spans": [[562, 633]]}
+{"id": "perturb-addition-ragtruth-7171", "score": 0.8527295064128699, "spans": [[562, 633], [1151, 1314]]}
+{"id": "perturb-role_swap-ragtruth-7171", "score": 0.44121601664257626, "spans": [[562, 633]]}
+{"id": "perturb-quantifier-ragtruth-7171", "score": 0.45932757713580763, "spans": [[562, 633]]}
+{"id": "perturb-control-ragtruth-7266", "score": 0.5844413365690766, "spans": [[198, 270]]}
+{"id": "perturb-number-ragtruth-7266", "score": 0.8949322754390665, "spans": [[80, 126], [197, 269]]}
+{"id": "perturb-entity-ragtruth-7266", "score": 0.7462297113973042, "spans": [[200, 272]]}
+{"id": "perturb-negation-ragtruth-7266", "score": 0.5921884095493857, "spans": [[198, 274]]}
+{"id": "perturb-antonym-ragtruth-7266", "score": 0.5319430809350625, "spans": [[128, 199], [200, 272]]}
+{"id": "perturb-addition-ragtruth-7266", "score": 0.8170594337764212, "spans": [[198, 270], [681, 805]]}
+{"id": "perturb-role_swap-ragtruth-7266", "score": 0.584975070657791, "spans": [[198, 270]]}
+{"id": "perturb-control-ragtruth-7344", "score": 0.6425590523222711, "spans": [[792, 908]]}
+{"id": "perturb-number-ragtruth-7344", "score": 0.9152537846836295, "spans": [[0, 88], [792, 908]]}
+{"id": "perturb-entity-ragtruth-7344", "score": 0.9087955035641593, "spans": [[0, 90], [794, 910]]}
+{"id": "perturb-negation-ragtruth-7344", "score": 0.6739526452834028, "spans": [[796, 912]]}
+{"id": "perturb-antonym-ragtruth-7344", "score": 0.6484648847639123, "spans": [[794, 910]]}
+{"id": "perturb-addition-ragtruth-7344", "score": 0.853635858179693, "spans": [[792, 935]]}
+{"id": "perturb-role_swap-ragtruth-7344", "score": 0.6394261323163293, "spans": [[792, 908]]}
+{"id": "perturb-quantifier-ragtruth-7344", "score": 0.6503580054669728, "spans": [[791, 907]]}
+{"id": "perturb-quantifier-ragtruth-1314", "score": 0.26568243667760394, "spans": []}
+{"id": "perturb-quantifier-ragtruth-1428", "score": 0.2365679950238799, "spans": []}
+{"id": "perturb-quantifier-ragtruth-1608", "score": 0.32247526749459887, "spans": []}
+{"id": "perturb-quantifier-ragtruth-1638", "score": 0.11161152036440743, "spans": []}
+{"id": "perturb-certainty-ragtruth-1806", "score": 0.27076680717125484, "spans": []}
+{"id": "perturb-certainty-ragtruth-1974", "score": 0.32196914957355416, "spans": []}
+{"id": "perturb-certainty-ragtruth-2010", "score": 0.3479913972598685, "spans": []}
+{"id": "perturb-certainty-ragtruth-2178", "score": 0.8385320668608444, "spans": [[108, 253], [253, 497]]}
+{"id": "perturb-certainty-ragtruth-2634", "score": 0.2426947700727681, "spans": []}
+{"id": "perturb-certainty-ragtruth-2790", "score": 0.08780639639353167, "spans": []}
+{"id": "perturb-certainty-ragtruth-3091", "score": 0.06185508403463054, "spans": []}
+{"id": "perturb-certainty-ragtruth-3102", "score": 0.14026623547818692, "spans": []}
+{"id": "perturb-certainty-ragtruth-3294", "score": 0.15341650083016548, "spans": []}
+{"id": "perturb-certainty-ragtruth-3612", "score": 0.08364974109101268, "spans": []}
+{"id": "perturb-certainty-ragtruth-4590", "score": 0.18305850135509544, "spans": []}
+{"id": "perturb-certainty-ragtruth-5100", "score": 0.20280133223468244, "spans": []}
+{"id": "perturb-certainty-ragtruth-5280", "score": 0.20477607504433315, "spans": []}
+{"id": "perturb-certainty-ragtruth-5544", "score": 0.10510307736768272, "spans": []}
+{"id": "perturb-certainty-ragtruth-7458", "score": 0.46886714546289043, "spans": [[303, 381]]}
+{"id": "perturb-certainty-ragtruth-7764", "score": 0.3867847286114836, "spans": []}
+{"id": "perturb-certainty-ragtruth-8172", "score": 0.8660907830584588, "spans": [[195, 285], [638, 693]]}
+{"id": "perturb-certainty-ragtruth-8227", "score": 0.42160925558719875, "spans": [[311, 446]]}
+{"id": "perturb-certainty-ragtruth-8646", "score": 0.4457513136386303, "spans": []}
+{"id": "perturb-certainty-ragtruth-9445", "score": 0.3799890474113543, "spans": []}
+{"id": "perturb-certainty-ragtruth-9588", "score": 0.4357011737033919, "spans": [[215, 261]]}
+{"id": "perturb-certainty-ragtruth-9709", "score": 0.3590164587091159, "spans": []}

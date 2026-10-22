@@ -210,3 +210,16 @@ def test_claim_contributions_are_computed_live():
     report = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen. The camp was liberated weeks later.", [SOURCE]))
     assert all(c.contribution is not None for c in report.claims)
     assert report.claims[0].contribution > report.claims[1].contribution
+
+
+def test_triage_lane_and_domain_profile_in_the_report():
+    from truth_guardian import adapt
+    from truth_guardian.triage import Policy
+
+    policy = Policy(model_version="m", data="unit", pass_below=0.2, block_from=0.8)
+    wrong = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), triage_policy=policy)
+    assert wrong.triage.lane in ("review", "block") and wrong.triage.reason
+    profile = adapt.fit("unit-domain", [0.1, 0.2, 0.3, 0.7, 0.8, 0.9] * 5, [0, 0, 0, 1, 1, 1] * 5, "m")
+    seen = run(make_sample("Anne Frank died in 2022 in Bergen-Belsen.", [SOURCE]), profile=profile)
+    assert seen.domain.name == "unit-domain" and seen.card.risk == seen.domain.calibrated_risk
+    assert seen.triage.lane in ("review", "block") and seen.guarantee.calibrated_on.startswith("domain unit-domain")

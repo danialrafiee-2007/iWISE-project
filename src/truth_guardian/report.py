@@ -141,6 +141,21 @@ class GuaranteeReport(_Strict):
     calibrated_on: str
 
 
+class TriageReport(_Strict):
+    """Which lane the answer goes to: out unchecked, to a person, or blocked, and why."""
+
+    lane: Literal["pass", "review", "block"]
+    reason: str
+
+
+class DomainReport(_Strict):
+    """The answer seen through a domain profile: the risk recalibrated on that domain's labelled answers."""
+
+    name: str
+    examples: int
+    calibrated_risk: float
+
+
 class Dimension(_Strict):
     name: str
     score: float | None
@@ -167,6 +182,8 @@ class Report(_Strict):
     completeness: CompletenessReport | None = None
     conflicts: list[ConflictReport] = Field(default_factory=list)
     guarantee: GuaranteeReport | None = None
+    domain: DomainReport | None = None
+    triage: TriageReport | None = None
     card: Card | None = None
     cited_answer: str | None = None
     warnings: list[str] = Field(default_factory=list)
@@ -316,6 +333,10 @@ def with_guarantee(report: Report, calibration: Calibration, alpha: float, task:
         calibrated_on=f"{calibration.data} ({t.hallucinated} hallucinated, {t.grounded} grounded answers)",
     )
     return report.model_copy(update={"guarantee": guarantee})
+
+
+def with_triage(report: Report, lane: str, reason: str) -> Report:
+    return report.model_copy(update={"triage": TriageReport(lane=lane, reason=reason)})
 
 
 def cited_answer(sample: Sample, claims: list[ClaimReport]) -> str | None:

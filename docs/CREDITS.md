@@ -50,3 +50,5 @@ Read from the installed package metadata on 2026-10-21.
 | tokenizers | 0.23.3 | Apache-2.0 (classifier) |
 | lettucedetect (study group only) | 0.2.3 | MIT |
 | nltk | 3.10.4 | Apache-2.0 (PyPI metadata) |
+| onnxruntime | 1.31.0 | MIT |
+| onnx | 1.23.2 | Apache-2.0 |

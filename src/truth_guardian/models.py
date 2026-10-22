@@ -1,11 +1,16 @@
 """Shared pretrained models, loaded lazily on CPU from the Hugging Face cache.
 
 Outputs are memoised per input (sentence or sentence pair), so re-checking an edited answer only computes what changed.
+HHEM, the slowest model, runs from an exact ONNX export when scripts/export_onnx.py has made one (1.8x faster on the
+laptop CPU); TG_NO_ONNX=1 forces PyTorch.
 """
 
+import hashlib
+import json
 import os
 from collections import OrderedDict
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 
@@ -19,6 +24,8 @@ HHEM_MODEL = "vectara/hallucination_evaluation_model"
 HHEM_REVISION = "de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8"
 LETTUCE_MODEL = "KRLabsOrg/lettucedect-base-modernbert-en-v1"
 CACHE_SIZE = 50_000
+HHEM_ONNX = Path(__file__).resolve().parents[2] / "models" / "onnx" / f"hhem-{HHEM_REVISION[:8]}.onnx"
+HHEM_TOKENIZER = HHEM_ONNX.with_name(f"hhem-{HHEM_REVISION[:8]}-tokenizer")
 
 _memo: dict[str, OrderedDict] = {}
 
@@ -88,9 +95,49 @@ def nli_probabilities(pairs: list[tuple[str, str]], model_name: str = NLI_MODEL)
     return _cached(f"nli:{model_name}", [tuple(p) for p in pairs], compute)
 
 
+@lru_cache(maxsize=1)
+def _hhem_onnx():
+    """(session, tokenizer, prompt) for the ONNX export, or None when absent, disabled or not matching its manifest."""
+    manifest_path = HHEM_ONNX.with_suffix(".json")
+    if os.environ.get("TG_NO_ONNX") or not HHEM_ONNX.exists() or not manifest_path.exists():
+        return None
+    try:
+        import onnxruntime as ort
+    except ImportError:
+        return None
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("revision") != HHEM_REVISION or manifest.get("sha256") != hashlib.sha256(HHEM_ONNX.read_bytes()).hexdigest():
+        return None
+    from transformers import AutoTokenizer
+
+    options = ort.SessionOptions()
+    options.intra_op_num_threads = os.cpu_count() or 4
+    session = ort.InferenceSession(str(HHEM_ONNX), options, providers=["CPUExecutionProvider"])
+    tokenizer = AutoTokenizer.from_pretrained(HHEM_TOKENIZER if HHEM_TOKENIZER.exists() else manifest["foundation"])
+    return session, tokenizer, manifest["prompt"]
+
+
+def _hhem_scores(pairs: list[tuple[str, str]]) -> np.ndarray:
+    """One pair at a time: padding a batch to its longest pair costs more than batching saves on a CPU."""
+    onnx = _hhem_onnx()
+    if onnx is None:
+        import torch
+
+        model = _hhem()
+        with torch.no_grad():
+            return np.array([model.predict([pair]).numpy()[0] for pair in pairs], dtype=float)
+    session, tokenizer, prompt = onnx
+    scores = []
+    for premise, hypothesis in pairs:
+        enc = tokenizer([prompt.format(text1=premise, text2=hypothesis)], return_tensors="np")
+        feed = {"input_ids": enc["input_ids"].astype(np.int64), "attention_mask": enc["attention_mask"].astype(np.int64)}
+        scores.append(session.run(None, feed)[0][0])
+    return np.array(scores, dtype=float)
+
+
 def hhem_consistency(pairs: list[tuple[str, str]]) -> np.ndarray:
     """(premise, hypothesis) pairs to HHEM consistency scores in [0, 1] (1 = consistent)."""
-    return _cached("hhem", [tuple(p) for p in pairs], lambda batch: _hhem().predict(batch).numpy())
+    return _cached("hhem", [tuple(p) for p in pairs], _hhem_scores)
 
 
 def lettuce_spans(context: list[str], question: str | None, answer: str) -> list[dict]:

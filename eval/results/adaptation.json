@@ -1,0 +1,121 @@
+{
+  "model_version": "20261022-082833-ensemble",
+  "alpha": 0.1,
+  "draws": 200,
+  "domains": {
+    "qa": {
+      "answers": 500,
+      "hallucinated_share": 0.5,
+      "ragtruth_calibration": {
+        "miss_rate": 0.484,
+        "false_alarm_rate": 0.0,
+        "false_alarms_when_catching": 0.004,
+        "misses_when_alarming": 0.652,
+        "ece": 0.25081406852752863
+      },
+      "k=20": {
+        "miss_rate": 0.056744344564330335,
+        "miss_rate_within_alpha": 0.78,
+        "false_alarm_rate": 0.06320535841127539,
+        "false_alarm_within_alpha": 0.755,
+        "false_alarms_when_catching": 0.6265328667450107,
+        "misses_when_alarming": 0.45277014800924215,
+        "ece": 0.09513431783691
+      },
+      "k=50": {
+        "miss_rate": 0.08334977079239671,
+        "miss_rate_within_alpha": 0.71,
+        "false_alarm_rate": 0.08117335799694814,
+        "false_alarm_within_alpha": 0.7,
+        "false_alarms_when_catching": 0.45371570295373337,
+        "misses_when_alarming": 0.24795477137268024,
+        "ece": 0.06186344553769439
+      },
+      "k=100": {
+        "miss_rate": 0.09229098012659756,
+        "miss_rate_within_alpha": 0.585,
+        "false_alarm_rate": 0.09412780694755493,
+        "false_alarm_within_alpha": 0.605,
+        "false_alarms_when_catching": 0.39210656001310246,
+        "misses_when_alarming": 0.22180295744886117,
+        "ece": 0.05575338620882384
+      }
+    },
+    "dialogue": {
+      "answers": 500,
+      "hallucinated_share": 0.5,
+      "ragtruth_calibration": {
+        "miss_rate": 0.036,
+        "false_alarm_rate": 0.564,
+        "false_alarms_when_catching": 0.84,
+        "misses_when_alarming": 0.132,
+        "ece": 0.22165565371010715
+      },
+      "k=20": {
+        "miss_rate": 0.06737948779198849,
+        "miss_rate_within_alpha": 0.71,
+        "false_alarm_rate": 0.059370965397804946,
+        "false_alarm_within_alpha": 0.75,
+        "false_alarms_when_catching": 0.789748224859972,
+        "misses_when_alarming": 0.8859819170458045,
+        "ece": 0.1177351135827999
+      },
+      "k=50": {
+        "miss_rate": 0.09031519871038281,
+        "miss_rate_within_alpha": 0.645,
+        "false_alarm_rate": 0.08150125688962925,
+        "false_alarm_within_alpha": 0.695,
+        "false_alarms_when_catching": 0.699080232150388,
+        "misses_when_alarming": 0.8404767758673078,
+        "ece": 0.09465373542425674
+      },
+      "k=100": {
+        "miss_rate": 0.09222647032889669,
+        "miss_rate_within_alpha": 0.65,
+        "false_alarm_rate": 0.0918421225947703,
+        "false_alarm_within_alpha": 0.62,
+        "false_alarms_when_catching": 0.6683722521853904,
+        "misses_when_alarming": 0.8209353081994073,
+        "ece": 0.085134057697818
+      }
+    },
+    "summary": {
+      "answers": 500,
+      "hallucinated_share": 0.5,
+      "ragtruth_calibration": {
+        "miss_rate": 0.368,
+        "false_alarm_rate": 0.136,
+        "false_alarms_when_catching": 0.276,
+        "misses_when_alarming": 0.816,
+        "ece": 0.25450253874450035
+      },
+      "k=20": {
+        "miss_rate": 0.05518870332863709,
+        "miss_rate_within_alpha": 0.815,
+        "false_alarm_rate": 0.06230786223584648,
+        "false_alarm_within_alpha": 0.745,
+        "false_alarms_when_catching": 0.8072009612958709,
+        "misses_when_alarming": 0.9048379719587009,
+        "ece": 0.14756553629218522
+      },
+      "k=50": {
+        "miss_rate": 0.07419856902392921,
+        "miss_rate_within_alpha": 0.75,
+        "false_alarm_rate": 0.07313301492753264,
+        "false_alarm_within_alpha": 0.74,
+        "false_alarms_when_catching": 0.7225460455637182,
+        "misses_when_alarming": 0.9079923982008955,
+        "ece": 0.12122687810660114
+      },
+      "k=100": {
+        "miss_rate": 0.0891285269160339,
+        "miss_rate_within_alpha": 0.65,
+        "false_alarm_rate": 0.09166213516058859,
+        "false_alarm_within_alpha": 0.64,
+        "false_alarms_when_catching": 0.6801238749175903,
+        "misses_when_alarming": 0.8824576800678386,
+        "ece": 0.1165138318490512
+      }
+    }
+  }
+}

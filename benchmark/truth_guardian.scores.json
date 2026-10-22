@@ -1,0 +1,51 @@
+{
+  "fool_the_guardian": {
+    "controls": 60,
+    "addition": {
+      "n": 60,
+      "auroc_vs_controls": 0.8912500000000001,
+      "edit_located": 0.9833333333333333
+    },
+    "antonym": {
+      "n": 49,
+      "auroc_vs_controls": 0.6465986394557822,
+      "edit_located": 0.22448979591836735
+    },
+    "certainty": {
+      "n": 30,
+      "auroc_vs_controls": 0.5522222222222223,
+      "edit_located": 0.0
+    },
+    "entity": {
+      "n": 51,
+      "auroc_vs_controls": 0.7792483660130719,
+      "edit_located": 0.6862745098039216
+    },
+    "negation": {
+      "n": 58,
+      "auroc_vs_controls": 0.7781609195402299,
+      "edit_located": 0.43103448275862066
+    },
+    "number": {
+      "n": 53,
+      "auroc_vs_controls": 0.8250000000000001,
+      "edit_located": 0.9245283018867925
+    },
+    "quantifier": {
+      "n": 30,
+      "auroc_vs_controls": 0.6455555555555555,
+      "edit_located": 0.13333333333333333
+    },
+    "role_swap": {
+      "n": 41,
+      "auroc_vs_controls": 0.7426829268292683,
+      "edit_located": 0.34146341463414637
+    }
+  },
+  "tg_agent": {
+    "n": 220,
+    "detection_auroc": 0.7599999999999999,
+    "step_exact": 0.39375,
+    "step_within_one": 0.83125
+  }
+}

@@ -1,7 +1,8 @@
 """Reliability card: one grade per answer, with the dimensions behind it.
 
-The grade depends only on the calibrated risk (the model's probability that the answer contains a hallucination),
-so it means the same thing everywhere: A below 0.1, B below 0.25, C below 0.4, D below 0.7, F above;
+The grade depends only on the calibrated risk (the model's probability that the answer contains a hallucination;
+with a domain profile, the risk recalibrated on that domain), so it means the same thing everywhere: A below 0.1,
+B below 0.25, C below 0.4, D below 0.7, F above;
 scripts/evaluate_card.py reports the observed hallucination rate per grade. The other dimensions (claims supported,
 source relevance, completeness, certainty, source agreement, citations, agent trajectory) are shown beside the
 grade, not mixed into it: how much each should weigh against the risk cannot be learned from the labels available.
@@ -50,4 +51,5 @@ def build_card(report: Report) -> Card:
             name="agent trajectory", score=1 - report.agent.risk,
             note=f"the live guardian would have stopped the agent at step {stop}" if stop is not None else "the live guardian would not have stopped the agent",
         ))
-    return Card(grade=grade(report.risk), risk=report.risk, dimensions=dimensions)
+    risk = report.domain.calibrated_risk if report.domain else report.risk
+    return Card(grade=grade(risk), risk=risk, dimensions=dimensions)

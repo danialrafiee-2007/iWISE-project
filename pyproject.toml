@@ -11,6 +11,8 @@ dependencies = [
     "en-core-web-sm",
     "nltk>=3.10.4",
     "numpy>=2.5.4",
+    "onnx>=1.23.2",
+    "onnxruntime>=1.31.0",
     "pydantic>=2.14.1",
     "scikit-learn>=1.9.1",
     "sentence-transformers>=6.1.0",

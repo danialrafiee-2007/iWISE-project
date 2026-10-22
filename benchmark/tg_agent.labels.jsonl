@@ -1,0 +1,220 @@
+{"id": "tgagent-clean-ragtruth-11880", "group": "ragtruth-14296", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-11880", "group": "ragtruth-14296", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-11880", "group": "ragtruth-14296", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-11958", "group": "ragtruth-14309", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-11958", "group": "ragtruth-14309", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-11958", "group": "ragtruth-14309", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-11958", "group": "ragtruth-14309", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-11994", "group": "ragtruth-14315", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-11994", "group": "ragtruth-14315", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-11994", "group": "ragtruth-14315", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-11994", "group": "ragtruth-14315", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12048", "group": "ragtruth-14324", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12048", "group": "ragtruth-14324", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12048", "group": "ragtruth-14324", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12048", "group": "ragtruth-14324", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12078", "group": "ragtruth-14329", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12078", "group": "ragtruth-14329", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12078", "group": "ragtruth-14329", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12114", "group": "ragtruth-14336", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12114", "group": "ragtruth-14336", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12114", "group": "ragtruth-14336", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12114", "group": "ragtruth-14336", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12366", "group": "ragtruth-14379", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12366", "group": "ragtruth-14379", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12366", "group": "ragtruth-14379", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12366", "group": "ragtruth-14379", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12372", "group": "ragtruth-14380", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12372", "group": "ragtruth-14380", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12372", "group": "ragtruth-14380", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12372", "group": "ragtruth-14380", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12414", "group": "ragtruth-14387", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12414", "group": "ragtruth-14387", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12414", "group": "ragtruth-14387", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12414", "group": "ragtruth-14387", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12420", "group": "ragtruth-14388", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12420", "group": "ragtruth-14388", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12420", "group": "ragtruth-14388", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12420", "group": "ragtruth-14388", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12570", "group": "ragtruth-14413", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12570", "group": "ragtruth-14413", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12570", "group": "ragtruth-14413", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12576", "group": "ragtruth-14414", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12576", "group": "ragtruth-14414", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12576", "group": "ragtruth-14414", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12582", "group": "ragtruth-14415", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12582", "group": "ragtruth-14415", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12582", "group": "ragtruth-14415", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12624", "group": "ragtruth-14422", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12624", "group": "ragtruth-14422", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12624", "group": "ragtruth-14422", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12696", "group": "ragtruth-14434", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12696", "group": "ragtruth-14434", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12696", "group": "ragtruth-14434", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12696", "group": "ragtruth-14434", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12720", "group": "ragtruth-14438", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12720", "group": "ragtruth-14438", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12720", "group": "ragtruth-14438", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12720", "group": "ragtruth-14438", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-12822", "group": "ragtruth-14455", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-12822", "group": "ragtruth-14455", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-12822", "group": "ragtruth-14455", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-12822", "group": "ragtruth-14455", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13146", "group": "ragtruth-15110", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13146", "group": "ragtruth-15110", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13146", "group": "ragtruth-15110", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13242", "group": "ragtruth-15126", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13242", "group": "ragtruth-15126", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13242", "group": "ragtruth-15126", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13242", "group": "ragtruth-15126", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13254", "group": "ragtruth-15128", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13254", "group": "ragtruth-15128", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13254", "group": "ragtruth-15128", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13254", "group": "ragtruth-15128", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13344", "group": "ragtruth-15144", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13344", "group": "ragtruth-15144", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13344", "group": "ragtruth-15144", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13392", "group": "ragtruth-15152", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13392", "group": "ragtruth-15152", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13392", "group": "ragtruth-15152", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13392", "group": "ragtruth-15152", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13458", "group": "ragtruth-15163", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13458", "group": "ragtruth-15163", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13458", "group": "ragtruth-15163", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13704", "group": "ragtruth-15204", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13704", "group": "ragtruth-15204", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13704", "group": "ragtruth-15204", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13704", "group": "ragtruth-15204", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13746", "group": "ragtruth-15211", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13746", "group": "ragtruth-15211", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13746", "group": "ragtruth-15211", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13746", "group": "ragtruth-15211", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13806", "group": "ragtruth-15221", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13806", "group": "ragtruth-15221", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13806", "group": "ragtruth-15221", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13806", "group": "ragtruth-15221", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-13848", "group": "ragtruth-15228", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-13848", "group": "ragtruth-15228", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-13848", "group": "ragtruth-15228", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-13848", "group": "ragtruth-15228", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14010", "group": "ragtruth-15255", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14010", "group": "ragtruth-15255", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14010", "group": "ragtruth-15255", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14010", "group": "ragtruth-15255", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14022", "group": "ragtruth-15257", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14022", "group": "ragtruth-15257", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14022", "group": "ragtruth-15257", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14022", "group": "ragtruth-15257", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14250", "group": "ragtruth-15295", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14250", "group": "ragtruth-15295", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14250", "group": "ragtruth-15295", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14250", "group": "ragtruth-15295", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14262", "group": "ragtruth-15297", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14262", "group": "ragtruth-15297", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14262", "group": "ragtruth-15297", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14262", "group": "ragtruth-15297", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14298", "group": "ragtruth-15303", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14298", "group": "ragtruth-15303", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14298", "group": "ragtruth-15303", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14418", "group": "ragtruth-15324", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14418", "group": "ragtruth-15324", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14418", "group": "ragtruth-15324", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14418", "group": "ragtruth-15324", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14424", "group": "ragtruth-15325", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14424", "group": "ragtruth-15325", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14424", "group": "ragtruth-15325", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14664", "group": "ragtruth-15365", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14664", "group": "ragtruth-15365", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14664", "group": "ragtruth-15365", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14664", "group": "ragtruth-15365", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14730", "group": "ragtruth-15376", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14730", "group": "ragtruth-15376", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14730", "group": "ragtruth-15376", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14730", "group": "ragtruth-15376", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14778", "group": "ragtruth-15384", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14778", "group": "ragtruth-15384", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14778", "group": "ragtruth-15384", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14778", "group": "ragtruth-15384", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14862", "group": "ragtruth-15398", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14862", "group": "ragtruth-15398", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14862", "group": "ragtruth-15398", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14862", "group": "ragtruth-15398", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-14916", "group": "ragtruth-15407", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-14916", "group": "ragtruth-15407", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-14916", "group": "ragtruth-15407", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-14916", "group": "ragtruth-15407", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15042", "group": "ragtruth-15428", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15042", "group": "ragtruth-15428", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15042", "group": "ragtruth-15428", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15060", "group": "ragtruth-15431", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15060", "group": "ragtruth-15431", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15060", "group": "ragtruth-15431", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15078", "group": "ragtruth-15434", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15078", "group": "ragtruth-15434", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15078", "group": "ragtruth-15434", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15078", "group": "ragtruth-15434", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15168", "group": "ragtruth-15449", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15168", "group": "ragtruth-15449", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15168", "group": "ragtruth-15449", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15168", "group": "ragtruth-15449", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15180", "group": "ragtruth-15451", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15180", "group": "ragtruth-15451", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15180", "group": "ragtruth-15451", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15180", "group": "ragtruth-15451", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15252", "group": "ragtruth-15463", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15252", "group": "ragtruth-15463", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15252", "group": "ragtruth-15463", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15252", "group": "ragtruth-15463", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15348", "group": "ragtruth-15479", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15348", "group": "ragtruth-15479", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15348", "group": "ragtruth-15479", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15348", "group": "ragtruth-15479", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15360", "group": "ragtruth-15481", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15360", "group": "ragtruth-15481", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15360", "group": "ragtruth-15481", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15360", "group": "ragtruth-15481", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15396", "group": "ragtruth-15487", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15396", "group": "ragtruth-15487", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15396", "group": "ragtruth-15487", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15396", "group": "ragtruth-15487", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15402", "group": "ragtruth-15488", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15402", "group": "ragtruth-15488", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15402", "group": "ragtruth-15488", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15522", "group": "ragtruth-15508", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15522", "group": "ragtruth-15508", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15522", "group": "ragtruth-15508", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15570", "group": "ragtruth-15516", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15570", "group": "ragtruth-15516", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15570", "group": "ragtruth-15516", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15570", "group": "ragtruth-15516", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15594", "group": "ragtruth-15520", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15594", "group": "ragtruth-15520", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15594", "group": "ragtruth-15520", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15594", "group": "ragtruth-15520", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15744", "group": "ragtruth-15545", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-15744", "group": "ragtruth-15545", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15744", "group": "ragtruth-15545", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15744", "group": "ragtruth-15545", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-15834", "group": "ragtruth-15560", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-15834", "group": "ragtruth-15560", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-15834", "group": "ragtruth-15560", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16032", "group": "ragtruth-12163", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16032", "group": "ragtruth-12163", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16032", "group": "ragtruth-12163", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16072", "group": "ragtruth-12169", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16072", "group": "ragtruth-12169", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16072", "group": "ragtruth-12169", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16266", "group": "ragtruth-12203", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16266", "group": "ragtruth-12203", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16266", "group": "ragtruth-12203", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16272", "group": "ragtruth-12204", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-16272", "group": "ragtruth-12204", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16272", "group": "ragtruth-12204", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16272", "group": "ragtruth-12204", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16476", "group": "ragtruth-12238", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16476", "group": "ragtruth-12238", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16476", "group": "ragtruth-12238", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}
+{"id": "tgagent-clean-ragtruth-16494", "group": "ragtruth-12241", "response": "grounded", "category": null, "responsible_step": null, "steps": 4}
+{"id": "tgagent-fabricated_fact-ragtruth-16494", "group": "ragtruth-12241", "response": "hallucinated", "category": "synthetic: fabricated fact", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-ignored_tool_error-ragtruth-16494", "group": "ragtruth-12241", "response": "hallucinated", "category": "synthetic: ignored tool error", "responsible_step": 3, "steps": 4}
+{"id": "tgagent-answer_addition-ragtruth-16494", "group": "ragtruth-12241", "response": "hallucinated", "category": "synthetic: answer addition", "responsible_step": 4, "steps": 4}

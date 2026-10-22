@@ -29,3 +29,4 @@ eval/*_run.log
 data/features/
 models/fusion/*/model.joblib
 models/tracer/*/model.joblib
+models/onnx/*/

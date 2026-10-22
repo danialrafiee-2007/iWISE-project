@@ -1,0 +1,10 @@
+{
+  "model": "vectara/hallucination_evaluation_model",
+  "revision": "de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8",
+  "foundation": "google/flan-t5-base",
+  "prompt": "<pad> Determine if the hypothesis is true given the premise?\n\nPremise: {text1}\n\nHypothesis: {text2}",
+  "sha256": "f4d15de30633663d6577e81339ac4386e790ef12d020fe03cded408392704bce",
+  "max_abs_difference_on_check": 7.078051567077637e-08,
+  "torch": "2.14.1+cpu",
+  "onnxruntime": "1.31.0"
+}

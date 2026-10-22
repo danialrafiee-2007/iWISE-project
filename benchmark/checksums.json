@@ -1,0 +1,12 @@
+{
+  "fool_the_guardian": {
+    "file": "perturb_dev.jsonl",
+    "sha256": "9480429f2aa52ca217ff74e74ad7599ce192a979d0986c8a201937dafc08c993",
+    "samples": 432
+  },
+  "tg_agent": {
+    "file": "tg_agent_dev.jsonl",
+    "sha256": "6c72a3ced6412e7f7e372c5a9a4751f243335104f5c61165fa11997679a7489a",
+    "samples": 220
+  }
+}

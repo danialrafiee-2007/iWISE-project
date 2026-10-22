@@ -2,9 +2,10 @@
 
 Around the score it adds the atomic claim carrying each error, meaning shifts (swapped roles override the score;
 overclaims become cautions), conflicts between sources, citation checks, the key evidence the answer leaves out,
-who is to blame (retriever, generator or conflicting sources), the conformal guarantee, the reliability card,
-each claim's contribution to the answer's risk and, for agent trajectories, the step timeline with the guardian's
-alerts. `heal` corrects an answer and re-checks it.
+who is to blame (retriever, generator or conflicting sources), the conformal guarantee, the triage lane, the
+reliability card, each claim's contribution to the answer's risk and, for agent trajectories, the step timeline
+with the guardian's alerts. A domain profile (adapt.py) replaces the RAGTruth calibration for another domain.
+`heal` corrects an answer and re-checks it.
 
 This is what the web app and API call. Signals are computed on the fly (nothing is read from the cache),
 so any question, sources and answer can be checked.
@@ -18,12 +19,15 @@ from truth_guardian.claims import localize
 from truth_guardian.correct import suggest
 from truth_guardian.evidence import Encoder
 from truth_guardian.fusion import EnsembleModel, FusionModel, build_table
+from truth_guardian.adapt import DomainProfile
 from truth_guardian.conformal import Calibration
 from truth_guardian.guardian import Policy, replay
 from truth_guardian.heal import Healing
 from truth_guardian.heal import heal as heal_answer
 from truth_guardian.overrides import apply_polarity, apply_shifts
-from truth_guardian.report import Report, agent_report, build_report, completeness_report, with_diagnosis, with_guarantee
+from truth_guardian.report import DomainReport, Report, agent_report, build_report, completeness_report, with_diagnosis, with_guarantee, with_triage
+from truth_guardian.triage import BLOCK_FALSE_ALARM
+from truth_guardian.triage import Policy as TriagePolicy
 from truth_guardian.schema import AgentStep, Document, Meta, Sample
 from truth_guardian.signals import SIGNALS, premises
 from truth_guardian.text import Sentence, split_sentences
@@ -92,9 +96,12 @@ def analyze(
     classify=None,
     calibration: Calibration | None = None,
     alpha: float = 0.1,
+    triage_policy: TriagePolicy | None = None,
+    profile: DomainProfile | None = None,
 ) -> Report:
     """consistency, encode and classify override HHEM, the sentence encoder and NLI in the tracer, claim, citation,
-    omission, blame and conflict checks (tests); calibration adds the conformal guarantee at error rate alpha."""
+    omission, blame and conflict checks (tests); calibration adds the conformal guarantee at error rate alpha and
+    triage_policy the triage lane, both from RAGTruth; a domain profile replaces them with its own calibration."""
     consistency = consistency or models.hhem_consistency
     encode = encode or models.encode
     classify = classify or models.nli_probabilities
@@ -127,9 +134,34 @@ def analyze(
     shares = contributions(sample, model, per_signal, prediction.score, use_polarity, use_shifts)
     report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent, focus, omissions, found, sides, citation_checks, shares)
     report = with_diagnosis(report, diagnosis.diagnose(sample, report.verdict != "grounded", encode))
-    if calibration is not None:
-        report = with_guarantee(report, calibration, alpha, sample.meta.task)
+    if profile is not None:
+        report = with_guarantee(report, profile.calibration(), alpha)
+        report = report.model_copy(update={"domain": DomainReport(name=profile.name, examples=profile.examples, calibrated_risk=profile.calibrated(report.risk))})
+        report = _domain_lane(report, profile)
+    else:
+        if calibration is not None:
+            report = with_guarantee(report, calibration, alpha, sample.meta.task)
+        if triage_policy is not None:
+            report = _lane(report, triage_policy)
     return report.model_copy(update={"card": build_card(report)})
+
+
+def _lane(report: Report, policy: TriagePolicy) -> Report:
+    lane = policy.lane(report.risk)
+    reason = {
+        "pass": f"risk below {policy.pass_below:.2f}: at most {policy.pass_error:.0%} of such answers are hallucinated ({policy.confidence:.0%} confidence)",
+        "block": f"risk above {policy.block_from:.2f}: at most {policy.block_false_alarm:.0%} of grounded answers are blocked",
+        "review": "risk between the pass and block lines: a person should check it",
+    }[lane]
+    return with_triage(report, lane, reason)
+
+
+def _domain_lane(report: Report, profile: DomainProfile) -> Report:
+    """No pass lane on a domain profile: a few dozen labels cannot back one; blocking uses the domain's alarm line."""
+    t = next((x for x in profile.thresholds if abs(x.alpha - BLOCK_FALSE_ALARM) < 1e-9), None)
+    if t is not None and report.risk > t.alarm:
+        return with_triage(report, "block", f"risk above this domain's alarm line {t.alarm:.2f}: at most {BLOCK_FALSE_ALARM:.0%} of its grounded answers are blocked")
+    return with_triage(report, "review", f"domain profile {profile.name}: answers go to review unless blocked")
 
 
 def heal(sample: Sample, model: FusionModel | EnsembleModel, strategy: dict | None = None, **options) -> Healing:
