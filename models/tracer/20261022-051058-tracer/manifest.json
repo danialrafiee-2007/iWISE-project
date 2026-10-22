@@ -1,0 +1,18 @@
+{
+  "version": "20261022-051058-tracer",
+  "created": "2026-10-22T05:10:58+00:00",
+  "commit": "b1bfb77",
+  "train": {
+    "data": "agenthallu_dev.jsonl",
+    "trajectories": 231
+  },
+  "semantic": false,
+  "content_only": true,
+  "hybrid": true,
+  "cross_validation": {
+    "folds": 5,
+    "exact": 0.37857142857142856,
+    "detection_auroc": 0.5562009419152276
+  },
+  "model_sha256": "8a4d6d7c17bb32b3a8832b41a88a23a713774a86aa6a1a37a8f7d9d3830cdd33"
+}
