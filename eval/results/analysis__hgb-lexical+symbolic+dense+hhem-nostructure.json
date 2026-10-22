@@ -1,6 +1,6 @@
 {
   "name": "hgb-lexical+symbolic+dense+hhem-nostructure",
-  "train_samples": 1049,
+  "train_samples": 8089,
   "dev_samples": 1506,
   "xdev_samples": {
     "xdev_qa_auroc": 500,
@@ -8,87 +8,87 @@
     "xdev_summary_auroc": 500
   },
   "full": {
-    "oof_response_auroc": 0.7987854103785592,
-    "dev_auroc": 0.817926200105755,
-    "xdev_qa_auroc": 0.805488,
-    "xdev_dialogue_auroc": 0.6384799999999999,
-    "xdev_summary_auroc": 0.6248640000000001
+    "oof_response_auroc": 0.8403068761149224,
+    "dev_auroc": 0.8466837208637619,
+    "xdev_qa_auroc": 0.85436,
+    "xdev_dialogue_auroc": 0.677656,
+    "xdev_summary_auroc": 0.6697279999999999
   },
   "ablation": {
     "without lexical": {
-      "oof_response_auroc": 0.7894323429942908,
-      "dev_auroc": 0.8097748417246653,
-      "xdev_qa_auroc": 0.77284,
-      "xdev_dialogue_auroc": 0.6669759999999999,
-      "xdev_summary_auroc": 0.649616
+      "oof_response_auroc": 0.8322098728408764,
+      "dev_auroc": 0.840626027181913,
+      "xdev_qa_auroc": 0.7720560000000001,
+      "xdev_dialogue_auroc": 0.6844559999999998,
+      "xdev_summary_auroc": 0.646544
     },
     "without symbolic": {
-      "oof_response_auroc": 0.7728099203607404,
-      "dev_auroc": 0.7797275377645663,
-      "xdev_qa_auroc": 0.7090159999999999,
-      "xdev_dialogue_auroc": 0.603712,
-      "xdev_summary_auroc": 0.684128
+      "oof_response_auroc": 0.8112078107174767,
+      "dev_auroc": 0.81793513212239,
+      "xdev_qa_auroc": 0.829752,
+      "xdev_dialogue_auroc": 0.6995680000000001,
+      "xdev_summary_auroc": 0.6894719999999999
     },
     "without dense": {
-      "oof_response_auroc": 0.7939597803556493,
-      "dev_auroc": 0.8144980921212468,
-      "xdev_qa_auroc": 0.7892239999999999,
-      "xdev_dialogue_auroc": 0.635984,
-      "xdev_summary_auroc": 0.62536
+      "oof_response_auroc": 0.8410593811156489,
+      "dev_auroc": 0.8449133951667072,
+      "xdev_qa_auroc": 0.837472,
+      "xdev_dialogue_auroc": 0.6636080000000001,
+      "xdev_summary_auroc": 0.655456
     },
     "without hhem": {
-      "oof_response_auroc": 0.7524273609949453,
-      "dev_auroc": 0.7793202378060109,
-      "xdev_qa_auroc": 0.861808,
-      "xdev_dialogue_auroc": 0.6546160000000001,
-      "xdev_summary_auroc": 0.551872
+      "oof_response_auroc": 0.819439485798555,
+      "dev_auroc": 0.8200663112914983,
+      "xdev_qa_auroc": 0.8492000000000001,
+      "xdev_dialogue_auroc": 0.6705920000000001,
+      "xdev_summary_auroc": 0.6118880000000001
     }
   },
   "learning_curve": {},
   "train_errors": {
     "response_auroc_by_task": {
-      "data2text": 0.6894374282433984,
-      "qa": 0.8332932113625421,
-      "summary": 0.7145402708481825
+      "data2text": 0.7952633938206631,
+      "qa": 0.8427142243539265,
+      "summary": 0.7463990825688074
     },
     "response_auroc_by_generator": {
-      "gpt-3.5-turbo-0613": 0.7845510563380281,
-      "gpt-4-0613": 0.7285622179239201,
-      "llama-2-13b-chat": 0.7787698412698413,
-      "llama-2-70b-chat": 0.7863877050238927,
-      "llama-2-7b-chat": 0.7883464566929134,
-      "mistral-7B-instruct": 0.7884615384615385
+      "gpt-3.5-turbo-0613": 0.7608136060675705,
+      "gpt-4-0613": 0.8123596061996103,
+      "llama-2-13b-chat": 0.845915164798938,
+      "llama-2-70b-chat": 0.8500082473868806,
+      "llama-2-7b-chat": 0.765356155625341,
+      "mistral-7B-instruct": 0.8482772223779418
     },
     "sentence_auroc_vs_clean_sentences": {
-      "Evident Baseless Info": 0.8125297557742349,
-      "Evident Conflict": 0.7265601173559793,
-      "Subtle Baseless Info": 0.802458850399513,
-      "Subtle Conflict": 0.6404454797751031,
-      "due_to_null": 0.9728264142578358,
-      "implicit_true": 0.7879748008994056
+      "Evident Baseless Info": 0.8613484140080707,
+      "Evident Conflict": 0.7911053601564206,
+      "Subtle Baseless Info": 0.8171741926834698,
+      "Subtle Conflict": 0.5901545190710994,
+      "due_to_null": 0.9753682541350799,
+      "implicit_true": 0.8035633586857011
     }
   },
   "dev_spans_and_types": {
-    "sentence_threshold": 0.3261022764270196,
+    "sentence_threshold": 0.33603015512097484,
     "spans_whole_sentences": {
-      "precision": 0.28736456044978964,
-      "recall": 0.4381537675461629,
-      "f1": 0.34708941169856933
+      "precision": 0.35447278083314526,
+      "recall": 0.4235491150630881,
+      "f1": 0.38594449186518714
     },
     "spans_refined_with_symbolic": {
-      "precision": 0.27583781113888434,
-      "recall": 0.2615637906808408,
-      "f1": 0.2685112334994318
+      "precision": 0.37632737632737634,
+      "recall": 0.24747008813886484,
+      "f1": 0.29858976444699414
     },
     "type_confusion": {
-      "contradicted -> numeric_entity_mismatch": 45,
-      "contradicted -> unsupported": 56,
+      "contradicted -> numeric_entity_mismatch": 46,
+      "contradicted -> unsupported": 46,
       "contradicted -> weak_evidence": 1,
-      "unsupported -> numeric_entity_mismatch": 131,
-      "unsupported -> unsupported": 229,
-      "unsupported -> weak_evidence": 37
+      "unsupported -> numeric_entity_mismatch": 128,
+      "unsupported -> unsupported": 218,
+      "unsupported -> weak_evidence": 21
     },
-    "contradiction_vs_other_accuracy": 0.7955911823647295,
-    "majority_baseline_accuracy": 0.7955911823647295
+    "contradiction_vs_other_accuracy": 0.7978260869565217,
+    "majority_baseline_accuracy": 0.7978260869565217
   }
 }

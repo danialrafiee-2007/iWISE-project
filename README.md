@@ -12,6 +12,13 @@ uv sync
 uv run pytest
 ```
 
+After the first `uv sync` and the first model downloads, run everything offline so no command depends on the network
+(uv otherwise re-checks the spaCy model URL, and Hugging Face re-checks model files):
+
+```bash
+HF_HUB_OFFLINE=1 uv run --offline pytest
+```
+
 ## Data format
 
 Every dataset is converted to one JSONL format defined in `src/truth_guardian/schema.py`.
