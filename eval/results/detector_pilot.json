@@ -1,0 +1,178 @@
+{
+  "model": "models/detector/pilot",
+  "dev": {
+    "sentence": {
+      "n": 12895,
+      "hallucinated_rate": 0.10864676231097324,
+      "auroc_detector": 0.7930652022524367,
+      "auroc_hhem": 0.785366805906989,
+      "auroc_fusion": 0.8199136762165085,
+      "auroc_rank_average": 0.837776609886274
+    },
+    "response": {
+      "n": 1506,
+      "auroc_detector": 0.694555399939977,
+      "auroc_fusion": 0.844925899989996,
+      "auroc_rank_average": 0.8199519814785703,
+      "by_task": {
+        "data2text": {
+          "detector": 0.7156617032778023,
+          "fusion": 0.8284436581650203,
+          "rank_average": 0.8247088309007815
+        },
+        "qa": {
+          "detector": 0.7716013026607538,
+          "fusion": 0.860362389135255,
+          "rank_average": 0.8392894262749446
+        },
+        "summary": {
+          "detector": 0.5894897847700208,
+          "fusion": 0.7314104665137113,
+          "rank_average": 0.6809242871189775
+        }
+      }
+    },
+    "span": {
+      "detector_tokens": {
+        "precision": 0.258775196003782,
+        "recall": 0.43894857856564995,
+        "f1": 0.32559877875454013
+      },
+      "fusion_sentences": {
+        "precision": 0.3473105737202227,
+        "recall": 0.40992378330045276,
+        "f1": 0.3760285386938861
+      }
+    }
+  },
+  "fool_the_guardian": {
+    "detector": {
+      "controls": 60,
+      "addition": {
+        "n": 60,
+        "auroc_vs_controls": 0.9986111111111111,
+        "edit_located": 1.0
+      },
+      "antonym": {
+        "n": 49,
+        "auroc_vs_controls": 0.5653061224489796,
+        "edit_located": 0.2653061224489796
+      },
+      "certainty": {
+        "n": 30,
+        "auroc_vs_controls": 0.5711111111111111,
+        "edit_located": 0.1
+      },
+      "entity": {
+        "n": 51,
+        "auroc_vs_controls": 0.6106209150326797,
+        "edit_located": 0.47058823529411764
+      },
+      "negation": {
+        "n": 58,
+        "auroc_vs_controls": 0.7030172413793103,
+        "edit_located": 0.9137931034482759
+      },
+      "number": {
+        "n": 53,
+        "auroc_vs_controls": 0.5740566037735849,
+        "edit_located": 0.5471698113207547
+      },
+      "quantifier": {
+        "n": 30,
+        "auroc_vs_controls": 0.605,
+        "edit_located": 0.03333333333333333
+      },
+      "role_swap": {
+        "n": 41,
+        "auroc_vs_controls": 0.5193089430894309,
+        "edit_located": 0.12195121951219512
+      }
+    },
+    "fusion": {
+      "controls": 60,
+      "addition": {
+        "n": 60,
+        "auroc_vs_controls": 0.8912500000000001,
+        "edit_located": 0.9833333333333333
+      },
+      "antonym": {
+        "n": 49,
+        "auroc_vs_controls": 0.6465986394557822,
+        "edit_located": 0.22448979591836735
+      },
+      "certainty": {
+        "n": 30,
+        "auroc_vs_controls": 0.5522222222222223,
+        "edit_located": 0.0
+      },
+      "entity": {
+        "n": 51,
+        "auroc_vs_controls": 0.7792483660130719,
+        "edit_located": 0.6862745098039216
+      },
+      "negation": {
+        "n": 58,
+        "auroc_vs_controls": 0.7781609195402299,
+        "edit_located": 0.43103448275862066
+      },
+      "number": {
+        "n": 53,
+        "auroc_vs_controls": 0.8250000000000001,
+        "edit_located": 0.9245283018867925
+      },
+      "quantifier": {
+        "n": 30,
+        "auroc_vs_controls": 0.6455555555555555,
+        "edit_located": 0.13333333333333333
+      },
+      "role_swap": {
+        "n": 41,
+        "auroc_vs_controls": 0.7426829268292683,
+        "edit_located": 0.34146341463414637
+      }
+    },
+    "rank_average": {
+      "controls": 60,
+      "addition": {
+        "n": 60,
+        "auroc_vs_controls": 0.9783333333333334
+      },
+      "antonym": {
+        "n": 49,
+        "auroc_vs_controls": 0.6362244897959183
+      },
+      "certainty": {
+        "n": 30,
+        "auroc_vs_controls": 0.558888888888889
+      },
+      "entity": {
+        "n": 51,
+        "auroc_vs_controls": 0.7403594771241829
+      },
+      "negation": {
+        "n": 58,
+        "auroc_vs_controls": 0.8030172413793104
+      },
+      "number": {
+        "n": 53,
+        "auroc_vs_controls": 0.75
+      },
+      "quantifier": {
+        "n": 30,
+        "auroc_vs_controls": 0.6422222222222224
+      },
+      "role_swap": {
+        "n": 41,
+        "auroc_vs_controls": 0.6729674796747968
+      }
+    },
+    "trained_kinds": [
+      "number",
+      "entity",
+      "negation",
+      "role_swap",
+      "addition"
+    ]
+  }
+}
