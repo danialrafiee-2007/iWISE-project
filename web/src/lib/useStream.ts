@@ -44,6 +44,17 @@ export function useStream<T extends object>() {
     [setBusy, setMood],
   );
 
-  const reset = useCallback((result: T | null = null) => setState({ result, events: [], running: false, queued: false, error: null }), []);
+  /** Drop any request still in flight (the server then skips it) and show `result` instead. */
+  const reset = useCallback(
+    (result: T | null = null) => {
+      if (abort.current) {
+        abort.current.abort();
+        abort.current = null;
+        setBusy(false);
+      }
+      setState({ result, events: [], running: false, queued: false, error: null });
+    },
+    [setBusy],
+  );
   return { ...state, run, reset };
 }

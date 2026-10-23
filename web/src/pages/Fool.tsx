@@ -161,7 +161,7 @@ export default function Fool() {
           <CardsCascade cards={cards} active={trick} onActive={setTrick} height={440} />
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className="btn btn-primary" onClick={applyTrick} disabled={!ready || !current || check.running}>
-              Apply “{KIND_LABEL[KINDS[trick]]}”
+              {`Apply “${KIND_LABEL[KINDS[trick]]}”`}
             </button>
             <span className="text-xs text-fog-400">
               {rates?.[KINDS[trick]] ? `Suite: ${rates[KINDS[trick]].n} edits, caught ${pct(rates[KINDS[trick]].detected)}, exact place found ${pct(rates[KINDS[trick]].located)}.` : ""}
@@ -169,12 +169,12 @@ export default function Fool() {
           </div>
           {notice && (
             <p role="alert" className="m-0 text-sm text-warn">
-              {notice[0].toUpperCase() + notice.slice(1)}.
+              {`${notice[0].toUpperCase() + notice.slice(1)}.`}
             </p>
           )}
         </div>
 
-        <Panel title={current ? `A grounded answer from the development data${current.question ? "" : ""}` : "Loading answers…"}>
+        <Panel key={current?.id ?? "loading"} title={current ? "A grounded answer from the development data" : "Loading answers…"}>
           {current && (
             <>
               {current.question && (
@@ -231,7 +231,7 @@ export default function Fool() {
       )}
 
       {result && outcome && current && (
-        <>
+        <div key={`${current.id}:${text}:${result.report.risk}`} className="flex flex-col gap-6">
           <div className="card grid overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="relative h-[300px] md:h-auto md:min-h-[320px]">
               <SceneFrame name="signal-array" signal={outcome.signal} paused={false} interactive={false} />
@@ -249,7 +249,7 @@ export default function Fool() {
             </div>
           </div>
           <ReportView report={result.report} input={{ question: current.question ?? "", sources: current.sources, answer: text, task: "other" }} />
-        </>
+        </div>
       )}
     </div>
   );

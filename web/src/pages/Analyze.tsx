@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { InputForm } from "../components/InputForm";
 import { AnswerView, StatusLegend } from "../components/report/AnswerView";
 import { ClaimDetail, ConflictsPanel, DiagnosisPanel, OmissionsPanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
@@ -14,6 +14,7 @@ import { useWorkspace } from "../lib/workspace";
 const GlassHalo = lazyPage(() => import("../layers/scenes/GlassHalo"));
 
 type Result = { report: Report; seconds: number; cached: boolean };
+type View = Result & { input: CheckInput; gold: Example | null };
 
 export function exampleInput(e: Example): CheckInput {
   const task = (["qa", "summary", "data2text"].includes(e.task) ? e.task : "other") as Task;
@@ -67,7 +68,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
             <h2 className="m-0 text-[13px] font-normal text-fog-400">Answer · select a claim to see why</h2>
             <StatusLegend />
           </div>
-          <AnswerView answer={input.answer} claims={report.claims} selected={selected} onSelect={setSelected} gold={goldSpans} showGold={showGold} />
+          <AnswerView key={showGold ? "gold" : "guardian"} answer={input.answer} claims={report.claims} selected={selected} onSelect={setSelected} gold={goldSpans} showGold={showGold} />
           {gold?.gold && (
             <div className="flex flex-wrap items-center gap-3 border-t border-white/6 pt-3 text-sm text-fog-300">
               <span>
@@ -82,7 +83,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
             </div>
           )}
         </Panel>
-        {claim && !showGold && <ClaimDetail claim={claim} sources={input.sources} />}
+        {claim && !showGold && <ClaimDetail key={selected} claim={claim} sources={input.sources} />}
         <WarningsPanel report={report} />
         {report.cited_answer && (
           <Panel title="The answer with citations to the sources that support each claim">
@@ -107,7 +108,8 @@ export function Analyze() {
   const { navigate } = useRouter();
   const [examples, setExamples] = useState<ExampleBrief[]>([]);
   const [example, setExample] = useState<Example | null>(null);
-  const [checked, setChecked] = useState<CheckInput | null>(null);
+  const [view, setView] = useState<View | null>(null);
+  const picking = useRef(0);
   const check = useStream<Result>();
   const ready = health?.state === "ready";
 
@@ -120,22 +122,26 @@ export function Analyze() {
     }
   }, []);
 
-  const run = async (value: CheckInput) => {
-    setChecked(value);
-    await check.run("/api/analyze", checkBody(value));
+  const run = async (value: CheckInput, gold: Example | null = null) => {
+    const result = await check.run("/api/analyze", checkBody(value));
+    if (result) setView({ ...result, input: value, gold });
   };
 
+  // Only the latest click counts: an earlier example that answers late is ignored, and a check still running for it
+  // is cancelled (the server then skips it), so quick clicks never pile up work or show the wrong report.
   const pick = async (id: string) => {
+    const turn = ++picking.current;
     try {
       const { example: e, report } = await api.example(id);
+      if (turn !== picking.current) return;
       const value = exampleInput(e);
       setExample(e);
       setInput(value);
       if (report) {
-        setChecked(value);
-        check.reset({ report, seconds: 0, cached: true });
+        check.reset();
+        setView({ report, seconds: 0, cached: true, input: value, gold: e });
       } else if (ready) {
-        await run(value);
+        await run(value, e);
       }
     } catch (err) {
       console.error(err);
@@ -143,7 +149,6 @@ export function Analyze() {
   };
 
   const stages = check.events.flatMap((e) => (e.type === "stage" ? [{ stage: e.stage, t: e.t }] : []));
-  const report = check.result?.report;
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
@@ -161,11 +166,20 @@ export function Analyze() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <Panel title="Try an example">
-          <ExamplePicker examples={examples} current={input.exampleId} onPick={pick} disabled={check.running} />
+          <ExamplePicker examples={examples} current={input.exampleId} onPick={pick} />
           {example && input.exampleId === example.id && <p className="m-0 text-sm leading-relaxed text-fog-300">{example.about}</p>}
         </Panel>
         <Panel title="Or paste your own">
-          <InputForm value={input} onChange={setInput} onSubmit={() => run(input)} disabled={check.running || !ready} submitLabel={ready ? "Check the answer" : "Models are loading…"} />
+          <InputForm
+            value={input}
+            onChange={setInput}
+            onSubmit={() => {
+              picking.current++;
+              run(input, example && example.id === input.exampleId ? example : null);
+            }}
+            disabled={check.running || !ready}
+            submitLabel={ready ? "Check the answer" : "Models are loading…"}
+          />
         </Panel>
       </div>
 
@@ -187,22 +201,22 @@ export function Analyze() {
         </div>
       )}
 
-      {report && checked && !check.running && (
-        <>
+      {view && (
+        <div className={`flex flex-col gap-6 transition-opacity duration-300 ${check.running ? "pointer-events-none opacity-35" : ""}`} aria-busy={check.running}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-xs text-fog-400">
-              {check.result?.cached ? "ready-made report (computed by the same model)" : `checked in ${check.result?.seconds.toFixed(1)} s on this computer`} · model {report.model_version}
+              {`${check.running ? "previous report, shown until the new check finishes" : view.cached ? "ready-made report (computed by the same model)" : `checked in ${view.seconds.toFixed(1)} s on this computer`} · model ${view.report.model_version}`}
             </span>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn btn-ghost" onClick={() => downloadJson(`truth-guardian-report-${report.id}.json`, { input: checked, report })}>
+              <button type="button" className="btn btn-ghost" onClick={() => downloadJson(`truth-guardian-report-${view.report.id}.json`, { input: view.input, report: view.report })}>
                 Download report
               </button>
-              {report.verdict !== "grounded" && (
+              {view.report.verdict !== "grounded" && (
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={() => {
-                    setInput(checked);
+                    setInput(view.input);
                     navigate("/heal?auto=1");
                   }}
                 >
@@ -211,8 +225,8 @@ export function Analyze() {
               )}
             </div>
           </div>
-          <ReportView report={report} input={checked} gold={example && example.id === checked.exampleId ? example : null} />
-        </>
+          <ReportView key={`${view.report.id}:${view.input.answer}`} report={view.report} input={view.input} gold={view.gold} />
+        </div>
       )}
     </div>
   );

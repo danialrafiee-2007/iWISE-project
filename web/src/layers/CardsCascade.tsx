@@ -100,7 +100,7 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
       </div>
       <div className="flex flex-col items-center justify-center gap-3" role="tablist" aria-label="Choose a trick">
         <span className="font-mono text-2xl font-medium tabular-nums text-fog-100">
-          {String(active + 1).padStart(2, "0")}
+          <span key={active}>{String(active + 1).padStart(2, "0")}</span>
           <span className="text-sm text-fog-400">/{String(cards.length).padStart(2, "0")}</span>
         </span>
         {cards.map((c, i) => (

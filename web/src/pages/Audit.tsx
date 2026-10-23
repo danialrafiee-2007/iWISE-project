@@ -110,7 +110,7 @@ export default function Audit() {
                 <div className="h-1.5 rounded-full bg-beam-400 transition-[width]" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
               </div>
               <span className="font-mono text-xs text-fog-300">
-                {progress.done} / {progress.total}
+                {`${progress.done} / ${progress.total}`}
               </span>
             </div>
           )}
@@ -124,7 +124,7 @@ export default function Audit() {
       )}
 
       {result && s && (
-        <>
+        <div key={`${s.answers}:${result.seconds}`} className="flex flex-col gap-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-xs text-fog-400">
               {s.answers} answers audited in {result.seconds.toFixed(0)} s
@@ -208,7 +208,7 @@ export default function Audit() {
               </table>
             </div>
           </Panel>
-        </>
+        </div>
       )}
     </div>
   );

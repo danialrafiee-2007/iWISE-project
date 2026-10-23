@@ -51,7 +51,6 @@ export function SceneFrame({
       aria-hidden="true"
       tabIndex={-1}
       loading={eager ? "eager" : "lazy"}
-      sandbox="allow-scripts allow-same-origin"
       className={`block h-full w-full border-0 transition-opacity duration-700 ${ready ? "opacity-100" : "opacity-0"} ${interactive ? "" : "pointer-events-none"} ${className}`}
     />
   );

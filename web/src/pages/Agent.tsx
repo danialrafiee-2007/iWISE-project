@@ -164,7 +164,7 @@ export default function Agent() {
       )}
 
       {agent && steps.length > 0 && (
-        <>
+        <div key={`${report?.id}:${question}:${steps.length}:${policy}`} className="flex flex-col gap-6">
           {question && (
             <p className="m-0 text-[15px] text-fog-200">
               <span className="text-fog-400">Task: </span>
@@ -275,7 +275,7 @@ export default function Agent() {
               </aside>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

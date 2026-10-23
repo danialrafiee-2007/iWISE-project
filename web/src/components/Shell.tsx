@@ -40,7 +40,7 @@ function EngineStatus() {
   return (
     <span className="flex items-center gap-2 font-mono text-xs text-fog-400" role="status" aria-live="polite">
       <span className="h-2 w-2 rounded-full" style={{ background: color }} aria-hidden="true" />
-      {text}
+      <span key={text}>{text}</span>
     </span>
   );
 }

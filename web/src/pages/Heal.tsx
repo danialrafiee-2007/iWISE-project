@@ -131,7 +131,7 @@ export default function Heal() {
       )}
 
       {result && shown && (
-        <>
+        <div key={`${result.original}:${result.answer}`} className="flex flex-col gap-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div role="tablist" aria-label="Rounds" className="flex flex-wrap gap-1 rounded-full border border-white/10 bg-ink-800 p-1">
               {result.rounds.map((_, i) => (
@@ -161,7 +161,7 @@ export default function Heal() {
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="flex min-w-0 flex-col gap-4">
-              <Panel title={round === 0 ? "Original answer" : `Round ${round}: ${shown.changes.length} change${shown.changes.length === 1 ? "" : "s"}, then checked again`}>
+              <Panel key={round} title={round === 0 ? "Original answer" : `Round ${round}: ${shown.changes.length} change${shown.changes.length === 1 ? "" : "s"}, then checked again`}>
                 {round === 0 || !before ? (
                   <AnswerView answer={answers[0]} claims={shown.report.claims} />
                 ) : (
@@ -183,7 +183,7 @@ export default function Heal() {
                 )}
               </Panel>
               {round > 0 && (
-                <Panel title="What changed and why">
+                <Panel key={round} title="What changed and why">
                   <ul className="m-0 flex list-none flex-col gap-2 p-0">
                     {shown.changes.map((c, i) => (
                       <li key={i} className="flex flex-col gap-1 rounded-2xl bg-ink-700/70 px-4 py-3">
@@ -231,7 +231,7 @@ export default function Heal() {
               )}
             </aside>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

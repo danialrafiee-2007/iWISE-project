@@ -1,0 +1,1 @@
+import{n as e,s as t}from"./workspace-PnAkXaKF.js";import{t as n}from"./SceneFrame-CIHuhT0k.js";var r=t();function i({active:t}){let{reducedMotion:i}=e();return(0,r.jsx)(`div`,{className:`absolute inset-0`,children:(0,r.jsx)(n,{name:`glass-halo`,paused:!t||i,eager:!0})})}export{i as default};
