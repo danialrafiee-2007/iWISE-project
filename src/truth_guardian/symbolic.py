@@ -23,6 +23,8 @@ _PASSAGE_REF = re.compile(r"passages?\s*(?:\d+\s*(?:,|and|&)\s*)*$", re.IGNORECA
 _STEP_REF = re.compile(r"\b(?:steps?|items?|points?|stages?)\s*(?:\d+\s*(?:,|and|&|or|to|-)\s*)*$", re.IGNORECASE)
 _PASSAGE_ENTITY = re.compile(r"passages?\s*\d+(?:\s*(?:,|and|&)\s*\d+)*", re.IGNORECASE)
 _WORD_COUNT = re.compile(r"\s*words\b", re.IGNORECASE)
+_BRACKET_OPEN = re.compile(r"\[[\d,\s]*$")
+_BRACKET_CLOSE = re.compile(r"[\d,\s]*\]")
 _CAMEL = re.compile(r"[A-Z]?[a-z]+|[A-Z]+(?![a-z])")
 ENTITY_LABELS = {"PERSON", "ORG", "GPE", "LOC", "NORP", "FAC", "PRODUCT", "EVENT", "WORK_OF_ART", "LAW", "LANGUAGE", "DATE"}
 _GENERIC_KEY_WORDS = {"attributes", "business", "restaurants", "good", "for", "ambience", "hours"}
@@ -153,10 +155,11 @@ def _word_number_forms(text: str) -> set[str]:
 
 
 def _is_reference(text: str, m: re.Match) -> bool:
-    """List markers, "Passage 2" citations, "steps 1-3" and "in 200 words" statements are not factual claims."""
+    """List markers, "Passage 2" and "[2]" citations, "steps 1-3" and "in 200 words" statements are not factual claims."""
     before, after = text[: m.start()], text[m.end() :]
     list_marker = _LIST_MARKER.search(before) and after[:1] in {".", ")"}
-    return bool(list_marker or _PASSAGE_REF.search(before) or _STEP_REF.search(before) or _WORD_COUNT.match(after))
+    bracket = _BRACKET_OPEN.search(before) and _BRACKET_CLOSE.match(after)
+    return bool(list_marker or bracket or _PASSAGE_REF.search(before) or _STEP_REF.search(before) or _WORD_COUNT.match(after))
 
 
 def _numbers_in(text: str) -> list[re.Match]:

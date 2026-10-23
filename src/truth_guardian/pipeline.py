@@ -98,20 +98,24 @@ def analyze(
     alpha: float = 0.1,
     triage_policy: TriagePolicy | None = None,
     profile: DomainProfile | None = None,
+    progress: Callable[[str], None] | None = None,
 ) -> Report:
     """consistency, encode and classify override HHEM, the sentence encoder and NLI in the tracer, claim, citation,
     omission, blame and conflict checks (tests); calibration adds the conformal guarantee at error rate alpha and
-    triage_policy the triage lane, both from RAGTruth; a domain profile replaces them with its own calibration."""
+    triage_policy the triage lane, both from RAGTruth; a domain profile replaces them with its own calibration.
+    progress is told the name of each stage as it starts (each signal, then "score", "claims", "checks", "verdict")."""
     consistency = consistency or models.hhem_consistency
     encode = encode or models.encode
     classify = classify or models.nli_probabilities
+    progress = progress or (lambda stage: None)
     overrides = [*(["polarity"] if use_polarity else []), *(["shifts"] if use_shifts else [])]
     signal_fns = signal_fns or {name: SIGNALS[name][1] for name in [*model.signals, *overrides]}
     sentences = split_sentences(sample.answer)
-    per_signal = {
-        name: [{"start": s.start, "end": s.end, **row} for s, row in zip(sentences, signal_fns[name](sample, sentences))]
-        for name in signal_fns
-    }
+    per_signal = {}
+    for name in signal_fns:
+        progress(name)
+        per_signal[name] = [{"start": s.start, "end": s.end, **row} for s, row in zip(sentences, signal_fns[name](sample, sentences))]
+    progress("score")
     table = build_table([sample], {name: {sample.id: per_signal[name]} for name in model.signals}, model.signals, model.structure)
     prediction = model.predictions([sample], table)[0]
     if use_polarity and "polarity" in per_signal:
@@ -119,6 +123,7 @@ def analyze(
     if use_shifts and "shifts" in per_signal:
         prediction = apply_shifts(prediction, per_signal["shifts"])
 
+    progress("claims")
     merged = [{k: v for name in per_signal for k, v in per_signal[name][i].items()} for i in range(len(sentences))]
     flagged = {(s.start, s.end) for s in prediction.sentences if s.score >= model.thresholds["sentence"]}
     fixes = [suggest(sample, s) if (s.start, s.end) in flagged else [] for s in sentences]
@@ -127,11 +132,13 @@ def analyze(
     agent = None
     if tracer is not None and sample.agent_log:
         agent = agent_report(sample, *tracer.analyse(sample, consistency), alerts=replay(sample, guardian_policy))
+    progress("checks")
     omissions = completeness_report(completeness.check(sample, encode))
     found = conflicts.find_conflicts(sample, classify)
     sides = [conflicts.contested(s, found) for s in sentences]
     citation_checks = citations.check_sample(sample, sentences, consistency)
     shares = contributions(sample, model, per_signal, prediction.score, use_polarity, use_shifts)
+    progress("verdict")
     report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent, focus, omissions, found, sides, citation_checks, shares)
     report = with_diagnosis(report, diagnosis.diagnose(sample, report.verdict != "grounded", encode))
     if profile is not None:

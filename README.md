@@ -25,6 +25,29 @@ Optional, once: export HHEM to ONNX for a faster live pipeline (same scores, abo
 HF_HUB_OFFLINE=1 uv run --offline python scripts/export_onnx.py
 ```
 
+## Web app
+
+One command starts it on http://127.0.0.1:8765 and opens the browser; the models load and warm up in the background
+(about a minute on the project laptop), and the ready-made examples are checked once and kept on disk:
+
+```bash
+uv run --offline python -m truth_guardian.web
+```
+
+It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
+been downloaded once) and only answers on localhost. Pages: Analyze, Heal, Fool the Guardian, Agent guardian, Audit and
+Model card. The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
+
+To change the front end (Node 20 or later):
+
+```bash
+cd web
+npm install
+npm run layers   # only when the GetLayers scenes in web/layers-src change
+npm run dev      # http://localhost:5173, API proxied to the Python server on port 8765
+npm run build    # writes src/truth_guardian/web/static
+```
+
 ## Audit a RAG system
 
 Run every answer in a log through the guardian and get the system's health summary (one JSON line per answer,

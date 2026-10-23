@@ -202,17 +202,15 @@ _STATUS = {
 
 
 def best_evidence(sample: Sample, sentence: Sentence) -> Evidence | None:
-    """The source sentence closest to the claim (BM25 with plural folding), with the document it came from."""
-    best, best_score = None, 0.0
-    for doc in sample.documents:
-        sentences, bm25 = _source_index((doc.text,))
-        if not sentences:
-            continue
-        scores = bm25.scores(_singular(sentence.text))
-        i = int(scores.argmax())
-        if scores[i] > best_score:
-            best, best_score = Evidence(text=sentences[i], document_id=doc.id), float(scores[i])
-    return best
+    """The source sentence closest to the claim (BM25 with plural folding over the sentences of every document, so
+    scores from different documents are comparable), with the document it came from."""
+    sentences, bm25 = _source_index(tuple(d.text for d in sample.documents))
+    if not sentences:
+        return None
+    owners = [d.id for d in sample.documents for _ in _source_index((d.text,))[0]]
+    scores = bm25.scores(_singular(sentence.text))
+    i = int(scores.argmax())
+    return Evidence(text=sentences[i], document_id=owners[i]) if scores[i] > 0 else None
 
 
 def _cautions(row: dict, citation: CitationCheck | None) -> list[str]:

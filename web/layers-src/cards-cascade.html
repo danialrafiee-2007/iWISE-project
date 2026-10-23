@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section · Cascade</title>
+<!--
+  GetLayers · Section — Cascade
+  A self-contained, scroll-driven 3D card deck (pure CSS 3D, no WebGL). Cards climb a fanned
+  back-stack laid nearly flat, rise to an upright crest at the front, then fold forward over a
+  lip and cascade down into a "pit" — so no card ever rests flat in the middle; every next card
+  drops straight to the bottom. Fully responsive and honours prefers-reduced-motion.
+  Each card is a full-bleed abstract-art photo from assets/cascade/*.webp under a legibility scrim.
+
+  Scroll model: the section is a TALL scroll track (≈300vh, set by CONFIG.scroll.perCardVh); inside
+  it a position:sticky pane pins to the viewport, and the deck advances as you scroll through the
+  track — then releases so the page continues to whatever section comes next. Drop this file's
+  <section> into a page and it just works. Layout: a pinned hero column on the left (Syne display
+  type), the deck offset into the right, and a slick vertical progress rail.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #e9e9e6; color: #14151a; }
+
+  /* ---- CONFIG → CSS custom properties (mirror the JS CONFIG below) ---- */
+  #section {
+    --bg-1:   #f4f4f2;   /* stage wash top */
+    --bg-2:   #e9e9e6;   /* stage wash bottom */
+    --ink:    #14151a;   /* dark text on light chrome */
+    --muted:  rgba(20,21,26,.42);
+    --line:   rgba(20,21,26,.14);
+    --accent: #2f36ff;   /* crest / active accent */
+    --display: 'Syne', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  /* the section is a TALL scroll track; its height (JS) sets how long the deck holds the screen */
+  #section { position: relative; }
+
+  /* the pinned pane — sticks for the whole scroll of the section, then releases to the next section */
+  .sticky {
+    position: sticky; top: 0; height: 100vh; overflow: hidden;
+    background: radial-gradient(130% 100% at 50% 12%, var(--bg-1) 0%, var(--bg-2) 78%);
+    color: var(--ink);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none; -webkit-user-select: none;
+  }
+
+  /* ---- 3D stage ---- */
+  #stage {
+    position: absolute; inset: 0;
+    perspective: var(--persp, 1500px);
+    perspective-origin: var(--vanishX, 50%) var(--vanish, 40%);
+  }
+  #deck { position: absolute; left: var(--deckX, 50%); top: var(--deckY, 50%); width: 0; height: 0; transform-style: preserve-3d; }
+
+  /* each card is centred on the deck origin; JS sets its per-frame 3D transform */
+  .card {
+    position: absolute; width: var(--cw, 380px); height: var(--ch, 440px);
+    left: calc(var(--cw, 380px) / -2); top: calc(var(--ch, 440px) / -2);
+    transform-style: preserve-3d; will-change: transform, opacity;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .card__face {
+    position: absolute; inset: 0; border-radius: var(--radius, 30px); overflow: hidden;
+    background: var(--fill, #0a0e18);
+    box-shadow:
+      0 2px 3px rgba(20,24,40,.10),
+      0 24px 44px -18px rgba(20,24,40,.40),
+      inset 0 0 0 1px rgba(255,255,255,.06);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    display: block; }
+  /* legibility scrim — dark at the foot for the title, light touch at the head for the badge */
+  .card__scrim { position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(to top, rgba(8,10,18,.82) 0%, rgba(8,10,18,.34) 30%, rgba(8,10,18,0) 58%),
+      linear-gradient(to bottom, rgba(8,10,18,.34) 0%, rgba(8,10,18,0) 22%); }
+  /* sheen keyed to card angle for a subtle glassy tilt */
+  .card__face::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background: linear-gradient(160deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 30%, rgba(0,0,0,.20) 100%);
+    opacity: var(--sheen, .5); mix-blend-mode: soft-light;
+  }
+  .card__body { position: absolute; inset: 0; z-index: 2; padding: clamp(18px, 2.4vw, 30px);
+    display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
+  .card__top { display: flex; align-items: center; justify-content: space-between; }
+  .card__idx { font: 700 12px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .12em;
+    padding: 5px 9px; border-radius: 8px; color: #fff;
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.26);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .card__tag { font: 600 11px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.82); }
+  .card__foot { }
+  .card__kicker { margin: 0 0 6px; font: 600 11px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.72); }
+  .card__title { margin: 0; font-size: clamp(26px, 3.4vw, 44px); font-weight: 700;
+    letter-spacing: -.02em; line-height: 1.02; text-shadow: 0 1px 20px rgba(0,0,0,.18); }
+  .card__meta { margin: 10px 0 0; font-size: 13px; color: rgba(255,255,255,.72); max-width: 30ch; }
+
+  /* ---- pinned hero (left column) ---- */
+  .hero { position: absolute; left: clamp(24px, 6vw, 92px); top: 50%; transform: translateY(-50%);
+    z-index: 5; width: min(42vw, 460px); display: flex; flex-direction: column; align-items: flex-start; }
+  .hero__eyebrow { display: inline-flex; align-items: center; gap: 9px;
+    font: 600 11px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .26em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: clamp(16px, 2.4vw, 26px); }
+  .hero__eyebrow::before { content: ""; width: clamp(22px, 3vw, 40px); height: 1px; background: currentColor; opacity: .6; }
+  .hero__title { margin: 0; width: max-content; max-width: min(94vw, 780px);
+    font-family: var(--display); font-weight: 800;
+    font-size: clamp(52px, 8.4vw, 132px); line-height: .88; letter-spacing: -.03em; color: var(--ink);
+    padding-right: .14em; overflow: visible; }
+  .hero__title em { display: inline-block; margin: 0; padding: 0 .16em 0 0; font-style: italic; font-weight: 700;
+    background: linear-gradient(105deg, var(--accent), #b3157e 55%, #ff6a3d);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero__sub { margin: clamp(18px, 2.4vw, 28px) 0 0; max-width: 34ch;
+    font-size: clamp(14px, 1.15vw, 16.5px); line-height: 1.55; color: rgba(20,21,26,.62); }
+  .cta { margin-top: clamp(24px, 3vw, 38px); display: inline-flex; align-items: center; gap: 12px;
+    padding: 14px 22px 14px 24px; border: 0; border-radius: 999px; cursor: pointer;
+    font: 600 14px/1 var(--display); letter-spacing: .01em; color: #fff; background: var(--ink);
+    box-shadow: 0 10px 26px -10px rgba(20,21,26,.55); transition: transform .2s var(--ease, ease), box-shadow .2s ease, background .2s ease; }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(20,21,26,.6); background: var(--accent); }
+  .cta:active { transform: translateY(0); }
+  .cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .cta__ico { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,.18); transition: transform .25s var(--ease, ease); }
+  .cta:hover .cta__ico { transform: translateX(3px); }
+  .cta__ico svg { width: 13px; height: 13px; }
+
+  /* ---- premium progress rail (right) ---- */
+  .rail { position: absolute; right: clamp(20px, 3.4vw, 56px); top: 50%; transform: translateY(-50%);
+    z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 16px; user-select: none; }
+  .rail__count { font-family: var(--display); display: flex; align-items: baseline; gap: 2px;
+    letter-spacing: -.02em; line-height: 1; }
+  .rail__cur { font-size: clamp(30px, 3.4vw, 46px); font-weight: 800; color: var(--ink);
+    font-variant-numeric: tabular-nums; }
+  .rail__tot { font-size: clamp(13px, 1.2vw, 16px); font-weight: 600; color: var(--muted); }
+  .rail__track { position: relative; width: 22px; height: clamp(210px, 42vh, 430px); cursor: pointer; touch-action: none; }
+  .rail__track::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+    transform: translateX(-50%); background: var(--line); border-radius: 2px; }
+  .rail__fill { position: absolute; top: 0; left: 50%; width: 2px; height: 0; transform: translateX(-50%);
+    border-radius: 2px; background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 35%, transparent));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .rail__thumb { position: absolute; left: 50%; top: 0; width: 11px; height: 11px;
+    margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent),
+                0 0 16px color-mix(in srgb, var(--accent) 85%, transparent); }
+  .rail__tick { position: absolute; left: 50%; width: 18px; height: 18px; transform: translate(-50%, -50%);
+    padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .rail__tick::before { content: ""; position: absolute; left: 50%; top: 50%; width: 5px; height: 5px;
+    transform: translate(-50%, -50%); border-radius: 50%; background: var(--line);
+    transition: background .2s ease, transform .2s ease; }
+  .rail__tick:hover::before { background: color-mix(in srgb, var(--accent) 60%, var(--line)); transform: translate(-50%, -50%) scale(1.3); }
+  .rail__tick[aria-current="true"]::before { opacity: 0; }
+  .rail__tick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 50%; }
+  .rail__label { font-family: var(--display); font-weight: 700; font-size: 12px; letter-spacing: .02em;
+    color: var(--ink); text-transform: uppercase; opacity: .78;
+    writing-mode: vertical-rl; }
+
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---- stacked layout for narrow / portrait screens ---- */
+  @media (max-width: 880px) {
+    .hero { position: absolute; top: clamp(28px, 7vw, 60px); left: 0; right: 0; width: auto; transform: none;
+      align-items: center; text-align: center; padding: 0 24px; }
+    .hero__sub { display: none; }
+    .hero__title { font-size: clamp(44px, 15vw, 88px); }
+    .cta { margin-top: 18px; }
+    .rail { right: clamp(10px, 3vw, 18px); top: 72%; }   /* centre the rail on the lowered deck */
+    .rail__track { height: clamp(150px, 30vh, 280px); }
+    .rail__label { display: none; }
+  }
+
+  /* ============ DEV CONTROLS — remove this block (+ the panel JS, and the #ui markup) to ship without the dev panel ============ */
+  #ui { position: fixed; top: 12px; right: 12px; z-index: 20; width: 244px; max-height: 92vh; overflow: auto;
+    background: rgba(16,17,22,.9); border: 1px solid rgba(255,255,255,.14); border-radius: 10px;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    color: #eef0f5; font: 11px/1.35 -apple-system, system-ui, sans-serif; user-select: none; }
+  #ui-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; cursor: pointer; }
+  #ui-head b { font-weight: 700; letter-spacing: .04em; }
+  #ui-head span { color: rgba(238,240,245,.5); font-size: 13px; }
+  #ui-body { padding: 2px 11px 11px; }
+  #ui.-collapsed #ui-body { display: none; }
+  .ui-grp { margin: 10px 0 3px; color: color-mix(in srgb, var(--accent) 55%, #fff); font-size: 9.5px;
+    letter-spacing: .14em; text-transform: uppercase; }
+  .ui-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 5px 0; }
+  .ui-row label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(238,240,245,.82); }
+  .ui-row input[type=range] { width: 108px; accent-color: var(--accent); }
+  .ui-row input[type=color] { width: 26px; height: 18px; padding: 0; border: 1px solid rgba(255,255,255,.2); border-radius: 3px; background: none; cursor: pointer; }
+  .ui-row .val { width: 44px; text-align: right; font: 10px/1 ui-monospace, Menlo, monospace; color: color-mix(in srgb, var(--accent) 45%, #fff); }
+  #ui-copy, #ui-reset { width: 100%; padding: 7px; cursor: pointer; color: #eef0f5;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 6px; font: 11px/1 inherit; }
+  #ui-copy { margin-top: 11px; border-color: color-mix(in srgb, var(--accent) 50%, transparent); color: color-mix(in srgb, var(--accent) 35%, #fff); }
+  #ui-reset { margin-top: 6px; }
+  #ui-copy:hover, #ui-reset:hover { background: rgba(255,255,255,.13); }
+  /* ============ END DEV CONTROLS ============ */
+</style>
+</head>
+<body>
+<section id="section" aria-roledescription="carousel" aria-label="Cascade card deck">
+ <div class="sticky">
+  <div id="stage">
+    <div id="deck"><!-- cards injected from CONFIG.cards --></div>
+  </div>
+
+  <div class="hero">
+    <span class="hero__eyebrow" id="heroEyebrow"></span>
+    <h1 class="hero__title" id="heroTitle"></h1>
+    <p class="hero__sub" id="heroSub"></p>
+    <button class="cta" id="cta" type="button">
+      <span id="ctaLabel"></span>
+      <span class="cta__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+    </button>
+  </div>
+
+  <div class="rail">
+    <div class="rail__count"><span class="rail__cur" id="railCur">01</span><span class="rail__tot" id="railTot"></span></div>
+    <div class="rail__track" id="railTrack" role="tablist" aria-label="Jump to card">
+      <div class="rail__fill" id="railFill"></div>
+      <div class="rail__thumb" id="railThumb"></div>
+    </div>
+    <div class="rail__label" id="railLabel"></div>
+  </div>
+
+  <div class="sr" id="live" aria-live="polite"></div>
+ </div>
+</section>
+
+<!-- DEV CONTROLS -->
+<div id="ui">
+  <div id="ui-head"><b>Cascade</b><span id="ui-caret">▾</span></div>
+  <div id="ui-body"></div>
+</div>
+<!-- END DEV CONTROLS -->
+
+<script type="module">
+/* ============================================================
+   CONFIG — every tunable value. Colors are '#rrggbb'; the rest
+   numbers/strings. The single place to art-direct the section.
+   `geometry` shapes the fold: the back-stack fan, the crest, and
+   the drop into the pit.
+============================================================ */
+const CONFIG = {
+  accent: '#2f36ff',
+
+  hero: {
+    eyebrow: 'Gallery · Vol. 01',
+    title: 'In<br><em>Freefall</em>',   // <em> gets the gradient display treatment
+    subtitle: 'Eleven abstractions caught mid-drop. Scroll, and each one folds over the crest and cascades straight down into the pit.',
+    cta: 'Explore the deck',
+  },
+
+  cards: [
+    { img: 'assets/cascade/plume.webp',    kicker: 'Chapter 01', title: 'Plume',    tag: 'Motion', meta: 'Long-exposure light drawn upward into colour.' },
+    { img: 'assets/cascade/chapel.webp',   kicker: 'Chapter 02', title: 'Chapel',   tag: 'Glass',  meta: 'Translucent panes overlapping like cathedral light.' },
+    { img: 'assets/cascade/lantern.webp',  kicker: 'Chapter 03', title: 'Lantern',  tag: 'Glow',   meta: 'Ribbons of light suspended in the dark.' },
+    { img: 'assets/cascade/frond.webp',    kicker: 'Chapter 04', title: 'Frond',    tag: 'Radial', meta: 'A fan of blades opening from a single point.' },
+    { img: 'assets/cascade/veil.webp',     kicker: 'Chapter 05', title: 'Veil',     tag: 'Silk',   meta: 'Sheer veils drifting across a bright field.' },
+    { img: 'assets/cascade/tidepool.webp', kicker: 'Chapter 06', title: 'Tidepool', tag: 'Pour',   meta: 'Poured pigment pooling into little cells.' },
+    { img: 'assets/cascade/dahlia.webp',   kicker: 'Chapter 07', title: 'Dahlia',   tag: 'Bloom',  meta: 'Petals unfurling in hot pink and gold.' },
+    { img: 'assets/cascade/delta.webp',    kicker: 'Chapter 08', title: 'Delta',    tag: 'Marble', meta: 'Rivers of colour braiding through stone.' },
+    { img: 'assets/cascade/origami.webp',  kicker: 'Chapter 09', title: 'Origami',  tag: 'Fold',   meta: 'Creased planes catching the light.' },
+    { img: 'assets/cascade/nectar.webp',   kicker: 'Chapter 10', title: 'Nectar',   tag: 'Liquid', meta: 'Molten colour swirling like warm glass.' },
+    { img: 'assets/cascade/kindling.webp', kicker: 'Chapter 11', title: 'Kindling', tag: 'Spark',  meta: 'Sparks scattered into a glowing tunnel.' },
+  ],
+
+  aspect: 1.16,     // card height / width
+  cardVW: 0.26,     // card width as fraction of viewport width (clamped below)
+  cardMin: 210,     // min card width (px)
+  cardMax: 400,     // max card width (px)
+
+  ease: 0.14,       // progress smoothing toward the scroll position (0..1 per frame)
+  scroll: {
+    perCardVh: 20,  // vertical scroll (in vh) spent per card → section height = 100 + (N-1)·perCardVh vh
+  },
+
+  geometry: {
+    crestTilt:  -18,    // deg: lean-back of the crest card (front of the slanted pile)
+    crestY:     0.20,   // crest vertical offset, fraction of card height (+ = down)
+    crestZ:     0.02,   // crest push toward viewer, fraction of card height
+
+    backDecay:  0.80,   // how fast the back-stack lies flat + compresses
+    backTilt:   50,     // deg added laying the stack back toward flat (crest → ~-68°)
+    backRise:   1.02,   // how high the stack rises, fraction of card height
+    backDepth:  1.05,   // how far the stack recedes, fraction of card height
+    backShrink: 0.16,   // extra scale falloff into the stack
+
+    frontDrop:  0.86,   // how far each dismissed card drops, fraction of card height per step
+    frontFold:  120,    // deg the dismissed card folds forward over the lip
+    frontFwd:   0.30,   // how far the folding card leans toward the viewer, fraction of card height
+    fadeStart:  1.30,   // |p| at which a dismissed card starts fading
+    fadeEnd:    2.20,   // |p| at which it's gone
+    backFade:   9.0,    // how many cards deep the back stack stays visible
+  },
+}
+
+/* ---------- build ---------- */
+const $ = id => document.getElementById(id)
+const section = $('section')
+const stage = $('stage')
+const deck  = $('deck')
+const live  = $('live')
+const railTrack = $('railTrack')
+const railFill = $('railFill'), railThumb = $('railThumb')
+const railCur = $('railCur'), railLabel = $('railLabel')
+section.style.setProperty('--accent', CONFIG.accent)
+
+/* hero content */
+$('heroEyebrow').textContent = CONFIG.hero.eyebrow
+$('heroTitle').innerHTML     = CONFIG.hero.title
+$('heroSub').textContent     = CONFIG.hero.subtitle
+$('ctaLabel').textContent    = CONFIG.hero.cta
+
+const N = CONFIG.cards.length
+const cards = CONFIG.cards.map((c, i) => {
+  const el = document.createElement('article')
+  el.className = 'card'
+  el.innerHTML = `
+    <div class="card__face">
+      <img class="card__img" src="${c.img}" alt="${c.title}" draggable="false" decoding="async">
+      <div class="card__scrim"></div>
+      <div class="card__body">
+        <div class="card__top">
+          <span class="card__idx">${String(i + 1).padStart(2, '0')} / ${String(N).padStart(2, '0')}</span>
+          <span class="card__tag">${c.tag}</span>
+        </div>
+        <div class="card__foot">
+          <p class="card__kicker">${c.kicker}</p>
+          <h2 class="card__title">${c.title}</h2>
+          <p class="card__meta">${c.meta}</p>
+        </div>
+      </div>
+    </div>`
+  deck.appendChild(el)
+  return el
+})
+
+/* progress rail — tick per card (keyboard/click), over a glowing fill + thumb */
+$('railTot').textContent = '/' + String(N).padStart(2, '0')
+const ticks = CONFIG.cards.map((c, i) => {
+  const b = document.createElement('button')
+  b.className = 'rail__tick'; b.type = 'button'; b.setAttribute('role', 'tab')
+  b.setAttribute('aria-label', `Card ${i + 1}: ${c.title}`)
+  b.style.top = (N > 1 ? (i / (N - 1)) * 100 : 0) + '%'
+  b.addEventListener('click', () => scrollToRaw(N > 1 ? i / (N - 1) : 0, true))
+  railTrack.appendChild(b)
+  return b
+})
+
+/* ---------- responsive layout ---------- */
+let CW = 380, CH = 440
+function layout() {
+  const vw = innerWidth, vh = innerHeight
+  CW = Math.round(Math.min(CONFIG.cardMax, Math.max(CONFIG.cardMin, vw * CONFIG.cardVW)))
+  CH = Math.round(CW * CONFIG.aspect)
+  // keep the tall folded cascade inside the viewport on short screens
+  const maxCH = vh * 0.5
+  if (CH > maxCH) { CH = Math.round(maxCH); CW = Math.round(CH / CONFIG.aspect) }
+  stage.style.setProperty('--cw', CW + 'px')
+  stage.style.setProperty('--ch', CH + 'px')
+  stage.style.setProperty('--persp', Math.max(1200, Math.min(vw, vh) * 2.5) + 'px')
+  stage.style.setProperty('--vanish', '38%')
+  // wide screens: deck sits in the right-middle so the pinned hero owns the left
+  const wide = vw > 880
+  stage.style.setProperty('--deckX', wide ? '68%' : '50%')
+  stage.style.setProperty('--vanishX', wide ? '66%' : '50%')
+  stage.style.setProperty('--deckY', wide ? '50%' : '72%')   // narrow: drop the deck clear below the stacked hero + CTA
+}
+addEventListener('resize', layout); layout()
+
+/* the section is a tall scroll track: 100vh pinned + a slice of scroll per card */
+section.style.height = (100 + (N - 1) * CONFIG.scroll.perCardVh) + 'vh'
+
+/* ---------- the fold: per-card 3D transform as a function of p ---------- */
+const G = CONFIG.geometry
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x))
+
+function place(el, p) {
+  const H = CH
+  let tilt, ty, tz, scale, opacity, sheen, z
+
+  if (p >= 0) {
+    // ---- back stack: fan out, lie back, rise and recede (saturating) ----
+    const a = 1 - Math.exp(-p * G.backDecay)      // 0 → 1, compresses the fan
+    tilt    = G.crestTilt - G.backTilt * a
+    ty      = H * (G.crestY - G.backRise * a)
+    tz      = H * (G.crestZ - G.backDepth * a)
+    scale   = 1 - G.backShrink * a
+    sheen   = 0.5 + 0.4 * a
+    opacity = clamp(1 - (p - G.backFade) * 0.5, 0, 1)
+    z       = 1000 - Math.round(p * 10)           // nearer cards paint on top
+  } else {
+    // ---- the pit: dismissed cards fold forward over the lip and drop ----
+    const q = -p                                  // 0 → N
+    tilt    = G.crestTilt + G.frontFold * q
+    ty      = H * (G.crestY + G.frontDrop * q)
+    const fwd = Math.sin(clamp(q, 0, 1) * Math.PI * 0.5)   // ease toward viewer then hold
+    tz      = H * (G.crestZ + G.frontFwd * fwd)
+    scale   = 1 + 0.05 * fwd
+    sheen   = 0.5 - 0.3 * clamp(q, 0, 1)
+    opacity = 1 - clamp((q - G.fadeStart) / (G.fadeEnd - G.fadeStart), 0, 1)
+    z       = 2000 + Math.round(q * 10)           // fold cards ride above the crest
+  }
+
+  el.style.opacity = opacity
+  el.style.zIndex  = z
+  el.style.setProperty('--sheen', sheen.toFixed(3))
+  el.style.transform =
+    `translateY(${ty.toFixed(1)}px) translateZ(${tz.toFixed(1)}px) rotateX(${tilt.toFixed(2)}deg) scale(${scale.toFixed(3)})`
+}
+
+/* ---------- state + render loop ---------- */
+let progress = 0, target = 0
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+let lastActive = -1
+
+function render() {
+  // page scroll → deck: how far through the pinned section are we? (0 → N-1)
+  const travel = section.offsetHeight - innerHeight
+  const scrolled = clamp(-section.getBoundingClientRect().top, 0, Math.max(1, travel))
+  target = travel > 0 ? (scrolled / travel) * (N - 1) : 0
+
+  // smooth the deck toward the scroll position (snap when reduced-motion)
+  const e = reduce ? 1 : CONFIG.ease
+  progress += (target - progress) * e
+  if (Math.abs(target - progress) < 0.0005) progress = target
+
+  for (let i = 0; i < N; i++) place(cards[i], i - progress)
+
+  // rail: continuous fill + thumb track the eased progress; number/label snap to the active card
+  const frac = N > 1 ? clamp(progress / (N - 1), 0, 1) : 0
+  railFill.style.height = (frac * 100) + '%'
+  railThumb.style.top = (frac * 100) + '%'
+
+  const active = clamp(Math.round(progress), 0, N - 1)
+  if (active !== lastActive) {
+    lastActive = active
+    ticks.forEach((d, i) => d.setAttribute('aria-current', i === active ? 'true' : 'false'))
+    railCur.textContent = String(active + 1).padStart(2, '0')
+    railLabel.textContent = CONFIG.cards[active].title
+    live.textContent = `Card ${active + 1} of ${N}: ${CONFIG.cards[active].title}`
+  }
+  requestAnimationFrame(render)
+}
+render()
+
+/* ---------- navigation — everything drives the native page scroll ----------
+   The deck follows scroll (see render), so the rail + CTA just move the page to
+   the right spot. Native wheel/trackpad/touch/keyboard scroll it as usual, and
+   scrolling past the section continues to whatever comes next on the page. */
+const clamp01 = x => Math.min(1, Math.max(0, x))
+const sectionDocTop = () => section.getBoundingClientRect().top + scrollY
+function scrollToRaw(raw, smooth) {
+  const travel = Math.max(0, section.offsetHeight - innerHeight)
+  scrollTo({ top: sectionDocTop() + clamp01(raw) * travel, behavior: (smooth && !reduce) ? 'smooth' : 'auto' })
+}
+
+// CTA — advance to the next card (wraps to the top of the section at the end)
+$('cta').addEventListener('click', () => {
+  const cur = clamp(Math.round(progress), 0, N - 1)
+  scrollToRaw(N > 1 ? (cur >= N - 1 ? 0 : (cur + 1) / (N - 1)) : 0, true)
+})
+
+// rail track — click or drag to scrub the scroll position
+let railDrag = false
+const railTo = (clientY) => {
+  const r = railTrack.getBoundingClientRect()
+  scrollToRaw((clientY - r.top) / r.height, false)
+}
+railTrack.addEventListener('pointerdown', (e) => { railDrag = true; railTrack.setPointerCapture(e.pointerId); railTo(e.clientY) })
+railTrack.addEventListener('pointermove', (e) => { if (railDrag) railTo(e.clientY) })
+const railEnd = () => { railDrag = false }
+railTrack.addEventListener('pointerup', railEnd)
+railTrack.addEventListener('pointercancel', railEnd)
+
+/* ← → step a card (vertical keys stay free for native page scroll) */
+addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+  const cur = clamp(Math.round(progress), 0, N - 1)
+  scrollToRaw(N > 1 ? clamp(cur + (e.key === 'ArrowRight' ? 1 : -1), 0, N - 1) / (N - 1) : 0, true)
+})
+
+/* ============ DEV CONTROLS PANEL — schema-driven live tuning. To ship without it, remove this
+   whole block, the <!-- DEV CONTROLS --> markup, and the "DEV CONTROLS" <style> block. ============ */
+const DEV_KEY = 'cascade.cfg.v1'
+const getP = p => p.split('.').reduce((o, k) => o[k], CONFIG)
+const setP = (p, v) => { const ks = p.split('.'); const last = ks.pop(); ks.reduce((o, k) => o[k], CONFIG)[last] = v }
+const fmt = v => Number.isInteger(v) ? String(v) : String(parseFloat(v.toFixed(3)))
+
+const SCHEMA = [
+  ['Look'],
+  ['accent', 'Accent', 'color'],
+  ['cardVW', 'Card size', 0.16, 0.42, 0.01], ['aspect', 'Card ratio', 0.9, 1.5, 0.01],
+  ['Scroll & feel'],
+  ['ease', 'Follow ease', 0.04, 0.4, 0.01], ['scroll.perCardVh', 'Scroll / card', 8, 46, 1],
+  ['Crest'],
+  ['geometry.crestTilt', 'Crest tilt', -42, 8, 1], ['geometry.crestY', 'Crest Y', -0.1, 0.5, 0.01], ['geometry.crestZ', 'Crest Z', -0.2, 0.4, 0.01],
+  ['Back stack'],
+  ['geometry.backDecay', 'Fan compress', 0.3, 1.6, 0.02], ['geometry.backTilt', 'Back tilt', 20, 80, 1], ['geometry.backRise', 'Back rise', 0.4, 1.8, 0.02],
+  ['geometry.backDepth', 'Back depth', 0.4, 1.8, 0.02], ['geometry.backShrink', 'Back shrink', 0, 0.4, 0.01],
+  ['The pit'],
+  ['geometry.frontDrop', 'Drop', 0.4, 1.6, 0.02], ['geometry.frontFold', 'Fold', 80, 160, 1], ['geometry.frontFwd', 'Lean in', 0, 0.8, 0.02],
+  ['geometry.fadeStart', 'Fade start', 0.6, 2, 0.02], ['geometry.fadeEnd', 'Fade end', 1.4, 3, 0.02],
+]
+const PATHS = SCHEMA.filter(r => r.length > 1).map(r => r[0])
+const DEFAULTS = {}; PATHS.forEach(p => DEFAULTS[p] = getP(p))
+
+// load saved tuning (if any), then re-apply what the render loop doesn't already read live
+try { const s = JSON.parse(localStorage.getItem(DEV_KEY) || 'null'); if (s) for (const p of PATHS) if (p in s) setP(p, s[p]) } catch (e) {}
+const saveDev = () => { try { const o = {}; PATHS.forEach(p => o[p] = getP(p)); localStorage.setItem(DEV_KEY, JSON.stringify(o)) } catch (e) {} }
+function applyConfig() {
+  section.style.setProperty('--accent', CONFIG.accent)
+  section.style.height = (100 + (N - 1) * CONFIG.scroll.perCardVh) + 'vh'
+  layout()
+}
+applyConfig()
+function onChange(p, v) { setP(p, v); saveDev(); applyConfig() }
+
+;(() => {
+  const body = $('ui-body')
+  for (const row of SCHEMA) {
+    if (row.length === 1) { const h = document.createElement('div'); h.className = 'ui-grp'; h.textContent = row[0]; body.appendChild(h); continue }
+    const [p, label, a, b, step] = row
+    const el = document.createElement('div'); el.className = 'ui-row'
+    const lab = document.createElement('label'); lab.textContent = label; el.appendChild(lab)
+    if (a === 'color') {
+      const inp = document.createElement('input'); inp.type = 'color'; inp.value = getP(p)
+      inp.addEventListener('input', () => onChange(p, inp.value)); el.appendChild(inp)
+    } else {
+      const inp = document.createElement('input'); inp.type = 'range'; inp.min = a; inp.max = b; inp.step = step; inp.value = getP(p)
+      const val = document.createElement('span'); val.className = 'val'; val.textContent = fmt(getP(p))
+      inp.addEventListener('input', () => { onChange(p, parseFloat(inp.value)); val.textContent = fmt(getP(p)) })
+      el.appendChild(inp); el.appendChild(val)
+    }
+    body.appendChild(el)
+  }
+  const copy = document.createElement('button'); copy.id = 'ui-copy'; copy.textContent = '⧉ copy config'
+  copy.addEventListener('click', () => copyConfig(copy)); body.appendChild(copy)
+  const reset = document.createElement('button'); reset.id = 'ui-reset'; reset.textContent = '↺ reset to defaults'
+  reset.addEventListener('click', () => { for (const p of PATHS) setP(p, DEFAULTS[p]); try { localStorage.removeItem(DEV_KEY) } catch (e) {} location.reload() })
+  body.appendChild(reset)
+  const head = $('ui-head'), panel = $('ui'), caret = $('ui-caret')
+  head.addEventListener('click', () => { panel.classList.toggle('-collapsed'); caret.textContent = panel.classList.contains('-collapsed') ? '▸' : '▾' })
+  if (innerWidth < 760) { panel.classList.add('-collapsed'); caret.textContent = '▸' }
+})()
+
+function configText() {
+  const g = CONFIG.geometry
+  return [
+    `  accent: '${CONFIG.accent}',`,
+    `  aspect: ${fmt(CONFIG.aspect)},  cardVW: ${fmt(CONFIG.cardVW)},  ease: ${fmt(CONFIG.ease)},`,
+    `  scroll: { perCardVh: ${fmt(CONFIG.scroll.perCardVh)} },`,
+    `  geometry: {`,
+    `    crestTilt: ${fmt(g.crestTilt)}, crestY: ${fmt(g.crestY)}, crestZ: ${fmt(g.crestZ)},`,
+    `    backDecay: ${fmt(g.backDecay)}, backTilt: ${fmt(g.backTilt)}, backRise: ${fmt(g.backRise)}, backDepth: ${fmt(g.backDepth)}, backShrink: ${fmt(g.backShrink)},`,
+    `    frontDrop: ${fmt(g.frontDrop)}, frontFold: ${fmt(g.frontFold)}, frontFwd: ${fmt(g.frontFwd)}, fadeStart: ${fmt(g.fadeStart)}, fadeEnd: ${fmt(g.fadeEnd)},`,
+    `  },`,
+  ].join('\n')
+}
+async function copyConfig(btn) {
+  const text = configText()
+  try { await navigator.clipboard.writeText(text) }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy') } catch (e2) {} document.body.removeChild(ta) }
+  const old = btn.textContent; btn.textContent = '✓ copied'; setTimeout(() => { btn.textContent = old }, 1200)
+}
+/* ============ END DEV CONTROLS PANEL ============ */
+</script>
+</body>
+</html>

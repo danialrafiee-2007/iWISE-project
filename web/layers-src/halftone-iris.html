@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Scene · Halftone Iris</title>
+<style>
+  html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
+  canvas { display:block; width:100vw; height:100vh; }
+  /* UI PANEL — remove this block to drop the controls */
+  #ui-panel { position: fixed; top: 12px; right: 12px; background: rgba(10,10,12,.75); color: #fff;
+    font: 11px/1.4 -apple-system, system-ui, sans-serif; padding: 8px 10px; border: 1px solid rgba(255,255,255,.12);
+    border-radius: 6px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    max-width: 240px; max-height: 80vh; overflow: auto; z-index: 1000; user-select: none; }
+  #ui-toggle { background: none; border: none; color: #fff; cursor: pointer; font-size: 14px; padding: 0; }
+  #ui-body { display: none; margin-top: 6px; }
+  #ui-panel.-open #ui-body { display: block; }
+  #ui-body label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0; }
+  #ui-body input[type=color] { width: 28px; height: 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 3px; padding: 0; background: none; cursor: pointer; }
+  #ui-body input[type=range] { width: 110px; }
+  #ui-buttons { display: flex; gap: 6px; margin-top: 8px; }
+  #ui-buttons button { flex: 1; cursor: pointer; background: rgba(255,255,255,.08); color: #fff;
+    border: 1px solid rgba(255,255,255,.18); border-radius: 4px; padding: 5px 6px; font: 11px/1 sans-serif; }
+  #ui-buttons button:hover { background: rgba(255,255,255,.16); }
+  #ui-snapshot { margin: 8px 0 0; padding: 6px 8px; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 4px;
+    font: 10px/1.45 ui-monospace, 'SF Mono', Menlo, monospace;
+    white-space: pre-wrap; word-break: break-word; color: rgba(255,255,255,.88);
+    max-height: 240px; overflow: auto; user-select: text; cursor: text; }
+  /* END UI PANEL */
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<!-- UI PANEL — remove this block to drop the controls -->
+<div id="ui-panel">
+  <button id="ui-toggle" type="button" aria-label="Toggle controls">⚙ controls</button>
+  <div id="ui-body"></div>
+  <pre id="ui-snapshot" title="Click to select, then copy. These are the current CONFIG values."></pre>
+</div>
+<!-- END UI PANEL -->
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.143.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShader.js';
+import { CopyShader } from 'three/addons/shaders/CopyShader.js';
+
+/* ============================== CONFIG ============================== */
+const CONFIG = {
+  // palette (cool sapphire-silver with amethyst halo and a gold catchlight)
+  colDot:        '#cfd9ee',
+  colDotDeep:    '#5f7099',
+  colIris:       '#3f6fb8',
+  colHalo:       '#8f7bd8',
+  colCatchlight: '#ffe3a8',
+  colAura:       '#2a3f74',
+
+  // halftone grid
+  fitScale:      1.452,
+  gridN:         84,
+  dotMax:        0.780,
+  dotSoft:       0.098,
+  dotGamma:      0.86,
+  jitter:        0.10,
+
+  // eye geometry (field units, screen half-height = 1)
+  eyeA:          0.545,
+  eyeUpperB:     0.300,
+  eyeLowerB:     0.258,
+  eyeCy:         0.010,
+  lidPow:        0.640,
+  eyeTilt:       0.055,
+  edgeSoft:      0.055,
+
+  // iris / pupil
+  irisR:         0.212,
+  irisCx:       -0.012,
+  irisCy:        0.052,
+  pupilR:        0.118,
+  limbalW:       0.150,
+  irisTexture:   0.240,
+  irisStrands:   26,
+
+  // value structure
+  scleraVal:     0.820,
+  irisVal:       0.150,
+  pupilVal:      0.045,
+  cornerFall:    0.340,
+  lidShade:      0.170,
+  creaseAmp:     0.260,
+  catchR:        0.052,
+  catchVal:      1.000,
+  catchX:       -0.088,
+  catchY:        0.020,
+
+  // scattered halo cloud
+  haloA:         0.870,
+  haloB:         0.610,
+  haloVal:       0.720,
+  haloNoise:     2.60,
+  haloFall:      1.00,
+  scatter:       0.95,
+  lashAmp:       0.220,
+  lashCount:     13.0,
+  lashRing:      0.560,
+
+  // motion
+  fadeIn:        1.25,
+  driftSpeed:    0.070,
+  twinkle:       0.230,
+  breathe:       0.024,
+  pupilBreathe:  0.070,
+  blinkPeriod:   9.20,
+  blinkSpeed:    5.60,
+
+  // pointer
+  lookAmount:    0.052,
+  lookEase:      2.60,
+  repelRadius:   0.300,
+  repelStrength: 0.055,
+  pulseDecay:    1.70,
+  pulseAmount:   0.320,
+  parallax:      0.030,
+
+  // aura + post
+  auraScale:     1.28,
+  auraStrength:  0.0,
+  bloomStrength: 0.400,
+  bloomRadius:   0.550,
+  bloomThresh:   0.000,
+  torusStrength: 0.220,
+  torusRadius:   0.200,
+  exposure:      1.000
+};
+
+const DEFAULTS = JSON.parse(JSON.stringify(CONFIG));
+const STORAGE_KEY = 'getlayers:halftone-iris';
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  for (const k in saved) if (k in CONFIG) CONFIG[k] = saved[k];
+} catch (e) { /* ignore malformed storage */ }
+function saveConfig() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(CONFIG)); } catch (e) {}
+}
+function hexToVec3(hex) {
+  const h = hex.replace('#', '');
+  return new THREE.Vector3(
+    parseInt(h.substring(0, 2), 16) / 255,
+    parseInt(h.substring(2, 4), 16) / 255,
+    parseInt(h.substring(4, 6), 16) / 255
+  );
+}
+
+const LAYERS = { NONE: 0, TORUS_SCENE: 1, BLOOM_SCENE: 2, ENTIRE_SCENE: 3 };
+/* ============================== SHADERS ============================== */
+const COMMON_GLSL = `
+float hash21(vec2 p){
+  p = fract(p * vec2(123.34, 345.45));
+  p += dot(p, p + 34.345);
+  return fract(p.x * p.y);
+}
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash21(i), b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0)), d = hash21(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float fbm(vec2 p){
+  float s = 0.0, a = 0.5;
+  for (int i = 0; i < 4; i++){ s += a * vnoise(p); p *= 2.03; a *= 0.5; }
+  return s;
+}
+`;
+
+const FIELD_GLSL = `
+// returns vec3( value, insideLid, irisMask )
+vec3 eyeField(vec2 q){
+  float ub = uUpperB * uBreath * (1.0 - iBlink);
+  float lb = uLowerB * (1.0 - 0.85 * iBlink);
+  float cy = uEyeCy - uUpperB * iBlink * 0.50;
+
+  float x  = q.x / uEyeA;
+  float t  = 1.0 - x * x;
+  float lidY = pow(max(t, 0.0), uLidPow);
+  float yy = q.y - cy - uEyeTilt * q.x;
+  float upper = max(ub * lidY, 1e-4);
+  float lower = max(lb * lidY, 1e-4);
+  float nd = (yy > 0.0) ? (upper - yy) / upper : (lower + yy) / lower;
+  if (t <= 0.0) nd = -1.0;
+  float inside = smoothstep(0.0, uEdgeSoft, nd);
+
+  // --- sclera ---------------------------------------------------------
+  float v = uScleraVal;
+  v *= 1.0 - uCornerFall * smoothstep(0.30, 1.02, abs(x));
+  v *= 1.0 - uLidShade * smoothstep(0.45, 1.05, clamp(yy / upper, 0.0, 1.0));
+  v *= 1.0 - 0.18 * smoothstep(0.25, 1.00, clamp(-yy / lower, 0.0, 1.0));
+
+  // --- iris ------------------------------------------------------------
+  vec2 ic = vec2(uIrisCx, uIrisCy) + iLook;
+  vec2 dq = q - ic;
+  float ir = length(dq) / uIrisR;
+  float ang = atan(dq.y, dq.x);
+  float strand = 0.5 + 0.5 * sin(ang * uStrands + fbm(dq * 9.0 + iDrift * 0.35) * 4.0);
+  float irisV = uIrisVal + uIrisTex * strand * smoothstep(0.20, 1.05, ir);
+  irisV *= 1.0 - 0.58 * smoothstep(1.0 - uLimbalW, 1.0, ir);
+  float pr = length(dq) / max(uPupilR * iPupil, 1e-4);
+  irisV = mix(uPupilVal, irisV, smoothstep(0.80, 1.04, pr));
+  float irisMask = 1.0 - smoothstep(0.98, 1.07, ir);
+  v = mix(v, irisV, irisMask);
+
+  // --- catchlight -------------------------------------------------------
+  vec2 cd = (q - ic - vec2(uCatchX, uCatchY)) * vec2(1.0, 1.28) / uCatchR;
+  v += uCatchVal * exp(-dot(cd, cd) * 1.15);
+
+  // --- crease above the upper lid ---------------------------------------
+  float cw = (yy - upper * 1.30) / (0.11 + 0.05 * abs(x));
+  float crease = exp(-cw * cw);
+  float creaseV = uCreaseAmp * crease * (1.0 - smoothstep(0.55, 1.05, abs(x)));
+
+  // --- scattered halo cloud ---------------------------------------------
+  float rr = length(q * vec2(1.0 / uHaloA, 1.0 / uHaloB));
+  float fall = pow(clamp(1.0 - rr, 0.0, 1.0), uHaloFall);
+  float n = fbm(q * uHaloNoise + vec2(iDrift, -iDrift * 0.63));
+  float a2 = atan(q.y * 1.35, q.x);
+  float lash = pow(abs(sin(a2 * uLashCount * 0.5 + n * 2.2)), 4.0);
+  float band = smoothstep(0.10, uLashRing, rr) * (1.0 - smoothstep(uLashRing, 1.05, rr));
+  float haloV = uHaloVal * fall * (0.30 + 0.95 * n) * (1.0 + uLashAmp * lash * band * 2.0);
+  haloV += creaseV * (0.5 + 0.7 * n);
+
+  return vec3(mix(haloV, v, inside), inside, irisMask * inside);
+}
+`;
+
+const UNIFORM_DECL = `
+uniform float iTime, iAlpha, iBlink, iPupil, iDrift, uAspect, uFit, uCellPx, uCell;
+uniform vec2  iResolution, iPointer, iLook, iOffset;
+uniform float uEyeA, uUpperB, uLowerB, uEyeCy, uLidPow, uEyeTilt, uEdgeSoft, uBreath;
+uniform float uIrisR, uIrisCx, uIrisCy, uPupilR, uLimbalW, uIrisTex, uStrands;
+uniform float uScleraVal, uIrisVal, uPupilVal, uCornerFall, uLidShade, uCreaseAmp;
+uniform float uCatchR, uCatchVal, uCatchX, uCatchY;
+uniform float uHaloA, uHaloB, uHaloVal, uHaloNoise, uHaloFall, uScatter;
+uniform float uLashAmp, uLashCount, uLashRing;
+uniform float uDotMax, uDotGamma, uJitter, uTwinkle, uRepelRadius, uRepelStrength;
+`;
+
+const DOT_VERT = UNIFORM_DECL + COMMON_GLSL + FIELD_GLSL + `
+varying float vVal; varying float vSize; varying float vIris; varying float vRnd;
+void main(){
+  vec2 cell = position.xy;
+  float rnd = hash21(cell * 131.7 + 5.13);
+  vec2 q = cell + (vec2(hash21(cell * 57.1 + 1.7), hash21(cell * 91.3 + 9.1)) - 0.5) * uJitter * uCell;
+
+  vec2 d = q - iPointer;
+  float dl = length(d);
+  q += (d / max(dl, 1e-4)) * uRepelStrength * exp(-pow(dl / uRepelRadius, 2.0));
+
+  vec3 f = eyeField(q);
+  float val = f.x * (1.0 + uTwinkle * (sin(iTime * 1.6 + rnd * 43.0) * 0.5));
+  float base = clamp(pow(max(val, 0.0), uDotGamma), 0.0, 1.35);
+  float outside = 1.0 - f.y;
+  float alive = step(0.0, base - rnd * uScatter * outside);
+  float sz = mix(base, alive * clamp(base * 1.70 + 0.16, 0.0, 0.82), outside);
+
+  vVal = val; vIris = f.z; vRnd = rnd; vSize = sz;
+  vec2 world = (q + iOffset) * uFit;
+  vec4 mv = modelViewMatrix * vec4(world, 0.0, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = max(uDotMax * sz * uCellPx, 0.0);
+}
+`;
+
+const DOT_FRAG = `
+uniform float iAlpha, uDotSoft, uExposure;
+uniform vec3 uColDot, uColDeep, uColIris, uColHalo, uColCatch;
+varying float vVal; varying float vSize; varying float vIris; varying float vRnd;
+void main(){
+  if (vSize <= 0.010) discard;
+  vec2 pc = gl_PointCoord - 0.5;
+  float a = 1.0 - smoothstep(0.5 - uDotSoft, 0.5, length(pc));
+  if (a <= 0.002) discard;
+  float v = clamp(vVal, 0.0, 1.6);
+  vec3 col = mix(uColDeep, uColDot, smoothstep(0.08, 0.92, v));
+  col = mix(uColHalo, col, smoothstep(0.04, 0.42, v));
+  col = mix(col, uColIris, vIris * 0.62);
+  col = mix(col, uColCatch, smoothstep(0.92, 1.20, v));
+  float lum = clamp(v, 0.0, 1.25) * a * iAlpha * uExposure;
+  gl_FragColor = vec4(col * lum, 1.0);
+}
+`;
+
+const AURA_VERT = `
+varying vec2 vUv;
+void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`;
+const AURA_FRAG = `
+uniform float iAlpha, iBlink, uHaloA, uHaloB, uAuraScale, uAuraStrength, uEyeA, uUpperB;
+uniform vec3 uColAura, uColIris;
+uniform vec2 iLook;
+varying vec2 vUv;
+void main(){
+  vec2 q = (vUv - 0.5) * 2.0 * 2.2;
+  float rr = length(q * vec2(1.0 / (uHaloA * uAuraScale), 1.0 / (uHaloB * uAuraScale)));
+  float glow = pow(clamp(1.0 - rr, 0.0, 1.0), 2.6);
+  vec2 ec = q - vec2(0.0, 0.02) - iLook * 0.6;
+  float core = exp(-dot(ec / vec2(uEyeA * 0.85, uUpperB * 0.9), ec / vec2(uEyeA * 0.85, uUpperB * 0.9)) * 1.3);
+  vec3 col = uColAura * glow + uColIris * core * 0.55 * (1.0 - iBlink);
+  gl_FragColor = vec4(col * uAuraStrength * iAlpha, 1.0);
+}
+`;
+/* ============================== SCENE ============================== */
+class Scene {
+  constructor(scene) {
+    this.parent = scene;
+    this.t0 = performance.now() / 1000;
+    this.last = this.t0;
+    this.pointer = new THREE.Vector2(0.0, 0.0);
+    this.pointerTarget = new THREE.Vector2(0.0, 0.0);
+    this.active = 0;
+    this.pulse = 0;
+    this.fit = 1;
+
+    const U = {
+      iTime: { value: 0 }, iAlpha: { value: 0 }, iBlink: { value: 0 }, iPupil: { value: 1 },
+      iDrift: { value: 0 }, iResolution: { value: new THREE.Vector2(1, 1) },
+      iPointer: { value: new THREE.Vector2(9, 9) }, iLook: { value: new THREE.Vector2() },
+      iOffset: { value: new THREE.Vector2() },
+      uAspect: { value: 1 }, uFit: { value: 1 }, uCellPx: { value: 6 }, uCell: { value: 0.01 },
+      uBreath: { value: 1 },
+      uEyeA: { value: 0 }, uUpperB: { value: 0 }, uLowerB: { value: 0 }, uEyeCy: { value: 0 },
+      uLidPow: { value: 0 }, uEyeTilt: { value: 0 }, uEdgeSoft: { value: 0 },
+      uIrisR: { value: 0 }, uIrisCx: { value: 0 }, uIrisCy: { value: 0 }, uPupilR: { value: 0 },
+      uLimbalW: { value: 0 }, uIrisTex: { value: 0 }, uStrands: { value: 0 },
+      uScleraVal: { value: 0 }, uIrisVal: { value: 0 }, uPupilVal: { value: 0 },
+      uCornerFall: { value: 0 }, uLidShade: { value: 0 }, uCreaseAmp: { value: 0 },
+      uCatchR: { value: 0 }, uCatchVal: { value: 0 }, uCatchX: { value: 0 }, uCatchY: { value: 0 },
+      uHaloA: { value: 0 }, uHaloB: { value: 0 }, uHaloVal: { value: 0 }, uHaloNoise: { value: 0 },
+      uHaloFall: { value: 0 }, uScatter: { value: 0 },
+      uLashAmp: { value: 0 }, uLashCount: { value: 0 }, uLashRing: { value: 0 },
+      uDotMax: { value: 0 }, uDotGamma: { value: 0 }, uJitter: { value: 0 }, uTwinkle: { value: 0 },
+      uRepelRadius: { value: 0 }, uRepelStrength: { value: 0 },
+      uDotSoft: { value: 0.3 }, uExposure: { value: 1 },
+      uColDot: { value: new THREE.Vector3() }, uColDeep: { value: new THREE.Vector3() },
+      uColIris: { value: new THREE.Vector3() }, uColHalo: { value: new THREE.Vector3() },
+      uColCatch: { value: new THREE.Vector3() }
+    };
+    this.u = U;
+
+    this.buildDots(CONFIG.gridN);
+
+    // soft aura behind the halftone field (smooth -> safe to bloom)
+    const auraU = {
+      iAlpha: U.iAlpha, iBlink: U.iBlink, iLook: U.iLook,
+      uHaloA: U.uHaloA, uHaloB: U.uHaloB, uEyeA: U.uEyeA, uUpperB: U.uUpperB,
+      uAuraScale: { value: 1.2 }, uAuraStrength: { value: 0.2 },
+      uColAura: { value: new THREE.Vector3() }, uColIris: U.uColIris
+    };
+    this.auraU = auraU;
+    this.aura = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(4.4, 4.4, 1, 1),
+      new THREE.ShaderMaterial({
+        uniforms: auraU, vertexShader: AURA_VERT, fragmentShader: AURA_FRAG,
+        transparent: true, depthWrite: false, depthTest: false,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    this.aura.position.z = -0.35;
+    this.aura.renderOrder = -1;
+    this.aura.frustumCulled = false;
+    this.aura.layers.enable(LAYERS.ENTIRE_SCENE);
+    this.aura.layers.enable(LAYERS.BLOOM_SCENE);
+    scene.add(this.aura);
+
+    this.bindPointer();
+  }
+
+  buildDots(n) {
+    const N = Math.max(24, Math.round(n));
+    this.gridN = N;
+    if (this.points) {
+      this.parent.remove(this.points);
+      this.points.geometry.dispose();
+    }
+    const count = N * N;
+    const pos = new Float32Array(count * 3);
+    let k = 0;
+    for (let j = 0; j < N; j++) {
+      for (let i = 0; i < N; i++) {
+        pos[k++] = (i / (N - 1)) * 2 - 1;
+        pos[k++] = (j / (N - 1)) * 2 - 1;
+        pos[k++] = 0;
+      }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    if (!this.dotMat) {
+      this.dotMat = new THREE.ShaderMaterial({
+        uniforms: this.u, vertexShader: DOT_VERT, fragmentShader: DOT_FRAG,
+        transparent: true, depthWrite: false, depthTest: false,
+        blending: THREE.AdditiveBlending
+      });
+    }
+    this.points = new THREE.Points(geo, this.dotMat);
+    this.points.frustumCulled = false;
+    this.points.layers.enable(LAYERS.ENTIRE_SCENE);
+    this.parent.add(this.points);
+  }
+
+  bindPointer() {
+    const set = (cx, cy) => {
+      const w = window.innerWidth, h = window.innerHeight;
+      const a = w / h;
+      // aspect-correct NDC mapped into the scene's field space
+      const nx = (cx / w) * 2 - 1;
+      const ny = 1 - (cy / h) * 2;
+      const f = this.fit || 1;
+      this.pointerTarget.set((nx * a) / f, ny / f);
+      this.active = 1;
+    };
+    window.addEventListener('pointermove', (e) => set(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('pointerdown', (e) => { set(e.clientX, e.clientY); this.pulse = 1; }, { passive: true });
+    window.addEventListener('pointerleave', () => { this.active = 0; }, { passive: true });
+  }
+
+  resize(w, h, dpr) {
+    const aspect = w / h;
+    this.fit = Math.min(1.0, aspect) * CONFIG.fitScale;
+    this.u.uAspect.value = aspect;
+    this.u.uFit.value = this.fit;
+    this.u.iResolution.value.set(w * dpr, h * dpr);
+    this.u.uCellPx.value = (this.fit * h * dpr) / this.gridN;
+    this.u.uCell.value = 2.0 / this.gridN;
+    this.aura.scale.set(this.fit, this.fit, 1);
+  }
+
+  render() {
+    const now = performance.now() / 1000;
+    let dt = now - this.last;
+    this.last = now;
+    if (!(dt > 0)) dt = 0.016;
+    dt = Math.min(dt, 0.05);
+
+    const t = now - this.t0;
+    this.u.iTime.value = now;
+    this.u.iAlpha.value = Math.min(1, t / Math.max(0.1, CONFIG.fadeIn)) ** 1.4;
+    this.u.iDrift.value += dt * CONFIG.driftSpeed;
+    this.u.uBreath.value = 1 + CONFIG.breathe * Math.sin(t * 0.61);
+
+    // blink — first one lands a few seconds after load, never on frame 0
+    const P = Math.max(1.5, CONFIG.blinkPeriod), S = CONFIG.blinkSpeed;
+    const ph = (t + P * 0.55) % P;
+    const b = Math.exp(-((ph * S) ** 2)) + Math.exp(-(((P - ph) * S) ** 2));
+    this.u.iBlink.value = Math.min(0.88, b) * this.u.iAlpha.value;
+
+    // pointer easing / gaze
+    this.pulse = Math.max(0, this.pulse - dt * CONFIG.pulseDecay);
+    const ease = Math.min(1, dt * CONFIG.lookEase);
+    this.pointer.lerp(this.pointerTarget, ease);
+    const px = this.active ? this.pointer.x : Math.sin(t * 0.23) * 0.55;
+    const py = this.active ? this.pointer.y : Math.sin(t * 0.17 + 1.1) * 0.22;
+    if (this.active) this.u.iPointer.value.set(this.pointer.x, this.pointer.y);
+    else this.u.iPointer.value.set(99, 99);
+    const cx = THREE.MathUtils.clamp(px, -1.4, 1.4), cy = THREE.MathUtils.clamp(py, -1.0, 1.0);
+    const look = this.u.iLook.value;
+    look.x += (cx * CONFIG.lookAmount - look.x) * Math.min(1, dt * 2.2);
+    look.y += (cy * CONFIG.lookAmount * 0.6 - look.y) * Math.min(1, dt * 2.2);
+    const off = this.u.iOffset.value;
+    off.x += (-cx * CONFIG.parallax - off.x) * Math.min(1, dt * 1.6);
+    off.y += (-cy * CONFIG.parallax * 0.7 - off.y) * Math.min(1, dt * 1.6);
+    this.u.iPupil.value = 1 + CONFIG.pupilBreathe * Math.sin(t * 0.43) + this.pulse * CONFIG.pulseAmount;
+  }
+}
+/* ============================== RIG ============================== */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGL1Renderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const dpr = Math.min(window.devicePixelRatio || 1, 2);
+renderer.setPixelRatio(dpr);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.autoClear = false;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.Fog(0x000000, 6.0, 12.0);
+
+const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 0, 1 / Math.tan(THREE.MathUtils.degToRad(15)));
+camera.lookAt(0, 0, 0);
+camera.layers.enableAll();
+scene.add(camera);
+
+const sceneObj = new Scene(scene);
+
+/* ---- composers ---- */
+const FinalPass = {
+  uniforms: {
+    tDiffuse: { value: null },
+    torusTexture: { value: null },
+    bloomTexture: { value: null },
+    haloTexture: { value: null }
+  },
+  vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform sampler2D torusTexture;
+    uniform sampler2D bloomTexture;
+    uniform sampler2D haloTexture;
+    varying vec2 vUv;
+    void main(){
+      vec4 base  = texture2D(tDiffuse, vUv);
+      vec4 torus = texture2D(torusTexture, vUv);
+      vec4 bloom = texture2D(bloomTexture, vUv);
+      vec4 halo  = texture2D(haloTexture, vUv);
+      gl_FragColor = vec4(bloom.rgb + torus.rgb + base.rgb + halo.rgb, 1.0);
+    }
+  `
+};
+
+const blackTex = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1, THREE.RGBAFormat);
+blackTex.needsUpdate = true;
+
+const res = new THREE.Vector2(window.innerWidth, window.innerHeight);
+const renderScene = new RenderPass(scene, camera);
+
+const torusComposer = new EffectComposer(renderer);
+torusComposer.renderToScreen = false;
+torusComposer.addPass(renderScene);
+torusComposer.addPass(new ShaderPass(GammaCorrectionShader));
+const torusBloom = new UnrealBloomPass(res, CONFIG.torusStrength, CONFIG.torusRadius, 0);
+torusComposer.addPass(torusBloom);
+torusComposer.addPass(new ShaderPass(CopyShader));
+
+const bloomComposer = new EffectComposer(renderer);
+bloomComposer.renderToScreen = false;
+bloomComposer.addPass(renderScene);
+const mainBloom = new UnrealBloomPass(res, CONFIG.bloomStrength, CONFIG.bloomRadius, CONFIG.bloomThresh);
+bloomComposer.addPass(mainBloom);
+bloomComposer.addPass(new ShaderPass(GammaCorrectionShader));
+
+const finalComposer = new EffectComposer(renderer);
+finalComposer.addPass(renderScene);
+const finalPass = new ShaderPass(FinalPass);
+finalPass.uniforms.bloomTexture.value = bloomComposer.renderTarget1.texture;
+finalPass.uniforms.torusTexture.value = torusComposer.renderTarget1.texture;
+finalPass.uniforms.haloTexture.value = blackTex;
+finalComposer.addPass(finalPass);
+
+/* ---- config -> uniforms ---- */
+function applyConfig() {
+  const u = sceneObj.u;
+  u.uColDot.value.copy(hexToVec3(CONFIG.colDot));
+  u.uColDeep.value.copy(hexToVec3(CONFIG.colDotDeep));
+  u.uColIris.value.copy(hexToVec3(CONFIG.colIris));
+  u.uColHalo.value.copy(hexToVec3(CONFIG.colHalo));
+  u.uColCatch.value.copy(hexToVec3(CONFIG.colCatchlight));
+  sceneObj.auraU.uColAura.value.copy(hexToVec3(CONFIG.colAura));
+
+  if (Math.round(CONFIG.gridN) !== sceneObj.gridN) sceneObj.buildDots(CONFIG.gridN);
+  u.uDotMax.value = CONFIG.dotMax;
+  u.uDotSoft.value = CONFIG.dotSoft;
+  u.uDotGamma.value = CONFIG.dotGamma;
+  u.uJitter.value = CONFIG.jitter;
+
+  u.uEyeA.value = CONFIG.eyeA;
+  u.uUpperB.value = CONFIG.eyeUpperB;
+  u.uLowerB.value = CONFIG.eyeLowerB;
+  u.uEyeCy.value = CONFIG.eyeCy;
+  u.uLidPow.value = CONFIG.lidPow;
+  u.uEyeTilt.value = CONFIG.eyeTilt;
+  u.uEdgeSoft.value = CONFIG.edgeSoft;
+
+  u.uIrisR.value = CONFIG.irisR;
+  u.uIrisCx.value = CONFIG.irisCx;
+  u.uIrisCy.value = CONFIG.irisCy;
+  u.uPupilR.value = CONFIG.pupilR;
+  u.uLimbalW.value = CONFIG.limbalW;
+  u.uIrisTex.value = CONFIG.irisTexture;
+  u.uStrands.value = CONFIG.irisStrands;
+
+  u.uScleraVal.value = CONFIG.scleraVal;
+  u.uIrisVal.value = CONFIG.irisVal;
+  u.uPupilVal.value = CONFIG.pupilVal;
+  u.uCornerFall.value = CONFIG.cornerFall;
+  u.uLidShade.value = CONFIG.lidShade;
+  u.uCreaseAmp.value = CONFIG.creaseAmp;
+  u.uCatchR.value = CONFIG.catchR;
+  u.uCatchVal.value = CONFIG.catchVal;
+  u.uCatchX.value = CONFIG.catchX;
+  u.uCatchY.value = CONFIG.catchY;
+
+  u.uHaloA.value = CONFIG.haloA;
+  u.uHaloB.value = CONFIG.haloB;
+  u.uHaloVal.value = CONFIG.haloVal;
+  u.uHaloNoise.value = CONFIG.haloNoise;
+  u.uHaloFall.value = CONFIG.haloFall;
+  u.uScatter.value = CONFIG.scatter;
+  u.uLashAmp.value = CONFIG.lashAmp;
+  u.uLashCount.value = CONFIG.lashCount;
+  u.uLashRing.value = CONFIG.lashRing;
+
+  u.uTwinkle.value = CONFIG.twinkle;
+  u.uRepelRadius.value = CONFIG.repelRadius;
+  u.uRepelStrength.value = CONFIG.repelStrength;
+  u.uExposure.value = CONFIG.exposure;
+
+  sceneObj.auraU.uAuraScale.value = CONFIG.auraScale;
+  sceneObj.auraU.uAuraStrength.value = CONFIG.auraStrength;
+
+  mainBloom.strength = CONFIG.bloomStrength;
+  mainBloom.radius = CONFIG.bloomRadius;
+  mainBloom.threshold = CONFIG.bloomThresh;
+  torusBloom.strength = CONFIG.torusStrength;
+  torusBloom.radius = CONFIG.torusRadius;
+
+  resize();
+}
+
+/* ---- resize + loop ---- */
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setPixelRatio(dpr);
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  torusComposer.setSize(w, h);
+  bloomComposer.setSize(w, h);
+  finalComposer.setSize(w, h);
+  sceneObj.resize(w, h, dpr);
+}
+window.addEventListener('resize', resize);
+
+applyConfig();
+
+function animate() {
+  requestAnimationFrame(animate);
+  sceneObj.render();
+  camera.layers.set(LAYERS.TORUS_SCENE);
+  torusComposer.render();
+  camera.layers.set(LAYERS.BLOOM_SCENE);
+  bloomComposer.render();
+  camera.layers.set(LAYERS.ENTIRE_SCENE);
+  finalComposer.render();
+}
+animate();
+/* ============================== PANEL (starts collapsed) ============================== */
+const RANGES = {
+  eyeCy: [-0.03, 0.05], eyeTilt: [-0.165, 0.165], irisCx: [-0.036, 0.036], irisCy: [-0.156, 0.156],
+  catchX: [-0.264, 0.264], catchY: [-0.06, 0.06],
+  gridN: [24, 252], irisStrands: [4, 78], lashCount: [4, 39]
+};
+
+/* ===== UI (remove this block to drop the panel) ===== */
+function setupColorUI(config, apply) {
+  const panel = document.getElementById('ui-panel')
+  const toggle = document.getElementById('ui-toggle')
+  const body = document.getElementById('ui-body')
+  if (!panel) return
+  toggle.addEventListener('click', () => panel.classList.toggle('-open'))
+  const _apply = apply
+  apply = () => { _apply(); saveConfig(); renderSnapshot(config) }
+  const numericRanges = {}
+  if (typeof RANGES !== 'undefined') { for (const k in RANGES) { const r = RANGES[k]; numericRanges[k] = { min: r[0], max: r[1], step: (r[1] - r[0]) / 400 } } }
+  for (const k of Object.keys(config)) {
+    const v = config[k]
+    const row = document.createElement('label')
+    row.appendChild(Object.assign(document.createElement('span'), { textContent: k }))
+    if (typeof v === 'string' && v[0] === '#') {
+      const inp = document.createElement('input'); inp.type = 'color'; inp.value = v
+      inp.addEventListener('input', e => { config[k] = e.target.value; apply() })
+      row.appendChild(inp)
+    } else if (typeof v === 'boolean') {
+      const inp = document.createElement('input'); inp.type = 'checkbox'; inp.checked = v
+      inp.addEventListener('input', e => { config[k] = e.target.checked; apply() })
+      row.appendChild(inp)
+    } else if (typeof v === 'number') {
+      const mag = Math.max(Math.abs(v), 0.02)
+      const r = numericRanges[k] || { min: v < 0 ? -mag * 2.5 : 0, max: mag * 2.5, step: (mag * 2.5) / 400 }
+      const inp = document.createElement('input')
+      inp.type = 'range'; inp.min = String(r.min); inp.max = String(r.max); inp.step = String(r.step); inp.value = String(v)
+      inp.addEventListener('input', e => { config[k] = parseFloat(e.target.value); apply() })
+      row.appendChild(inp)
+    }
+    body.appendChild(row)
+  }
+  const btns = document.createElement('div'); btns.id = 'ui-buttons'
+  const reloadBtn = document.createElement('button'); reloadBtn.type = 'button'; reloadBtn.textContent = '⟳ reload'
+  const resetBtn = document.createElement('button'); resetBtn.type = 'button'; resetBtn.textContent = '↺ reset'
+  reloadBtn.title = 'Reload with saved settings'; resetBtn.title = 'Clear saved settings and reload defaults'
+  reloadBtn.addEventListener('click', () => { saveConfig(); location.reload() })
+  resetBtn.addEventListener('click', () => { try { localStorage.removeItem(STORAGE_KEY) } catch (e) {} ; location.reload() })
+  btns.appendChild(reloadBtn); btns.appendChild(resetBtn); body.appendChild(btns)
+  panel.classList.add('-open')
+  renderSnapshot(config)
+}
+function renderSnapshot(config) {
+  const snap = document.getElementById('ui-snapshot'); if (!snap) return
+  const lines = ['const CONFIG = {']
+  for (const k of Object.keys(config)) {
+    const v = config[k]
+    let f
+    if (typeof v === 'string') f = "'" + v + "'"
+    else if (typeof v === 'boolean') f = String(v)
+    else if (Number.isInteger(v)) f = String(v)
+    else f = String(parseFloat(v.toFixed(4)))
+    lines.push('  ' + k + ': ' + f + ',')
+  }
+  lines.push('}')
+  snap.textContent = lines.join('\n')
+}
+setupColorUI(CONFIG, applyConfig);
+/* ===== END UI ===== */
+
+</script>
+</body>
+</html>

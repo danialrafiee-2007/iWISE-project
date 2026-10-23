@@ -8,10 +8,10 @@
         "changed": 0.5166666666666667,
         "grounded_after_among_flagged": 0.14583333333333334,
         "below_threshold_after_among_flagged": 0.4583333333333333,
-        "mean_risk_before": 0.5650112116397689,
-        "mean_risk_after": 0.4301444003655853,
-        "text_edited": 0.08723107126232063,
-        "edit_precision": 0.4605568445475638,
+        "mean_risk_before": 0.5650112003204739,
+        "mean_risk_after": 0.43110110069974483,
+        "text_edited": 0.08706915744095205,
+        "edit_precision": 0.4614132961413296,
         "chance_precision": 0.12264971968669676,
         "edit_recall": 0.32755775577557755
       },
@@ -21,8 +21,8 @@
         "changed": 0.08333333333333333,
         "grounded_after_among_flagged": 0.08333333333333333,
         "below_threshold_after_among_flagged": 0.75,
-        "mean_risk_before": 0.31565715416392,
-        "mean_risk_after": 0.30258423467550805,
+        "mean_risk_before": 0.3156571597175261,
+        "mean_risk_after": 0.302584243312038,
         "text_edited": 0.010114145354717526,
         "edit_precision": 0.0,
         "chance_precision": 0.0,
@@ -827,7 +827,7 @@
           ],
           "risks": [
             0.957,
-            0.462
+            0.52
           ],
           "changes": [
             [
@@ -835,7 +835,7 @@
               "replaced with the source sentence it contradicts"
             ]
           ],
-          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 3 (2.0 stars, 2020-01-13 18:04:20): Dear IV Drip, The positive reviews praise the taste of the food and drink"
+          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 1 (4.0 stars, 2020-03-04 00:28:14): Came here on a Sunday evening with the family! The positive reviews prais"
         },
         {
           "id": "ragtruth-8253",
@@ -1357,10 +1357,10 @@
         "changed": 0.7833333333333333,
         "grounded_after_among_flagged": 0.6458333333333334,
         "below_threshold_after_among_flagged": 0.7916666666666666,
-        "mean_risk_before": 0.5650112116397689,
-        "mean_risk_after": 0.32914676576551766,
-        "text_edited": 0.1871926167297456,
-        "edit_precision": 0.3650124337766245,
+        "mean_risk_before": 0.5650112003204739,
+        "mean_risk_after": 0.33010346488026604,
+        "text_edited": 0.187030702908377,
+        "edit_precision": 0.3653284276593442,
         "chance_precision": 0.12264971968669676,
         "edit_recall": 0.5570957095709571
       },
@@ -1370,8 +1370,8 @@
         "changed": 0.3333333333333333,
         "grounded_after_among_flagged": 0.5,
         "below_threshold_after_among_flagged": 0.75,
-        "mean_risk_before": 0.31565715416392,
-        "mean_risk_after": 0.27520096785006937,
+        "mean_risk_before": 0.3156571597175261,
+        "mean_risk_after": 0.27520097493084866,
         "text_edited": 0.03713336223089149,
         "edit_precision": 0.0,
         "chance_precision": 0.0,
@@ -2347,7 +2347,7 @@
           ],
           "risks": [
             0.957,
-            0.462
+            0.52
           ],
           "changes": [
             [
@@ -2355,7 +2355,7 @@
               "replaced with the source sentence it contradicts"
             ]
           ],
-          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 3 (2.0 stars, 2020-01-13 18:04:20): Dear IV Drip, The positive reviews praise the taste of the food and drink"
+          "after": "IV Drip is a business located in Isla Vista, CA that offers a variety of food and drinks such as ice cream, frozen yogurt, coffee, tea, desserts, and restaurants. The business is open seven days a week from 6:30pm to midnight. According to the attributes listed, customers can park on the street, but there is no garage or validated parking available. The business also offers takeout services and has outdoor seating. The ambiance of the business is not specified in the attributes. Review 1 (4.0 stars, 2020-03-04 00:28:14): Came here on a Sunday evening with the family! The positive reviews prais"
         },
         {
           "id": "ragtruth-8253",

@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "en-core-web-sm",
+    "fastapi>=0.161.1",
     "nltk>=3.10.4",
     "numpy>=2.5.4",
     "onnx>=1.23.2",
@@ -18,6 +19,7 @@ dependencies = [
     "sentence-transformers>=6.1.0",
     "spacy>=3.8.16",
     "torch>=2.14.1",
+    "uvicorn>=0.54.0",
 ]
 
 [build-system]
@@ -26,6 +28,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
 study = [

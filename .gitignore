@@ -30,3 +30,7 @@ data/features/
 models/fusion/*/model.joblib
 models/tracer/*/model.joblib
 models/onnx/*/
+models/detector/
+data/web/
+GetLayers/
+*.tsbuildinfo

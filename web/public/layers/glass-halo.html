@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scene · Glass Halo</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f4f4f6; overflow: hidden; }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  /* UI PANEL — remove this block to drop the controls */
+  #ui-panel { position: fixed; top: 12px; right: 12px; background: rgba(10,10,12,.75); color: #fff;
+    font: 11px/1.4 -apple-system, system-ui, sans-serif; padding: 8px 10px; border: 1px solid rgba(255,255,255,.12);
+    border-radius: 6px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    max-width: 240px; max-height: 86vh; overflow: auto; z-index: 1000; user-select: none; }
+  #ui-toggle { background: none; border: none; color: #fff; cursor: pointer; font-size: 14px; padding: 0; }
+  #ui-body { display: none; margin-top: 6px; }
+  #ui-panel.-open #ui-body { display: block; }
+  #ui-body label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0; }
+  #ui-body input[type=color] { width: 28px; height: 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 3px; padding: 0; background: none; cursor: pointer; }
+  #ui-body input[type=range] { width: 110px; }
+  #ui-buttons { display: flex; gap: 6px; margin-top: 8px; }
+  #ui-buttons button { flex: 1; cursor: pointer; background: rgba(255,255,255,.08); color: #fff;
+    border: 1px solid rgba(255,255,255,.18); border-radius: 4px; padding: 5px 6px; font: 11px/1 sans-serif; }
+  #ui-buttons button:hover { background: rgba(255,255,255,.16); }
+  #ui-snapshot { margin: 8px 0 0; padding: 6px 8px; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 4px;
+    font: 10px/1.45 ui-monospace, 'SF Mono', Menlo, monospace;
+    white-space: pre-wrap; word-break: break-word; color: rgba(255,255,255,.88);
+    max-height: 240px; overflow: auto; user-select: text; cursor: text; }
+  /* END UI PANEL */
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/vendor/three@0.170.0/build/three.module.js",
+    "three/addons/": "/vendor/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<style>#ui-panel{display:none!important}</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<!-- UI PANEL — remove this block to drop the controls -->
+<div id="ui-panel">
+  <button id="ui-toggle" type="button" aria-label="Toggle controls">⚙ controls</button>
+  <div id="ui-body"></div>
+  <pre id="ui-snapshot" title="Click to select, then copy. These are the current CONFIG values."></pre>
+</div>
+<!-- END UI PANEL -->
+
+<script type="module">
+import * as THREE from 'three'
+
+/* ============================================================
+   SCENE: GLASS HALO — a TUMBLING GYROSCOPE HALO of chunky matte
+   violet GLASS RINGS turning over a soft white studio field.
+   No stone — just the glass. On HOVER the rings spin up
+   impulsively: moving the cursor over the scene injects energy,
+   so they tumble faster and then ease back to their idle drift.
+
+   The glass is the exact drei MeshTransmissionMaterial port
+   used in Epoxy Drift (chromatic aberration + snoise distortion
+   + an anisotropic multi-sample blur reading from an FBO that
+   captures a bright studio softbox each frame), tuned FROSTED
+   to match the ring in Spline Glass Shapes. No HUD.
+   Split from Stone Halo · glass cousin of Epoxy Drift.
+============================================================ */
+const CONFIG = {
+  bg:            '#0e141c',   // brightest point of the studio field (a hair cooler for the teal glass)
+  bgGrey:        '#18222d',   // the drifting grey wash — cool teal-grey to tie in with the rings
+  bgPool:        0.34,        // brightness of the soft light pool behind the stone (depth)
+  bgVignette:    0.55,        // corner darkening so the frame reads as a lit studio, not flat paper
+  moteStrength:  0,           // drifting atmosphere particles (dust motes) — off by default
+  // ---- glass (MeshTransmissionMaterial — FROSTED, matched to spline-glass-shapes' ring) ----
+  glassColor:    '#0f5f58',   // deep forest-green glass tint (baked look; a live knob — earlier passes shipped magenta-violet)
+  transmission:      1.0,
+  thickness:         1.9,    // world-scaled equivalent of the spline ring's thickness 200 @ scale 0.01
+  backsideThickness: 1.9,
+  roughness:         1.0,    // fully FROSTED — soft matte / milky glass
+  chromaticAberration: 1.0,  // spline value — soft edge colour, not a hard prism split
+  anisotropy:        1.0,    // anisotropicBlur — the streaky frosted blur (spline uses 1)
+  distortion:        0.0,    // spline ring has no snoise distortion
+  distortionScale:   0.2,
+  temporalDistortion: 0.0,
+  ior:               1.5,
+  iridescence:       0.0,    // spline ring has no thin-film iridescence
+  iridescenceIor:    1.3,
+  clearcoat:         0.1,    // spline ring — a faint lacquer sheen
+  clearcoatRoughness: 0.1,
+  attenuationColor:  '#5eead4',   // cyan — volumetric tint through the glass (contrasts the magenta surface)
+  attenuationDistance: 1.6,
+  envIntensity:      1.0,
+  // ---- rings ----
+  ringCount:     2,      // two glass rings
+  ringInner:     1.28,   // radius of the innermost ring
+  ringGap:       0.62,   // radial spacing between rings
+  ringTube:      0.275,  // half-size of the tube cross-section (chunky rods)
+  ringTubeGrow:  0,      // both rings the same thickness
+  tubeSquare:    6.4,    // TUBE PROFILE: 2 = round tube, higher = square tube with rounded corners (border-radius look)
+  ringTilt:      0.25,   // static lean of each ring (on the axis it is NOT tumbling about)
+  orbitSpeed:    0.16,   // idle tumble speed — slow, hover impulse speeds it up
+  haloTiltX:     0.36,   // tilt the whole ring BAND forward — a Saturn-style orbital plane (3D depth)
+  haloTiltZ:     0.1,    // + a slight roll so the halo reads as a tilted disc, front arc crossing the stone
+  haloSpin:      0.12,   // slow precession of the whole halo band (extra life)
+  // ---- hover impulse (the rings spin up when you move the cursor over them) ----
+  hoverBase:     0.18,   // sustained spin-up floor while the pointer is over the scene
+  hoverBoost:    7.0,    // multiplier: extra tumble speed at full accumulated energy
+  hoverGain:     9.0,    // how strongly cursor MOVEMENT injects impulsive energy
+  hoverDecay:    2.2,    // how fast an impulse bleeds off (higher = snappier settle)
+  hoverMax:      1.5,    // cap on accumulated energy
+  floorY:        -2.6,   // shadow-catcher height below the rings (a soft floating shadow)
+  // ---- camera / light ----
+  camY:          1.7,
+  camZ:          6.6,
+  fov:           57,
+  parallax:      0.6,    // how far the camera drifts with the mouse (0 = locked)
+  parallaxEase:  2.5,    // how quickly it eases toward the pointer (higher = snappier)
+  keyStrength:   1.05,
+  rimStrength:   2.4,    // cool back-rim light so the dark stone's edge glows against the pale field
+  shadowColor:   '#000000',
+  shadowOpacity: 0.4,
+}
+
+/* ---------- DEFAULTS + localStorage (load BEFORE building the scene) ---------- */
+const DEFAULTS = JSON.parse(JSON.stringify(CONFIG))
+const STORAGE_KEY = 'getlayers:glass-halo:v1'   // rings-only split of stone-halo, with hover impulse
+try { const s = JSON.parse(null || 'null'); if (s) for (const k in s) if (k in CONFIG) CONFIG[k] = s[k] } catch (e) {}
+function saveConfig() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(CONFIG)) } catch (e) {} }
+
+// fixed (shader recompile / FBO realloc if changed)
+// PERF: the transmission shader does SAMPLES × 3 (chromatic) texture fetches PER ring fragment,
+// so it dominates cost. 8 stays smooth at the baked frosted roughness (16 was overkill here with
+// no stone to refract), and a 512² FBO is invisible through the frost — together ~4× cheaper.
+const SAMPLES = 8
+const RESOLUTION = 512
+const BACKSIDE = false   // spline-glass-shapes uses backside:false — a single-surface refraction so you
+                         // don't see the tube's far wall ("insides") showing through the near wall
+
+/* ============================================================
+   MeshTransmissionMaterial — vanilla port of drei's material
+   (Author: @N8Programs; ported verbatim from @react-three/drei
+   src/core/MeshTransmissionMaterial.tsx). Extends
+   MeshPhysicalMaterial; the transmission chunks are replaced to
+   sample a `buffer` texture with chromatic aberration + snoise
+   distortion + multi-sample anisotropic blur.
+============================================================ */
+class MeshTransmissionMaterial extends THREE.MeshPhysicalMaterial {
+  constructor(samples = 6, transmissionSampler = false) {
+    super()
+    this.uniforms = {
+      chromaticAberration: { value: 0.05 },
+      transmission: { value: 0 },
+      _transmission: { value: 1 },
+      transmissionMap: { value: null },
+      roughness: { value: 0 },
+      thickness: { value: 0 },
+      thicknessMap: { value: null },
+      attenuationDistance: { value: Infinity },
+      attenuationColor: { value: new THREE.Color('white') },
+      anisotropicBlur: { value: 0.1 },
+      time: { value: 0 },
+      distortion: { value: 0.0 },
+      distortionScale: { value: 0.5 },
+      temporalDistortion: { value: 0.0 },
+      buffer: { value: null },
+    }
+
+    this.onBeforeCompile = (shader) => {
+      shader.uniforms = { ...shader.uniforms, ...this.uniforms }
+      if (this.anisotropy > 0) shader.defines.USE_ANISOTROPY = ''
+      if (transmissionSampler) shader.defines.USE_SAMPLER = ''
+      else shader.defines.USE_TRANSMISSION = ''
+
+      shader.fragmentShader = `
+      uniform float chromaticAberration;
+      uniform float anisotropicBlur;
+      uniform float time;
+      uniform float distortion;
+      uniform float distortionScale;
+      uniform float temporalDistortion;
+      uniform sampler2D buffer;
+
+      vec3 random3(vec3 c) {
+        float j = 4096.0*sin(dot(c,vec3(17.0, 59.4, 15.0)));
+        vec3 r;
+        r.z = fract(512.0*j);
+        j *= .125;
+        r.x = fract(512.0*j);
+        j *= .125;
+        r.y = fract(512.0*j);
+        return r-0.5;
+      }
+      uint hash( uint x ) { x += ( x << 10u ); x ^= ( x >> 6u ); x += ( x << 3u ); x ^= ( x >> 11u ); x += ( x << 15u ); return x; }
+      uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y) ); }
+      uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ); }
+      uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
+      float floatConstruct( uint m ) {
+        const uint ieeeMantissa = 0x007FFFFFu;
+        const uint ieeeOne = 0x3F800000u;
+        m &= ieeeMantissa; m |= ieeeOne;
+        float f = uintBitsToFloat( m );
+        return f - 1.0;
+      }
+      float randomBase( float x ) { return floatConstruct(hash(floatBitsToUint(x))); }
+      float randomBase( vec2 v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+      float randomBase( vec3 v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+      float randomBase( vec4 v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+      float rand(float seed) { return randomBase(vec3(gl_FragCoord.xy, seed)); }
+      const float F3 = 0.3333333;
+      const float G3 = 0.1666667;
+      float snoise(vec3 p) {
+        vec3 s = floor(p + dot(p, vec3(F3)));
+        vec3 x = p - s + dot(s, vec3(G3));
+        vec3 e = step(vec3(0.0), x - x.yzx);
+        vec3 i1 = e*(1.0 - e.zxy);
+        vec3 i2 = 1.0 - e.zxy*(1.0 - e);
+        vec3 x1 = x - i1 + G3;
+        vec3 x2 = x - i2 + 2.0*G3;
+        vec3 x3 = x - 1.0 + 3.0*G3;
+        vec4 w, d;
+        w.x = dot(x, x); w.y = dot(x1, x1); w.z = dot(x2, x2); w.w = dot(x3, x3);
+        w = max(0.6 - w, 0.0);
+        d.x = dot(random3(s), x);
+        d.y = dot(random3(s + i1), x1);
+        d.z = dot(random3(s + i2), x2);
+        d.w = dot(random3(s + 1.0), x3);
+        w *= w; w *= w; d *= w;
+        return dot(d, vec4(52.0));
+      }
+      float snoiseFractal(vec3 m) {
+        return 0.5333333*snoise(m)+0.2666667*snoise(2.0*m)+0.1333333*snoise(4.0*m)+0.0666667*snoise(8.0*m);
+      }
+      ` + shader.fragmentShader
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <transmission_pars_fragment>',
+        `
+        #ifdef USE_TRANSMISSION
+          uniform float _transmission;
+          uniform float thickness;
+          uniform float attenuationDistance;
+          uniform vec3 attenuationColor;
+          #ifdef USE_TRANSMISSIONMAP
+            uniform sampler2D transmissionMap;
+          #endif
+          #ifdef USE_THICKNESSMAP
+            uniform sampler2D thicknessMap;
+          #endif
+          uniform vec2 transmissionSamplerSize;
+          uniform sampler2D transmissionSamplerMap;
+          uniform mat4 modelMatrix;
+          uniform mat4 projectionMatrix;
+          varying vec3 vWorldPosition;
+          vec3 getVolumeTransmissionRay( const in vec3 n, const in vec3 v, const in float thickness, const in float ior, const in mat4 modelMatrix ) {
+            vec3 refractionVector = refract( - v, normalize( n ), 1.0 / ior );
+            vec3 modelScale;
+            modelScale.x = length( vec3( modelMatrix[ 0 ].xyz ) );
+            modelScale.y = length( vec3( modelMatrix[ 1 ].xyz ) );
+            modelScale.z = length( vec3( modelMatrix[ 2 ].xyz ) );
+            return normalize( refractionVector ) * thickness * modelScale;
+          }
+          float applyIorToRoughness( const in float roughness, const in float ior ) {
+            return roughness * clamp( ior * 2.0 - 2.0, 0.0, 1.0 );
+          }
+          vec4 getTransmissionSample( const in vec2 fragCoord, const in float roughness, const in float ior ) {
+            float framebufferLod = log2( transmissionSamplerSize.x ) * applyIorToRoughness( roughness, ior );
+            #ifdef USE_SAMPLER
+              #ifdef texture2DLodEXT
+                return texture2DLodEXT(transmissionSamplerMap, fragCoord.xy, framebufferLod);
+              #else
+                return texture2D(transmissionSamplerMap, fragCoord.xy, framebufferLod);
+              #endif
+            #else
+              return texture2D(buffer, fragCoord.xy);
+            #endif
+          }
+          vec3 applyVolumeAttenuation( const in vec3 radiance, const in float transmissionDistance, const in vec3 attenuationColor, const in float attenuationDistance ) {
+            if ( isinf( attenuationDistance ) ) { return radiance; }
+            else {
+              vec3 attenuationCoefficient = -log( attenuationColor ) / attenuationDistance;
+              vec3 transmittance = exp( - attenuationCoefficient * transmissionDistance );
+              return transmittance * radiance;
+            }
+          }
+          vec4 getIBLVolumeRefraction( const in vec3 n, const in vec3 v, const in float roughness, const in vec3 diffuseColor,
+            const in vec3 specularColor, const in float specularF90, const in vec3 position, const in mat4 modelMatrix,
+            const in mat4 viewMatrix, const in mat4 projMatrix, const in float ior, const in float thickness,
+            const in vec3 attenuationColor, const in float attenuationDistance ) {
+            vec3 transmissionRay = getVolumeTransmissionRay( n, v, thickness, ior, modelMatrix );
+            vec3 refractedRayExit = position + transmissionRay;
+            vec4 ndcPos = projMatrix * viewMatrix * vec4( refractedRayExit, 1.0 );
+            vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+            refractionCoords += 1.0;
+            refractionCoords /= 2.0;
+            vec4 transmittedLight = getTransmissionSample( refractionCoords, roughness, ior );
+            vec3 attenuatedColor = applyVolumeAttenuation( transmittedLight.rgb, length( transmissionRay ), attenuationColor, attenuationDistance );
+            vec3 F = EnvironmentBRDF( n, v, specularColor, specularF90, roughness );
+            return vec4( ( 1.0 - F ) * attenuatedColor * diffuseColor, transmittedLight.a );
+          }
+        #endif
+        `
+      )
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <transmission_fragment>',
+        `
+        material.transmission = _transmission;
+        material.transmissionAlpha = 1.0;
+        material.thickness = thickness;
+        material.attenuationDistance = attenuationDistance;
+        material.attenuationColor = attenuationColor;
+        #ifdef USE_TRANSMISSIONMAP
+          material.transmission *= texture2D( transmissionMap, vUv ).r;
+        #endif
+        #ifdef USE_THICKNESSMAP
+          material.thickness *= texture2D( thicknessMap, vUv ).g;
+        #endif
+        vec3 pos = vWorldPosition;
+        float runningSeed = 0.0;
+        vec3 v = normalize( cameraPosition - pos );
+        vec3 n = inverseTransformDirection( normal, viewMatrix );
+        vec3 transmission = vec3(0.0);
+        float transmissionR, transmissionB, transmissionG;
+        float randomCoords = rand(runningSeed++);
+        float thickness_smear = thickness * max(pow(roughnessFactor, 0.33), anisotropicBlur);
+        vec3 distortionNormal = vec3(0.0);
+        vec3 temporalOffset = vec3(time, -time, -time) * temporalDistortion;
+        if (distortion > 0.0) {
+          distortionNormal = distortion * vec3(snoiseFractal(vec3((pos * distortionScale + temporalOffset))), snoiseFractal(vec3(pos.zxy * distortionScale - temporalOffset)), snoiseFractal(vec3(pos.yxz * distortionScale + temporalOffset)));
+        }
+        for (float i = 0.0; i < ${samples}.0; i ++) {
+          vec3 sampleNorm = normalize(n + roughnessFactor * roughnessFactor * 2.0 * normalize(vec3(rand(runningSeed++) - 0.5, rand(runningSeed++) - 0.5, rand(runningSeed++) - 0.5)) * pow(rand(runningSeed++), 0.33) + distortionNormal);
+          transmissionR = getIBLVolumeRefraction(
+            sampleNorm, v, material.roughness, material.diffuseColor, material.specularColor, material.specularF90,
+            pos, modelMatrix, viewMatrix, projectionMatrix, material.ior, material.thickness + thickness_smear * (i + randomCoords) / float(${samples}),
+            material.attenuationColor, material.attenuationDistance
+          ).r;
+          transmissionG = getIBLVolumeRefraction(
+            sampleNorm, v, material.roughness, material.diffuseColor, material.specularColor, material.specularF90,
+            pos, modelMatrix, viewMatrix, projectionMatrix, material.ior * (1.0 + chromaticAberration * (i + randomCoords) / float(${samples})) , material.thickness + thickness_smear * (i + randomCoords) / float(${samples}),
+            material.attenuationColor, material.attenuationDistance
+          ).g;
+          transmissionB = getIBLVolumeRefraction(
+            sampleNorm, v, material.roughness, material.diffuseColor, material.specularColor, material.specularF90,
+            pos, modelMatrix, viewMatrix, projectionMatrix, material.ior * (1.0 + 2.0 * chromaticAberration * (i + randomCoords) / float(${samples})), material.thickness + thickness_smear * (i + randomCoords) / float(${samples}),
+            material.attenuationColor, material.attenuationDistance
+          ).b;
+          transmission.r += transmissionR;
+          transmission.g += transmissionG;
+          transmission.b += transmissionB;
+        }
+        transmission /= ${samples}.0;
+        totalDiffuse = mix( totalDiffuse, transmission.rgb, material.transmission );
+        `
+      )
+    }
+
+    Object.keys(this.uniforms).forEach((name) =>
+      Object.defineProperty(this, name, {
+        get: () => this.uniforms[name].value,
+        set: (v) => (this.uniforms[name].value = v),
+      })
+    )
+  }
+}
+
+const hexToColor = (hex) => new THREE.Color(hex)
+
+/* ---------- RENDERER / SCENE / CAMERA ---------- */
+const canvas = document.getElementById('scene')
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 0.92
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = THREE.PCFSoftShadowMap
+
+const scene = new THREE.Scene()
+scene.background = null   // the gradient bgScene is drawn as the backdrop each frame instead
+
+const camera = new THREE.PerspectiveCamera(CONFIG.fov, 1, 0.1, 200)
+const CAM_TARGET = new THREE.Vector3(0, 0.05, 0)
+camera.position.set(0, CONFIG.camY, CONFIG.camZ)
+camera.lookAt(CAM_TARGET)
+
+// MOUSE PARALLAX — no orbit/drag; the camera just drifts gently with the pointer.
+const pointer = { x: 0, y: 0 }         // target, in −1..1 NDC
+const pSmooth = { x: 0, y: 0 }         // eased toward the target each frame
+// HOVER IMPULSE — cursor MOVEMENT injects `hoverEnergy` that spins the rings up, then
+// decays away; while the pointer sits over the scene it holds a gentle sustained floor.
+let hoverEnergy = 0
+let pointerInside = false
+let lastPX = null, lastPY = null
+window.addEventListener('pointermove', e => {
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1
+  pointer.y = (e.clientY / window.innerHeight) * 2 - 1
+  pointerInside = true
+  if (lastPX !== null) {
+    // pointer speed as a fraction of the viewport — resolution-independent impulse
+    const sp = Math.hypot(e.clientX - lastPX, e.clientY - lastPY) / Math.max(window.innerWidth, window.innerHeight)
+    hoverEnergy = Math.min(CONFIG.hoverMax, hoverEnergy + sp * CONFIG.hoverGain)
+  }
+  lastPX = e.clientX; lastPY = e.clientY
+}, { passive: true })
+window.addEventListener('pointerleave', () => { pointerInside = false })
+window.addEventListener('blur', () => { pointerInside = false })
+
+/* ---------- BACKGROUND — a soft white studio field with a
+   drifting grey iridescent wash (a big billboard plane behind
+   everything; it is captured into the transmission FBO so the
+   rings refract it too). ---------- */
+const bgUniforms = {
+  uTime:  { value: 0 },
+  uWhite: { value: hexToColor(CONFIG.bg) },
+  uGrey:  { value: hexToColor(CONFIG.bgGrey) },
+  uPool:  { value: CONFIG.bgPool },
+  uVignette: { value: CONFIG.bgVignette },
+  uAspect: { value: 1 },
+}
+const bgMat = new THREE.ShaderMaterial({
+  uniforms: bgUniforms,
+  depthWrite: false,
+  depthTest: false,
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform float uTime; uniform vec3 uWhite; uniform vec3 uGrey;
+    uniform float uPool; uniform float uVignette; uniform float uAspect; varying vec2 vUv;
+    // cheap value noise
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(41.3,289.1)))*43758.5453); }
+    float vnoise(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
+      float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+      return mix(mix(a,b,f.x),mix(c,d,f.x),f.y); }
+    void main(){
+      vec2 uv = vUv;
+      // diagonal coordinate for the sweeping wash
+      float diag = uv.x*0.55 + (1.0-uv.y)*0.85;
+      float t = uTime*0.05;
+      // large soft drifting bands
+      float band = vnoise(vec2(diag*1.6 + t, uv.y*1.1 - t*0.6));
+      band += 0.5*vnoise(vec2(diag*3.1 - t*0.7, uv.x*2.0 + t*0.4));
+      band /= 1.5;
+      // keep the field mostly white; grey only pools in the lower-middle sweep
+      float sweep = smoothstep(0.05, 0.9, band) * smoothstep(1.05, 0.15, uv.y*0.5 + 0.25);
+      vec3 col = mix(uWhite, uGrey, sweep*0.95);
+      // spectral shimmer riding the sweep (the reference's blue/violet cast)
+      float ir = vnoise(vec2(diag*4.0 - t*1.3, 2.0));
+      col += (sweep*0.16) * vec3(sin(ir*6.28)*0.5+0.5, sin(ir*6.28+2.1)*0.5+0.5, sin(ir*6.28+4.2)*0.5+0.5) * 0.4;
+      // gentle top-to-bottom lift so the top stays brightest
+      col = mix(col, uWhite, smoothstep(0.55, 1.0, uv.y)*0.5);
+      // aspect-corrected radial coordinate centred a touch above the middle (behind the stone)
+      vec2 rc = (uv - vec2(0.5, 0.56)); rc.x *= uAspect;
+      float r = length(rc);
+      // SOFT LIGHT POOL behind the stone — a bright halo it floats in
+      col += uPool * smoothstep(0.62, 0.0, r) * 0.16;
+      // VIGNETTE — ease the corners toward a deeper cool grey for studio depth
+      col = mix(col, uGrey * 0.82, smoothstep(0.35, 0.95, r) * uVignette);
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+})
+const bg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat)
+bg.frustumCulled = false
+bg.renderOrder = -1
+// pin the background plane to fill the screen in front of nothing (camera-locked)
+const bgScene = new THREE.Scene()
+bgScene.add(bg)
+const bgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+
+/* ---------- REFRACTION BACKDROP — a BRIGHT, colourful "studio softbox" field
+   that is drawn ONLY into the transmission FBO (never to screen). Like Epoxy
+   Drift's HDR, the glass has something rich to bend, so you see hot light bars
+   and colour pools refracted + chromatically split INSIDE the rings — the prism
+   look — while the actual page background stays the clean white gradient. ---------- */
+const refractUniforms = { uTime: { value: 0 } }
+const refractMat = new THREE.ShaderMaterial({
+  uniforms: refractUniforms, depthWrite: false, depthTest: false,
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+  fragmentShader: `
+    uniform float uTime; varying vec2 vUv;
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(41.3,289.1)))*43758.5453); }
+    float vnoise(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
+      float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+      return mix(mix(a,b,f.x),mix(c,d,f.x),f.y); }
+    float bar(vec2 uv, float y, float w){ return smoothstep(w, 0.0, abs(uv.y - y)); }
+    void main(){
+      vec2 uv = vUv;
+      float t = uTime * 0.06;
+      vec3 col = vec3(0.28);                                  // darker studio base so bright streaks pop
+      // HDR-bright soft light bars (softbox reflections the glass streaks)
+      col += vec3(4.2) * bar(uv, 0.72 + 0.03*sin(t*1.3), 0.07);
+      col += vec3(3.0) * bar(uv, 0.30 + 0.04*sin(t*0.9+1.0), 0.05);
+      col += vec3(2.2) * bar(uv, 0.50, 0.05);
+      // soft coloured glow pools so the chromatic split reads as colour
+      vec2 p1 = uv - vec2(0.28 + 0.10*sin(t),        0.60);
+      vec2 p2 = uv - vec2(0.74 + 0.08*cos(t*1.1),    0.42);
+      vec2 p3 = uv - vec2(0.52 + 0.06*sin(t*0.7),    0.30);
+      col += vec3(0.4,0.8,2.4) * exp(-dot(p1,p1)*12.0) * 2.6;    // cool blue pool
+      col += vec3(2.4,0.7,1.5) * exp(-dot(p2,p2)*15.0) * 2.2;    // warm magenta pool
+      col += vec3(0.5,2.2,1.4) * exp(-dot(p3,p3)*18.0) * 1.8;    // green-teal pool
+      // rainbow banding to feed the chromatic aberration
+      float ir = vnoise(vec2(uv.x*5.0 - t*1.5, uv.y*3.0));
+      col += 0.5 * vec3(sin(ir*6.28)*0.5+0.5, sin(ir*6.28+2.1)*0.5+0.5, sin(ir*6.28+4.2)*0.5+0.5);
+      col *= mix(0.55, 1.25, uv.y);
+      gl_FragColor = vec4(max(col, 0.0), 1.0);
+    }`,
+})
+const refractBg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), refractMat)
+refractBg.frustumCulled = false
+const refractScene = new THREE.Scene()
+refractScene.add(refractBg)
+
+/* ---------- ENVIRONMENT — a small studio rig baked to a PMREM
+   (bright soft panels → clean glancing reflections + iridescent
+   rims on the glass). Fully self-contained, no external HDR. ---------- */
+function buildEnvScene() {
+  const s = new THREE.Scene()
+  s.background = new THREE.Color('#dfe2ea')
+  const panel = (intensity, pos, scale, rot) => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshBasicMaterial({ toneMapped: false, side: THREE.DoubleSide })
+    )
+    m.material.color.setRGB(intensity, intensity, intensity)
+    m.position.set(pos[0], pos[1], pos[2])
+    if (rot) m.rotation.set(rot[0] || 0, rot[1] || 0, rot[2] || 0)
+    m.scale.set(scale[0], scale[1], scale[2])
+    s.add(m)
+  }
+  panel(8, [0, 6, 2], [12, 6, 1], [Math.PI / 2, 0, 0])     // big soft ceiling light
+  panel(3, [-6, 1, 3], [8, 8, 1], [0, Math.PI / 2.4, 0])   // left fill
+  panel(4, [6, 2, 2], [8, 8, 1], [0, -Math.PI / 2.4, 0])   // right key
+  panel(1.5, [0, 0, -8], [16, 10, 1], [0, 0, 0])           // back wash
+  return s
+}
+const pmrem = new THREE.PMREMGenerator(renderer)
+pmrem.compileEquirectangularShader()
+const envRT = pmrem.fromScene(buildEnvScene(), 0.03)
+scene.environment = envRT.texture
+const bgHDR = envRT.texture   // reflections + transmission ambient
+
+/* ---------- THE GLASS MATERIAL (shared by every ring) ---------- */
+const fboMain = new THREE.WebGLRenderTarget(RESOLUTION, RESOLUTION, { type: THREE.HalfFloatType })
+const fboBack = new THREE.WebGLRenderTarget(RESOLUTION, RESOLUTION, { type: THREE.HalfFloatType })
+const glass = new MeshTransmissionMaterial(SAMPLES, false)
+glass.buffer = fboMain.texture
+function applyGlass() {
+  glass.transmission = 0
+  glass._transmission = CONFIG.transmission
+  glass.thickness = CONFIG.thickness
+  glass.roughness = CONFIG.roughness
+  glass.chromaticAberration = CONFIG.chromaticAberration
+  glass.anisotropicBlur = CONFIG.anisotropy
+  glass.distortion = CONFIG.distortion
+  glass.distortionScale = CONFIG.distortionScale
+  glass.temporalDistortion = CONFIG.temporalDistortion
+  glass.ior = CONFIG.ior
+  glass.iridescence = CONFIG.iridescence
+  glass.iridescenceIOR = CONFIG.iridescenceIor
+  glass.iridescenceThicknessRange = [130, 420]
+  glass.clearcoat = CONFIG.clearcoat
+  glass.clearcoatRoughness = CONFIG.clearcoatRoughness
+  glass.attenuationColor.set(CONFIG.attenuationColor)
+  glass.attenuationDistance = CONFIG.attenuationDistance
+  glass.envMapIntensity = CONFIG.envIntensity
+  glass.color.set(CONFIG.glassColor)
+  glass.side = THREE.DoubleSide   // the ring is a hollow tube shell — draw BOTH walls so it
+                                  // reads as a solid glass rod, not a see-through open ribbon
+  glass.needsUpdate = true
+}
+applyGlass()
+
+/* ---------- THE RINGS — big ROUND glass loops with a SQUARE (rounded-corner)
+   tube profile. The centre-line is a plain circle in the XZ plane; the cross-section
+   swept along it is a superellipse (a square with a border-radius): `sq` = 2 is a
+   round tube, higher makes the tube squarer with softly rounded edges. ---------- */
+function makeRoundedSquareTubeRing(radius, tube, sq, tubular = 260, radial = 40) {
+  const pos = [], nor = [], idx = []
+  const eShape = 2 / sq                 // profile point exponent
+  const eNorm = 2 * (sq - 1) / sq       // profile normal exponent (gradient of the superellipse)
+  for (let i = 0; i <= tubular; i++) {
+    const a = (i / tubular) * Math.PI * 2
+    const cx = Math.cos(a) * radius, cz = Math.sin(a) * radius
+    // frame on the circular path: N = radial (outward, in XZ), B = up (Y)
+    const nx = Math.cos(a), nz = Math.sin(a)   // N
+    for (let j = 0; j <= radial; j++) {
+      const phi = (j / radial) * Math.PI * 2
+      const c = Math.cos(phi), s = Math.sin(phi)
+      const u = Math.sign(c) * Math.pow(Math.abs(c), eShape) * tube   // along N
+      const v = Math.sign(s) * Math.pow(Math.abs(s), eShape) * tube   // along B (Y)
+      pos.push(cx + u * nx, v, cz + u * nz)
+      // outward normal of the superellipse profile, mapped into the path frame
+      const gu = Math.sign(c) * Math.pow(Math.abs(c), eNorm)
+      const gv = Math.sign(s) * Math.pow(Math.abs(s), eNorm)
+      let Nx = gu * nx, Ny = gv, Nz = gu * nz
+      const l = Math.hypot(Nx, Ny, Nz) || 1
+      nor.push(Nx / l, Ny / l, Nz / l)
+    }
+  }
+  const rw = radial + 1
+  for (let i = 0; i < tubular; i++)
+    for (let j = 0; j < radial; j++) {
+      const a = rw * i + j, b = rw * (i + 1) + j, c = rw * (i + 1) + j + 1, d = rw * i + j + 1
+      idx.push(a, b, d, b, c, d)
+    }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3))
+  g.setIndex(idx)
+  return g
+}
+
+const ringGroup = new THREE.Group()
+scene.add(ringGroup)
+const rings = []
+function buildRings() {
+  for (const r of rings) { ringGroup.remove(r.mesh); r.mesh.geometry.dispose() }
+  rings.length = 0
+  const n = Math.max(1, Math.round(CONFIG.ringCount))
+  for (let i = 0; i < n; i++) {
+    const radius = CONFIG.ringInner + i * CONFIG.ringGap
+    const tube = CONFIG.ringTube + i * CONFIG.ringTubeGrow
+    const geo = makeRoundedSquareTubeRing(radius, tube, CONFIG.tubeSquare)
+    const mesh = new THREE.Mesh(geo, glass)
+    // TUMBLING GYROSCOPE: each ring makes a FULL 360° revolution about an in-plane axis
+    // (so the disc opens edge-on → face-on → edge-on, a real visible turn — spinning about
+    // its own normal barely changes the silhouette, which read as "half power"). The pair
+    // tumbles about PERPENDICULAR axes (X vs Z), opposite directions, and carries a static
+    // lean on the other axis so they interweave like a gyroscope / atom-orbit.
+    const dir = (i % 2 === 0) ? 1 : -1
+    const axis = (i % 2 === 0) ? 'x' : 'z'
+    if (i % 2 === 0) mesh.rotation.z = CONFIG.ringTilt
+    else mesh.rotation.x = CONFIG.ringTilt
+    mesh.castShadow = true
+    ringGroup.add(mesh)
+    rings.push({ mesh, axis, spin: CONFIG.orbitSpeed * dir })
+  }
+}
+buildRings()
+
+/* ---------- SOFT CONTACT SHADOW + LIGHTS ---------- */
+const FLOOR_Y = CONFIG.floorY
+const shadowMat = new THREE.ShadowMaterial({ color: hexToColor(CONFIG.shadowColor), opacity: CONFIG.shadowOpacity })
+const shadowFloor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), shadowMat)
+shadowFloor.rotation.x = -Math.PI / 2
+shadowFloor.position.y = FLOOR_Y
+shadowFloor.receiveShadow = true
+scene.add(shadowFloor)
+
+const keyLight = new THREE.DirectionalLight(0xffffff, CONFIG.keyStrength)
+keyLight.position.set(2.5, 7, 4)
+keyLight.castShadow = true
+keyLight.shadow.mapSize.set(1024, 1024)
+keyLight.shadow.radius = 9
+keyLight.shadow.bias = -0.0004
+const sc = keyLight.shadow.camera
+sc.left = -6; sc.right = 6; sc.top = 6; sc.bottom = -6; sc.near = 0.5; sc.far = 40
+sc.updateProjectionMatrix()
+scene.add(keyLight)
+scene.add(new THREE.AmbientLight(0xffffff, 0.2))
+const fill = new THREE.DirectionalLight(0xdfe4ff, 0.22); fill.position.set(-4, 2, 3); scene.add(fill)
+// cool BACK-RIM light — sits behind/above the stone aimed at the camera so the dark
+// silhouette catches a bright grazing edge and separates from the pale field
+const rimLight = new THREE.DirectionalLight(0xcfe0ff, CONFIG.rimStrength)
+rimLight.position.set(-1.5, 4.5, -6)
+scene.add(rimLight)
+
+/* ---------- ATMOSPHERE — drifting, twinkling dust motes around the stone ----------
+   Soft additive points, biased toward the centre, that rise + sway slowly. They only
+   read where the frame is darker (around the near-black stone / vignette), giving a
+   subtle "suspended dust in a light beam" depth without dirtying the white field. */
+const MOTES = 150
+const moteGeo = new THREE.BufferGeometry()
+const motePos = new Float32Array(MOTES * 3)
+const moteSize = new Float32Array(MOTES)
+const motePhase = new Float32Array(MOTES)
+const moteSway = new Float32Array(MOTES)
+for (let i = 0; i < MOTES; i++) {
+  // gaussian-ish bias toward the middle (two rand averaged), a roomy volume
+  const rx = (Math.random() + Math.random() - 1), ry = (Math.random() + Math.random() - 1), rz = (Math.random() + Math.random() - 1)
+  motePos[i*3]   = rx * 5.5
+  motePos[i*3+1] = ry * 3.6
+  motePos[i*3+2] = rz * 4.0 - 0.5
+  moteSize[i]  = 1.2 + Math.random() * 3.0
+  motePhase[i] = Math.random() * 6.2832
+  moteSway[i]  = 0.5 + Math.random()
+}
+moteGeo.setAttribute('position', new THREE.BufferAttribute(motePos, 3))
+moteGeo.setAttribute('aSize', new THREE.BufferAttribute(moteSize, 1))
+moteGeo.setAttribute('aPhase', new THREE.BufferAttribute(motePhase, 1))
+const moteMat = new THREE.ShaderMaterial({
+  uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color('#dff4ef') }, uStrength: { value: CONFIG.moteStrength } },
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `
+    attribute float aSize; attribute float aPhase; uniform float uTime; varying float vTw;
+    void main(){
+      vTw = 0.45 + 0.55 * sin(uTime * 1.4 + aPhase * 6.2831);
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = aSize * (150.0 / -mv.z) * (0.5 + 0.9 * vTw);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader: `
+    uniform vec3 uColor; uniform float uStrength; varying float vTw;
+    void main(){
+      float r = length(gl_PointCoord - 0.5);
+      float a = smoothstep(0.5, 0.0, r);
+      gl_FragColor = vec4(uColor, a * vTw * uStrength * 0.5);
+    }`,
+})
+const motes = new THREE.Points(moteGeo, moteMat)
+motes.frustumCulled = false
+scene.add(motes)
+function updateMotes(dt, t) {
+  const p = moteGeo.attributes.position.array
+  for (let i = 0; i < MOTES; i++) {
+    p[i*3+1] += dt * 0.14                                   // gentle rise
+    if (p[i*3+1] > 3.6) p[i*3+1] = -3.6                     // wrap
+    p[i*3]   += Math.sin(t * 0.25 + motePhase[i]) * dt * 0.12 * moteSway[i]   // sideways sway
+  }
+  moteGeo.attributes.position.needsUpdate = true
+}
+
+/* ---------- TRANSMISSION BUFFER (the drei FBO trick) ---------- */
+function renderTransmissionBuffer() {
+  const oldTone = renderer.toneMapping
+  renderer.toneMapping = THREE.NoToneMapping
+  ringGroup.visible = false
+  // draw the BRIGHT refraction backdrop into the FBO — this is what the glass bends
+  // into a prism (the visible page keeps the plain white gradient)
+  if (BACKSIDE) {
+    renderer.setRenderTarget(fboBack)
+    renderer.clear()
+    renderer.render(refractScene, bgCam)
+    renderer.autoClear = false
+    renderer.render(scene, camera)
+    renderer.autoClear = true
+    ringGroup.visible = true
+    glass.side = THREE.BackSide; glass.buffer = fboBack.texture; glass.thickness = CONFIG.backsideThickness
+  }
+  renderer.setRenderTarget(fboMain)
+  if (!BACKSIDE) ringGroup.visible = false
+  renderer.clear()
+  renderer.render(refractScene, bgCam)
+  renderer.autoClear = false
+  renderer.render(scene, camera)
+  renderer.autoClear = true
+  glass.side = THREE.DoubleSide; glass.buffer = fboMain.texture; glass.thickness = CONFIG.thickness
+  ringGroup.visible = true
+  renderer.setRenderTarget(null)
+  renderer.toneMapping = oldTone
+}
+
+/* ---------- RESIZE ---------- */
+function resize() {
+  const w = window.innerWidth, h = window.innerHeight
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+  renderer.setSize(w, h, false)
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+  bgUniforms.uAspect.value = w / h
+}
+window.addEventListener('resize', resize); resize()
+
+/* ---------- RENDER LOOP ---------- */
+const clock = new THREE.Clock()
+const appearStart = performance.now()
+function render() {
+  requestAnimationFrame(render)
+  if (window.__tgPaused) return
+  const dt = clock.getDelta()
+  const t = clock.getElapsedTime()
+  bgUniforms.uTime.value = t
+  refractUniforms.uTime.value = t
+  moteMat.uniforms.uTime.value = t
+  updateMotes(dt, t)
+  glass.time = t
+
+  // MOUSE PARALLAX — ease the camera toward a small pointer-driven offset, always aim at the stone
+  const k = Math.min(1, dt * CONFIG.parallaxEase)
+  pSmooth.x += (pointer.x - pSmooth.x) * k
+  pSmooth.y += (pointer.y - pSmooth.y) * k
+  camera.position.set(pSmooth.x * CONFIG.parallax, CONFIG.camY - pSmooth.y * CONFIG.parallax, CONFIG.camZ)
+  camera.lookAt(CAM_TARGET)
+
+  // HOVER IMPULSE — bleed off accumulated energy, but hold a gentle floor while hovering
+  hoverEnergy *= Math.exp(-dt * CONFIG.hoverDecay)
+  if (pointerInside) hoverEnergy = Math.max(hoverEnergy, CONFIG.hoverBase)
+  const spinBoost = 1 + hoverEnergy * CONFIG.hoverBoost
+
+  // rings TUMBLE a full revolution about their in-plane axis; the whole band slowly precesses.
+  // The hover impulse scales the tumble (and, more gently, the band precession).
+  for (const r of rings) r.mesh.rotation[r.axis] += r.spin * spinBoost * dt
+  ringGroup.rotation.y += CONFIG.haloSpin * (1 + hoverEnergy * CONFIG.hoverBoost * 0.5) * dt
+
+  // fade the whole thing in
+  const appear = THREE.MathUtils.clamp((performance.now() - appearStart) / 1200, 0, 1)
+  renderer.toneMappingExposure = 0.92 * (0.2 + 0.8 * appear)
+
+  renderTransmissionBuffer()
+  // draw the gradient backdrop, then the scene on top
+  renderer.setRenderTarget(null)
+  renderer.clear()
+  renderer.render(bgScene, bgCam)
+  renderer.autoClear = false
+  renderer.render(scene, camera)
+  renderer.autoClear = true
+}
+render()
+
+/* ---------- CONFIG → live objects ---------- */
+function applyConfig() {
+  bgUniforms.uWhite.value.set(CONFIG.bg)
+  bgUniforms.uGrey.value.set(CONFIG.bgGrey)
+  bgUniforms.uPool.value = CONFIG.bgPool
+  bgUniforms.uVignette.value = CONFIG.bgVignette
+  applyGlass()
+  shadowMat.color.set(CONFIG.shadowColor); shadowMat.opacity = CONFIG.shadowOpacity
+  shadowFloor.position.y = CONFIG.floorY
+  keyLight.intensity = CONFIG.keyStrength
+  rimLight.intensity = CONFIG.rimStrength
+  moteMat.uniforms.uStrength.value = CONFIG.moteStrength
+  ringGroup.rotation.set(CONFIG.haloTiltX, ringGroup.rotation.y, CONFIG.haloTiltZ)   // tilt the whole halo band
+  // camera FOV (position + aim are driven live by the parallax in the render loop)
+  camera.fov = CONFIG.fov
+  camera.updateProjectionMatrix()
+  // rebuild the rings only when a structural ring slider changed
+  const ringSig = [CONFIG.ringCount, CONFIG.ringInner, CONFIG.ringGap, CONFIG.ringTube, CONFIG.ringTubeGrow, CONFIG.tubeSquare, CONFIG.ringTilt].join(',')
+  if (ringSig !== applyConfig._ringSig) { applyConfig._ringSig = ringSig; buildRings() }
+}
+
+/* ===== UI (remove this block to drop the panel) ===== */
+function setupColorUI(config, apply) {
+  const panel = document.getElementById('ui-panel')
+  const toggle = document.getElementById('ui-toggle')
+  const body = document.getElementById('ui-body')
+  if (!panel) return
+  toggle.addEventListener('click', () => panel.classList.toggle('-open'))
+  const _apply = apply
+  apply = () => { _apply(); saveConfig(); renderSnapshot(config) }
+  const numericRanges = {
+    transmission: { min: 0, max: 1, step: 0.01 },
+    thickness:    { min: 0, max: 3, step: 0.05 },
+    backsideThickness: { min: 0, max: 3, step: 0.05 },
+    roughness:    { min: 0, max: 1, step: 0.01 },
+    chromaticAberration: { min: 0, max: 5, step: 0.05 },
+    anisotropy:   { min: 0, max: 6, step: 0.05 },
+    distortion:   { min: 0, max: 3, step: 0.01 },
+    distortionScale: { min: 0.01, max: 1, step: 0.01 },
+    temporalDistortion: { min: 0, max: 1, step: 0.01 },
+    ior:          { min: 1, max: 2.33, step: 0.01 },
+    iridescence:  { min: 0, max: 1, step: 0.01 },
+    iridescenceIor: { min: 1, max: 2.4, step: 0.01 },
+    clearcoat:    { min: 0, max: 1, step: 0.02 },
+    clearcoatRoughness: { min: 0, max: 1, step: 0.02 },
+    attenuationDistance: { min: 0.05, max: 10, step: 0.05 },
+    envIntensity: { min: 0, max: 3, step: 0.05 },
+    ringCount:    { min: 1, max: 6, step: 1 },
+    ringInner:    { min: 1, max: 4, step: 0.02 },
+    ringGap:      { min: 0, max: 1.5, step: 0.02 },
+    ringTube:     { min: 0.02, max: 0.4, step: 0.005 },
+    ringTubeGrow: { min: 0, max: 0.1, step: 0.005 },
+    tubeSquare:   { min: 2, max: 8, step: 0.1 },
+    ringTilt:     { min: 0, max: 1, step: 0.01 },
+    orbitSpeed:   { min: 0, max: 2, step: 0.02 },
+    haloTiltX:    { min: -1, max: 1, step: 0.01 },
+    haloTiltZ:    { min: -1, max: 1, step: 0.01 },
+    haloSpin:     { min: 0, max: 1, step: 0.01 },
+    hoverBase:    { min: 0, max: 1, step: 0.01 },
+    hoverBoost:   { min: 0, max: 20, step: 0.1 },
+    hoverGain:    { min: 0, max: 30, step: 0.1 },
+    hoverDecay:   { min: 0.2, max: 8, step: 0.05 },
+    hoverMax:     { min: 0.2, max: 4, step: 0.05 },
+    bgPool:       { min: 0, max: 2, step: 0.02 },
+    bgVignette:   { min: 0, max: 1, step: 0.02 },
+    moteStrength: { min: 0, max: 2, step: 0.02 },
+    rimStrength:  { min: 0, max: 6, step: 0.05 },
+    floorY:       { min: -5, max: 0, step: 0.05 },
+    camY:         { min: 0, max: 6, step: 0.05 },
+    camZ:         { min: 3, max: 14, step: 0.1 },
+    fov:          { min: 15, max: 70, step: 1 },
+    parallax:     { min: 0, max: 2, step: 0.02 },
+    parallaxEase: { min: 0.5, max: 8, step: 0.1 },
+    keyStrength:  { min: 0, max: 3, step: 0.05 },
+    shadowOpacity:{ min: 0, max: 1, step: 0.01 },
+  }
+  for (const key of Object.keys(config)) {
+    const v = config[key]
+    const row = document.createElement('label')
+    row.appendChild(Object.assign(document.createElement('span'), { textContent: key }))
+    if (typeof v === 'string' && v[0] === '#') {
+      const inp = document.createElement('input')
+      inp.type = 'color'; inp.value = v
+      inp.addEventListener('input', e => { config[key] = e.target.value; apply() })
+      row.appendChild(inp)
+    } else if (typeof v === 'number') {
+      const r = numericRanges[key] || { min: 0, max: Math.max(1, v * 2), step: 0.01 }
+      const inp = document.createElement('input')
+      inp.type = 'range'; inp.min = String(r.min); inp.max = String(r.max); inp.step = String(r.step); inp.value = String(v)
+      inp.addEventListener('input', e => {
+        let val = parseFloat(e.target.value)
+        if (Number.isInteger(r.step)) val = Math.round(val / r.step) * r.step
+        config[key] = val
+        apply()
+      })
+      row.appendChild(inp)
+    }
+    body.appendChild(row)
+  }
+  const btns = document.createElement('div'); btns.id = 'ui-buttons'
+  const reloadBtn = document.createElement('button'); reloadBtn.type = 'button'; reloadBtn.textContent = '⟳ reload'
+  const resetBtn  = document.createElement('button'); resetBtn.type = 'button'; resetBtn.textContent = '↺ reset'
+  reloadBtn.title = 'Reload the page — re-initialise the scene with the saved settings'
+  resetBtn.title = 'Clear saved settings and reload with defaults'
+  reloadBtn.addEventListener('click', () => location.reload())
+  resetBtn.addEventListener('click', () => { try { localStorage.removeItem(STORAGE_KEY) } catch (e) {} ; location.reload() })
+  btns.appendChild(reloadBtn); btns.appendChild(resetBtn)
+  body.appendChild(btns)
+  panel.classList.add('-open')
+  renderSnapshot(config)
+}
+function renderSnapshot(config) {
+  const snap = document.getElementById('ui-snapshot')
+  if (!snap) return
+  const lines = ['const CONFIG = {']
+  for (const key of Object.keys(config)) {
+    const v = config[key]
+    let formatted
+    if (typeof v === 'string') formatted = "'" + v + "'"
+    else if (Number.isInteger(v)) formatted = String(v)
+    else formatted = String(parseFloat(v.toFixed(4)))
+    lines.push('  ' + key + ': ' + formatted + ',')
+  }
+  lines.push('}')
+  snap.textContent = lines.join('\n')
+}
+applyConfig()
+setupColorUI(CONFIG, applyConfig)
+/* ===== END UI ===== */
+
+/* ---- Truth Guardian bridge (added by web/scripts/vendor-layers.mjs) ---- */
+window.__tgPaused = false
+addEventListener('message', (e) => {
+  if (e.origin !== location.origin || !e.data || e.data.tg !== 1) return
+  if ('paused' in e.data) window.__tgPaused = !!e.data.paused
+  if (e.data.config) { Object.assign(CONFIG, e.data.config); applyConfig() }
+  if (e.data.signal && typeof applyState === 'function') { CONFIG.autoCycle = 0; applyState(e.data.signal) }
+})
+parent.postMessage({ tg: 1, ready: true }, location.origin)
+</script>
+</body>
+</html>

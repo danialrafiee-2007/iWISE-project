@@ -1,0 +1,151 @@
+import json
+
+import pytest
+from fastapi.testclient import TestClient
+
+from truth_guardian.heal import Change, Healing
+from truth_guardian.report import ClaimReport, Report
+from truth_guardian.web.app import _changed_range, create_app
+from truth_guardian.web.engine import ROOT
+from truth_guardian.web.examples import ExampleStore
+
+
+class FakeEngine:
+    state, version, error = "ready", "fake-1", None
+
+    def __init__(self):
+        self.calls = []
+
+    def load(self):
+        pass
+
+    def busy(self):
+        return False
+
+    def info(self):
+        return {"state": self.state, "model_version": self.version}
+
+    def analyze(self, sample, profile=None, policy="strict", progress=None):
+        self.calls.append((sample, profile, policy))
+        for stage in ("lexical", "score", "verdict"):
+            (progress or (lambda s: None))(stage)
+        risky = "2022" in sample.answer
+        claim = ClaimReport(start=0, end=len(sample.answer), text=sample.answer, status="contradicted" if risky else "supported", risk=0.9 if risky else 0.1, explanation="x", action="verify" if risky else "keep")
+        return Report(id=sample.id, verdict="hallucinated" if risky else "grounded", risk=claim.risk, response_threshold=0.4, sentence_threshold=0.3, claims=[claim])
+
+    def heal(self, sample, profile=None, on_check=None):
+        first = self.analyze(sample)
+        on_check and on_check(0)
+        fixed = sample.answer.replace("2022", "1945")
+        on_check and on_check(1)
+        return Healing(fixed, [first, self.analyze(sample.model_copy(update={"answer": fixed}))], [[Change(12, 16, "2022", "1945", "replaced with the value in the sources")]])
+
+    def edit(self, sample, kind, seed, pool_from):
+        if kind == "number":
+            return None
+        raise KeyError(f"unknown edit kind {kind!r}")
+
+
+@pytest.fixture
+def client():
+    engine = FakeEngine()
+    with TestClient(create_app(engine, ExampleStore(ROOT), load=False)) as c:
+        c.engine = engine
+        yield c
+
+
+def events(response) -> list[dict]:
+    return [json.loads(line) for line in response.iter_lines() if line]
+
+
+def test_health_and_examples(client):
+    assert client.get("/api/health").json()["state"] == "ready"
+    listing = client.get("/api/examples").json()
+    assert {"anne-frank", "semi-final", "library"} <= {e["id"] for e in listing["answers"]}
+    assert listing["agents"][0]["id"] == "agent-liberation"
+
+
+def test_analyze_streams_stages_then_the_report(client):
+    body = {"question": "When?", "sources": ["She died in 1945."], "answer": "She died in 2022.", "task": "qa"}
+    found = events(client.post("/api/analyze", json=body))
+    assert [e["type"] for e in found] == ["stage", "stage", "stage", "result"]
+    assert found[-1]["report"]["verdict"] == "hallucinated"
+    sample = client.engine.calls[-1][0]
+    assert sample.meta.task == "qa" and sample.documents[0].text == "She died in 1945."
+
+
+def test_inputs_are_validated(client):
+    assert client.post("/api/analyze", json={"sources": ["x"], "answer": " "}).status_code == 422
+    assert client.post("/api/analyze", json={"sources": [], "answer": "An answer."}).status_code == 422
+    assert client.post("/api/analyze", json={"sources": ["x"], "answer": "a" * 5_001}).status_code == 422
+    assert client.post("/api/analyze", json={"sources": ["x"], "answer": "y", "extra": 1}).status_code == 422
+    assert client.post("/api/analyze", json={"example_id": "nope"}).status_code == 404
+
+
+def test_only_localhost_host_names_are_served(client):
+    assert client.get("/api/health", headers={"host": "evil.example.com"}).status_code == 400
+
+
+def test_heal_returns_every_round_with_its_changes(client):
+    found = events(client.post("/api/heal", json={"sources": ["She died in 1945."], "answer": "She died in 2022."}))
+    result = found[-1]
+    assert [e["round"] for e in found if e["type"] == "check"] == [0, 1]
+    assert result["answer"] == "She died in 1945."
+    assert [r["report"]["verdict"] for r in result["rounds"]] == ["hallucinated", "grounded"]
+    assert result["rounds"][1]["changes"][0]["new"] == "1945"
+    assert [r["answer"] for r in result["rounds"]] == ["She died in 2022.", "She died in 1945."]
+
+
+def test_agent_needs_steps_and_an_answer(client):
+    assert client.post("/api/agent", json={"steps": []}).status_code == 422
+    steps = [{"step": 1, "kind": "action", "content": "search", "observation": "It opened in 1932."}, {"step": 2, "kind": "answer", "content": "It opened in 2022."}]
+    found = events(client.post("/api/agent", json={"question": "When?", "steps": steps, "policy": "lenient"}))
+    assert found[-1]["type"] == "result" and client.engine.calls[-1][2] == "lenient"
+    assert client.engine.calls[-1][0].documents[0].text == "It opened in 1932."
+
+
+def test_audit_parses_plain_logs_and_reports_line_errors(client):
+    log = "\n".join(json.dumps({"id": i, "question": "q", "sources": ["She died in 1945."], "answer": a}) for i, a in enumerate(["She died in 2022.", "She died in 1945."]))
+    found = events(client.post("/api/audit", json={"jsonl": log}))
+    result = found[-1]
+    assert [e["done"] for e in found if e["type"] == "progress"] == [0, 1]
+    assert result["summary"]["answers"] == 2 and [a["verdict"] for a in result["answers"]] == ["hallucinated", "grounded"]
+    bad = client.post("/api/audit", json={"jsonl": log + "\n{not json"})
+    assert bad.status_code == 422 and "line 3" in bad.json()["detail"]
+
+
+def test_fool_edit_errors_are_explained(client):
+    answers = client.get("/api/fool/answers").json()
+    if not answers:
+        pytest.skip("the Fool-the-Guardian controls are not built")
+    first = answers[0]["id"]
+    assert "does not apply" in client.post("/api/fool/edit", json={"answer_id": first, "kind": "number"}).json()["detail"]
+    assert client.post("/api/fool/edit", json={"answer_id": first, "kind": "bogus"}).status_code == 422
+
+
+def test_model_card_reads_the_committed_results(client):
+    card = client.get("/api/model-card").json()
+    assert 0.8 < card["ragtruth_dev"]["auroc"] < 0.9 and "B1 lexical overlap" in card["baselines"]
+    assert card["sources"]["M2-ensemble-final__ragtruth_dev.json"].startswith("eval/results/")
+
+
+def test_unknown_api_paths_are_not_served_the_app(client):
+    assert client.get("/api/nothing").status_code == 404
+
+
+def test_cached_reports_expire_with_the_model_or_the_brain_source(tmp_path):
+    store = ExampleStore(ROOT)
+    store.folder = tmp_path
+    report = Report(id="x", verdict="grounded", risk=0.1, response_threshold=0.4, sentence_threshold=0.3, claims=[])
+    store.store("anne-frank", "m1", report)
+    assert store.cached("anne-frank", "m1") == report
+    assert store.cached("anne-frank", "m2") is None
+    store.code = "changed"
+    assert store.cached("anne-frank", "m1") is None
+
+
+def test_changed_range_finds_the_edit():
+    assert _changed_range("She died in 1945.", "She died in 2022.") == (12, 16)
+    assert _changed_range("It is big.", "It is not big.") == (6, 10)
+    assert _changed_range("It is not big.", "It is big.") == (6, 7)
+    assert _changed_range("Same.", "Same.") is None
