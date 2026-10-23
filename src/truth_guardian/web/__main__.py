@@ -1,18 +1,15 @@
 """Start the web app on localhost and open it in the browser; the models load and warm up in the background.
 
-Runs offline: Hugging Face is told not to reach the network (the models must already be downloaded, see README).
+Runs offline: Hugging Face is told not to reach the network, so the models must already be downloaded.
+--check prints what is present and missing and exits; --prepare (needs internet once) downloads the models, warms
+them up and builds the example cache, then exits.
 """
 
 import argparse
 import os
+import sys
 import threading
 import webbrowser
-
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
-
-import uvicorn  # noqa: E402
-
-from truth_guardian.web.app import create_app  # noqa: E402
 
 HOST = "127.0.0.1"
 
@@ -21,7 +18,35 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--check", action="store_true", help="print the readiness checklist and exit")
+    parser.add_argument("--prepare", action="store_true", help="download and warm up the models, cache the examples, exit")
     args = parser.parse_args()
+    if not args.prepare:
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+
+    from truth_guardian.web.engine import ROOT
+
+    if args.check:
+        from truth_guardian.web.doctor import report
+
+        sys.exit(0 if report(ROOT) else 1)
+    if args.prepare:
+        from truth_guardian.web.app import prepare
+        from truth_guardian.web.engine import Engine
+        from truth_guardian.web.examples import ExampleStore
+
+        engine = Engine(ROOT)
+        try:
+            prepare(engine, ExampleStore(ROOT))
+        except Exception as e:
+            sys.exit(f"preparation failed: {engine.error or f'{type(e).__name__}: {e}'}")
+        print(f"models ready (warm-up {engine.warm_seconds:.0f} s); examples cached in data/web/examples")
+        return
+
+    import uvicorn
+
+    from truth_guardian.web.app import create_app
+
     url = f"http://{HOST}:{args.port}"
     if not args.no_browser:
         threading.Timer(1.5, webbrowser.open, [url]).start()

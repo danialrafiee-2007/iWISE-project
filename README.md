@@ -3,6 +3,26 @@
 Hallucination detection and reliability assessment for RAG and agentic AI answers.
 Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 
+## Quick start (Windows)
+
+Double-click `TruthGuardian.bat`. It checks that everything is in place, starts the web app offline and opens it in
+the browser. On a new computer, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run
+`TruthGuardian.bat setup` once with internet: it installs the packages, downloads the datasets (checksums verified)
+and the language models, builds the processed data and the fast HHEM export, warms up and caches the examples, and
+skips whatever is already there.
+
+| Command | What it does |
+|---|---|
+| `TruthGuardian.bat` | start the web app (port 8765) and open the browser; if it is already running, just open it |
+| `TruthGuardian.bat setup` | prepare a new computer (internet needed once) |
+| `TruthGuardian.bat check` | list what is present and what is missing |
+| `TruthGuardian.bat test` | run the test suite |
+| `TruthGuardian.bat smoke` | end-to-end check of the web app against the real models |
+
+Options: `--port N`, `--no-browser`. On other systems the same steps are `uv sync` and
+`uv run python -m truth_guardian.web --prepare` once, then `uv run --offline python -m truth_guardian.web`
+(`--check` prints the checklist).
+
 ## Setup
 
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.

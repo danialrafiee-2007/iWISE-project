@@ -140,21 +140,23 @@ def _parse_log(text: str) -> list[Sample]:
     return samples
 
 
+def prepare(engine, store: ExampleStore) -> None:
+    """Load and warm up the models, then check every ready-made example once and keep its report on disk."""
+    engine.load()
+    for example in [*store.examples.values(), *store.agents.values()]:
+        if store.cached(example.id, engine.version) is None:
+            store.store(example.id, engine.version, engine.analyze(example.sample()))
+
+
 def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True) -> FastAPI:
     engine = engine or Engine(root)
     store = store or ExampleStore(root)
     fool = {s.id: s for s in fool_answers(root)}
 
-    def prepare() -> None:
-        engine.load()
-        for example in [*store.examples.values(), *store.agents.values()]:
-            if store.cached(example.id, engine.version) is None:
-                store.store(example.id, engine.version, engine.analyze(example.sample()))
-
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if load and engine.state != "ready":
-            threading.Thread(target=prepare, daemon=True).start()
+            threading.Thread(target=prepare, args=(engine, store), daemon=True).start()
         yield
 
     app = FastAPI(title="Truth Guardian", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json", redoc_url=None)

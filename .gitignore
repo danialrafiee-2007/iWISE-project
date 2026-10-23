@@ -29,6 +29,8 @@ eval/*_run.log
 data/features/
 models/fusion/*/model.joblib
 models/tracer/*/model.joblib
+!models/fusion/20261022-082833-ensemble/model.joblib
+!models/tracer/20261022-083040-tracer/model.joblib
 models/onnx/*/
 models/detector/
 data/web/

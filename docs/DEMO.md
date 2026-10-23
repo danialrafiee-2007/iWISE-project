@@ -1,6 +1,6 @@
 # Demo script (8 to 10 minutes)
 
-Before judging: start the app (`uv run --offline python -m truth_guardian.web`) at least two minutes early, wait for
+Before judging: double-click `TruthGuardian.bat` at least two minutes early, wait for
 "offline · models ready" in the top bar, and switch Wi-Fi off. Every example below opens instantly from the cache.
 
 | Time | Page | What to do | What to say |
