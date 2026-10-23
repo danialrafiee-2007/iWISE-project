@@ -1,7 +1,8 @@
 """The brain behind the web app: loads the saved models once, warms them up, and runs one check at a time.
 
 The models are not thread-safe and the laptop CPU is the bottleneck, so every check takes one lock: requests queue
-instead of competing. `FakeEngine`-style test doubles only need the same methods.
+instead of competing. A check whose client has gone away (its `cancelled` event is set) is dropped when its turn comes,
+so quick clicks never leave a backlog. `FakeEngine`-style test doubles only need the same methods.
 """
 
 import random
@@ -25,6 +26,15 @@ WARM_UP = make_sample(
     "When did Anne Frank die?",
     sample_id="warm-up",
 )
+
+
+class Cancelled(Exception):
+    """The client went away before its check started."""
+
+
+def _proceed(cancelled: threading.Event | None) -> None:
+    if cancelled is not None and cancelled.is_set():
+        raise Cancelled
 
 
 class Engine:
@@ -79,21 +89,29 @@ class Engine:
             return {**options, "profile": self.profiles[profile]}
         return {**options, "calibration": self.calibration, "triage_policy": self.triage}
 
-    def analyze(self, sample: Sample, profile: str | None = None, policy: str = "strict", progress: Callable[[str], None] | None = None) -> Report:
+    def analyze(
+        self, sample: Sample, profile: str | None = None, policy: str = "strict", progress: Callable[[str], None] | None = None,
+        cancelled: threading.Event | None = None,
+    ) -> Report:
         with self._lock:
+            _proceed(cancelled)
             return analyze(sample, self.model, progress=progress, **self._options(profile, policy))
 
-    def heal(self, sample: Sample, profile: str | None = None, on_check: Callable[[int], None] | None = None) -> Healing:
+    def heal(
+        self, sample: Sample, profile: str | None = None, on_check: Callable[[int], None] | None = None, cancelled: threading.Event | None = None,
+    ) -> Healing:
         """on_check(i) is called before the i-th check (0 = the original answer)."""
-        options = self._options(profile, "strict")
         checks = iter(range(1_000))
 
         def check(s: Sample) -> Report:
+            _proceed(cancelled)
             if on_check:
                 on_check(next(checks))
             return analyze(s, self.model, **options)
 
         with self._lock:
+            _proceed(cancelled)
+            options = self._options(profile, "strict")
             return heal_answer(sample, check)
 
     def edit(self, sample: Sample, kind: str, seed: int, pool_from: list[Sample]) -> Sample | None:

@@ -1,4 +1,5 @@
 import json
+import threading
 
 import pytest
 from fastapi.testclient import TestClient
@@ -6,7 +7,7 @@ from fastapi.testclient import TestClient
 from truth_guardian.heal import Change, Healing
 from truth_guardian.report import ClaimReport, Report
 from truth_guardian.web.app import _changed_range, create_app
-from truth_guardian.web.engine import ROOT
+from truth_guardian.web.engine import ROOT, Cancelled, Engine
 from truth_guardian.web.examples import ExampleStore
 
 
@@ -25,7 +26,7 @@ class FakeEngine:
     def info(self):
         return {"state": self.state, "model_version": self.version}
 
-    def analyze(self, sample, profile=None, policy="strict", progress=None):
+    def analyze(self, sample, profile=None, policy="strict", progress=None, cancelled=None):
         self.calls.append((sample, profile, policy))
         for stage in ("lexical", "score", "verdict"):
             (progress or (lambda s: None))(stage)
@@ -33,7 +34,7 @@ class FakeEngine:
         claim = ClaimReport(start=0, end=len(sample.answer), text=sample.answer, status="contradicted" if risky else "supported", risk=0.9 if risky else 0.1, explanation="x", action="verify" if risky else "keep")
         return Report(id=sample.id, verdict="hallucinated" if risky else "grounded", risk=claim.risk, response_threshold=0.4, sentence_threshold=0.3, claims=[claim])
 
-    def heal(self, sample, profile=None, on_check=None):
+    def heal(self, sample, profile=None, on_check=None, cancelled=None):
         first = self.analyze(sample)
         on_check and on_check(0)
         fixed = sample.answer.replace("2022", "1945")
@@ -149,6 +150,15 @@ def test_cached_reports_expire_with_the_model_or_the_brain_source(tmp_path):
     assert store.cached("anne-frank", "m2") is None
     store.code = "changed"
     assert store.cached("anne-frank", "m1") is None
+
+
+def test_a_check_whose_client_left_is_dropped_before_it_runs():
+    gone = threading.Event()
+    gone.set()
+    with pytest.raises(Cancelled):
+        Engine().analyze(None, cancelled=gone)
+    with pytest.raises(Cancelled):
+        Engine().heal(None, cancelled=gone)
 
 
 def test_changed_range_finds_the_edit():

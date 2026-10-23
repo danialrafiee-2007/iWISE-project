@@ -6,6 +6,7 @@ contract as the Python API (report.py). Inputs are capped, nothing is fetched fr
 from the user, and only localhost host names are accepted (against DNS rebinding).
 """
 
+import asyncio
 import json
 import queue
 import threading
@@ -24,7 +25,7 @@ from truth_guardian.audit import summarize
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.pipeline import make_sample
 from truth_guardian.schema import Sample
-from truth_guardian.web.engine import ROOT, Engine
+from truth_guardian.web.engine import ROOT, Cancelled, Engine
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
 from truth_guardian.web.metrics import model_card
 
@@ -80,13 +81,17 @@ class AuditIn(_Strict):
     profile: str | None = None
 
 
-def _stream(work: Callable[[Callable[[dict], None]], dict]) -> StreamingResponse:
-    """Run work in a thread; it reports events through its argument and returns the final result."""
+def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
+    """Run work in a thread; it reports events through its first argument and returns the final result. The second
+    argument is set when the client disconnects, so the checks it queued are dropped."""
     events: queue.Queue = queue.Queue()
+    cancelled = threading.Event()
 
     def run() -> None:
         try:
-            events.put({"type": "result", **work(events.put)})
+            events.put({"type": "result", **work(events.put, cancelled)})
+        except Cancelled:
+            pass
         except (KeyError, ValueError) as e:
             events.put({"type": "error", "message": str(e).strip("'\"")})
         except Exception as e:
@@ -96,9 +101,12 @@ def _stream(work: Callable[[Callable[[dict], None]], dict]) -> StreamingResponse
 
     threading.Thread(target=run, daemon=True).start()
 
-    def body():
-        while (event := events.get()) is not None:
-            yield json.dumps(event) + "\n"
+    async def body():
+        try:
+            while (event := await asyncio.to_thread(events.get)) is not None:
+                yield json.dumps(event) + "\n"
+        finally:
+            cancelled.set()
 
     return StreamingResponse(body(), media_type="application/x-ndjson")
 
@@ -165,14 +173,14 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
     def check(sample: Sample, profile: str | None = None, policy: str = "strict", example_id: str | None = None) -> StreamingResponse:
         ready()
 
-        def work(emit) -> dict:
+        def work(emit, cancelled) -> dict:
             started = time.perf_counter()
             cached = store.cached(example_id, engine.version) if example_id and not profile and policy == "strict" else None
             if cached is not None:
                 return {"report": cached.model_dump(mode="json"), "seconds": 0.0, "cached": True}
             if engine.busy():
                 emit({"type": "queued"})
-            report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}))
+            report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled)
             if example_id and not profile and policy == "strict":
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}
@@ -214,11 +222,11 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         sample, _ = sample_from(body)
         ready()
 
-        def work(emit) -> dict:
+        def work(emit, cancelled) -> dict:
             started = time.perf_counter()
             if engine.busy():
                 emit({"type": "queued"})
-            healing = engine.heal(sample, body.profile, lambda i: emit({"type": "check", "round": i, "t": round(time.perf_counter() - started, 2)}))
+            healing = engine.heal(sample, body.profile, lambda i: emit({"type": "check", "round": i, "t": round(time.perf_counter() - started, 2)}), cancelled)
             answers = [sample.answer]
             for changes in healing.changes:
                 answers.append(apply_changes(answers[-1], changes))
@@ -270,11 +278,11 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         edited = original.model_copy(update={"id": "fool-input", "answer": body.answer, "labels": None})
         changed = _changed_range(original.answer, body.answer)
 
-        def work(emit) -> dict:
+        def work(emit, cancelled) -> dict:
             started = time.perf_counter()
             if engine.busy():
                 emit({"type": "queued"})
-            report = engine.analyze(edited, progress=lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}))
+            report = engine.analyze(edited, progress=lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled=cancelled)
             hit = lambda c: changed is not None and c.start < changed[1] and changed[0] < c.end
             located = any(hit(c) and c.status != "supported" for c in report.claims)
             cautioned = any(hit(c) and c.cautions for c in report.claims)
@@ -298,11 +306,11 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         except ValueError as e:
             raise HTTPException(422, str(e)) from None
 
-        def work(emit) -> dict:
+        def work(emit, cancelled) -> dict:
             started, reports = time.perf_counter(), []
             for i, s in enumerate(samples):
                 emit({"type": "progress", "done": i, "total": len(samples), "t": round(time.perf_counter() - started, 2)})
-                reports.append(engine.analyze(s, body.profile))
+                reports.append(engine.analyze(s, body.profile, cancelled=cancelled))
             summary = summarize(samples, reports)
             rows = [
                 {"id": r.id, "verdict": r.verdict, "risk": r.domain.calibrated_risk if r.domain else r.risk, "grade": r.card.grade if r.card else None,
