@@ -133,6 +133,13 @@ def test_unknown_api_paths_are_not_served_the_app(client):
     assert client.get("/api/nothing").status_code == 404
 
 
+def test_missing_asset_files_get_a_404_while_page_routes_get_the_app(client):
+    assert client.get("/assets/Heal-old.js").status_code == 404
+    assert client.get("/layers/missing.html").status_code == 404
+    page = client.get("/heal")
+    assert page.status_code == 200 and "text/html" in page.headers["content-type"]
+
+
 def test_cached_reports_expire_with_the_model_or_the_brain_source(tmp_path):
     store = ExampleStore(ROOT)
     store.folder = tmp_path

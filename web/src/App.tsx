@@ -1,15 +1,16 @@
-import { lazy, Suspense, type ComponentType } from "react";
+import { Suspense, type ComponentType } from "react";
 import { Shell } from "./components/Shell";
+import { LoadError, lazyPage } from "./lib/lazyPage";
 import { Router, useRouter } from "./lib/router";
 import { WorkspaceProvider } from "./lib/workspace";
 import { Analyze } from "./pages/Analyze";
 
-const Landing = lazy(() => import("./pages/Landing"));
-const Heal = lazy(() => import("./pages/Heal"));
-const Fool = lazy(() => import("./pages/Fool"));
-const Agent = lazy(() => import("./pages/Agent"));
-const Audit = lazy(() => import("./pages/Audit"));
-const ModelCard = lazy(() => import("./pages/ModelCard"));
+const Landing = lazyPage(() => import("./pages/Landing"));
+const Heal = lazyPage(() => import("./pages/Heal"));
+const Fool = lazyPage(() => import("./pages/Fool"));
+const Agent = lazyPage(() => import("./pages/Agent"));
+const Audit = lazyPage(() => import("./pages/Audit"));
+const ModelCard = lazyPage(() => import("./pages/ModelCard"));
 
 const ROUTES: Record<string, ComponentType> = {
   "/": Landing,
@@ -34,9 +35,11 @@ function Page() {
   const { path } = useRouter();
   const Component = ROUTES[path.replace(/\/+$/, "") || "/"] ?? NotFound;
   return (
-    <Suspense fallback={<div className="px-8 py-24 text-center text-fog-400">Loading…</div>}>
-      <Component />
-    </Suspense>
+    <LoadError key={path}>
+      <Suspense fallback={<div className="px-8 py-24 text-center text-fog-400">Loading…</div>}>
+        <Component />
+      </Suspense>
+    </LoadError>
   );
 }
 

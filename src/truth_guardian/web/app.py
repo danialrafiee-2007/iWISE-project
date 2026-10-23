@@ -325,6 +325,8 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         file = (STATIC / path).resolve()
         if path and file.is_file() and STATIC.resolve() in file.parents:
             return FileResponse(file)
+        if "." in path.rsplit("/", 1)[-1]:
+            raise HTTPException(404, f"no file {path!r}; reload the page if the app was rebuilt")
         index = STATIC / "index.html"
         if not index.exists():
             raise HTTPException(404, "the web app is not built; run `npm run build` in web/")

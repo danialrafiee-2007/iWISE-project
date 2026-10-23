@@ -1,16 +1,17 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { InputForm } from "../components/InputForm";
 import { AnswerView, StatusLegend } from "../components/report/AnswerView";
 import { ClaimDetail, ConflictsPanel, DiagnosisPanel, OmissionsPanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
 import { Loupe } from "../layers/Gradients";
 import { Heading } from "../layers/Heading";
 import { api, checkBody } from "../lib/api";
+import { lazyPage } from "../lib/lazyPage";
 import { useRouter } from "../lib/router";
 import type { CheckInput, Example, ExampleBrief, Report, Task } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
 
-const GlassHalo = lazy(() => import("../layers/scenes/GlassHalo"));
+const GlassHalo = lazyPage(() => import("../layers/scenes/GlassHalo"));
 
 type Result = { report: Report; seconds: number; cached: boolean };
 
