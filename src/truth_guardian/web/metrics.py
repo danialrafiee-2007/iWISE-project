@@ -17,6 +17,8 @@ LOCKED_HALUEVAL = {"qa": "final__halueval_qa.json", "dialogue": "final__halueval
 LOCKED_AGENT = "tracer_learned__agenthallu_test.json"
 LOCKED_BASELINES = {"B1 lexical overlap": "B1-lexical", "B2 embedding similarity": "B2-embedding"}
 LOCKED_REFERENCE = "lettuce"
+CASES = "challenge_cases.json"
+CALIBRATION = "calibration.json"
 LOCKED_SETS = {"ragtruth": "ragtruth_test", "qa": "halueval_qa", "dialogue": "halueval_dialogue", "summary": "halueval_summary"}
 
 
@@ -60,6 +62,10 @@ def model_card(root: Path) -> dict:
             "controls_flagged": suite["control_false_alarm_rate"],
             "edits": {k: {"n": v["n"], "detected": v["detected"], "auroc": v["auroc_vs_controls"], "located": v["located"], "cautioned": v.get("cautioned")} for k, v in suite["by_edit"].items()},
         }
+    if calibration := use(CALIBRATION):
+        card["calibration"] = {name: {k: s[k] for k in ("answers", "ece", "bins")} for name, s in calibration["sets"].items()}
+    if cases := use(CASES):
+        card["challenge_cases"] = {k: cases[k] for k in ("samples", "cases", "controls", "auroc_answers_vs_faithful")}
     if conformal := use("conformal.json"):
         p = conformal["pooled"]["0.1"]
         card["guarantee"] = {"alpha": 0.1, "splits": conformal["splits"], "miss_rate": p["miss_rate_catch"], "false_alarm_rate": p["false_alarm_rate_alarm"]}

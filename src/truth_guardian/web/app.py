@@ -1,16 +1,20 @@
-"""HTTP API and static file server for the Truth Guardian web app (FastAPI, localhost only).
+"""HTTP API and static file server for the Truth Guardian web app (FastAPI).
 
 Long checks stream newline-delimited JSON events ({"type": "stage" | "check" | "progress" | "queued" | "result" |
 "error", ...}) so the page shows live progress instead of a blank wait. Every answer goes through the same report
 contract as the Python API (report.py). Inputs are capped, nothing is fetched from the internet, no path is taken
-from the user, and only localhost host names are accepted (against DNS rebinding).
+from the user, and only localhost host names are accepted (against DNS rebinding). For a hosted demo,
+TG_ALLOWED_HOSTS adds host names (comma-separated, "*.hf.space" style) and TG_ACCESS_CODE asks every visitor for
+that code (HTTP basic authentication, any user name).
 """
 
 import asyncio
 import base64
 import binascii
 import json
+import os
 import queue
+import secrets
 import threading
 import time
 from collections.abc import Callable
@@ -18,9 +22,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from truth_guardian.audit import summarize
@@ -37,7 +41,22 @@ MAX_QUESTION, MAX_ANSWER, MAX_SOURCE, MAX_SOURCES = 1_000, 5_000, 20_000, 10
 MAX_STEPS, MAX_STEP = 30, 5_000
 MAX_AUDIT_ANSWERS, MAX_AUDIT_CHARS = 100, 2_000_000
 HOSTS = ["127.0.0.1", "localhost", "testserver"]
+ACCESS_PROMPT = 'Basic realm="Truth Guardian", charset="UTF-8"'
 Task = Literal["qa", "summary", "data2text", "other"]
+
+
+def allowed_hosts() -> list[str]:
+    return HOSTS + [h.strip() for h in os.environ.get("TG_ALLOWED_HOSTS", "").split(",") if h.strip()]
+
+
+def has_access(authorization: str | None, code: str) -> bool:
+    if not authorization or not authorization.startswith("Basic "):
+        return False
+    try:
+        password = base64.b64decode(authorization[6:], validate=True).decode().partition(":")[2]
+    except (binascii.Error, UnicodeDecodeError):
+        return False
+    return secrets.compare_digest(password.encode(), code.encode())
 
 
 class _Strict(BaseModel):
@@ -169,7 +188,14 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         yield
 
     app = FastAPI(title="Truth Guardian", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json", redoc_url=None)
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=HOSTS)
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
+    if code := os.environ.get("TG_ACCESS_CODE"):
+
+        @app.middleware("http")
+        async def access(request: Request, call_next):
+            if request.url.path == "/api/health" or has_access(request.headers.get("authorization"), code):
+                return await call_next(request)
+            return Response("Truth Guardian needs the access code you were given.", status_code=401, headers={"WWW-Authenticate": ACCESS_PROMPT})
 
     def ready() -> None:
         if engine.state != "ready":

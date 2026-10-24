@@ -87,6 +87,19 @@ def test_only_localhost_host_names_are_served(client):
     assert client.get("/api/health", headers={"host": "evil.example.com"}).status_code == 400
 
 
+def test_a_hosted_demo_accepts_its_host_and_asks_for_the_access_code(monkeypatch):
+    monkeypatch.setenv("TG_ALLOWED_HOSTS", "*.hf.space")
+    monkeypatch.setenv("TG_ACCESS_CODE", "judge-2027")
+    with TestClient(create_app(FakeEngine(), ExampleStore(ROOT), load=False)) as c:
+        host = {"host": "team-truth-guardian.hf.space"}
+        assert c.get("/api/health", headers=host).status_code == 200
+        refused = c.get("/api/examples", headers=host)
+        assert refused.status_code == 401 and refused.headers["www-authenticate"].startswith("Basic")
+        assert c.get("/api/examples", headers=host, auth=("judge", "wrong")).status_code == 401
+        assert c.get("/api/examples", headers=host, auth=("judge", "judge-2027")).status_code == 200
+        assert c.get("/api/health", headers={"host": "evil.example.com"}).status_code == 400
+
+
 def test_heal_returns_every_round_with_its_changes(client):
     found = events(client.post("/api/heal", json={"sources": ["She died in 1945."], "answer": "She died in 2022."}))
     result = found[-1]

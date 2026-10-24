@@ -2,7 +2,8 @@
 
 Runs offline: Hugging Face is told not to reach the network, so the models must already be downloaded.
 --check prints what is present and missing and exits; --prepare (needs internet once) downloads the models, warms
-them up and builds the example cache, then exits.
+them up and builds the example cache, then exits. --host 0.0.0.0 serves other machines (a hosted demo; see
+TG_ALLOWED_HOSTS and TG_ACCESS_CODE in app.py).
 """
 
 import argparse
@@ -11,12 +12,10 @@ import sys
 import threading
 import webbrowser
 
-HOST = "127.0.0.1"
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--host", default="127.0.0.1", help="0.0.0.0 to serve other machines, e.g. in a container")
     parser.add_argument("--no-browser", action="store_true")
     parser.add_argument("--check", action="store_true", help="print the readiness checklist and exit")
     parser.add_argument("--prepare", action="store_true", help="download and warm up the models, cache the examples, exit")
@@ -47,11 +46,11 @@ def main() -> None:
 
     from truth_guardian.web.app import create_app
 
-    url = f"http://{HOST}:{args.port}"
+    url = f"http://{'127.0.0.1' if args.host == '0.0.0.0' else args.host}:{args.port}"
     if not args.no_browser:
         threading.Timer(1.5, webbrowser.open, [url]).start()
     print(f"Truth Guardian: {url}  (Ctrl+C to stop)", flush=True)
-    uvicorn.run(create_app(), host=HOST, port=args.port, log_level="warning")
+    uvicorn.run(create_app(), host=args.host, port=args.port, log_level="warning")
 
 
 if __name__ == "__main__":

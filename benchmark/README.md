@@ -14,6 +14,16 @@ kind of lie, finds the exact words, and traces an agent's error to the step wher
 Both parts come from RAGTruth **dev**, never from train or test, so a detector trained on RAGTruth train can be
 scored on them.
 
+A third part, **Challenge cases** (`challenge_cases.json`, 160 samples), covers the five harder cases the Challenge 4
+description names: 20 fictional topics, each with a faithful answer, a mixed answer (one wrong detail among correct
+sentences), an added unsupported claim, an answer that uses only part of the evidence (10 leave out an asked-for fact,
+10 drop a caveat), and the faithful answer over sources that miss the question with an honest answer as its control;
+plus 20 agent runs (an invented fact, a revised value, an outdated value kept, a hand-off between agents), each with
+a faithful twin. `[[...]]` marks the wrong words; `src/truth_guardian/data/challenge_cases.py` builds the samples
+with exact spans and steps. All its text was written for this set, so it is released in full. It was written by the
+project's AI assistant (see docs/AI_USAGE.md) and is to be reviewed by the team; a single author's style is a
+limitation. Truth Guardian's results on it are in `eval/results/challenge_cases.json` (D-110).
+
 ## What is released
 
 The source texts belong to RAGTruth's sources (MS MARCO passages, CNN/Daily Mail articles, Yelp business data),

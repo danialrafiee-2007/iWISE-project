@@ -1,11 +1,17 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { CalibrationChart, type CalibrationSeries } from "../components/CalibrationChart";
 import { Panel } from "../components/report/Panels";
 import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
-import { api, type ModelCard as Card } from "../lib/api";
+import { api, type ChallengeCases, type ModelCard as Card } from "../lib/api";
 import { KIND_LABEL, num, pct } from "../lib/format";
 
-const TASK_LABELS = { qa: "Question answering", dialogue: "Dialogue", summary: "Summarisation" } as const;
+const CALIBRATION_SERIES: Omit<CalibrationSeries, "ece" | "answers" | "bins">[] = [
+  { key: "ragtruth_dev", label: "RAGTruth dev", color: "#3987e5", label_at: { bin: 7, dx: -10, dy: -10, anchor: "end" } },
+  { key: "ragtruth_test", label: "RAGTruth test (locked)", color: "#14a38b", label_at: { bin: 4, dx: 10, dy: 18, anchor: "start" } },
+  { key: "halueval", label: "HaluEval (locked, unseen domain)", color: "#d95926", label_at: { bin: 3, dx: 0, dy: -12, anchor: "middle" } },
+];
+const TASK_LABELS ={ qa: "Question answering", dialogue: "Dialogue", summary: "Summarisation" } as const;
 const TASK_SHORT = { qa: "QA", dialogue: "Dialogue", summary: "Summary" } as const;
 
 function Stat({ value, label, note }: { value: ReactNode; label: string; note?: string }) {
@@ -15,6 +21,72 @@ function Stat({ value, label, note }: { value: ReactNode; label: string; note?: 
       <span className="text-sm text-fog-300">{label}</span>
       {note && <span className="text-xs text-fog-400">{note}</span>}
     </div>
+  );
+}
+
+function ChallengeCasesPanel({ cases }: { cases: ChallengeCases }) {
+  const { mixed, partial, unsupported, weak, agent } = cases.cases;
+  const { faithful, honest_over_weak_sources: honest, faithful_agents: agents } = cases.controls;
+  const stale = agent.by_kind.stale;
+  const rows = [
+    {
+      name: "Correct and incorrect information mixed", n: mixed.n, flagged: pct(mixed.caught), auroc: mixed.auroc_vs_faithful,
+      check: `wrong part found ${pct(mixed.wrong_part_found)}, correct parts left alone ${pct(mixed.correct_parts_kept)}`,
+      controls: `${pct(faithful.flagged)} flagged`,
+    },
+    {
+      name: "Only part of the evidence used", n: partial.n, flagged: pct(partial.caveat.caught), auroc: partial.caveat.auroc_vs_faithful,
+      check: `left-out fact reported ${pct(partial.omission.left_out_reported)}, flagged as false ${pct(partial.omission.flagged)} (${partial.omission.n} answers, nothing false in them); dropped caveat noticed ${pct(partial.caveat.noticed)}, flagged ${pct(partial.caveat.caught)} (${partial.caveat.n})`,
+      controls: `a gap reported in ${pct(faithful.completeness_reported_missing)}`,
+    },
+    {
+      name: "Claims no document supports", n: unsupported.n, flagged: pct(unsupported.caught), auroc: unsupported.auroc_vs_faithful,
+      check: `claim found ${pct(unsupported.claim_found)}, called unsupported ${pct(unsupported.called_unsupported)} (else contradicted)`,
+      controls: `${pct(faithful.flagged)} flagged`,
+    },
+    {
+      name: "Sources with low relevance or too little evidence", n: weak.n, flagged: pct(weak.caught), auroc: weak.auroc_vs_honest,
+      check: `the retriever blamed ${pct(weak.retrieval_blamed)}, else the generator`,
+      controls: `honest "the sources do not say" answers: ${pct(honest.flagged)} flagged`,
+    },
+    {
+      name: "Multi-step agents that generate or revise information", n: agent.n, flagged: pct(agent.caught), auroc: agent.auroc_answer_risk_vs_faithful,
+      check: `step where it began found ${pct(agent.exact_step)}, guardian stopped the run ${pct(agent.guardian_stopped)}`,
+      controls: `${pct(agents.flagged)} flagged, ${pct(agents.guardian_stopped)} stopped`,
+    },
+  ];
+  return (
+    <Panel title={`The challenge's five harder cases: ${cases.samples - (faithful.n + honest.n + agents.n)} written cases, each paired with a faithful answer`}>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+          <thead className="text-xs text-fog-400">
+            <tr>
+              <th className="py-2 pr-3 font-normal">Case named in the challenge</th>
+              <th className="py-2 pr-3 font-normal">Items</th>
+              <th className="py-2 pr-3 font-normal">Answer flagged</th>
+              <th className="py-2 pr-3 font-normal">What this case needs</th>
+              <th className="py-2 pr-3 font-normal">AUROC vs faithful</th>
+              <th className="py-2 font-normal">Faithful counterparts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.name} className="border-t border-white/6 align-top">
+                <td className="py-2 pr-3">{r.name}</td>
+                <td className="py-2 pr-3 font-mono text-fog-300">{r.n}</td>
+                <td className="py-2 pr-3 font-mono">{r.flagged}</td>
+                <td className="py-2 pr-3 text-fog-300">{r.check}</td>
+                <td className="py-2 pr-3 font-mono">{num(r.auroc, 3)}</td>
+                <td className="py-2 text-fog-300">{r.controls}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <span className="text-xs leading-relaxed text-fog-400">
+        {`Written for this project on fictional topics after the model was frozen, run once through the live app, nothing tuned on it (benchmark/challenge_cases.json). Weakest: an agent that keeps an outdated value after a newer tool result (${Math.round(stale.caught * stale.n)} of ${stale.n} caught), and a single wrong detail inside an otherwise correct answer, often marked on its claim but not enough to flag the whole answer.`}
+      </span>
+    </Panel>
   );
 }
 
@@ -54,6 +126,9 @@ export default function ModelCard() {
   const locked = card?.locked_test;
   const lockedBaselines = Object.entries(card?.locked_baselines ?? {}).filter(([, b]) => b.ragtruth !== undefined);
   const reference = card?.locked_reference;
+  const calibration: CalibrationSeries[] = card?.calibration
+    ? CALIBRATION_SERIES.filter((s) => card.calibration?.[s.key]).map((s) => ({ ...s, ...card.calibration![s.key] }))
+    : [];
   return (
     <div className="relative isolate">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] opacity-70 [mask:linear-gradient(180deg,#000_55%,transparent)]">
@@ -151,6 +226,22 @@ export default function ModelCard() {
             </Panel>
           )}
         </div>
+
+        {calibration.length > 0 && (
+          <Panel title="Does a risk of 0.8 mean 80%? Predicted risk against how often the answers were really hallucinated">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+              <CalibrationChart series={calibration} />
+              <div className="flex flex-col gap-3 text-sm leading-relaxed text-fog-300">
+                <p className="m-0">A point on the dashed line means the risk can be read as a probability: of the answers given a risk near 0.8, about 80% were hallucinated. Points below the line mean the risk runs high (cautious); above it, low.</p>
+                <p className="m-0">On RAGTruth, where the model was calibrated, the points stay close to the line, on dev and on the locked test. On the test the middle of the scale runs a little high, so the guardian errs on the side of caution there.</p>
+                <p className="m-0">On HaluEval, a domain it never saw, low risks are too low and high risks too high. This is why a domain profile, fitted on a few dozen labelled answers of the new domain, recalibrates the risk before the guarantees are used there.</p>
+                <span className="text-xs text-fog-400">Ten equal-width risk bins, the same as the reported calibration error (ECE). Hover a point for its numbers.</span>
+              </div>
+            </div>
+          </Panel>
+        )}
+
+        {card?.challenge_cases && <ChallengeCasesPanel cases={card.challenge_cases} />}
 
         {card?.fool_the_guardian && (
           <Panel title="Fool the Guardian: one controlled edit per answer (372 edited dev answers, 60 unedited controls)">

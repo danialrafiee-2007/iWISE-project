@@ -1,0 +1,15 @@
+.git
+.venv
+**/__pycache__
+.pytest_cache
+*.tsbuildinfo
+data/raw
+data/processed
+data/features
+data/web
+eval/predictions
+models/onnx
+models/detector
+web
+GetLayers
+deploy

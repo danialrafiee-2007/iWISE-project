@@ -1,0 +1,672 @@
+{
+  "name": "TG-Bench challenge cases",
+  "version": 1,
+  "about": "The five harder cases named in the iWISE 2026 AI Challenge 4 description, written for this project: answers mixing correct and incorrect information, answers that use only part of the evidence, claims no document supports, documents with low relevance or insufficient evidence, and multi-step agent runs that generate or revise information. Every topic, source and organisation is fictional or general knowledge written for this set; [[...]] marks the words that are wrong. Written before the set was run and never changed after.",
+  "topics": [
+    {
+      "id": "t01", "domain": "utilities",
+      "question": "When did the Halden water treatment plant open, and how much water does it treat each day?",
+      "sources": [
+        "The Halden water treatment plant opened in March 2009 on the north bank of the Vesla River. It treats about 48 million litres of water a day for roughly 120,000 residents.",
+        "The plant was built by the regional utility Nordvann at a cost of 61 million euros. An upgrade completed in 2018 added ultraviolet disinfection."
+      ],
+      "faithful": "The Halden water treatment plant opened in March 2009 on the north bank of the Vesla River. It treats about 48 million litres of water a day for roughly 120,000 residents. The regional utility Nordvann built it for 61 million euros, and a 2018 upgrade added ultraviolet disinfection.",
+      "mixed": {"kind": "number", "answer": "The Halden water treatment plant opened in March 2009 on the north bank of the Vesla River. It treats about [[84 million litres]] of water a day for roughly 120,000 residents. The regional utility Nordvann built it for 61 million euros, and a 2018 upgrade added ultraviolet disinfection."},
+      "unsupported": "The Halden water treatment plant opened in March 2009 on the north bank of the Vesla River. It treats about 48 million litres of water a day for roughly 120,000 residents. The regional utility Nordvann built it for 61 million euros, and a 2018 upgrade added ultraviolet disinfection. [[Its electricity comes entirely from solar panels on the plant's roof.]]",
+      "partial": {"kind": "omission", "answer": "The Halden water treatment plant opened in March 2009 on the north bank of the Vesla River. The regional utility Nordvann built it for 61 million euros.", "left_out": "It treats about 48 million litres of water a day for roughly 120,000 residents."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "The Haldenberg wastewater facility in Austria was modernised in 2015 and now serves several villages in the Enns valley.",
+        "Nordvann also operates a hydroelectric dam on the upper Vesla that supplies power to about 30,000 homes."
+      ], "answer": "[[The Halden water treatment plant opened in March 2009]] and [[treats about 48 million litres of water a day]].",
+        "honest": "The sources do not say when the Halden water treatment plant opened or how much water it treats. They describe the Haldenberg wastewater facility in Austria and a hydroelectric dam run by Nordvann."}
+    },
+    {
+      "id": "t02", "domain": "transport",
+      "question": "How many bikes does the Kestrel bike-share scheme have, and how much does a ride cost?",
+      "sources": [
+        "Kestrel, the bike-share scheme in the city of Larkhaven, launched in May 2021 with 1,200 bikes at 85 docking stations. By the end of 2023 the fleet had grown to 2,000 bikes.",
+        "A single ride of up to 30 minutes costs 1.50 pounds, and an annual pass costs 90 pounds. Electric bikes make up about a quarter of the fleet."
+      ],
+      "faithful": "Kestrel launched in Larkhaven in May 2021 with 1,200 bikes and had grown to 2,000 bikes by the end of 2023, about a quarter of them electric. A single ride of up to 30 minutes costs 1.50 pounds, and an annual pass costs 90 pounds.",
+      "mixed": {"kind": "date", "answer": "Kestrel launched in Larkhaven in [[May 2019]] with 1,200 bikes and had grown to 2,000 bikes by the end of 2023, about a quarter of them electric. A single ride of up to 30 minutes costs 1.50 pounds, and an annual pass costs 90 pounds."},
+      "unsupported": "Kestrel launched in Larkhaven in May 2021 with 1,200 bikes and had grown to 2,000 bikes by the end of 2023, about a quarter of them electric. A single ride of up to 30 minutes costs 1.50 pounds, and an annual pass costs 90 pounds. [[Riders under 18 travel free at weekends.]]",
+      "partial": {"kind": "omission", "answer": "Kestrel launched in Larkhaven in May 2021 with 1,200 bikes and had grown to 2,000 bikes by the end of 2023.", "left_out": "A single ride of up to 30 minutes costs 1.50 pounds, and an annual pass costs 90 pounds."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Kestrel, the bike-share scheme in Larkhaven, is run by the city council together with the transport company Velora.",
+        "The council says the scheme has reduced short car trips in the city centre and plans new stations near the university."
+      ], "answer": "Kestrel has [[2,000 bikes]], and [[a single ride costs 1.50 pounds]].",
+        "honest": "The sources do not give the number of bikes or the price of a ride. They say Kestrel is run by Larkhaven city council with the transport company Velora and that new stations are planned near the university."}
+    },
+    {
+      "id": "t03", "domain": "space",
+      "question": "When was the Lumen lunar orbiter launched, and what is its main instrument?",
+      "sources": [
+        "The Lumen lunar orbiter was launched on 14 October 2024 from the Kourou spaceport. It reached lunar orbit 23 days later.",
+        "Lumen's main instrument is a thermal imaging camera built to map ice in permanently shadowed craters near the south pole. The mission is planned to last three years."
+      ],
+      "faithful": "The Lumen lunar orbiter was launched on 14 October 2024 from the Kourou spaceport and reached lunar orbit 23 days later. Its main instrument is a thermal imaging camera that maps ice in permanently shadowed craters near the south pole, and the mission is planned to last three years.",
+      "mixed": {"kind": "place", "answer": "The Lumen lunar orbiter was launched on 14 October 2024 from [[Cape Canaveral]] and reached lunar orbit 23 days later. Its main instrument is a thermal imaging camera that maps ice in permanently shadowed craters near the south pole, and the mission is planned to last three years."},
+      "unsupported": "The Lumen lunar orbiter was launched on 14 October 2024 from the Kourou spaceport and reached lunar orbit 23 days later. Its main instrument is a thermal imaging camera that maps ice in permanently shadowed craters near the south pole, and the mission is planned to last three years. [[It also carries a small lander that will touch down in 2026.]]",
+      "partial": {"kind": "omission", "answer": "The Lumen lunar orbiter was launched on 14 October 2024 from the Kourou spaceport and reached lunar orbit 23 days later.", "left_out": "Lumen's main instrument is a thermal imaging camera built to map ice in permanently shadowed craters near the south pole."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Lumen Optics, a German company, makes infrared lenses for industrial cameras and opened a new factory in 2023.",
+        "The lunar south pole is of interest because water ice may survive in craters that never see sunlight."
+      ], "answer": "[[The Lumen lunar orbiter was launched on 14 October 2024]], and its main instrument is [[a thermal imaging camera]] for mapping ice near the south pole.",
+        "honest": "The sources do not say when the Lumen lunar orbiter was launched or what instruments it carries. One describes Lumen Optics, a German lens maker, and the other explains why ice may survive near the lunar south pole."}
+    },
+    {
+      "id": "t04", "domain": "marine science",
+      "question": "What did the study find about shading and coral bleaching?",
+      "sources": [
+        "In a 2023 field study on the Ningaloo Reef, researchers shaded 12 small coral patches with floating cloth during a marine heatwave. Shaded patches lost about 30 percent less colour than unshaded ones.",
+        "The authors cautioned that the experiment covered only a few square metres and may not scale to whole reefs. They said shading could buy time for corals but does not address rising ocean temperatures."
+      ],
+      "faithful": "In a 2023 field study on the Ningaloo Reef, 12 small coral patches shaded with floating cloth during a marine heatwave lost about 30 percent less colour than unshaded ones. The authors cautioned that the experiment covered only a few square metres and may not scale to whole reefs, and that shading could buy time but does not address rising ocean temperatures.",
+      "mixed": {"kind": "opposite", "answer": "In a 2023 field study on the Ningaloo Reef, 12 small coral patches shaded with floating cloth during a marine heatwave lost about 30 percent [[more]] colour than unshaded ones. The authors cautioned that the experiment covered only a few square metres and may not scale to whole reefs, and that shading could buy time but does not address rising ocean temperatures."},
+      "unsupported": "In a 2023 field study on the Ningaloo Reef, 12 small coral patches shaded with floating cloth during a marine heatwave lost about 30 percent less colour than unshaded ones. The authors cautioned that the experiment covered only a few square metres and may not scale to whole reefs, and that shading could buy time but does not address rising ocean temperatures. [[The Australian government has since funded shading for the entire reef.]]",
+      "partial": {"kind": "caveat", "answer": "In a 2023 field study on the Ningaloo Reef, shaded coral patches lost about 30 percent less colour than unshaded ones during a marine heatwave. [[Shading can protect whole reefs from bleaching.]]", "left_out": "The authors cautioned that the experiment covered only a few square metres and may not scale to whole reefs."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Coral bleaching happens when corals under heat stress expel the algae living in their tissue, which turns them white.",
+        "Marine heatwaves have become more frequent along the Western Australian coast over the past two decades."
+      ], "answer": "The study found that [[shaded coral patches lost about 30 percent less colour than unshaded ones]] during a marine heatwave.",
+        "honest": "The sources do not describe a study on shading. They explain that heat-stressed corals expel their algae and turn white, and that marine heatwaves have become more frequent along the Western Australian coast."}
+    },
+    {
+      "id": "t05", "domain": "health",
+      "question": "What were the results of the Dormaxil sleep trial?",
+      "sources": [
+        "Dormaxil was tested in a six-week trial of 64 adults with insomnia. Participants who took it fell asleep on average 11 minutes faster than those on a placebo.",
+        "Some participants reported next-day drowsiness. The researchers said the drug may help with short-term insomnia but that larger and longer trials are needed before it can be recommended."
+      ],
+      "faithful": "In a six-week trial of 64 adults with insomnia, participants who took Dormaxil fell asleep on average 11 minutes faster than those on a placebo. Some reported next-day drowsiness, and the researchers said the drug may help with short-term insomnia but that larger and longer trials are needed before it can be recommended.",
+      "mixed": {"kind": "number", "answer": "In a six-week trial of 64 adults with insomnia, participants who took Dormaxil fell asleep on average [[25 minutes]] faster than those on a placebo. Some reported next-day drowsiness, and the researchers said the drug may help with short-term insomnia but that larger and longer trials are needed before it can be recommended."},
+      "unsupported": "In a six-week trial of 64 adults with insomnia, participants who took Dormaxil fell asleep on average 11 minutes faster than those on a placebo. Some reported next-day drowsiness, and the researchers said the drug may help with short-term insomnia but that larger and longer trials are needed before it can be recommended. [[The drug was approved for sale in Europe in 2024.]]",
+      "partial": {"kind": "caveat", "answer": "In a six-week trial of 64 adults with insomnia, participants who took Dormaxil fell asleep on average 11 minutes faster than those on a placebo. [[The drug is an effective treatment for insomnia.]]", "left_out": "The researchers said the drug may help with short-term insomnia but that larger and longer trials are needed before it can be recommended."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Dormax is a brand of memory-foam mattress sold in Scandinavia since 2012.",
+        "Insomnia affects roughly one adult in ten and is more common in older people."
+      ], "answer": "In the Dormaxil trial, [[participants fell asleep on average 11 minutes faster than those on a placebo]], and [[some reported next-day drowsiness]].",
+        "honest": "The sources do not contain results of a Dormaxil trial. One is about Dormax mattresses, and the other says insomnia affects roughly one adult in ten."}
+    },
+    {
+      "id": "t06", "domain": "business",
+      "question": "How did Corvane Foods perform in the third quarter of 2024?",
+      "sources": [
+        "Corvane Foods reported third-quarter 2024 revenue of 412 million dollars, up 6 percent from a year earlier. Net profit fell to 18 million dollars from 25 million dollars.",
+        "The company blamed the lower profit on higher cocoa and sugar prices. It kept its full-year revenue forecast unchanged."
+      ],
+      "faithful": "Corvane Foods reported third-quarter 2024 revenue of 412 million dollars, up 6 percent from a year earlier, while net profit fell to 18 million dollars from 25 million dollars. The company blamed higher cocoa and sugar prices for the lower profit and kept its full-year revenue forecast unchanged.",
+      "mixed": {"kind": "opposite", "answer": "Corvane Foods reported third-quarter 2024 revenue of 412 million dollars, up 6 percent from a year earlier, while net profit fell to 18 million dollars from 25 million dollars. The company blamed higher cocoa and sugar prices for the lower profit and [[raised its full-year revenue forecast]]."},
+      "unsupported": "Corvane Foods reported third-quarter 2024 revenue of 412 million dollars, up 6 percent from a year earlier, while net profit fell to 18 million dollars from 25 million dollars. The company blamed higher cocoa and sugar prices for the lower profit and kept its full-year revenue forecast unchanged. [[It also announced plans to close two factories in Ohio.]]",
+      "partial": {"kind": "omission", "answer": "Corvane Foods reported third-quarter 2024 revenue of 412 million dollars, up 6 percent from a year earlier, and kept its full-year revenue forecast unchanged.", "left_out": "Net profit fell to 18 million dollars from 25 million dollars."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Corvane Foods, based in Ohio, makes chocolate bars and breakfast cereals sold in 30 countries.",
+        "The company will publish its third-quarter results on 24 October."
+      ], "answer": "In the third quarter of 2024, Corvane Foods reported [[revenue of 412 million dollars, up 6 percent]], while [[net profit fell to 18 million dollars]].",
+        "honest": "The sources do not give Corvane Foods' third-quarter results. They say the Ohio company makes chocolate bars and cereals sold in 30 countries and would publish its results on 24 October."}
+    },
+    {
+      "id": "t07", "domain": "history",
+      "question": "When was the Treaty of Varn signed, and what did it settle?",
+      "sources": [
+        "The Treaty of Varn was signed on 3 June 1761 by the kingdoms of Esland and Morvia. It ended a seven-year border war over the Tarrow valley.",
+        "Under the treaty, the Tarrow valley was divided along the river, with Esland taking the northern bank. Morvia also received fishing rights on the lower river."
+      ],
+      "faithful": "The Treaty of Varn was signed on 3 June 1761 by Esland and Morvia, ending a seven-year border war over the Tarrow valley. It divided the valley along the river, giving Esland the northern bank, and gave Morvia fishing rights on the lower river.",
+      "mixed": {"kind": "roles", "answer": "The Treaty of Varn was signed on 3 June 1761 by Esland and Morvia, ending a seven-year border war over the Tarrow valley. It divided the valley along the river, giving [[Morvia]] the northern bank, and gave [[Esland]] fishing rights on the lower river."},
+      "unsupported": "The Treaty of Varn was signed on 3 June 1761 by Esland and Morvia, ending a seven-year border war over the Tarrow valley. It divided the valley along the river, giving Esland the northern bank, and gave Morvia fishing rights on the lower river. [[The treaty was negotiated by an envoy of the Pope in Rome.]]",
+      "partial": {"kind": "omission", "answer": "The Treaty of Varn was signed on 3 June 1761 by Esland and Morvia, ending a seven-year border war over the Tarrow valley.", "left_out": "Under the treaty, the Tarrow valley was divided along the river, with Esland taking the northern bank."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Varn is a small fishing town on the Esland coast, known for its 15th-century harbour wall.",
+        "Seven-year wars were common in eighteenth-century Europe, and many ended with treaties that redrew borders."
+      ], "answer": "[[The Treaty of Varn was signed on 3 June 1761]] and [[settled a border war over the Tarrow valley]] by [[dividing the valley along the river]].",
+        "honest": "The sources do not say when the Treaty of Varn was signed or what it settled. They describe the town of Varn and note that many eighteenth-century wars ended with treaties that redrew borders."}
+    },
+    {
+      "id": "t08", "domain": "sport",
+      "question": "Who won the 2024 Harbour Cup final, and what was the score?",
+      "sources": [
+        "The 2024 Harbour Cup final was played on 18 May at Gallen Park in front of 31,000 spectators. Rovane City beat Eastmere Athletic 3-1.",
+        "Rovane City's captain Lena Dorsey scored twice. It was the club's first Harbour Cup title since 1998."
+      ],
+      "faithful": "Rovane City won the 2024 Harbour Cup final, beating Eastmere Athletic 3-1 on 18 May at Gallen Park in front of 31,000 spectators. Captain Lena Dorsey scored twice, and it was the club's first Harbour Cup title since 1998.",
+      "mixed": {"kind": "roles", "answer": "[[Eastmere Athletic]] won the 2024 Harbour Cup final, beating [[Rovane City]] 3-1 on 18 May at Gallen Park in front of 31,000 spectators. Captain Lena Dorsey scored twice, and it was the club's first Harbour Cup title since 1998."},
+      "unsupported": "Rovane City won the 2024 Harbour Cup final, beating Eastmere Athletic 3-1 on 18 May at Gallen Park in front of 31,000 spectators. Captain Lena Dorsey scored twice, and it was the club's first Harbour Cup title since 1998. [[The match went to extra time after a 1-1 draw.]]",
+      "partial": {"kind": "omission", "answer": "Rovane City won the 2024 Harbour Cup final, played on 18 May at Gallen Park in front of 31,000 spectators. It was the club's first Harbour Cup title since 1998.", "left_out": "Rovane City beat Eastmere Athletic 3-1."},
+      "weak": {"kind": "insufficient", "sources": [
+        "The Harbour Cup is a knockout football competition for clubs from the northern coastal league, first held in 1952.",
+        "The 2024 final was scheduled for 18 May at Gallen Park."
+      ], "answer": "[[Rovane City won the 2024 Harbour Cup final]], [[beating Eastmere Athletic 3-1]].",
+        "honest": "The sources do not say who won the 2024 Harbour Cup final or what the score was. They only say the final was scheduled for 18 May at Gallen Park and that the cup was first held in 1952."}
+    },
+    {
+      "id": "t09", "domain": "biology",
+      "question": "What did the researchers find about the pesticide and honeybees?",
+      "sources": [
+        "In laboratory tests, honeybees exposed to low doses of the pesticide trimexalin took about 20 percent longer to find their way back to the hive. The tests used 400 bees from three colonies.",
+        "The researchers said the effect was seen only in the lab and might be smaller in the field, where bees are exposed to lower doses. They called for field studies before any change to regulations."
+      ],
+      "faithful": "In laboratory tests on 400 bees from three colonies, honeybees exposed to low doses of trimexalin took about 20 percent longer to find their way back to the hive. The researchers said the effect was seen only in the lab and might be smaller in the field, and they called for field studies before any change to regulations.",
+      "mixed": {"kind": "number", "answer": "In laboratory tests on 400 bees from [[thirty colonies]], honeybees exposed to low doses of trimexalin took about 20 percent longer to find their way back to the hive. The researchers said the effect was seen only in the lab and might be smaller in the field, and they called for field studies before any change to regulations."},
+      "unsupported": "In laboratory tests on 400 bees from three colonies, honeybees exposed to low doses of trimexalin took about 20 percent longer to find their way back to the hive. The researchers said the effect was seen only in the lab and might be smaller in the field, and they called for field studies before any change to regulations. [[France banned trimexalin shortly after the study.]]",
+      "partial": {"kind": "caveat", "answer": "In laboratory tests on 400 bees, honeybees exposed to low doses of trimexalin took about 20 percent longer to find their way back to the hive. [[The pesticide is harming honeybee colonies in the wild.]]", "left_out": "The researchers said the effect was seen only in the lab and might be smaller in the field, where bees are exposed to lower doses."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Trimexal is an antifungal cream sold without prescription for treating athlete's foot.",
+        "Honeybees use the position of the sun and landmarks to navigate between flowers and their hive."
+      ], "answer": "The researchers found that [[bees exposed to low doses of the pesticide took about 20 percent longer to find their way back to the hive]].",
+        "honest": "The sources do not report findings about the pesticide. One describes Trimexal, an antifungal cream, and the other explains that honeybees navigate using the sun and landmarks."}
+    },
+    {
+      "id": "t10", "domain": "culture",
+      "question": "How many items has the Ashcombe Library digitised, and when will the project finish?",
+      "sources": [
+        "Since 2020 the Ashcombe Library has digitised about 85,000 maps, letters and photographs from its local history collection. The work is funded by a 2.4 million pound grant from the Heritage Trust.",
+        "The library expects to finish the project in 2027, when the remaining 40,000 items will be online. All digitised items are free to view on its website."
+      ],
+      "faithful": "Since 2020 the Ashcombe Library has digitised about 85,000 maps, letters and photographs, funded by a 2.4 million pound Heritage Trust grant. It expects to finish the project in 2027, when the remaining 40,000 items will be online, and all digitised items are free to view on its website.",
+      "mixed": {"kind": "date", "answer": "Since 2020 the Ashcombe Library has digitised about 85,000 maps, letters and photographs, funded by a 2.4 million pound Heritage Trust grant. It expects to finish the project in [[2025]], when the remaining 40,000 items will be online, and all digitised items are free to view on its website."},
+      "unsupported": "Since 2020 the Ashcombe Library has digitised about 85,000 maps, letters and photographs, funded by a 2.4 million pound Heritage Trust grant. It expects to finish the project in 2027, when the remaining 40,000 items will be online, and all digitised items are free to view on its website. [[Most of the scanning is done by volunteers from the local university.]]",
+      "partial": {"kind": "omission", "answer": "Since 2020 the Ashcombe Library has digitised about 85,000 maps, letters and photographs, funded by a 2.4 million pound Heritage Trust grant.", "left_out": "The library expects to finish the project in 2027, when the remaining 40,000 items will be online."},
+      "weak": {"kind": "insufficient", "sources": [
+        "The Ashcombe Library holds the largest local history collection in the county, including maps dating back to 1640.",
+        "Its reading room reopened in 2022 after a renovation."
+      ], "answer": "The Ashcombe Library has [[digitised about 85,000 items]] and [[expects to finish the project in 2027]].",
+        "honest": "The sources do not say how many items the Ashcombe Library has digitised or when the project will finish. They say it holds the county's largest local history collection, with maps from 1640, and that its reading room reopened in 2022."}
+    },
+    {
+      "id": "t11", "domain": "work",
+      "question": "What did the survey find about remote work and productivity?",
+      "sources": [
+        "A 2024 survey of 2,300 office workers in Denmark by the Copenhagen Institute for Work Studies found that 58 percent of those working from home at least two days a week said they got more done. Managers rated productivity as unchanged on average.",
+        "The authors noted that the results are self-reported and that workers who chose remote work may differ from those who did not. They said the survey cannot show that remote work causes higher productivity."
+      ],
+      "faithful": "A 2024 survey of 2,300 Danish office workers found that 58 percent of those working from home at least two days a week said they got more done, while managers rated productivity as unchanged on average. The authors noted that the results are self-reported and cannot show that remote work causes higher productivity.",
+      "mixed": {"kind": "opposite", "answer": "A 2024 survey of 2,300 Danish office workers found that 58 percent of those working from home at least two days a week said they got more done, while managers rated productivity as [[higher]] on average. The authors noted that the results are self-reported and cannot show that remote work causes higher productivity."},
+      "unsupported": "A 2024 survey of 2,300 Danish office workers found that 58 percent of those working from home at least two days a week said they got more done, while managers rated productivity as unchanged on average. The authors noted that the results are self-reported and cannot show that remote work causes higher productivity. [[Most of the workers surveyed were employed in banking.]]",
+      "partial": {"kind": "caveat", "answer": "A 2024 survey of 2,300 Danish office workers found that 58 percent of those working from home at least two days a week said they got more done. [[Remote work makes office workers more productive.]]", "left_out": "They said the survey cannot show that remote work causes higher productivity."},
+      "weak": {"kind": "insufficient", "sources": [
+        "The Copenhagen Institute for Work Studies was founded in 1987 and publishes an annual report on working hours.",
+        "Many Danish companies introduced flexible working hours in the 1990s."
+      ], "answer": "The survey found that [[58 percent of remote workers said they got more done]], while [[managers rated productivity as unchanged]].",
+        "honest": "The sources do not report the survey's findings. They say the Copenhagen Institute for Work Studies was founded in 1987 and that many Danish companies introduced flexible hours in the 1990s."}
+    },
+    {
+      "id": "t12", "domain": "geology",
+      "question": "When did Mount Teral last erupt, and how many people were evacuated?",
+      "sources": [
+        "Mount Teral, a volcano on the island of Sorrel, last erupted on 2 February 2022. Ash rose about 9 kilometres into the air and closed the island's airport for four days.",
+        "Authorities evacuated about 6,500 people from villages within 10 kilometres of the summit. Nobody was killed."
+      ],
+      "faithful": "Mount Teral last erupted on 2 February 2022, sending ash about 9 kilometres into the air and closing Sorrel's airport for four days. About 6,500 people were evacuated from villages within 10 kilometres of the summit, and nobody was killed.",
+      "mixed": {"kind": "negation", "answer": "Mount Teral last erupted on 2 February 2022, sending ash about 9 kilometres into the air and closing Sorrel's airport for four days. About 6,500 people were evacuated from villages within 10 kilometres of the summit, and [[several people were killed]]."},
+      "unsupported": "Mount Teral last erupted on 2 February 2022, sending ash about 9 kilometres into the air and closing Sorrel's airport for four days. About 6,500 people were evacuated from villages within 10 kilometres of the summit, and nobody was killed. [[Seismic sensors had predicted the eruption a week in advance.]]",
+      "partial": {"kind": "omission", "answer": "Mount Teral last erupted on 2 February 2022, sending ash about 9 kilometres into the air and closing Sorrel's airport for four days.", "left_out": "Authorities evacuated about 6,500 people from villages within 10 kilometres of the summit."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Mount Teral is a 2,100-metre volcano on the island of Sorrel and is one of the most active in the region.",
+        "Volcanologists monitor it with seismometers and gas sensors."
+      ], "answer": "Mount Teral [[last erupted on 2 February 2022]], and [[about 6,500 people were evacuated]].",
+        "honest": "The sources do not say when Mount Teral last erupted or how many people were evacuated. They describe it as a 2,100-metre volcano on Sorrel, one of the region's most active, monitored with seismometers and gas sensors."}
+    },
+    {
+      "id": "t13", "domain": "health",
+      "question": "Does vitamin D prevent colds, according to the review?",
+      "sources": [
+        "A 2022 review pooled 25 trials with about 11,000 participants. People taking daily vitamin D supplements had slightly fewer respiratory infections than those taking a placebo.",
+        "The benefit was seen mainly in people who had low vitamin D levels at the start. The reviewers said the evidence was moderate and that the effect in people with normal levels was small or absent."
+      ],
+      "faithful": "A 2022 review of 25 trials with about 11,000 participants found that daily vitamin D supplements led to slightly fewer respiratory infections than a placebo. The benefit was seen mainly in people with low vitamin D levels at the start, and the reviewers rated the evidence as moderate, with little or no effect in people with normal levels.",
+      "mixed": {"kind": "opposite", "answer": "A 2022 review of 25 trials with about 11,000 participants found that daily vitamin D supplements led to slightly fewer respiratory infections than a placebo. The benefit was seen mainly in people with [[high]] vitamin D levels at the start, and the reviewers rated the evidence as moderate, with little or no effect in people with normal levels."},
+      "unsupported": "A 2022 review of 25 trials with about 11,000 participants found that daily vitamin D supplements led to slightly fewer respiratory infections than a placebo. The benefit was seen mainly in people with low vitamin D levels at the start, and the reviewers rated the evidence as moderate, with little or no effect in people with normal levels. [[The reviewers recommended 4,000 units a day for everyone.]]",
+      "partial": {"kind": "caveat", "answer": "A 2022 review of 25 trials with about 11,000 participants found that [[daily vitamin D supplements prevent colds]].", "left_out": "The benefit was seen mainly in people who had low vitamin D levels at the start."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Vitamin D is made in the skin when it is exposed to sunlight, and levels often fall in winter.",
+        "The common cold is caused by more than 200 different viruses."
+      ], "answer": "According to the review, [[daily vitamin D supplements slightly reduced respiratory infections]], [[mainly in people with low levels at the start]].",
+        "honest": "The sources do not describe the review or its findings. They explain that vitamin D is made in the skin in sunlight, with levels often falling in winter, and that colds are caused by more than 200 viruses."}
+    },
+    {
+      "id": "t14", "domain": "transport",
+      "question": "How many electric buses does Brenmoor run, and how far can they travel on one charge?",
+      "sources": [
+        "The city of Brenmoor now runs 140 electric buses, about half of its fleet. The last diesel buses are due to be retired in 2028.",
+        "Each bus can travel about 250 kilometres on a single charge, enough for a full day's service. They are charged overnight at two depots."
+      ],
+      "faithful": "Brenmoor now runs 140 electric buses, about half of its fleet, and plans to retire its last diesel buses in 2028. Each can travel about 250 kilometres on a single charge, enough for a full day's service, and they are charged overnight at two depots.",
+      "mixed": {"kind": "number", "answer": "Brenmoor now runs 140 electric buses, about half of its fleet, and plans to retire its last diesel buses in 2028. Each can travel about [[520 kilometres]] on a single charge, enough for a full day's service, and they are charged overnight at two depots."},
+      "unsupported": "Brenmoor now runs 140 electric buses, about half of its fleet, and plans to retire its last diesel buses in 2028. Each can travel about 250 kilometres on a single charge, enough for a full day's service, and they are charged overnight at two depots. [[The buses were built at a factory in the city's harbour district.]]",
+      "partial": {"kind": "omission", "answer": "Brenmoor now runs 140 electric buses, about half of its fleet, and plans to retire its last diesel buses in 2028.", "left_out": "Each bus can travel about 250 kilometres on a single charge, enough for a full day's service."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Brenmoor's transport authority says its electric buses have cut noise on the busiest routes.",
+        "Bus fares in the city were frozen for 2025."
+      ], "answer": "Brenmoor runs [[140 electric buses]], and [[each can travel about 250 kilometres on one charge]].",
+        "honest": "The sources do not give the number of electric buses or their range. They say the buses have cut noise on Brenmoor's busiest routes and that fares were frozen for 2025."}
+    },
+    {
+      "id": "t15", "domain": "archaeology",
+      "question": "What did divers find off Cape Sallow, and how old is it?",
+      "sources": [
+        "Divers found the wreck of a wooden merchant ship at a depth of 42 metres off Cape Sallow in 2023. Its cargo included about 300 clay jars.",
+        "Archaeologists believe the ship probably sank in the 4th century BC, based on the style of the jars, but they said radiocarbon dating of the hull is still under way."
+      ],
+      "faithful": "In 2023 divers found the wreck of a wooden merchant ship, carrying about 300 clay jars, at a depth of 42 metres off Cape Sallow. Based on the style of the jars, archaeologists believe it probably sank in the 4th century BC, but radiocarbon dating of the hull is still under way.",
+      "mixed": {"kind": "entity", "answer": "In 2023 divers found the wreck of an [[iron]] merchant ship, carrying about 300 clay jars, at a depth of 42 metres off Cape Sallow. Based on the style of the jars, archaeologists believe it probably sank in the 4th century BC, but radiocarbon dating of the hull is still under way."},
+      "unsupported": "In 2023 divers found the wreck of a wooden merchant ship, carrying about 300 clay jars, at a depth of 42 metres off Cape Sallow. Based on the style of the jars, archaeologists believe it probably sank in the 4th century BC, but radiocarbon dating of the hull is still under way. [[The jars were filled with wine from Rhodes.]]",
+      "partial": {"kind": "caveat", "answer": "In 2023 divers found the wreck of a wooden merchant ship carrying about 300 clay jars off Cape Sallow. [[The ship sank in the 4th century BC.]]", "left_out": "Archaeologists believe the ship probably sank in the 4th century BC, based on the style of the jars, but they said radiocarbon dating of the hull is still under way."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Cape Sallow lighthouse was built in 1868 and is still in use.",
+        "Clay jars called amphorae were used across the ancient Mediterranean to carry wine and olive oil."
+      ], "answer": "Divers found [[the wreck of a wooden merchant ship carrying about 300 clay jars]], which [[probably sank in the 4th century BC]].",
+        "honest": "The sources do not describe a find off Cape Sallow or its age. They say the Cape Sallow lighthouse dates from 1868 and that amphorae carried wine and olive oil around the ancient Mediterranean."}
+    },
+    {
+      "id": "t16", "domain": "technology",
+      "question": "When did Halcyon Labs release Orin-2, and how big is the model?",
+      "sources": [
+        "Halcyon Labs released its language model Orin-2 on 9 September 2025. The model has 34 billion parameters.",
+        "Orin-2 was trained on about 6 trillion words of text and code. It is available under an open licence for research and commercial use."
+      ],
+      "faithful": "Halcyon Labs released its language model Orin-2 on 9 September 2025. It has 34 billion parameters, was trained on about 6 trillion words of text and code, and is available under an open licence for research and commercial use.",
+      "mixed": {"kind": "number", "answer": "Halcyon Labs released its language model Orin-2 on 9 September 2025. It has [[43 billion parameters]], was trained on about 6 trillion words of text and code, and is available under an open licence for research and commercial use."},
+      "unsupported": "Halcyon Labs released its language model Orin-2 on 9 September 2025. It has 34 billion parameters, was trained on about 6 trillion words of text and code, and is available under an open licence for research and commercial use. [[It outperformed every other open model on maths benchmarks.]]",
+      "partial": {"kind": "omission", "answer": "Halcyon Labs released its language model Orin-2 on 9 September 2025. It is available under an open licence for research and commercial use.", "left_out": "The model has 34 billion parameters."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Halcyon Labs is an AI research company based in Toronto, founded in 2019.",
+        "Its first model, Orin, was released in 2023."
+      ], "answer": "Halcyon Labs [[released Orin-2 on 9 September 2025]], and [[the model has 34 billion parameters]].",
+        "honest": "The sources do not say when Orin-2 was released or how big it is. They say Halcyon Labs is a Toronto AI company founded in 2019 and that its first model, Orin, came out in 2023."}
+    },
+    {
+      "id": "t17", "domain": "education",
+      "question": "What did the evaluation of the free school meals programme find?",
+      "sources": [
+        "An evaluation of the free school meals pilot in 40 primary schools in the Dunmore district found that pupils' attendance rose by 1.8 percentage points over two years. Reading scores improved slightly.",
+        "The evaluators said the improvement in reading was not statistically significant. They also noted that other changes in the schools during the pilot may have contributed to the higher attendance."
+      ],
+      "faithful": "The evaluation of the free school meals pilot in 40 Dunmore primary schools found that attendance rose by 1.8 percentage points over two years and reading scores improved slightly. The evaluators said the reading improvement was not statistically significant and that other changes in the schools may have contributed to the higher attendance.",
+      "mixed": {"kind": "number", "answer": "The evaluation of the free school meals pilot in 40 Dunmore primary schools found that attendance rose by [[18 percentage points]] over two years and reading scores improved slightly. The evaluators said the reading improvement was not statistically significant and that other changes in the schools may have contributed to the higher attendance."},
+      "unsupported": "The evaluation of the free school meals pilot in 40 Dunmore primary schools found that attendance rose by 1.8 percentage points over two years and reading scores improved slightly. The evaluators said the reading improvement was not statistically significant and that other changes in the schools may have contributed to the higher attendance. [[The pilot cost about 3 million pounds a year.]]",
+      "partial": {"kind": "caveat", "answer": "The evaluation of the free school meals pilot in 40 Dunmore primary schools found that attendance rose by 1.8 percentage points over two years. [[The free meals also raised pupils' reading scores.]]", "left_out": "The evaluators said the improvement in reading was not statistically significant."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Dunmore district council runs 52 primary schools and 9 secondary schools.",
+        "School meals in the district are cooked on site in most schools."
+      ], "answer": "The evaluation found that [[attendance rose by 1.8 percentage points over two years]] and [[reading scores improved slightly]].",
+        "honest": "The sources do not report the evaluation's findings. They say Dunmore district council runs 52 primary and 9 secondary schools and that most cook meals on site."}
+    },
+    {
+      "id": "t18", "domain": "infrastructure",
+      "question": "When will the Saltmarsh Bridge open, and how long is it designed to last?",
+      "sources": [
+        "Construction of the 1.4-kilometre Saltmarsh Bridge began in 2022, and the bridge is scheduled to open to traffic in late 2026.",
+        "Engineers designed the bridge for a service life of 100 years, although they said this assumes regular maintenance of the steel cables. The project's budget is 780 million euros."
+      ],
+      "faithful": "Construction of the 1.4-kilometre Saltmarsh Bridge began in 2022, and it is scheduled to open to traffic in late 2026. It is designed for a service life of 100 years, assuming regular maintenance of its steel cables, and the project's budget is 780 million euros.",
+      "mixed": {"kind": "date", "answer": "Construction of the 1.4-kilometre Saltmarsh Bridge began in 2022, and it is scheduled to open to traffic in [[early 2025]]. It is designed for a service life of 100 years, assuming regular maintenance of its steel cables, and the project's budget is 780 million euros."},
+      "unsupported": "Construction of the 1.4-kilometre Saltmarsh Bridge began in 2022, and it is scheduled to open to traffic in late 2026. It is designed for a service life of 100 years, assuming regular maintenance of its steel cables, and the project's budget is 780 million euros. [[It will carry a light railway line as well as cars.]]",
+      "partial": {"kind": "caveat", "answer": "Construction of the 1.4-kilometre Saltmarsh Bridge began in 2022, and it is scheduled to open to traffic in late 2026. [[It is guaranteed to last 100 years.]]", "left_out": "Engineers designed the bridge for a service life of 100 years, although they said this assumes regular maintenance of the steel cables."},
+      "weak": {"kind": "insufficient", "sources": [
+        "The Saltmarsh Bridge will link the port of Wexley with the island of Carrow.",
+        "Local residents have campaigned for a bridge since the ferry service was cut in 2015."
+      ], "answer": "The Saltmarsh Bridge [[will open in late 2026]] and [[is designed to last 100 years]].",
+        "honest": "The sources do not say when the Saltmarsh Bridge will open or how long it is designed to last. They say it will link the port of Wexley with the island of Carrow and that residents have campaigned for it since the ferry was cut in 2015."}
+    },
+    {
+      "id": "t19", "domain": "energy",
+      "question": "What did the lab report about the new sodium-ion battery?",
+      "sources": [
+        "Researchers at Tervik University reported a sodium-ion battery cell that kept 92 percent of its capacity after 3,000 charge cycles. Its energy density was about 160 watt-hours per kilogram.",
+        "The results come from small laboratory cells. The team said it has not yet tested larger cells and that mass production could be several years away."
+      ],
+      "faithful": "Researchers at Tervik University reported a sodium-ion battery cell that kept 92 percent of its capacity after 3,000 charge cycles, with an energy density of about 160 watt-hours per kilogram. The results come from small laboratory cells, and the team said it has not yet tested larger cells and that mass production could be several years away.",
+      "mixed": {"kind": "number", "answer": "Researchers at Tervik University reported a sodium-ion battery cell that kept 92 percent of its capacity after [[30,000 charge cycles]], with an energy density of about 160 watt-hours per kilogram. The results come from small laboratory cells, and the team said it has not yet tested larger cells and that mass production could be several years away."},
+      "unsupported": "Researchers at Tervik University reported a sodium-ion battery cell that kept 92 percent of its capacity after 3,000 charge cycles, with an energy density of about 160 watt-hours per kilogram. The results come from small laboratory cells, and the team said it has not yet tested larger cells and that mass production could be several years away. [[A carmaker has already ordered the batteries for its next model.]]",
+      "partial": {"kind": "caveat", "answer": "Researchers at Tervik University reported a sodium-ion battery cell that kept 92 percent of its capacity after 3,000 charge cycles. [[The battery is ready to replace lithium-ion batteries in electric cars.]]", "left_out": "The team said it has not yet tested larger cells and that mass production could be several years away."},
+      "weak": {"kind": "low_relevance", "sources": [
+        "Tervik University was founded in 1911 and has about 18,000 students.",
+        "Sodium is far more abundant than lithium and is found in seawater and rock salt."
+      ], "answer": "The lab reported a sodium-ion cell that [[kept 92 percent of its capacity after 3,000 charge cycles]], with [[an energy density of about 160 watt-hours per kilogram]].",
+        "honest": "The sources do not describe the battery or the lab's results. They say Tervik University was founded in 1911 and has about 18,000 students, and that sodium is far more abundant than lithium."}
+    },
+    {
+      "id": "t20", "domain": "biology",
+      "question": "What did the tracking study show about Arctic tern migration?",
+      "sources": [
+        "Researchers fitted 24 Arctic terns from a colony in Iceland with light-weight geolocators. The birds flew on average about 70,000 kilometres a year between their breeding and wintering grounds.",
+        "Only 11 of the devices were recovered, so the authors said the figures may not represent the whole colony. Most tracked birds paused for several weeks in the North Atlantic before heading south."
+      ],
+      "faithful": "Researchers fitted 24 Arctic terns from an Icelandic colony with geolocators and found that the birds flew on average about 70,000 kilometres a year, with most pausing for several weeks in the North Atlantic before heading south. Only 11 of the devices were recovered, so the authors said the figures may not represent the whole colony.",
+      "mixed": {"kind": "place", "answer": "Researchers fitted 24 Arctic terns from an Icelandic colony with geolocators and found that the birds flew on average about 70,000 kilometres a year, with most pausing for several weeks in the [[South Pacific]] before heading south. Only 11 of the devices were recovered, so the authors said the figures may not represent the whole colony."},
+      "unsupported": "Researchers fitted 24 Arctic terns from an Icelandic colony with geolocators and found that the birds flew on average about 70,000 kilometres a year, with most pausing for several weeks in the North Atlantic before heading south. Only 11 of the devices were recovered, so the authors said the figures may not represent the whole colony. [[The oldest bird tracked was 30 years old.]]",
+      "partial": {"kind": "caveat", "answer": "Researchers fitted 24 Arctic terns from an Icelandic colony with geolocators and found that [[the colony's terns fly on average about 70,000 kilometres a year]].", "left_out": "Only 11 of the devices were recovered, so the authors said the figures may not represent the whole colony."},
+      "weak": {"kind": "insufficient", "sources": [
+        "Arctic terns breed in the Arctic and spend the northern winter near Antarctica.",
+        "The Icelandic colony studied is one of the largest in Europe."
+      ], "answer": "The study showed that [[the terns flew on average about 70,000 kilometres a year]] and that [[most paused for several weeks in the North Atlantic]].",
+        "honest": "The sources do not report the tracking study's results. They say Arctic terns breed in the Arctic and winter near Antarctica, and that the Icelandic colony studied is one of Europe's largest."}
+    }
+  ],
+  "agents": [
+    {
+      "id": "a01", "kind": "generate", "question": "Who designed the Oskar Pavilion, and when did it open?",
+      "steps": [
+        {"kind": "action", "content": "search('Oskar Pavilion architect')", "observation": "The Oskar Pavilion in Lindby was designed by the architect Maren Holt and is known for its timber roof."},
+        {"kind": "thought", "content": "The architect was Maren Holt. I still need the opening date."},
+        {"kind": "action", "content": "search('Oskar Pavilion opening')", "observation": "No results were found about the opening of the Oskar Pavilion."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "I could not find the opening date, so I will say it is not in the results."},
+        {"kind": "answer", "content": "The Oskar Pavilion was designed by the architect Maren Holt. The search results do not give its opening date."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "The pavilion opened in 1998."},
+        {"kind": "answer", "content": "The Oskar Pavilion was designed by the architect Maren Holt and [[opened in 1998]]."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a02", "kind": "generate", "question": "What is the population of Kerrow, and which river runs through it?",
+      "steps": [
+        {"kind": "action", "content": "search('Kerrow population')", "observation": "Kerrow is a market town with a population of 14,200 according to the 2021 census."},
+        {"kind": "action", "content": "search('Kerrow river')", "observation": "Kerrow lies in a valley in the eastern hills and is known for its weekly cattle market."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The second result does not name a river, so I cannot say which river runs through Kerrow."},
+        {"kind": "answer", "content": "Kerrow has a population of 14,200 according to the 2021 census. The search results do not name a river running through it."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "Kerrow lies in a valley, so it must be on the River Aske."},
+        {"kind": "answer", "content": "Kerrow has a population of 14,200 according to the 2021 census, and [[the River Aske runs through it]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a03", "kind": "generate", "question": "What does the Velta app do, and how much does it cost?",
+      "steps": [
+        {"kind": "action", "content": "read('velta.example/about')", "observation": "Velta is a budgeting app that sorts bank transactions into categories and warns users before bills are due."},
+        {"kind": "action", "content": "read('velta.example/pricing')", "observation": "Error 404: page not found."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The pricing page failed to load, so I do not know the price."},
+        {"kind": "answer", "content": "Velta is a budgeting app that sorts bank transactions into categories and warns users before bills are due. Its price could not be found because the pricing page did not load."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "The pricing page did not load, but budgeting apps like this usually cost 4.99 dollars a month."},
+        {"kind": "answer", "content": "Velta is a budgeting app that sorts bank transactions into categories and warns users before bills are due, and [[it costs 4.99 dollars a month]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a04", "kind": "generate", "question": "Which company makes the Corin X3 drone, and what is its flight time?",
+      "steps": [
+        {"kind": "action", "content": "search('Corin X3 drone')", "observation": "The Corin X3 is a folding camera drone made by the Danish company Aerovik."},
+        {"kind": "action", "content": "search('Corin X3 flight time')", "observation": "The Corin X3 weighs 249 grams and records 4K video."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The results give the weight and video quality but no flight time."},
+        {"kind": "answer", "content": "The Corin X3 is a folding camera drone made by the Danish company Aerovik. It weighs 249 grams and records 4K video, but the results do not give its flight time."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "Drones of this weight typically fly for about 34 minutes, so I will use that."},
+        {"kind": "answer", "content": "The Corin X3 is a folding camera drone made by the Danish company Aerovik, with [[a flight time of about 34 minutes]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a05", "kind": "generate", "question": "When was the Grey Heron Inn built, and who owns it now?",
+      "steps": [
+        {"kind": "action", "content": "search('Grey Heron Inn history')", "observation": "The Grey Heron Inn on the Hollin road was built in 1734 as a coaching inn."},
+        {"kind": "thought", "content": "It was built in 1734. Now I need the current owner."},
+        {"kind": "action", "content": "search('Grey Heron Inn owner')", "observation": "The Grey Heron Inn reopened in 2020 after a restoration and serves food every day."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The results do not say who owns the inn now."},
+        {"kind": "answer", "content": "The Grey Heron Inn was built in 1734 as a coaching inn. It reopened in 2020 after a restoration, but the results do not say who owns it now."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "The restoration was carried out by the brewery Calder and Sons, so they own it."},
+        {"kind": "answer", "content": "The Grey Heron Inn was built in 1734 as a coaching inn and is now owned by [[the brewery Calder and Sons]]."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a06", "kind": "revise", "question": "How tall is the Merrow Tower?",
+      "steps": [
+        {"kind": "action", "content": "search('Merrow Tower height')", "observation": "The Merrow Tower in Fenport is 212 metres tall and has 58 floors."},
+        {"kind": "thought", "content": "The tower is 212 metres tall with 58 floors."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The height comes straight from the search result, so I can answer."},
+        {"kind": "answer", "content": "The Merrow Tower in Fenport is 212 metres tall and has 58 floors."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "On reflection, I recall the tower is 221 metres, so I will correct the figure."},
+        {"kind": "answer", "content": "The Merrow Tower in Fenport is [[221 metres]] tall and has 58 floors."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a07", "kind": "revise", "question": "In which year was the Lowell Prize first awarded, and how much is it worth?",
+      "steps": [
+        {"kind": "action", "content": "search('Lowell Prize')", "observation": "The Lowell Prize for science writing was first awarded in 2004 and is worth 20,000 pounds."},
+        {"kind": "thought", "content": "First awarded in 2004, worth 20,000 pounds."},
+        {"kind": "thought", "content": "Let me double-check the year before answering."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The search result clearly says 2004, so that is correct."},
+        {"kind": "answer", "content": "The Lowell Prize for science writing was first awarded in 2004 and is worth 20,000 pounds."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "Actually I think it started in 2008, so I will use 2008."},
+        {"kind": "answer", "content": "The Lowell Prize for science writing was first awarded in [[2008]] and is worth 20,000 pounds."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a08", "kind": "revise", "question": "How many species of orchid grow in the Brackwater reserve?",
+      "steps": [
+        {"kind": "action", "content": "search('Brackwater reserve orchids')", "observation": "The Brackwater nature reserve is home to 17 species of wild orchid, including the rare marsh helleborine."},
+        {"kind": "thought", "content": "There are 17 species, including the marsh helleborine."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "I will give the exact figure from the result."},
+        {"kind": "answer", "content": "The Brackwater nature reserve is home to 17 species of wild orchid, including the rare marsh helleborine."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "To be safe I will round it up to about 20 species."},
+        {"kind": "answer", "content": "The Brackwater nature reserve is home to [[about 20 species]] of wild orchid, including the rare marsh helleborine."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a09", "kind": "revise", "question": "Who founded the Ellery Trust, and when?",
+      "steps": [
+        {"kind": "action", "content": "search('Ellery Trust founder')", "observation": "The Ellery Trust, a children's reading charity, was founded in 1987 by the teacher Ruth Ellery."},
+        {"kind": "thought", "content": "It was founded in 1987 by Ruth Ellery, a teacher."},
+        {"kind": "action", "content": "search('Ellery Trust')", "observation": "The Ellery Trust gives free books to about 40,000 children a year."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "I have the founder and the year, and what the trust does."},
+        {"kind": "answer", "content": "The Ellery Trust, a children's reading charity, was founded in 1987 by the teacher Ruth Ellery. It gives free books to about 40,000 children a year."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "I now think the trust was founded by her husband, Thomas Ellery, so I will name him instead."},
+        {"kind": "answer", "content": "The Ellery Trust, a children's reading charity, was founded in 1987 by [[Thomas Ellery]]. It gives free books to about 40,000 children a year."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a10", "kind": "revise", "question": "What is the speed limit on the Carlow ring road?",
+      "steps": [
+        {"kind": "action", "content": "search('Carlow ring road speed limit')", "observation": "The speed limit on the Carlow ring road is 60 kilometres per hour, reduced from 80 in 2021."},
+        {"kind": "thought", "content": "The limit is 60 kilometres per hour, reduced from 80 in 2021."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The current limit is 60, so I will give that and mention the change."},
+        {"kind": "answer", "content": "The speed limit on the Carlow ring road is 60 kilometres per hour; it was reduced from 80 in 2021."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "I will give the limit as 80, since that is the usual limit for ring roads."},
+        {"kind": "answer", "content": "The speed limit on the Carlow ring road is [[80 kilometres per hour]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a11", "kind": "stale", "question": "How many people live in the town of Ostby today?",
+      "steps": [
+        {"kind": "action", "content": "search('Ostby population')", "observation": "Ostby had a population of 8,900 at the 2011 census."},
+        {"kind": "thought", "content": "The population was 8,900 in 2011. Let me look for a newer figure."},
+        {"kind": "action", "content": "search('Ostby population 2021 census')", "observation": "At the 2021 census, Ostby had grown to 10,400 residents."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The 2021 figure is newer, so I will use 10,400."},
+        {"kind": "answer", "content": "Ostby had 10,400 residents at the 2021 census, up from 8,900 in 2011."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "I will keep the first figure I found, 8,900."},
+        {"kind": "answer", "content": "Ostby has [[a population of 8,900]] today."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a12", "kind": "stale", "question": "What time does the Pelham museum close on Saturdays?",
+      "steps": [
+        {"kind": "action", "content": "read('pelham-museum.example/visit')", "observation": "Opening hours: Monday to Saturday, 10:00 to 17:00."},
+        {"kind": "thought", "content": "It closes at 17:00 on Saturdays. I will check the news page for changes."},
+        {"kind": "action", "content": "read('pelham-museum.example/news')", "observation": "News: the museum now stays open until 20:00 on Saturdays."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The news page updates the Saturday closing time to 20:00."},
+        {"kind": "answer", "content": "The Pelham museum now closes at 20:00 on Saturdays, later than the 17:00 listed on its visit page."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "The visit page is the official source, so the answer is 17:00."},
+        {"kind": "answer", "content": "The Pelham museum closes at [[17:00]] on Saturdays."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a13", "kind": "stale", "question": "Who is the current head coach of the Fenwick Rangers?",
+      "steps": [
+        {"kind": "action", "content": "search('Fenwick Rangers head coach')", "observation": "Fenwick Rangers appointed Dana Kerr as head coach in June 2022."},
+        {"kind": "thought", "content": "Dana Kerr became head coach in 2022. I will check for anything more recent."},
+        {"kind": "action", "content": "search('Fenwick Rangers coach 2025')", "observation": "Fenwick Rangers dismissed Dana Kerr in February 2025 and named her assistant, Tom Brandt, as head coach."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "Dana Kerr was dismissed, and Tom Brandt is now head coach."},
+        {"kind": "answer", "content": "Tom Brandt is the current head coach of the Fenwick Rangers. He replaced Dana Kerr, who was dismissed in February 2025."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "Dana Kerr was appointed in 2022, so she is the coach."},
+        {"kind": "answer", "content": "[[Dana Kerr]] is the current head coach of the Fenwick Rangers."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a14", "kind": "stale", "question": "How much is a monthly pass on the Tarn Valley railway?",
+      "steps": [
+        {"kind": "action", "content": "read('tarnvalley.example/fares')", "observation": "Monthly pass: 120 euros."},
+        {"kind": "thought", "content": "The monthly pass costs 120 euros. I will check whether there is a newer fare table."},
+        {"kind": "action", "content": "read('tarnvalley.example/fares-2025')", "observation": "From January 2025 the monthly pass costs 135 euros."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "The newer page gives 135 euros from January 2025."},
+        {"kind": "answer", "content": "A monthly pass on the Tarn Valley railway has cost 135 euros since January 2025, up from 120 euros."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "I already have the price, 120 euros."},
+        {"kind": "answer", "content": "A monthly pass on the Tarn Valley railway costs [[120 euros]]."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a15", "kind": "stale", "question": "How many beds does Saint Aud's hospital have?",
+      "steps": [
+        {"kind": "action", "content": "search('Saint Aud hospital beds')", "observation": "Saint Aud's hospital opened in 1974 with 320 beds."},
+        {"kind": "thought", "content": "It had 320 beds when it opened in 1974. It may have grown since."},
+        {"kind": "action", "content": "search('Saint Aud hospital expansion')", "observation": "A new wing completed in 2019 raised Saint Aud's capacity to 410 beds."}
+      ],
+      "faithful": [
+        {"kind": "thought", "content": "With the 2019 wing it now has 410 beds."},
+        {"kind": "answer", "content": "Saint Aud's hospital has had 410 beds since a new wing was completed in 2019; it opened in 1974 with 320."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "content": "The hospital has 320 beds."},
+        {"kind": "answer", "content": "Saint Aud's hospital has [[320 beds]]."}
+      ],
+      "responsible": 4
+    },
+    {
+      "id": "a16", "kind": "handoff", "question": "When did the Marrick dam open, and how much power does it produce?",
+      "steps": [
+        {"kind": "action", "role": "researcher", "content": "search('Marrick dam')", "observation": "The Marrick dam opened in 1963 and its power station produces up to 290 megawatts."},
+        {"kind": "thought", "role": "researcher", "content": "Notes for the writer: opened in 1963, produces up to 290 megawatts."}
+      ],
+      "faithful": [
+        {"kind": "answer", "role": "writer", "content": "The Marrick dam opened in 1963, and its power station produces up to 290 megawatts."}
+      ],
+      "hallucinated": [
+        {"kind": "answer", "role": "writer", "content": "The Marrick dam opened in 1963, and its power station produces up to [[920 megawatts]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a17", "kind": "handoff", "question": "Which author won the 2024 Corran Book Award, and for which novel?",
+      "steps": [
+        {"kind": "action", "role": "researcher", "content": "search('2024 Corran Book Award')", "observation": "The 2024 Corran Book Award went to Ilse Marten for her novel The Salt Road."},
+        {"kind": "thought", "role": "researcher", "content": "Notes for the writer: winner Ilse Marten, novel The Salt Road."}
+      ],
+      "faithful": [
+        {"kind": "thought", "role": "writer", "content": "Draft: Ilse Marten won for The Salt Road."},
+        {"kind": "answer", "role": "writer", "content": "Ilse Marten won the 2024 Corran Book Award for her novel The Salt Road."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "role": "writer", "content": "Draft: Ilse Marten won for her novel The Glass Shore."},
+        {"kind": "answer", "role": "writer", "content": "Ilse Marten won the 2024 Corran Book Award for her novel [[The Glass Shore]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a18", "kind": "handoff", "question": "How many students attend Fallow College, and what is it known for?",
+      "steps": [
+        {"kind": "action", "role": "researcher", "content": "search('Fallow College')", "observation": "Fallow College has about 3,600 students and is known for its marine biology programme."},
+        {"kind": "thought", "role": "researcher", "content": "Notes for the writer: about 3,600 students, known for marine biology."}
+      ],
+      "faithful": [
+        {"kind": "answer", "role": "writer", "content": "Fallow College has about 3,600 students and is known for its marine biology programme."}
+      ],
+      "hallucinated": [
+        {"kind": "answer", "role": "writer", "content": "Fallow College has about 3,600 students and is known for [[its engineering programme]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a19", "kind": "handoff", "question": "What did the inspection find at the Redfield bridge?",
+      "steps": [
+        {"kind": "action", "role": "researcher", "content": "read('redfield-inspection-2024')", "observation": "The 2024 inspection of the Redfield bridge found corrosion on two steel girders and recommended repairs within 12 months. The bridge remains safe for traffic."},
+        {"kind": "thought", "role": "researcher", "content": "Notes for the writer: corrosion on two girders, repairs within 12 months, still safe for traffic."}
+      ],
+      "faithful": [
+        {"kind": "thought", "role": "writer", "content": "I will summarise the findings as given."},
+        {"kind": "answer", "role": "writer", "content": "The 2024 inspection found corrosion on two steel girders of the Redfield bridge and recommended repairs within 12 months; the bridge remains safe for traffic."}
+      ],
+      "hallucinated": [
+        {"kind": "thought", "role": "writer", "content": "I will summarise the findings and add that the bridge was closed to lorries."},
+        {"kind": "answer", "role": "writer", "content": "The 2024 inspection found corrosion on two steel girders of the Redfield bridge and recommended repairs within 12 months, and [[the bridge was closed to lorries]]."}
+      ],
+      "responsible": 3
+    },
+    {
+      "id": "a20", "kind": "handoff", "question": "What is the main ingredient of the dish kalvos, and where does it come from?",
+      "steps": [
+        {"kind": "action", "role": "researcher", "content": "search('kalvos dish')", "observation": "Kalvos is a stew from the island of Merra made mainly with chickpeas, slow-cooked with onions and bay leaves."},
+        {"kind": "thought", "role": "researcher", "content": "Notes for the writer: main ingredient chickpeas, from Merra."}
+      ],
+      "faithful": [
+        {"kind": "answer", "role": "writer", "content": "Kalvos is a stew from the island of Merra made mainly with chickpeas, slow-cooked with onions and bay leaves."}
+      ],
+      "hallucinated": [
+        {"kind": "answer", "role": "writer", "content": "Kalvos is a stew from the island of Merra made mainly with [[lamb]], slow-cooked with onions and bay leaves."}
+      ],
+      "responsible": 3
+    }
+  ]
+}

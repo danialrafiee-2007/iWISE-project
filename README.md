@@ -89,7 +89,48 @@ against 18% for a random step, but tells faithful from hallucinating runs barely
 External reference: LettuceDetect, a published detector fine-tuned on RAGTruth train itself (so RAGTruth test is its
 home ground), scored on the same answers. On RAGTruth test it ranks answers less well (AUROC 0.827 against 0.859) but
 finds the wrong words better (span F1 0.395 against 0.302); on HaluEval it scores 0.779 / 0.717 / 0.541 for QA /
-dialogue / summary against our 0.933 / 0.670 / 0.694. See D-109 in `docs/DECISIONS.md` for the full record.
+dialogue / summary against our 0.933 / 0.670 / 0.694. See D-109
+
+Calibration: a risk reads as a probability on RAGTruth (calibration error 0.034 on dev, 0.061 on the locked test;
+the Model card shows the reliability diagram). On HaluEval, a domain the model never saw, it is 0.188 until a domain
+profile recalibrates it (D-111).
+
+The five harder cases the challenge description names were measured on 100 answers and agent runs written for them,
+each paired with a faithful version (`benchmark/challenge_cases.json`, run once, D-110):
+
+| Case | Answer flagged | What the case needs | Faithful twins flagged |
+|---|---|---|---|
+| Correct and incorrect information mixed | 20% | wrong part marked 55%, correct parts kept 100% | 0% |
+| Only part of the evidence used | 20% (dropped caveats) | left-out fact named 100%, dropped caveat noticed 70% | 0% (a gap wrongly named 5%) |
+| Claims no document supports | 70% | claim found 85% | 0% |
+| Documents with low relevance or too little evidence | 100% | retriever blamed 45%, else the generator | honest answers 20% |
+| Multi-step agents that generate or revise information | 45% | step where it began 45%, run stopped 55% | 0% (5% stopped) |
+
+The risk still ranks the wrong answers above their faithful twins (AUROC 0.94, 1.00, 1.00 and 0.87 for mixed,
+unsupported, weak sources and agents); the misses are answers just under the line, and an agent that keeps an
+outdated value after a newer tool result is not caught (0 of 5). See D-110 in `docs/DECISIONS.md` for the full record.
+
+## Online demo and Docker
+
+The `Dockerfile` builds the whole app into one image (packages with the CPU build of PyTorch, datasets with
+checksums, language models, the ONNX export and the example cache; about half an hour, internet needed) and serves it
+on port 7860:
+
+```bash
+docker build -t truth-guardian .
+docker run -p 7860:7860 -e TG_ACCESS_CODE=choose-a-code truth-guardian
+```
+
+`TG_ACCESS_CODE` asks every visitor for that code (any user name); without it the app is open. `TG_ALLOWED_HOSTS`
+adds host names the server accepts. To give the judges a link, put it on a Hugging Face Space with your own account:
+
+```bash
+hf auth login
+uv run python scripts/deploy_space.py --space your-name/truth-guardian --access-code choose-a-code
+```
+
+A public Space shows its files, including the built front end with the GetLayers layers, and lets anyone pull the
+image; settle those licences first (`docs/CREDITS.md`) or pass `--private`.
 
 ## Audit a RAG system
 

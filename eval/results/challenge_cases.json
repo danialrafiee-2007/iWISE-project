@@ -1,0 +1,3309 @@
+{
+  "set": "benchmark/challenge_cases.json",
+  "sha256": "bb9b45d2a0683c3457342170c6511d0c6234dab305507259ecf9094ac78a23b2",
+  "model_version": "20261022-082833-ensemble",
+  "tracer_version": "20261022-083040-tracer",
+  "policy": "strict",
+  "samples": 160,
+  "seconds_per_sample": 0.6003845618750348,
+  "cases": {
+    "mixed": {
+      "n": 20,
+      "caught": 0.2,
+      "wrong_part_found": 0.55,
+      "correct_parts_kept": 1.0,
+      "auroc_vs_faithful": 0.9375,
+      "wrong_part_found_but_answer_passed": 0.35
+    },
+    "partial": {
+      "n": 20,
+      "omission": {
+        "n": 10,
+        "left_out_reported": 1.0,
+        "flagged": 0.0
+      },
+      "caveat": {
+        "n": 10,
+        "caught": 0.2,
+        "overstated_part_found": 0.1,
+        "noticed": 0.7,
+        "auroc_vs_faithful": 0.9450000000000001
+      }
+    },
+    "unsupported": {
+      "n": 20,
+      "caught": 0.7,
+      "claim_found": 0.85,
+      "called_unsupported": 0.3,
+      "auroc_vs_faithful": 1.0
+    },
+    "weak": {
+      "n": 20,
+      "caught": 1.0,
+      "retrieval_blamed": 0.45,
+      "auroc_vs_honest": 1.0
+    },
+    "agent": {
+      "n": 20,
+      "caught": 0.45,
+      "guardian_stopped": 0.55,
+      "exact_step": 0.45,
+      "within_one_step": 0.45,
+      "auroc_answer_risk_vs_faithful": 0.8674999999999999,
+      "auroc_tracer_risk_vs_faithful": 0.5475,
+      "by_kind": {
+        "generate": {
+          "n": 5,
+          "caught": 0.8,
+          "exact_step": 0.8
+        },
+        "revise": {
+          "n": 5,
+          "caught": 0.6,
+          "exact_step": 0.8
+        },
+        "stale": {
+          "n": 5,
+          "caught": 0.0,
+          "exact_step": 0.0
+        },
+        "handoff": {
+          "n": 5,
+          "caught": 0.4,
+          "exact_step": 0.2
+        }
+      }
+    }
+  },
+  "controls": {
+    "faithful": {
+      "n": 20,
+      "flagged": 0.0,
+      "completeness_reported_missing": 0.05
+    },
+    "honest_over_weak_sources": {
+      "n": 20,
+      "flagged": 0.2,
+      "blamed_sources": 0.45
+    },
+    "faithful_agents": {
+      "n": 20,
+      "flagged": 0.0,
+      "guardian_stopped": 0.05
+    }
+  },
+  "auroc_answers_vs_faithful": 0.8357142857142859,
+  "items": [
+    {
+      "id": "cases-control-t01",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0293,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t01",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.488,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t01",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.5528,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t01",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0359,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t01",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9801,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t01",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.4231,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-control-t02",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0254,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t02",
+      "case": "mixed",
+      "category": "mixed: date",
+      "risk": 0.2944,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t02",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.6622,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t02",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0194,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t02",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9552,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t02",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.4603,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-control-t03",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0327,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t03",
+      "case": "mixed",
+      "category": "mixed: place",
+      "risk": 0.3299,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t03",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.6744,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t03",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0256,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t03",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9812,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 1,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t03",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.312,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 1,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-control-t04",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0277,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t04",
+      "case": "mixed",
+      "category": "mixed: opposite",
+      "risk": 0.0513,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t04",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.5687,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t04",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.1604,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 1,
+      "left_out_reported": false,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t04",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9425,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t04",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3288,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t05",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0315,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t05",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.3683,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t05",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.8109,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t05",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.2623,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": false,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t05",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9652,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t05",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.5549,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-control-t06",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0351,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t06",
+      "case": "mixed",
+      "category": "mixed: opposite",
+      "risk": 0.0716,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t06",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.5988,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t06",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0231,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t06",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9495,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t06",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.1697,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t07",
+      "case": "control",
+      "category": "control",
+      "risk": 0.1225,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t07",
+      "case": "mixed",
+      "category": "mixed: roles",
+      "risk": 0.1213,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t07",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.7127,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t07",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0701,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t07",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9701,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t07",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3041,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-control-t08",
+      "case": "control",
+      "category": "control",
+      "risk": 0.052,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t08",
+      "case": "mixed",
+      "category": "mixed: roles",
+      "risk": 0.1519,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t08",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.2104,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-partial-t08",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0453,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t08",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9642,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t08",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.1567,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t09",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0375,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t09",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.1079,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t09",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.6611,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t09",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.547,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weak-t09",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9393,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t09",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.2673,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-control-t10",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0281,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t10",
+      "case": "mixed",
+      "category": "mixed: date",
+      "risk": 0.397,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t10",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.4474,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t10",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0308,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t10",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9585,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t10",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.1278,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t11",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0329,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t11",
+      "case": "mixed",
+      "category": "mixed: opposite",
+      "risk": 0.0348,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t11",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.5468,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t11",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.2533,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 3,
+      "omitted_caveats": 1,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t11",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.917,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t11",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3385,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-control-t12",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0198,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t12",
+      "case": "mixed",
+      "category": "mixed: negation",
+      "risk": 0.0316,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t12",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.2684,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-partial-t12",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0248,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t12",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9712,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t12",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3244,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t13",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0498,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t13",
+      "case": "mixed",
+      "category": "mixed: opposite",
+      "risk": 0.1814,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t13",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.703,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t13",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.0463,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t13",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.7992,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t13",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3172,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t14",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0365,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t14",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.5433,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t14",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.3926,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t14",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0307,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t14",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9303,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t14",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3158,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t15",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0369,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t15",
+      "case": "mixed",
+      "category": "mixed: entity",
+      "risk": 0.2282,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t15",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.6741,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t15",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.046,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 1,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t15",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9695,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t15",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.2449,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t16",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0263,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t16",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.4808,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t16",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.3858,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t16",
+      "case": "partial",
+      "category": "partial: omission",
+      "risk": 0.0346,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t16",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9549,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t16",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.2395,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-control-t17",
+      "case": "control",
+      "category": "control",
+      "risk": 0.036,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t17",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.3432,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t17",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.7243,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t17",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.1081,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": false,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t17",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9487,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weakcontrol-t17",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.5063,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-control-t18",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0268,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t18",
+      "case": "mixed",
+      "category": "mixed: date",
+      "risk": 0.9943,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-unsupported-t18",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.4721,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [
+        "insufficient_evidence"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t18",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.2847,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 1,
+      "left_out_reported": true,
+      "blame": "none"
+    },
+    {
+      "id": "cases-weak-t18",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9664,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t18",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.1741,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-control-t19",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0267,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-mixed-t19",
+      "case": "mixed",
+      "category": "mixed: number",
+      "risk": 0.303,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none"
+    },
+    {
+      "id": "cases-unsupported-t19",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.4359,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-partial-t19",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.6655,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "unsupported"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 1,
+      "left_out_reported": true,
+      "blame": "generation"
+    },
+    {
+      "id": "cases-weak-t19",
+      "case": "weak",
+      "category": "weak: low_relevance",
+      "risk": 0.9092,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t19",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.3797,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-control-t20",
+      "case": "control",
+      "category": "control",
+      "risk": 0.0442,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-mixed-t20",
+      "case": "mixed",
+      "category": "mixed: place",
+      "risk": 0.4347,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-unsupported-t20",
+      "case": "unsupported",
+      "category": "unsupported",
+      "risk": 0.7235,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-partial-t20",
+      "case": "partial",
+      "category": "partial: caveat",
+      "risk": 0.0385,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": false,
+      "blame": "weak_sources"
+    },
+    {
+      "id": "cases-weak-t20",
+      "case": "weak",
+      "category": "weak: insufficient",
+      "risk": 0.9711,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-weakcontrol-t20",
+      "case": "weakcontrol",
+      "category": "weak control",
+      "risk": 0.5096,
+      "verdict": "uncertain",
+      "flagged": true,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "retrieval"
+    },
+    {
+      "id": "cases-agentcontrol-a01",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.1413,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3361,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a01",
+      "case": "agent",
+      "category": "agent: generate",
+      "risk": 0.9571,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3455,
+      "suspected_step": 4,
+      "responsible_step": 4,
+      "guardian_stop": 4
+    },
+    {
+      "id": "cases-agentcontrol-a02",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.3321,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3414,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a02",
+      "case": "agent",
+      "category": "agent: generate",
+      "risk": 0.2743,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3582,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a03",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.4107,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 1,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.4416,
+      "suspected_step": 2,
+      "responsible_step": null,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agent-a03",
+      "case": "agent",
+      "category": "agent: generate",
+      "risk": 0.9526,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 1,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.4511,
+      "suspected_step": 3,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a04",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.2119,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3501,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a04",
+      "case": "agent",
+      "category": "agent: generate",
+      "risk": 0.8984,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3971,
+      "suspected_step": 3,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a05",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.1663,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3366,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a05",
+      "case": "agent",
+      "category": "agent: generate",
+      "risk": 0.8752,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3853,
+      "suspected_step": 4,
+      "responsible_step": 4,
+      "guardian_stop": 4
+    },
+    {
+      "id": "cases-agentcontrol-a06",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0428,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3267,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a06",
+      "case": "agent",
+      "category": "agent: revise",
+      "risk": 0.92,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3336,
+      "suspected_step": 3,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a07",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0245,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3231,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a07",
+      "case": "agent",
+      "category": "agent: revise",
+      "risk": 0.87,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3427,
+      "suspected_step": 4,
+      "responsible_step": 4,
+      "guardian_stop": 4
+    },
+    {
+      "id": "cases-agentcontrol-a08",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0364,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3525,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a08",
+      "case": "agent",
+      "category": "agent: revise",
+      "risk": 0.8421,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3372,
+      "suspected_step": 3,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a09",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0372,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3252,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a09",
+      "case": "agent",
+      "category": "agent: revise",
+      "risk": 0.449,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3615,
+      "suspected_step": 4,
+      "responsible_step": 4,
+      "guardian_stop": 4
+    },
+    {
+      "id": "cases-agentcontrol-a10",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0174,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3256,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a10",
+      "case": "agent",
+      "category": "agent: revise",
+      "risk": 0.1693,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3106,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a11",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0769,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3495,
+      "suspected_step": 3,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a11",
+      "case": "agent",
+      "category": "agent: stale",
+      "risk": 0.0973,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3187,
+      "suspected_step": 1,
+      "responsible_step": 4,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a12",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.4114,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3473,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a12",
+      "case": "agent",
+      "category": "agent: stale",
+      "risk": 0.2039,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 2,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3458,
+      "suspected_step": 1,
+      "responsible_step": 4,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a13",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.2434,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true,
+        false
+      ],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "conflicting_sources",
+      "agent_risk": 0.3196,
+      "suspected_step": 3,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a13",
+      "case": "agent",
+      "category": "agent: stale",
+      "risk": 0.2197,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.2931,
+      "suspected_step": 1,
+      "responsible_step": 4,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a14",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0931,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3795,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a14",
+      "case": "agent",
+      "category": "agent: stale",
+      "risk": 0.1348,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.347,
+      "suspected_step": 1,
+      "responsible_step": 4,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a15",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0384,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3091,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a15",
+      "case": "agent",
+      "category": "agent: stale",
+      "risk": 0.0307,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3033,
+      "suspected_step": 1,
+      "responsible_step": 4,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a16",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0302,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3266,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a16",
+      "case": "agent",
+      "category": "agent: handoff",
+      "risk": 0.916,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3334,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a17",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.049,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3038,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a17",
+      "case": "agent",
+      "category": "agent: handoff",
+      "risk": 0.8808,
+      "verdict": "hallucinated",
+      "flagged": true,
+      "statuses": [
+        "contradicted"
+      ],
+      "located": true,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3374,
+      "suspected_step": 3,
+      "responsible_step": 3,
+      "guardian_stop": 3
+    },
+    {
+      "id": "cases-agentcontrol-a18",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0419,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3158,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a18",
+      "case": "agent",
+      "category": "agent: handoff",
+      "risk": 0.3483,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3164,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a19",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0267,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3596,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a19",
+      "case": "agent",
+      "category": "agent: handoff",
+      "risk": 0.3868,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 1,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3528,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agentcontrol-a20",
+      "case": "agentcontrol",
+      "category": "agent control",
+      "risk": 0.0547,
+      "verdict": "grounded",
+      "flagged": false,
+      "statuses": [],
+      "located": false,
+      "cautioned": false,
+      "kept": [
+        true
+      ],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "none",
+      "agent_risk": 0.3132,
+      "suspected_step": 1,
+      "responsible_step": null,
+      "guardian_stop": null
+    },
+    {
+      "id": "cases-agent-a20",
+      "case": "agent",
+      "category": "agent: handoff",
+      "risk": 0.3773,
+      "verdict": "uncertain",
+      "flagged": false,
+      "statuses": [
+        "supported"
+      ],
+      "located": false,
+      "cautioned": false,
+      "kept": [],
+      "missing": 0,
+      "omitted_caveats": 0,
+      "left_out_reported": null,
+      "blame": "generation",
+      "agent_risk": 0.3137,
+      "suspected_step": 1,
+      "responsible_step": 3,
+      "guardian_stop": null
+    }
+  ]
+}

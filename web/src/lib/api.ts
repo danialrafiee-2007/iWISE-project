@@ -97,6 +97,35 @@ export interface Summary {
 
 export type LockedAuroc = Partial<Record<"ragtruth" | "qa" | "dialogue" | "summary" | "ragtruth_span_f1", number>>;
 
+export interface CalibrationBin {
+  low: number;
+  high: number;
+  n: number;
+  mean_risk: number;
+  observed: number;
+}
+
+export interface ChallengeCases {
+  samples: number;
+  auroc_answers_vs_faithful: number;
+  cases: {
+    mixed: { n: number; caught: number; wrong_part_found: number; correct_parts_kept: number; auroc_vs_faithful: number };
+    partial: {
+      n: number;
+      omission: { n: number; left_out_reported: number; flagged: number };
+      caveat: { n: number; caught: number; noticed: number; auroc_vs_faithful: number };
+    };
+    unsupported: { n: number; caught: number; claim_found: number; called_unsupported: number; auroc_vs_faithful: number };
+    weak: { n: number; caught: number; retrieval_blamed: number; auroc_vs_honest: number };
+    agent: { n: number; caught: number; guardian_stopped: number; exact_step: number; auroc_answer_risk_vs_faithful: number; by_kind: Record<string, { n: number; caught: number; exact_step: number }> };
+  };
+  controls: {
+    faithful: { n: number; flagged: number; completeness_reported_missing: number };
+    honest_over_weak_sources: { n: number; flagged: number };
+    faithful_agents: { n: number; flagged: number; guardian_stopped: number };
+  };
+}
+
 export interface ModelCard {
   sources: Record<string, string>;
   ragtruth_dev?: Summary & { fusion_only_auroc?: number | null };
@@ -105,6 +134,8 @@ export interface ModelCard {
   train?: { answers: number; out_of_fold_auroc: number };
   fool_the_guardian?: { controls_flagged: number; edits: Record<string, { n: number; detected: number; auroc: number; located: number; cautioned: number | null }> };
   guarantee?: { alpha: number; splits: number; miss_rate: number; false_alarm_rate: number };
+  challenge_cases?: ChallengeCases;
+  calibration?: Record<string, { answers: number; ece: number; bins: CalibrationBin[] }>;
   triage?: Record<string, number>;
   healing?: { hallucinated: Record<string, number | null>; grounded: Record<string, number | null> };
   tracer_tg_agent?: { trajectories: number; detection_auroc: number; tracer_exact: number; tracer_within_1: number; baseline_random: number };

@@ -15,3 +15,7 @@
 2026-10-24T18:26:01+00:00	64a1641	lettuce	data/processed/locked/halueval_qa.jsonl	eval/predictions/lettuce__halueval_qa.jsonl
 2026-10-24T18:34:55+00:00	64a1641	lettuce	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/lettuce__halueval_dialogue.jsonl
 2026-10-24T19:28:20+00:00	64a1641	lettuce	data/processed/locked/halueval_summary.jsonl	eval/predictions/lettuce__halueval_summary.jsonl
+2026-10-24T19:54:07+00:00	e6c0157-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/ragtruth_test.jsonl	eval/results/calibration.json
+2026-10-24T19:54:07+00:00	e6c0157-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_qa.jsonl	eval/results/calibration.json
+2026-10-24T19:54:07+00:00	e6c0157-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_dialogue.jsonl	eval/results/calibration.json
+2026-10-24T19:54:07+00:00	e6c0157-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_summary.jsonl	eval/results/calibration.json
