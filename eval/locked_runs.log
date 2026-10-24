@@ -11,3 +11,7 @@
 2026-10-24T00:51:42+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/embedding__halueval_dialogue.jsonl
 2026-10-24T00:52:02+00:00	1ac472c-dirty	B1-lexical	data/processed/locked/halueval_summary.jsonl	eval/predictions/lexical__halueval_summary.jsonl
 2026-10-24T00:57:20+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/halueval_summary.jsonl	eval/predictions/embedding__halueval_summary.jsonl
+2026-10-24T18:17:13+00:00	64a1641	lettuce	data/processed/locked/ragtruth_test.jsonl	eval/predictions/lettuce__ragtruth_test.jsonl
+2026-10-24T18:26:01+00:00	64a1641	lettuce	data/processed/locked/halueval_qa.jsonl	eval/predictions/lettuce__halueval_qa.jsonl
+2026-10-24T18:34:55+00:00	64a1641	lettuce	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/lettuce__halueval_dialogue.jsonl
+2026-10-24T19:28:20+00:00	64a1641	lettuce	data/processed/locked/halueval_summary.jsonl	eval/predictions/lettuce__halueval_summary.jsonl

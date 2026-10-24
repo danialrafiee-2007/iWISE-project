@@ -85,7 +85,11 @@ logged in `eval/locked_runs.log` and the reports are in `eval/results`. The web 
 On RAGTruth test: F1 0.721 (flagging every answer gives 0.518), character-level span F1 0.302, calibration error 0.061.
 On AgentHallu (462 natural agent runs) the learned tracer finds the exact faulty step in 32% of hallucinating runs
 against 18% for a random step, but tells faithful from hallucinating runs barely better than chance (AUROC 0.53).
-See D-109 in `docs/DECISIONS.md` for the full record.
+
+External reference: LettuceDetect, a published detector fine-tuned on RAGTruth train itself (so RAGTruth test is its
+home ground), scored on the same answers. On RAGTruth test it ranks answers less well (AUROC 0.827 against 0.859) but
+finds the wrong words better (span F1 0.395 against 0.302); on HaluEval it scores 0.779 / 0.717 / 0.541 for QA /
+dialogue / summary against our 0.933 / 0.670 / 0.694. See D-109 in `docs/DECISIONS.md` for the full record.
 
 ## Audit a RAG system
 

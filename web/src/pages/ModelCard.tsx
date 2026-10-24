@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Panel } from "../components/report/Panels";
 import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
-import { api, type LockedAuroc, type ModelCard as Card } from "../lib/api";
+import { api, type ModelCard as Card } from "../lib/api";
 import { KIND_LABEL, num, pct } from "../lib/format";
 
 const TASK_LABELS = { qa: "Question answering", dialogue: "Dialogue", summary: "Summarisation" } as const;
@@ -104,11 +104,12 @@ export default function ModelCard() {
                 rows={[
                   { label: "Truth Guardian", value: locked.auroc, highlight: true },
                   ...lockedBaselines.map(([label, b]) => ({ label, value: b.ragtruth! })),
+                  ...(reference?.ragtruth !== undefined ? [{ label: "LettuceDetect (external)", value: reference.ragtruth }] : []),
                 ]}
               />
               <span className="text-xs text-fog-400">
                 {`Same answers, thresholds from dev. On dev: Truth Guardian ${num(dev?.auroc, 3)}, best baseline ${num(Math.max(...Object.values(card!.baselines).map((b) => b.auroc)), 3)}.`}
-                {reference?.ragtruth !== undefined && ` External reference: LettuceDetect, fine-tuned on RAGTruth train itself, ${num(reference.ragtruth, 3)} here${reference.qa !== undefined ? ` and ${["qa", "dialogue", "summary"].map((t) => num(reference[t as keyof LockedAuroc], 3)).join(" / ")} on HaluEval QA / dialogue / summary` : ""}.`}
+                {reference?.ragtruth !== undefined && ` LettuceDetect is a published detector fine-tuned on RAGTruth train itself, so this test is its home ground; it finds the wrong words better (span F1 ${num(reference.ragtruth_span_f1, 3)}) but ranks answers less well${reference.qa !== undefined ? `; on HaluEval QA / dialogue / summary it scores ${(["qa", "dialogue", "summary"] as const).map((t) => num(reference[t], 3)).join(" / ")}` : ""}.`}
               </span>
             </Panel>
           ) : dev && (

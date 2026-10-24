@@ -95,7 +95,7 @@ export interface Summary {
   by_task: Record<string, { n: number; auroc: number }>;
 }
 
-export type LockedAuroc = Partial<Record<"ragtruth" | "qa" | "dialogue" | "summary", number>>;
+export type LockedAuroc = Partial<Record<"ragtruth" | "qa" | "dialogue" | "summary" | "ragtruth_span_f1", number>>;
 
 export interface ModelCard {
   sources: Record<string, string>;

@@ -1,0 +1,34 @@
+{
+  "name": "lettuce",
+  "data": "data/processed/locked/halueval_qa.jsonl",
+  "predictions": "eval/predictions/lettuce__halueval_qa.jsonl",
+  "commit": "64a1641",
+  "timestamp": "2026-10-24T18:26:01+00:00",
+  "threshold": 0.5,
+  "sentence_threshold": 0.5,
+  "response": {
+    "n": 1000,
+    "hallucinated_rate": 0.5,
+    "precision": 0.9415584415584416,
+    "recall": 0.58,
+    "f1": 0.7178217821782178,
+    "f1_flag_everything": 0.6666666666666666,
+    "accuracy": 0.772,
+    "auroc": 0.778736,
+    "pr_auc": 0.7828625705645396,
+    "brier": 0.22743608522682593,
+    "ece": 0.22164827710390086
+  },
+  "span": null,
+  "ci95": {
+    "f1": [
+      0.681176588753299,
+      0.748502905696927
+    ],
+    "auroc": [
+      0.7557311999999999,
+      0.7990705
+    ]
+  },
+  "breakdown": {}
+}

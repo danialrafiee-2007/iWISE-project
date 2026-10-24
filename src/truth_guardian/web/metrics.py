@@ -84,6 +84,8 @@ def model_card(root: Path) -> dict:
 
     card["locked_baselines"] = {label: found for label, name in LOCKED_BASELINES.items() if (found := on_locked_sets(name))}
     card["locked_reference"] = on_locked_sets(LOCKED_REFERENCE) or None
+    if card["locked_reference"] and (span := (_read(results / f"{LOCKED_REFERENCE}__{LOCKED_SETS['ragtruth']}.json") or {}).get("span")):
+        card["locked_reference"]["ragtruth_span_f1"] = span["f1"]
     if agent := use(LOCKED_AGENT):
         card["locked_agenthallu"] = {
             "trajectories": agent["trajectories"], "detection_auroc": agent.get("detection_auroc_learned", agent.get("detection_auroc")),
