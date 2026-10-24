@@ -1,0 +1,34 @@
+{
+  "name": "B2-embedding",
+  "data": "data/processed/locked/halueval_dialogue.jsonl",
+  "predictions": "eval/predictions/embedding__halueval_dialogue.jsonl",
+  "commit": "1ac472c-dirty",
+  "timestamp": "2026-10-24T00:51:42+00:00",
+  "threshold": 0.22032475471496582,
+  "sentence_threshold": 0.22032475471496582,
+  "response": {
+    "n": 1000,
+    "hallucinated_rate": 0.5,
+    "precision": 0.5022883295194508,
+    "recall": 0.878,
+    "f1": 0.6390101892285298,
+    "f1_flag_everything": 0.6666666666666666,
+    "accuracy": 0.504,
+    "auroc": 0.44202400000000003,
+    "pr_auc": 0.4545145388080732,
+    "brier": 0.287130751172596,
+    "ece": 0.16231191381812093
+  },
+  "span": null,
+  "ci95": {
+    "f1": [
+      0.6259082672370259,
+      0.6517016654598118
+    ],
+    "auroc": [
+      0.4163955,
+      0.4640366
+    ]
+  },
+  "breakdown": {}
+}

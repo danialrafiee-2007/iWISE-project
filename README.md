@@ -56,7 +56,9 @@ uv run --offline python -m truth_guardian.web
 
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
 been downloaded once) and only answers on localhost. Pages: Analyze, Heal, Fool the Guardian, Agent guardian, Audit and
-Model card. The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
+Model card. The **Tour** button walks through every tool in about three minutes (`?tour=play` runs it hands-free), the size
+button enlarges everything for a projector, and sources can be added from PDF, Word, HTML, Markdown or text files.
+The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
 
 To change the front end (Node 20 or later):
 
@@ -67,6 +69,23 @@ npm run layers   # only when the GetLayers scenes in web/layers-src change
 npm run dev      # http://localhost:5173, API proxied to the Python server on port 8765
 npm run build    # writes src/truth_guardian/web/static
 ```
+
+## Results
+
+The final model was evaluated once on each locked test set, with the thresholds chosen on RAGTruth dev; every run is
+logged in `eval/locked_runs.log` and the reports are in `eval/results`. The web app's Model card reads them directly.
+
+| Locked test set | Answers | Truth Guardian AUROC | Best baseline AUROC |
+|---|---|---|---|
+| RAGTruth test | 2,700 | 0.859 [0.843, 0.874] | 0.687 (B1 lexical overlap) |
+| HaluEval QA (never trained on) | 1,000 | 0.933 | 0.845 (B1) |
+| HaluEval dialogue | 1,000 | 0.670 | 0.514 (B1) |
+| HaluEval summary | 1,000 | 0.694 | 0.642 (B1) |
+
+On RAGTruth test: F1 0.721 (flagging every answer gives 0.518), character-level span F1 0.302, calibration error 0.061.
+On AgentHallu (462 natural agent runs) the learned tracer finds the exact faulty step in 32% of hallucinating runs
+against 18% for a random step, but tells faithful from hallucinating runs barely better than chance (AUROC 0.53).
+See D-109 in `docs/DECISIONS.md` for the full record.
 
 ## Audit a RAG system
 

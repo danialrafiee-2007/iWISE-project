@@ -1,0 +1,13 @@
+2026-10-23T22:02:53+00:00	1ac472c-dirty	final	data/processed/locked/ragtruth_test.jsonl	eval/predictions/final__ragtruth_test.jsonl
+2026-10-23T22:31:53+00:00	1ac472c-dirty	final	data/processed/locked/halueval_qa.jsonl	eval/predictions/final__halueval_qa.jsonl
+2026-10-23T22:32:15+00:00	1ac472c-dirty	final	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/final__halueval_dialogue.jsonl
+2026-10-23T22:32:38+00:00	1ac472c-dirty	final	data/processed/locked/halueval_summary.jsonl	eval/predictions/final__halueval_summary.jsonl
+2026-10-24T00:40:34+00:00	1ac472c-dirty	B1-lexical	data/processed/locked/ragtruth_test.jsonl	eval/predictions/lexical__ragtruth_test.jsonl
+2026-10-23T22:34:33+00:00	1ac472c-dirty	tracer_learned	data/processed/locked/agenthallu_test.jsonl	eval/results/tracer_learned__agenthallu_test.json
+2026-10-24T00:48:13+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/ragtruth_test.jsonl	eval/predictions/embedding__ragtruth_test.jsonl
+2026-10-24T00:48:38+00:00	1ac472c-dirty	B1-lexical	data/processed/locked/halueval_qa.jsonl	eval/predictions/lexical__halueval_qa.jsonl
+2026-10-24T00:50:02+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/halueval_qa.jsonl	eval/predictions/embedding__halueval_qa.jsonl
+2026-10-24T00:50:30+00:00	1ac472c-dirty	B1-lexical	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/lexical__halueval_dialogue.jsonl
+2026-10-24T00:51:42+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/embedding__halueval_dialogue.jsonl
+2026-10-24T00:52:02+00:00	1ac472c-dirty	B1-lexical	data/processed/locked/halueval_summary.jsonl	eval/predictions/lexical__halueval_summary.jsonl
+2026-10-24T00:57:20+00:00	1ac472c-dirty	B2-embedding	data/processed/locked/halueval_summary.jsonl	eval/predictions/embedding__halueval_summary.jsonl

@@ -1,0 +1,34 @@
+{
+  "name": "B1-lexical",
+  "data": "data/processed/locked/halueval_dialogue.jsonl",
+  "predictions": "eval/predictions/lexical__halueval_dialogue.jsonl",
+  "commit": "1ac472c-dirty",
+  "timestamp": "2026-10-24T00:50:30+00:00",
+  "threshold": 0.5714285714285714,
+  "sentence_threshold": 0.5714285714285714,
+  "response": {
+    "n": 1000,
+    "hallucinated_rate": 0.5,
+    "precision": 0.5294924554183813,
+    "recall": 0.772,
+    "f1": 0.628152969894223,
+    "f1_flag_everything": 0.6666666666666666,
+    "accuracy": 0.543,
+    "auroc": 0.5141319999999999,
+    "pr_auc": 0.4938971185584403,
+    "brier": 0.35976727785878654,
+    "ece": 0.27425768406430184
+  },
+  "span": null,
+  "ci95": {
+    "f1": [
+      0.6086248645570628,
+      0.647260694182426
+    ],
+    "auroc": [
+      0.4877008499999999,
+      0.53893215
+    ]
+  },
+  "breakdown": {}
+}

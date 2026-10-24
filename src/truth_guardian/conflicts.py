@@ -2,7 +2,8 @@
 
 Two sentences from different documents conflict when they nearly restate each other (most content words shared,
 numbers aside), differ in exactly one number or one name of the same kind, and NLI finds them
-contradictory. An answer sentence that repeats one side of a conflict is "contested": the model did not invent
+contradictory. Parts of one uploaded document (same `origin`) are one document; at most MAX_CANDIDATES pairs, the
+closest restatements first, go to NLI. An answer sentence that repeats one side of a conflict is "contested": the model did not invent
 the value, but the sources do not settle it, so the reader must check which source is right.
 """
 
@@ -16,6 +17,7 @@ from truth_guardian.text import Sentence, content_words, split_sentences
 
 PAIR_OVERLAP = 0.6
 MIN_SHARED_WORDS = 4
+MAX_CANDIDATES = 400
 CONFIRM_CONTRADICTION = 0.5
 CLAIM_OVERLAP = 0.5
 _ENUMERATOR = re.compile(r"^\s*\d{1,3}[.)]?\s+(?=[A-Z])")
@@ -34,18 +36,19 @@ class Conflict(NamedTuple):
 class _Fact(NamedTuple):
     text: str
     document: str
+    origin: str
     words: set[str]
     numbers: dict[str, str]
     names: dict[str, tuple[str, str]]
 
 
-def _fact(text: str, document: str) -> _Fact:
+def _fact(text: str, document: str, origin: str | None = None) -> _Fact:
     """A source sentence's words, numbers and names; a leading list number ("4  Let cool") is not a fact."""
     text = _ENUMERATOR.sub("", text)
     numbers = {min(number_forms(text, m)): m.group() for m in _numbers_in(text)}
     names = {fold(e.text).lower(): (e.label_, e.text) for e in _ner()(text).ents if e.label_ in ENTITY_LABELS - {"DATE"}}
     words = {w for w in content_words(fold(text)) if not w.isdigit()}
-    return _Fact(text, document, words, numbers, names)
+    return _Fact(text, document, origin or document, words, numbers, names)
 
 
 def _difference(a: _Fact, b: _Fact) -> tuple[str, str] | None:
@@ -67,20 +70,23 @@ def find_conflicts(sample: Sample, classify=models.nli_probabilities) -> list[Co
     documents = [d for d in sample.documents if d.text.strip()]
     if len(documents) < 2:
         return []
-    facts = [_fact(s.text, d.id) for d in documents for s in split_sentences(d.text)]
+    facts = [_fact(s.text, d.id, d.origin) for d in documents for s in split_sentences(d.text)]
     candidates = []
     for i, a in enumerate(facts):
         for b in facts[i + 1 :]:
-            if a.document == b.document:
+            if a.origin == b.origin:
                 continue
             shared = len(a.words & b.words)
-            if shared < MIN_SHARED_WORDS or shared / max(min(len(a.words), len(b.words)), 1) < PAIR_OVERLAP:
+            overlap = shared / max(min(len(a.words), len(b.words)), 1)
+            if shared < MIN_SHARED_WORDS or overlap < PAIR_OVERLAP:
                 continue
             values = _difference(a, b)
             if values:
-                candidates.append((a, b, values))
+                candidates.append((overlap, a, b, values))
     if not candidates:
         return []
+    # Long uploaded documents can produce thousands of look-alike pairs; NLI checks only the closest restatements.
+    candidates = [c[1:] for c in sorted(candidates, key=lambda c: -c[0])[:MAX_CANDIDATES]]
     probs = classify([(a.text, b.text) for a, b, _ in candidates])
     index = models.NLI_LABELS.index("contradiction")
     return [

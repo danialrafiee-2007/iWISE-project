@@ -1,0 +1,171 @@
+{
+  "data": "agenthallu_test.jsonl",
+  "trajectories": 462,
+  "seconds_per_trajectory": 0.19685560844153735,
+  "detection_auroc": 0.5340930319447039,
+  "detection_auroc_length_only": 0.46209809660211304,
+  "localization": {
+    "all": {
+      "tracer_exact": 0.3201320132013201,
+      "tracer_within_1": 0.5676567656765676,
+      "tracer_top3": 0.7458745874587459,
+      "baseline_first_step": 0.24422442244224424,
+      "baseline_last_step": 0.056105610561056105,
+      "baseline_random": 0.18017770776215739,
+      "n": 303
+    },
+    "category: Human-Interaction Hallucination": {
+      "tracer_exact": 0.2,
+      "tracer_within_1": 0.7333333333333333,
+      "tracer_top3": 0.6666666666666666,
+      "baseline_first_step": 0.36666666666666664,
+      "baseline_last_step": 0.0,
+      "baseline_random": 0.18992956798103855,
+      "n": 60
+    },
+    "category: Planning Hallucination": {
+      "tracer_exact": 0.7435897435897436,
+      "tracer_within_1": 0.7692307692307693,
+      "tracer_top3": 0.9230769230769231,
+      "baseline_first_step": 0.9487179487179487,
+      "baseline_last_step": 0.0,
+      "baseline_random": 0.19976597476597474,
+      "n": 39
+    },
+    "category: Reasoning Hallucination": {
+      "tracer_exact": 0.3614457831325301,
+      "tracer_within_1": 0.5421686746987951,
+      "tracer_top3": 0.8192771084337349,
+      "baseline_first_step": 0.0963855421686747,
+      "baseline_last_step": 0.1686746987951807,
+      "baseline_random": 0.18969561228597373,
+      "n": 83
+    },
+    "category: Retrieval Hallucination": {
+      "tracer_exact": 0.058823529411764705,
+      "tracer_within_1": 0.45098039215686275,
+      "tracer_top3": 0.6274509803921569,
+      "baseline_first_step": 0.0,
+      "baseline_last_step": 0.0,
+      "baseline_random": 0.2162537897832015,
+      "n": 51
+    },
+    "category: Tool-Use Hallucination": {
+      "tracer_exact": 0.32857142857142857,
+      "tracer_within_1": 0.42857142857142855,
+      "tracer_top3": 0.7142857142857143,
+      "baseline_first_step": 0.1,
+      "baseline_last_step": 0.04285714285714286,
+      "baseline_random": 0.12333598940741797,
+      "n": 70
+    },
+    "domain: general_assistant": {
+      "tracer_exact": 0.23076923076923078,
+      "tracer_within_1": 0.38461538461538464,
+      "tracer_top3": 0.6538461538461539,
+      "baseline_first_step": 0.07692307692307693,
+      "baseline_last_step": 0.11538461538461539,
+      "baseline_random": 0.14113327911404833,
+      "n": 26
+    },
+    "domain: math": {
+      "tracer_exact": 0.3559322033898305,
+      "tracer_within_1": 0.6779661016949152,
+      "tracer_top3": 0.7796610169491526,
+      "baseline_first_step": 0.3389830508474576,
+      "baseline_last_step": 0.05084745762711865,
+      "baseline_random": 0.18882017229474857,
+      "n": 59
+    },
+    "domain: science": {
+      "tracer_exact": 0.44,
+      "tracer_within_1": 0.7066666666666667,
+      "tracer_top3": 0.8,
+      "baseline_first_step": 0.44,
+      "baseline_last_step": 0.08,
+      "baseline_random": 0.21616534010651658,
+      "n": 75
+    },
+    "domain: tool_use": {
+      "tracer_exact": 0.32857142857142857,
+      "tracer_within_1": 0.42857142857142855,
+      "tracer_top3": 0.7142857142857143,
+      "baseline_first_step": 0.1,
+      "baseline_last_step": 0.04285714285714286,
+      "baseline_random": 0.12333598940741797,
+      "n": 70
+    },
+    "domain: world_knowledge": {
+      "tracer_exact": 0.1917808219178082,
+      "tracer_within_1": 0.5342465753424658,
+      "tracer_top3": 0.726027397260274,
+      "baseline_first_step": 0.1643835616438356,
+      "baseline_last_step": 0.0273972602739726,
+      "baseline_random": 0.20463109949411318,
+      "n": 73
+    },
+    "framework: BFCL": {
+      "tracer_exact": 0.32857142857142857,
+      "tracer_within_1": 0.42857142857142855,
+      "tracer_top3": 0.7142857142857143,
+      "baseline_first_step": 0.1,
+      "baseline_last_step": 0.04285714285714286,
+      "baseline_random": 0.12333598940741797,
+      "n": 70
+    },
+    "framework: Camel": {
+      "tracer_exact": 0.23684210526315788,
+      "tracer_within_1": 0.631578947368421,
+      "tracer_top3": 0.631578947368421,
+      "baseline_first_step": 0.05263157894736842,
+      "baseline_last_step": 0.15789473684210525,
+      "baseline_random": 0.15535226082826706,
+      "n": 38
+    },
+    "framework: Magentic_One": {
+      "tracer_exact": 0.3055555555555556,
+      "tracer_within_1": 0.3333333333333333,
+      "tracer_top3": 0.7777777777777778,
+      "baseline_first_step": 0.25,
+      "baseline_last_step": 0.08333333333333333,
+      "baseline_random": 0.13225986975986972,
+      "n": 36
+    },
+    "framework: Octotools": {
+      "tracer_exact": 0.2222222222222222,
+      "tracer_within_1": 0.5925925925925926,
+      "tracer_top3": 0.8518518518518519,
+      "baseline_first_step": 0.037037037037037035,
+      "baseline_last_step": 0.037037037037037035,
+      "baseline_random": 0.23830367163700494,
+      "n": 27
+    },
+    "framework: OpenDeepSearch": {
+      "tracer_exact": 0.42857142857142855,
+      "tracer_within_1": 0.7428571428571429,
+      "tracer_top3": 0.8,
+      "baseline_first_step": 0.2857142857142857,
+      "baseline_last_step": 0.0,
+      "baseline_random": 0.23514739229024942,
+      "n": 35
+    },
+    "framework: OpenManus": {
+      "tracer_exact": 0.3125,
+      "tracer_within_1": 0.703125,
+      "tracer_top3": 0.75,
+      "baseline_first_step": 0.46875,
+      "baseline_last_step": 0.015625,
+      "baseline_random": 0.22184924450549448,
+      "n": 64
+    },
+    "framework: SmolAgents": {
+      "tracer_exact": 0.3939393939393939,
+      "tracer_within_1": 0.5757575757575758,
+      "tracer_top3": 0.7575757575757576,
+      "baseline_first_step": 0.45454545454545453,
+      "baseline_last_step": 0.09090909090909091,
+      "baseline_random": 0.1949356199356199,
+      "n": 33
+    }
+  }
+}

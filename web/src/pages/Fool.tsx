@@ -158,7 +158,9 @@ export default function Fool() {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-3">
-          <CardsCascade cards={cards} active={trick} onActive={setTrick} height={440} />
+          <div data-tour="tricks">
+            <CardsCascade cards={cards} active={trick} onActive={setTrick} height={440} />
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className="btn btn-primary" onClick={applyTrick} disabled={!ready || !current || check.running}>
               {`Apply “${KIND_LABEL[KINDS[trick]]}”`}

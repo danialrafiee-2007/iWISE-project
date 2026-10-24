@@ -27,6 +27,7 @@ class Document(_Strict):
     text: str = Field(min_length=1)
     source: str | None = None
     retrieval_score: float | None = None
+    origin: str | None = Field(default=None, description="The file the text came from; the parts of one long document share it.")
 
 
 class AgentStep(_Strict):

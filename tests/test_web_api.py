@@ -127,7 +127,11 @@ def test_fool_edit_errors_are_explained(client):
 def test_model_card_reads_the_committed_results(client):
     card = client.get("/api/model-card").json()
     assert 0.8 < card["ragtruth_dev"]["auroc"] < 0.9 and "B1 lexical overlap" in card["baselines"]
-    assert card["sources"]["M2-ensemble-final__ragtruth_dev.json"].startswith("eval/results/")
+    assert card["sources"]["final__ragtruth_dev.json"].startswith("eval/results/")
+    assert 0.8 < card["ragtruth_dev"]["fusion_only_auroc"] < 0.9
+    assert card["locked_test"]["answers"] == 2700 and set(card["locked_halueval"]) == {"qa", "dialogue", "summary"}
+    assert card["locked_agenthallu"]["trajectories"] == 462 and 0 < card["locked_agenthallu"]["random"] < card["locked_agenthallu"]["exact"]
+    assert 0.6 < card["locked_baselines"]["B1 lexical overlap"]["ragtruth"] < card["locked_test"]["auroc"]
 
 
 def test_unknown_api_paths_are_not_served_the_app(client):

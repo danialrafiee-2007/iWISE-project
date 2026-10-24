@@ -14,6 +14,8 @@ interface Workspace {
   input: CheckInput;
   setInput: (input: CheckInput) => void;
   reducedMotion: boolean;
+  zoom: number;
+  setZoom: (zoom: number) => void;
 }
 
 export const EMPTY_INPUT: CheckInput = { question: "", sources: [""], answer: "", task: "qa", profile: null, exampleId: null };
@@ -39,6 +41,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [mood, setMood] = useState<Mood>("idle");
   const [input, setInput] = useState<CheckInput>(EMPTY_INPUT);
   const reducedMotion = usePrefersReducedMotion();
+  const [zoom, setZoomState] = useState(() => {
+    try {
+      return Number(localStorage.getItem("tg-zoom")) || 1;
+    } catch {
+      return 1;
+    }
+  });
+  const setZoom = (value: number) => {
+    setZoomState(value);
+    try {
+      localStorage.setItem("tg-zoom", String(value));
+    } catch {
+      /* storage unavailable */
+    }
+  };
 
   useEffect(() => {
     let timer: number | undefined;
@@ -64,8 +81,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ health, offline, busy, setBusy, mood, setMood, input, setInput, reducedMotion }),
-    [health, offline, busy, mood, input, reducedMotion],
+    () => ({ health, offline, busy, setBusy, mood, setMood, input, setInput, reducedMotion, zoom, setZoom }),
+    [health, offline, busy, mood, input, reducedMotion, zoom],
   );
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

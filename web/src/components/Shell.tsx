@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { GuardianOrb } from "../layers/GuardianOrb";
+import { TourButton } from "./Tour";
 import { Link, useRouter } from "../lib/router";
 import { useWorkspace } from "../lib/workspace";
 
@@ -45,6 +46,21 @@ function EngineStatus() {
   );
 }
 
+const ZOOMS = [1, 1.25, 1.5];
+
+function ZoomButton() {
+  const { zoom, setZoom } = useWorkspace();
+  const next = ZOOMS[(ZOOMS.indexOf(zoom) + 1) % ZOOMS.length] ?? 1;
+  return (
+    <button type="button" className="chip whitespace-nowrap" onClick={() => setZoom(next)} aria-label={`Presentation size: ${Math.round(zoom * 100)}%, switch to ${Math.round(next * 100)}%`} title="Presentation size for projectors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <path d="M3 18L8 6l5 12M5 14h6M15 18l3-7 3 7M16 16h4" />
+      </svg>
+      <span key={zoom}>{`${Math.round(zoom * 100)}%`}</span>
+    </button>
+  );
+}
+
 export function Shell({ children }: { children: ReactNode }) {
   const { path } = useRouter();
   const { mood } = useWorkspace();
@@ -76,6 +92,8 @@ export function Shell({ children }: { children: ReactNode }) {
           </nav>
           <div className="flex items-center gap-3">
             <EngineStatus />
+            <TourButton />
+            <ZoomButton />
             <GuardianOrb mood={mood} diameter={40} />
           </div>
         </div>

@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { BLAME, GRADE_COLOR, LANE, num, pct, STAGES, STATUS, VERDICT } from "../../lib/format";
 import type { Claim, Report } from "../../lib/types";
 
-export function Panel({ title, children, className = "", tone }: { title?: ReactNode; children: ReactNode; className?: string; tone?: string }) {
+export function Panel({ title, children, className = "", tone, tour }: { title?: ReactNode; children: ReactNode; className?: string; tone?: string; tour?: string }) {
   return (
-    <section className={`card flex flex-col gap-3 p-5 ${className}`} style={tone ? { borderColor: `color-mix(in oklab, ${tone} 40%, transparent)` } : undefined}>
+    <section data-tour={tour} className={`card flex flex-col gap-3 p-5 ${className}`} style={tone ? { borderColor: `color-mix(in oklab, ${tone} 40%, transparent)` } : undefined}>
       {title && <h3 className="m-0 text-[13px] font-normal text-fog-400">{title}</h3>}
       {children}
     </section>
@@ -52,7 +52,7 @@ export function VerdictCard({ report }: { report: Report }) {
   const risk = report.domain?.calibrated_risk ?? report.risk;
   const g = report.guarantee;
   return (
-    <Panel tone={v.color}>
+    <Panel tone={v.color} tour="verdict">
       <div className="flex items-center gap-4">
         {grade && (
           <div className="grid h-[72px] w-[72px] shrink-0 place-items-center rounded-[18px] text-[40px] font-medium" style={{ background: `color-mix(in oklab, ${GRADE_COLOR[grade]} 16%, transparent)`, color: GRADE_COLOR[grade] }} aria-label={`Grade ${grade}`}>
@@ -130,7 +130,7 @@ export function DiagnosisPanel({ report }: { report: Report }) {
   const d = report.diagnosis;
   if (!d) return null;
   return (
-    <Panel title="Who is to blame">
+    <Panel title="Who is to blame" tour="blame">
       <span className="text-base font-medium">{BLAME[d.blame]}</span>
       <span className="text-sm leading-relaxed text-fog-300">{d.message}</span>
       {d.relevance != null && <span className="font-mono text-xs text-fog-400">source relevance {d.relevance.toFixed(2)} (retrieval is blamed below 0.43)</span>}
@@ -160,7 +160,7 @@ export function OmissionsPanel({ report }: { report: Report }) {
 export function ConflictsPanel({ report }: { report: Report }) {
   if (!report.conflicts.length) return null;
   return (
-    <Panel title="The sources disagree" tone="var(--color-split)">
+    <Panel title="The sources disagree" tone="var(--color-split)" tour="conflicts">
       {report.conflicts.map((c, i) => (
         <div key={i} className="flex flex-col gap-1.5 text-sm leading-relaxed">
           <span>
@@ -234,7 +234,7 @@ export function ClaimDetail({ claim, sources }: { claim: Claim; sources: string[
   const docIndex = claim.evidence?.document_id?.match(/^source(\d+)$/)?.[1];
   const fixes = claim.fixes.filter((f) => f.replacement);
   return (
-    <Panel tone={s.color}>
+    <Panel tone={s.color} tour="claim">
       <div className="flex flex-wrap items-center gap-2.5">
         <span className="rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: `color-mix(in oklab, ${s.color} 16%, transparent)`, color: s.color }}>
           {s.label}

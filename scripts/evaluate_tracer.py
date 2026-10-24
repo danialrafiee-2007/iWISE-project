@@ -8,12 +8,14 @@ import argparse
 import json
 import time
 from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 from sklearn.metrics import roc_auc_score
 
 from truth_guardian import fusion
+from truth_guardian.provenance import git_commit
 from truth_guardian.schema import read_jsonl
 from truth_guardian.tracer import trace
 
@@ -70,6 +72,9 @@ def main() -> None:
     }
     out = ROOT / "eval" / "results" / f"tracer{'_learned' if args.learned else ''}__{args.data.stem}.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
+    if "locked" in args.data.resolve().parts:
+        with (ROOT / "eval" / "locked_runs.log").open("a", encoding="utf-8", newline="\n") as log:
+            log.write(f"{datetime.now(timezone.utc).isoformat(timespec='seconds')}\t{git_commit(ROOT)}\t{out.stem.split('__')[0]}\t{args.data.resolve().relative_to(ROOT).as_posix()}\t{out.relative_to(ROOT).as_posix()}\n")
     print(f"{report['trajectories']} trajectories, {report['seconds_per_trajectory']:.2f} s each; detection AUROC {report['detection_auroc']:.3f} (length only {report['detection_auroc_length_only']:.3f})")
     print(f"{'group':48} {'n':>4} {'exact':>6} {'+-1':>6} {'top3':>6} | {'first':>6} {'last':>6} {'random':>6}")
     for g, m in report["localization"].items():

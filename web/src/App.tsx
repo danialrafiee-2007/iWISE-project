@@ -1,8 +1,9 @@
 import { Suspense, type ComponentType } from "react";
 import { Shell } from "./components/Shell";
+import { TourProvider } from "./components/Tour";
 import { LoadError, lazyPage } from "./lib/lazyPage";
 import { Router, useRouter } from "./lib/router";
-import { WorkspaceProvider } from "./lib/workspace";
+import { useWorkspace, WorkspaceProvider } from "./lib/workspace";
 import { Analyze } from "./pages/Analyze";
 
 const Landing = lazyPage(() => import("./pages/Landing"));
@@ -43,13 +44,23 @@ function Page() {
   );
 }
 
+/** Presentation sizes scale the whole app (not the tour card, which sits outside) for a projector. */
+function Zoomed({ children }: { children: React.ReactNode }) {
+  const { zoom } = useWorkspace();
+  return <div style={zoom === 1 ? undefined : { zoom }}>{children}</div>;
+}
+
 export function App() {
   return (
     <Router>
       <WorkspaceProvider>
-        <Shell>
-          <Page />
-        </Shell>
+        <TourProvider>
+          <Zoomed>
+            <Shell>
+              <Page />
+            </Shell>
+          </Zoomed>
+        </TourProvider>
       </WorkspaceProvider>
     </Router>
   );

@@ -8,6 +8,7 @@ import { api, type ModelCard } from "../lib/api";
 import { pct } from "../lib/format";
 import type { Example, ExampleBrief, Report, Step } from "../lib/types";
 import { useStream } from "../lib/useStream";
+import { useRouter } from "../lib/router";
 import { useWorkspace } from "../lib/workspace";
 import { ExamplePicker } from "./Analyze";
 
@@ -29,6 +30,7 @@ const short = (text: string, n = 180) => (text.length > n ? text.slice(0, n - 1)
 
 export default function Agent() {
   const { health } = useWorkspace();
+  const { search, consume } = useRouter();
   const [examples, setExamples] = useState<ExampleBrief[]>([]);
   const [example, setExample] = useState<Example | null>(null);
   const [custom, setCustom] = useState(JSON.stringify({ question: "When did the Marlow Public Library open, and who designed it?", steps: SAMPLE_STEPS }, null, 2));
@@ -81,6 +83,14 @@ export default function Agent() {
     setExample(e);
     await start({ example_id: id }, e.agent_steps, e.question ?? "", e.answer);
   };
+
+  useEffect(() => {
+    const id = new URLSearchParams(search).get("example");
+    if (id && ready && !run.running) {
+      consume();
+      pick(id);
+    }
+  }, [search, ready]);
 
   const runCustom = async () => {
     try {
@@ -172,7 +182,9 @@ export default function Agent() {
             </p>
           )}
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-            <Ascent rows={rows} value={Math.max(0, Math.min(steps.length - 1, shown - 1))} tone={tone} height={440} compact />
+            <div data-tour="agent-timeline">
+              <Ascent rows={rows} value={Math.max(0, Math.min(steps.length - 1, shown - 1))} tone={tone} height={440} compact />
+            </div>
             <div className="card relative min-h-[300px] overflow-hidden">
               <SceneFrame name="halftone-iris" config={halted ? ALERT : CALM} />
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 bg-gradient-to-t from-ink-950/95 to-transparent p-5" aria-live="polite">

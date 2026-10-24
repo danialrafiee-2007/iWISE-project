@@ -52,6 +52,7 @@ Read from the installed package metadata on 2026-10-21.
 | nltk | 3.10.4 | Apache-2.0 (PyPI metadata) |
 | onnxruntime | 1.31.0 | MIT |
 | onnx | 1.23.2 | Apache-2.0 |
+| pypdf | 6.21.2 | BSD-3-Clause |
 | fastapi | 0.161.1 | MIT |
 | starlette | 1.9.0 | BSD-3-Clause |
 | uvicorn | 0.54.0 | BSD-3-Clause |

@@ -1,0 +1,34 @@
+{
+  "name": "final",
+  "data": "data/processed/locked/halueval_summary.jsonl",
+  "predictions": "eval/predictions/final__halueval_summary.jsonl",
+  "commit": "1ac472c-dirty",
+  "timestamp": "2026-10-23T22:32:38+00:00",
+  "threshold": 0.4538356475415264,
+  "sentence_threshold": 0.31042325738681364,
+  "response": {
+    "n": 1000,
+    "hallucinated_rate": 0.5,
+    "precision": 0.6742424242424242,
+    "recall": 0.356,
+    "f1": 0.46596858638743455,
+    "f1_flag_everything": 0.6666666666666666,
+    "accuracy": 0.592,
+    "auroc": 0.6942079999999999,
+    "pr_auc": 0.6356924481675769,
+    "brier": 0.27212417233672925,
+    "ece": 0.2226742883072679
+  },
+  "span": null,
+  "ci95": {
+    "f1": [
+      0.4237164778431091,
+      0.5083978223775087
+    ],
+    "auroc": [
+      0.6635882,
+      0.7236695000000001
+    ]
+  },
+  "breakdown": {}
+}

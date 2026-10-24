@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTour } from "../components/Tour";
 import { Ascent, type AscentRow } from "../layers/Ascent";
 import { NeuralBrain } from "../layers/brain/NeuralBrain";
 import { Pharos } from "../layers/Gradients";
@@ -50,6 +51,7 @@ function useScrollFraction(ref: React.RefObject<HTMLElement | null>) {
 export default function Landing() {
   const { health, busy } = useWorkspace();
   const { navigate } = useRouter();
+  const tour = useTour();
   const page = useRef<HTMLDivElement>(null);
   const how = useRef<HTMLElement>(null);
   const pageProgress = useScrollFraction(page);
@@ -81,9 +83,14 @@ export default function Landing() {
   })), [examples]);
 
   const dev = card?.ragtruth_dev;
+  const lockedBest = Math.max(0, ...Object.values(card?.locked_baselines ?? {}).map((b) => b.ragtruth ?? 0));
   const results = [
-    dev && { value: num(dev.auroc, 3), label: `AUROC on RAGTruth dev (best baseline ${num(Math.max(...Object.values(card!.baselines).map((b) => b.auroc)), 3)})` },
-    card?.halueval && { value: num(card.halueval.qa, 3), label: "AUROC on HaluEval QA, never trained on" },
+    card?.locked_test
+      ? { value: num(card.locked_test.auroc, 3), label: `AUROC on the locked RAGTruth test set, opened once${lockedBest ? ` (best baseline ${num(lockedBest, 3)})` : ""}` }
+      : dev && { value: num(dev.auroc, 3), label: `AUROC on RAGTruth dev (best baseline ${num(Math.max(...Object.values(card!.baselines).map((b) => b.auroc)), 3)})` },
+    card?.locked_halueval?.qa
+      ? { value: num(card.locked_halueval.qa.auroc, 3), label: "AUROC on the locked HaluEval QA set, never trained on" }
+      : card?.halueval && { value: num(card.halueval.qa, 3), label: "AUROC on HaluEval QA, never trained on" },
     card?.guarantee && { value: pct(card.guarantee.miss_rate), label: `hallucinations missed at the catch line, as guaranteed (α = ${card.guarantee.alpha})` },
     card?.speed && { value: `${num(card.speed.mean, 1)} s`, label: "per answer on a laptop CPU" },
     { value: "0", label: "calls to the internet" },
@@ -103,7 +110,10 @@ export default function Landing() {
           Paste a question, the sources and an AI answer. Truth Guardian marks the exact words that drift from the evidence, says who is to blame, fixes what it can and checks again. It also watches agents while they run.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link to="/analyze" className="btn btn-primary no-underline">
+          <button type="button" className="btn btn-primary" onClick={() => tour.start(false)}>
+            Take the 3-minute tour
+          </button>
+          <Link to="/analyze" className="btn btn-ghost no-underline">
             Check an answer
           </Link>
           <Link to="/fool" className="btn btn-ghost no-underline">

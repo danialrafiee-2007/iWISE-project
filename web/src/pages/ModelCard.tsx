@@ -2,8 +2,11 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Panel } from "../components/report/Panels";
 import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
-import { api, type ModelCard as Card } from "../lib/api";
+import { api, type LockedAuroc, type ModelCard as Card } from "../lib/api";
 import { KIND_LABEL, num, pct } from "../lib/format";
+
+const TASK_LABELS = { qa: "Question answering", dialogue: "Dialogue", summary: "Summarisation" } as const;
+const TASK_SHORT = { qa: "QA", dialogue: "Dialogue", summary: "Summary" } as const;
 
 function Stat({ value, label, note }: { value: ReactNode; label: string; note?: string }) {
   return (
@@ -32,9 +35,10 @@ function Bars({ rows, max = 1, digits = 3 }: { rows: { label: string; value: num
 }
 
 const LIMITS = [
-  "Trained and calibrated on RAGTruth (English news, QA and business data). On another domain the ranking holds less well (HaluEval dialogue and summary about 0.69 to 0.70 AUROC) and the guarantees break until a domain profile is fitted on a few dozen labelled answers.",
+  "Trained and calibrated on RAGTruth (English news, QA and business data). On another domain the ranking holds less well (locked HaluEval dialogue 0.67 and summary 0.69 AUROC, with calibration error about 0.23) and the guarantees break until a domain profile is fitted on a few dozen labelled answers.",
   "Some edits slip through often: opposite words, stronger quantifiers and dropped hedges are the weakest columns of the Fool-the-Guardian suite.",
-  "On natural agent runs (AgentHallu) no setting of the live guardian separates faithful from hallucinating agents well; strict mode stops many faithful runs, lenient mode stops few hallucinating ones.",
+  "On natural agent runs (AgentHallu) no setting of the live guardian separates faithful from hallucinating agents well (detection AUROC about 0.53 on the locked test); strict mode stops many faithful runs, lenient mode stops few hallucinating ones. Finding the faulty step works better than chance, not reliably.",
+  "Span F1 on the locked RAGTruth test (0.30) is lower than on dev (0.38): the verdict for the whole answer holds up better than the exact place of the error.",
   "Healing edits are often right but not always: read the changes before using a healed answer.",
   "It checks answers against the given sources only. A claim that is true in the world but absent from the sources counts as unsupported.",
 ];
@@ -47,6 +51,9 @@ export default function ModelCard() {
   }, []);
 
   const dev = card?.ragtruth_dev;
+  const locked = card?.locked_test;
+  const lockedBaselines = Object.entries(card?.locked_baselines ?? {}).filter(([, b]) => b.ragtruth !== undefined);
+  const reference = card?.locked_reference;
   return (
     <div className="relative isolate">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] opacity-70 [mask:linear-gradient(180deg,#000_55%,transparent)]">
@@ -67,10 +74,22 @@ export default function ModelCard() {
         {error && <p role="alert" className="text-bad">The model card could not be loaded: {error}</p>}
         {!card && !error && <p className="text-fog-400">Loading the results…</p>}
 
-        {dev && (
-          <Panel>
+        {locked && (
+          <Panel tour="headline" title="Locked test set: RAGTruth test, opened once with the final model and the thresholds chosen on dev" tone="var(--color-beam-400)">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <Stat value={num(dev.auroc, 3)} label="AUROC on RAGTruth dev" note={dev.auroc_ci95 ? `95% interval ${num(dev.auroc_ci95[0], 3)} to ${num(dev.auroc_ci95[1], 3)}, ${dev.answers} answers` : undefined} />
+              <Stat value={num(locked.auroc, 3)} label="AUROC" note={locked.auroc_ci95 ? `95% interval ${num(locked.auroc_ci95[0], 3)} to ${num(locked.auroc_ci95[1], 3)}, ${locked.answers} answers` : `${locked.answers} answers`} />
+              <Stat value={num(locked.f1, 3)} label="F1 for hallucinated answers" note={`flagging everything gives ${num(locked.f1_flag_everything, 3)}`} />
+              <Stat value={num(locked.span_f1, 3)} label="Character-level span F1" note="where in the answer the error is" />
+              <Stat value={num(locked.ece, 3)} label="Calibration error (ECE)" note="the risk reads as a probability" />
+            </div>
+            <span className="text-xs text-fog-400">{`Per task: ${Object.entries(locked.by_task).map(([t, v]) => `${t} ${num(v.auroc, 3)}`).join(" · ")}`}</span>
+          </Panel>
+        )}
+
+        {dev && (
+          <Panel tour={locked ? undefined : "headline"} title={locked ? "Development set (RAGTruth dev), where the model and its thresholds were chosen" : undefined}>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              <Stat value={num(dev.auroc, 3)} label="AUROC on RAGTruth dev" note={`${dev.auroc_ci95 ? `95% interval ${num(dev.auroc_ci95[0], 3)} to ${num(dev.auroc_ci95[1], 3)}, ` : ""}${dev.answers} answers${dev.fusion_only_auroc ? `; fusion model alone ${num(dev.fusion_only_auroc, 3)}` : ""}`} />
               <Stat value={num(dev.f1, 3)} label="F1 for hallucinated answers" note={`flagging everything gives ${num(dev.f1_flag_everything, 3)}`} />
               <Stat value={num(dev.span_f1, 3)} label="Character-level span F1" note="where in the answer the error is" />
               <Stat value={num(dev.ece, 3)} label="Calibration error (ECE)" note="the risk reads as a probability" />
@@ -79,7 +98,20 @@ export default function ModelCard() {
         )}
 
         <div className="grid gap-5 lg:grid-cols-2">
-          {dev && (
+          {locked && lockedBaselines.length > 0 ? (
+            <Panel title="Against the baselines (locked RAGTruth test, AUROC)">
+              <Bars
+                rows={[
+                  { label: "Truth Guardian", value: locked.auroc, highlight: true },
+                  ...lockedBaselines.map(([label, b]) => ({ label, value: b.ragtruth! })),
+                ]}
+              />
+              <span className="text-xs text-fog-400">
+                {`Same answers, thresholds from dev. On dev: Truth Guardian ${num(dev?.auroc, 3)}, best baseline ${num(Math.max(...Object.values(card!.baselines).map((b) => b.auroc)), 3)}.`}
+                {reference?.ragtruth !== undefined && ` External reference: LettuceDetect, fine-tuned on RAGTruth train itself, ${num(reference.ragtruth, 3)} here${reference.qa !== undefined ? ` and ${["qa", "dialogue", "summary"].map((t) => num(reference[t as keyof LockedAuroc], 3)).join(" / ")} on HaluEval QA / dialogue / summary` : ""}.`}
+              </span>
+            </Panel>
+          ) : dev && (
             <Panel title="Against the baselines (RAGTruth dev, AUROC)">
               <Bars
                 rows={[
@@ -90,7 +122,22 @@ export default function ModelCard() {
               <span className="text-xs text-fog-400">Per task: {Object.entries(dev.by_task).map(([t, v]) => `${t} ${num(v.auroc, 3)}`).join(" · ")}</span>
             </Panel>
           )}
-          {card?.halueval && (
+          {card?.locked_halueval ? (
+            <Panel title="On data it never saw (locked HaluEval, AUROC)">
+              <Bars
+                rows={(["qa", "dialogue", "summary"] as const).flatMap((t) => {
+                  const ours = card.locked_halueval?.[t];
+                  if (!ours) return [];
+                  const best = Math.max(...lockedBaselines.map(([, b]) => b[t] ?? 0));
+                  return [
+                    { label: TASK_LABELS[t], value: ours.auroc, highlight: true },
+                    ...(best > 0 ? [{ label: `${TASK_SHORT[t]}, best baseline`, value: best }] : []),
+                  ];
+                })}
+              />
+              <span className="text-xs text-fog-400">{`${Object.values(card.locked_halueval)[0]?.answers ?? ""} answers per task, opened once, no tuning on HaluEval; the thresholds are RAGTruth's, so the risk is less well calibrated here. Training: ${card.train?.answers ?? ""} RAGTruth answers.`}</span>
+            </Panel>
+          ) : card?.halueval && (
             <Panel title="On data it never saw (HaluEval, AUROC)">
               <Bars
                 rows={[
@@ -184,11 +231,14 @@ export default function ModelCard() {
               ))}
             </ul>
           </Panel>
-          <Panel title="Locked test set">
-            {card?.locked_test ? (
-              <p className="m-0 text-sm text-fog-300">
-                AUROC {num(card.locked_test.auroc, 3)}, F1 {num(card.locked_test.f1, 3)}, span F1 {num(card.locked_test.span_f1, 3)}.
-              </p>
+          <Panel title="Locked test sets">
+            {locked ? (
+              <ul className="m-0 flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed text-fog-300">
+                <li>{`RAGTruth test: AUROC ${num(locked.auroc, 3)}, F1 ${num(locked.f1, 3)}, span F1 ${num(locked.span_f1, 3)} (${locked.answers} answers).`}</li>
+                {card?.locked_halueval && <li>{`HaluEval (never trained on): ${Object.entries(card.locked_halueval).map(([t, v]) => `${t} ${num(v.auroc, 3)}`).join(", ")} AUROC, ${Object.values(card.locked_halueval)[0]?.answers ?? ""} answers each.`}</li>}
+                {card?.locked_agenthallu && <li>{`AgentHallu (${card.locked_agenthallu.trajectories} natural agent runs): faulty step found exactly in ${pct(card.locked_agenthallu.exact)} (random ${pct(card.locked_agenthallu.random)}), detection AUROC ${num(card.locked_agenthallu.detection_auroc, 2)}.`}</li>}
+                <li>Each was evaluated once and logged in eval/locked_runs.log; nothing was tuned on them.</li>
+              </ul>
             ) : (
               <p className="m-0 text-sm leading-relaxed text-fog-300">Not opened yet. It is evaluated once, with the final model, and reported here as it comes out.</p>
             )}

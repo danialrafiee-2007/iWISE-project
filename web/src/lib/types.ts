@@ -165,6 +165,7 @@ export interface AuditSummary {
 export interface CheckInput {
   question: string;
   sources: string[];
+  sourceNames?: (string | null)[];
   answer: string;
   task: Task;
   profile?: string | null;

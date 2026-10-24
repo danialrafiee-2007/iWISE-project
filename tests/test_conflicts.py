@@ -39,3 +39,29 @@ def test_different_contexts_and_one_document_are_not_conflicts():
 def test_nli_must_confirm():
     s = sample("The Eiffel Tower is 324 metres tall, including its antennas.", "The Eiffel Tower is 300 metres tall, including its antennas.")
     assert find_conflicts(s, lambda pairs: np.tile([0.1, 0.1, 0.8], (len(pairs), 1))) == []
+
+
+def test_parts_of_one_uploaded_file_are_one_document():
+    s = sample("The Eiffel Tower is 324 metres tall, including its antennas.", "The Eiffel Tower is 300 metres tall, including its antennas.")
+    parts = s.model_copy(update={"documents": [d.model_copy(update={"origin": "guide.pdf"}) for d in s.documents]})
+    assert find_conflicts(parts, contradiction) == []
+
+
+def test_nli_sees_at_most_the_closest_candidate_pairs():
+    from truth_guardian import conflicts
+
+    seen = []
+    first = " ".join(f"The museum holds exactly {i} paintings on the east wall today." for i in range(30))
+    second = " ".join(f"The museum holds exactly {i + 100} paintings on the east wall today." for i in range(30))
+
+    def count(pairs):
+        seen.append(len(pairs))
+        return np.tile([0.1, 0.8, 0.1], (len(pairs), 1))
+
+    original = conflicts.MAX_CANDIDATES
+    conflicts.MAX_CANDIDATES = 50
+    try:
+        find_conflicts(sample(first, second), count)
+    finally:
+        conflicts.MAX_CANDIDATES = original
+    assert seen == [50]

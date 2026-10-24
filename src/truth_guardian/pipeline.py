@@ -42,10 +42,16 @@ def make_sample(
     question: str | None = None,
     agent_steps: list[dict] | None = None,
     sample_id: str = "input",
+    origins: list[str | None] | None = None,
 ) -> Sample:
-    """agent_steps: dicts with step, kind, content and optionally observation; tool outputs also become sources."""
+    """agent_steps: dicts with step, kind, content and optionally observation; tool outputs also become sources.
+    origins[i] names the file source i came from (parts of one long document share it)."""
     steps = [AgentStep.model_validate(s) for s in agent_steps or []]
-    documents = [Document(id=f"source{i}", text=t) for i, t in enumerate(sources, 1) if t.strip()]
+    origins = origins or []
+    documents = [
+        Document(id=f"source{i}", text=t, origin=origins[i - 1] if i - 1 < len(origins) else None)
+        for i, t in enumerate(sources, 1) if t.strip()
+    ]
     documents += [Document(id=f"step{s.step}", text=s.observation, source=f"step {s.step} tool output") for s in steps if s.observation]
     if not documents and question:
         documents = [Document(id="task", text=question, source="question")]

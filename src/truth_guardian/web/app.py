@@ -7,6 +7,8 @@ from the user, and only localhost host names are accepted (against DNS rebinding
 """
 
 import asyncio
+import base64
+import binascii
 import json
 import queue
 import threading
@@ -26,6 +28,7 @@ from truth_guardian.heal import apply as apply_changes
 from truth_guardian.pipeline import make_sample
 from truth_guardian.schema import Sample
 from truth_guardian.web.engine import ROOT, Cancelled, Engine
+from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
 from truth_guardian.web.metrics import model_card
 
@@ -45,6 +48,7 @@ class CheckIn(_Strict):
     example_id: str | None = None
     question: str | None = Field(default=None, max_length=MAX_QUESTION)
     sources: Annotated[list[Annotated[str, Field(max_length=MAX_SOURCE)]], Field(max_length=MAX_SOURCES)] = []
+    source_names: Annotated[list[Annotated[str, Field(max_length=255)] | None], Field(max_length=MAX_SOURCES)] = []
     answer: str | None = Field(default=None, max_length=MAX_ANSWER)
     task: Task = "other"
     profile: str | None = None
@@ -74,6 +78,11 @@ class EditIn(_Strict):
 class FoolIn(_Strict):
     answer_id: str
     answer: str = Field(min_length=1, max_length=MAX_ANSWER)
+
+
+class FileIn(_Strict):
+    name: str = Field(min_length=1, max_length=255)
+    data: str = Field(max_length=(MAX_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
 
 
 class AuditIn(_Strict):
@@ -196,7 +205,7 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
             raise HTTPException(422, "the answer is empty")
         if not any(s.strip() for s in body.sources) and not (body.question or "").strip():
             raise HTTPException(422, "give at least one source (or a question) to check the answer against")
-        sample = make_sample(body.answer, body.sources, body.question or None)
+        sample = make_sample(body.answer, body.sources, body.question or None, origins=body.source_names)
         return sample.model_copy(update={"meta": sample.meta.model_copy(update={"task": body.task})}), None
 
     @app.get("/api/health")
@@ -323,6 +332,23 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
             return {"summary": summary.model_dump(mode="json"), "answers": rows, "seconds": round(time.perf_counter() - started, 2)}
 
         return _stream(work)
+
+    @app.get("/api/documents")
+    def document_types() -> dict:
+        return {"types": SUPPORTED, "max_bytes": MAX_BYTES, "max_source_chars": MAX_SOURCE, "max_sources": MAX_SOURCES}
+
+    @app.post("/api/documents")
+    def read_document(body: FileIn) -> dict:
+        """Text of an uploaded document, split into parts that each fit one source."""
+        try:
+            raw = base64.b64decode(body.data, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(422, "the file could not be read") from None
+        try:
+            found = extract(body.name, raw)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from None
+        return {"name": body.name, "kind": found.kind, "pages": found.pages, "chars": len(found.text), "parts": split(found.text, MAX_SOURCE)}
 
     @app.get("/api/model-card")
     def card() -> dict:

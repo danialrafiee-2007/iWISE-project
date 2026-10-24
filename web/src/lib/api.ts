@@ -59,9 +59,11 @@ export async function stream<T>(path: string, body: unknown, onEvent: (event: St
 
 export function checkBody(input: CheckInput) {
   if (input.exampleId) return { example_id: input.exampleId };
+  const kept = input.sources.map((s, i) => ({ text: s.trim(), name: input.sourceNames?.[i]?.split(" · part ")[0] ?? null })).filter((s) => s.text);
   return {
     question: input.question.trim() || null,
-    sources: input.sources.map((s) => s.trim()).filter(Boolean),
+    sources: kept.map((s) => s.text),
+    source_names: kept.map((s) => s.name),
     answer: input.answer,
     task: input.task,
     profile: input.profile || null,
@@ -79,21 +81,25 @@ export const api = {
   modelCard: () => getJson<ModelCard>("/api/model-card"),
 };
 
+export interface Summary {
+  answers: number;
+  hallucinated_share: number;
+  auroc: number;
+  auroc_ci95: [number, number] | null;
+  f1: number;
+  f1_flag_everything: number;
+  precision: number;
+  recall: number;
+  ece: number | null;
+  span_f1: number | null;
+  by_task: Record<string, { n: number; auroc: number }>;
+}
+
+export type LockedAuroc = Partial<Record<"ragtruth" | "qa" | "dialogue" | "summary", number>>;
+
 export interface ModelCard {
   sources: Record<string, string>;
-  ragtruth_dev?: {
-    answers: number;
-    hallucinated_share: number;
-    auroc: number;
-    auroc_ci95: [number, number] | null;
-    f1: number;
-    f1_flag_everything: number;
-    precision: number;
-    recall: number;
-    ece: number;
-    span_f1: number;
-    by_task: Record<string, { n: number; auroc: number }>;
-  };
+  ragtruth_dev?: Summary & { fusion_only_auroc?: number | null };
   baselines: Record<string, { auroc: number; span_f1: number }>;
   halueval?: { qa: number; dialogue: number; summary: number; answers_per_task: number };
   train?: { answers: number; out_of_fold_auroc: number };
@@ -105,6 +111,10 @@ export interface ModelCard {
   tracer_agenthallu?: { trajectories: number; detection_auroc: number; exact: number; random: number };
   guardian?: Record<string, { stop_tpr: number; stop_fpr: number; stop_on_responsible_step: number }>;
   speed?: { answers: number; cold_start_seconds: number; mean: number; p95: number };
-  locked_test: { auroc: number; f1: number; span_f1: number } | null;
+  locked_test: Summary | null;
+  locked_halueval?: Record<string, Summary> | null;
+  locked_baselines?: Record<string, LockedAuroc>;
+  locked_reference?: LockedAuroc | null;
+  locked_agenthallu?: { trajectories: number; detection_auroc: number; exact: number; random: number };
   engine: Health;
 }

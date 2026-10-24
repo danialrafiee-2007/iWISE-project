@@ -8,6 +8,8 @@ import { api, checkBody } from "../lib/api";
 import { GRADE_COLOR, pct, VERDICT } from "../lib/format";
 import type { Change, Healing, Report } from "../lib/types";
 import { useStream } from "../lib/useStream";
+import { useRouter } from "../lib/router";
+import type { CheckInput } from "../lib/types";
 import { useWorkspace } from "../lib/workspace";
 import { downloadJson, ExamplePicker, exampleInput } from "./Analyze";
 import type { ExampleBrief } from "../lib/types";
@@ -55,6 +57,7 @@ export default function Heal() {
   const [card, setCard] = useState<ModelCard | null>(null);
   const [round, setRound] = useState(0);
   const heal = useStream<Healing & { report?: Report }>();
+  const { search, consume } = useRouter();
   const ready = health?.state === "ready";
 
   useEffect(() => {
@@ -62,18 +65,28 @@ export default function Heal() {
     api.modelCard().then(setCard).catch(() => {});
   }, []);
 
-  const run = async () => {
+  const run = async (value: CheckInput = input) => {
     setRound(0);
-    const result = await heal.run("/api/heal", checkBody(input), (r) => r.rounds[r.rounds.length - 1].report.verdict);
+    const result = await heal.run("/api/heal", checkBody(value), (r) => r.rounds[r.rounds.length - 1].report.verdict);
     if (result) setRound(result.rounds.length - 1);
   };
 
+  // ?example=<id> heals that example; ?auto=1 heals the answer handed over from Analyze.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("auto") === "1" && ready && input.answer.trim() && !heal.running && !heal.result) {
-      window.history.replaceState(null, "", "/heal");
+    const params = new URLSearchParams(search);
+    const id = params.get("example");
+    if (!ready || heal.running || (!id && params.get("auto") !== "1")) return;
+    consume();
+    if (id) {
+      api.example(id).then(({ example }) => {
+        const value = exampleInput(example);
+        setInput(value);
+        run(value);
+      }).catch(() => {});
+    } else if (input.answer.trim()) {
       run();
     }
-  }, [ready]);
+  }, [ready, search]);
 
   const pick = async (id: string) => {
     const { example } = await api.example(id);
@@ -207,7 +220,7 @@ export default function Heal() {
               )}
             </div>
             <aside className="flex min-w-0 flex-col gap-4">
-              <Panel title="Risk, round by round">
+              <Panel title="Risk, round by round" tour="heal-rounds">
                 <ol className="m-0 flex list-none flex-col gap-3 p-0">
                   {result.rounds.map((r, i) => (
                     <li key={i}>

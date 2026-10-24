@@ -63,7 +63,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
       <div className="flex min-w-0 flex-col gap-4">
-        <Panel>
+        <Panel tour="answer">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="m-0 text-[13px] font-normal text-fog-400">Answer · select a claim to see why</h2>
             <StatusLegend />
@@ -105,7 +105,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
 
 export function Analyze() {
   const { input, setInput, health, busy } = useWorkspace();
-  const { navigate } = useRouter();
+  const { navigate, search, consume } = useRouter();
   const [examples, setExamples] = useState<ExampleBrief[]>([]);
   const [example, setExample] = useState<Example | null>(null);
   const [view, setView] = useState<View | null>(null);
@@ -115,12 +115,15 @@ export function Analyze() {
 
   useEffect(() => {
     api.examples().then((e) => setExamples(e.answers)).catch(() => {});
-    const id = new URLSearchParams(window.location.search).get("example");
+  }, []);
+
+  useEffect(() => {
+    const id = new URLSearchParams(search).get("example");
     if (id) {
-      window.history.replaceState(null, "", "/analyze");
+      consume();
       pick(id);
     }
-  }, []);
+  }, [search]);
 
   const run = async (value: CheckInput, gold: Example | null = null) => {
     const result = await check.run("/api/analyze", checkBody(value));
