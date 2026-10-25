@@ -46,10 +46,13 @@ def main() -> None:
     parser.add_argument("--content-only", action="store_true", help="drop position and step-kind features")
     parser.add_argument("--hybrid", action="store_true", help="mix learned probabilities 50/50 with the v0 evidence score")
     parser.add_argument("--no-save", action="store_true")
+    parser.add_argument("--data", type=Path, default=ROOT / "data/processed/agenthallu_dev.jsonl")
     args = parser.parse_args()
 
-    samples = list(read_jsonl(ROOT / "data/processed/agenthallu_dev.jsonl"))
-    semantic = cached_semantic_rows(samples, "agenthallu_dev") if args.semantic else {}
+    if "locked" in args.data.resolve().parts:
+        parser.error("the tracer is trained on dev only")
+    samples = list(read_jsonl(args.data))
+    semantic = cached_semantic_rows(samples, args.data.stem) if args.semantic else {}
     features = {s.id: (traces, *combined_features(s, traces, semantic.get(s.id))) for s in samples for traces in [trace(s)]}
     fold_of = fusion.group_folds([s.meta.group_id for s in samples], args.folds)
 
@@ -87,7 +90,7 @@ def main() -> None:
         "detection_auroc_v0": float(roc_auc_score(y, v0_risk)),
         "localization": {g: {k: float(np.mean(v)) for k, v in h.items()} | {"n": len(h["learned_exact"])} for g, h in sorted(hits.items())},
     }
-    out = ROOT / "eval" / "results" / f"tracer_learned{'_semantic' if args.semantic else ''}{'_content' if args.content_only else ''}{'_hybrid' if args.hybrid else ''}__agenthallu_dev.json"
+    out = ROOT / "eval" / "results" / f"tracer_learned{'_semantic' if args.semantic else ''}{'_content' if args.content_only else ''}{'_hybrid' if args.hybrid else ''}__{args.data.stem}.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
     print(f"detection AUROC: learned {report['detection_auroc_learned']:.3f}, v0 {report['detection_auroc_v0']:.3f}")
     print(f"{'group':42} {'n':>4} {'exact':>6} {'+-1':>6} {'top3':>6} | {'v0':>6} {'first':>6} {'random':>6}")
@@ -103,7 +106,7 @@ def main() -> None:
         "version": f"{created:%Y%m%d-%H%M%S}-tracer",
         "created": created.isoformat(timespec="seconds"),
         "commit": git_commit(ROOT),
-        "train": {"data": "agenthallu_dev.jsonl", "trajectories": len(samples)},
+        "train": {"data": args.data.name, "trajectories": len(samples)},
         "semantic": args.semantic,
         "content_only": args.content_only,
         "hybrid": args.hybrid,

@@ -11,11 +11,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from truth_guardian.adapt import labelled_choice
 from truth_guardian.pipeline import make_sample
 from truth_guardian.report import Report
 from truth_guardian.schema import Sample, read_jsonl
 
 MIN_ANSWER, MAX_ANSWER = 200, 900
+DIALOGUE_PROFILE = "HaluEval dialogue"
 AGENT_CATEGORIES = ("synthetic: fabricated fact", "synthetic: ignored tool error", "synthetic: answer addition")
 
 
@@ -37,6 +39,7 @@ class Example(BaseModel):
     agent_steps: list[dict] = Field(default_factory=list)
     gold: str | None = None
     gold_spans: list[GoldSpan] = Field(default_factory=list)
+    profile: str | None = None
 
     def sample(self) -> Sample:
         sample = make_sample(self.answer, self.sources, self.question, self.agent_steps or None, sample_id=self.id)
@@ -121,13 +124,13 @@ def _gold(sample: Sample) -> tuple[str, list[GoldSpan]]:
     return labels.response, [GoldSpan(start=s.start, end=s.end, type=s.type) for s in labels.spans]
 
 
-def from_sample(sample: Sample, title: str, about: str, origin: str) -> Example:
+def from_sample(sample: Sample, title: str, about: str, origin: str, profile: str | None = None) -> Example:
     gold, spans = _gold(sample) if sample.labels else (None, [])
     sources = [d.text for d in sample.documents if not d.id.startswith("step") and d.source != "question"]
     steps = [s.model_dump(exclude_none=True) for s in sample.agent_log or []]
     return Example(
         id=sample.id, title=title, about=about, origin=origin, task=sample.meta.task, question=sample.question,
-        sources=sources, answer=sample.answer, agent_steps=steps, gold=gold, gold_spans=spans,
+        sources=sources, answer=sample.answer, agent_steps=steps, gold=gold, gold_spans=spans, profile=profile,
     )
 
 
@@ -143,6 +146,26 @@ def dev_examples(root: Path) -> list[Example]:
             pool = [s for s in samples if s.meta.task == task and s.labels.response == response and (response == "grounded" or s.labels.spans)]
             for s in _select(pool, 1, f"{task}:{response}"):
                 out.append(from_sample(s, f"{name}, {response} by the annotators", "Drawn at random from RAGTruth dev; compare the guardian with the annotators' marks.", "RAGTruth dev"))
+    return out
+
+
+def domain_examples(root: Path) -> list[Example]:
+    """HaluEval dialogue answers checked with the shipped dialogue profile, drawn from the external dev answers the
+    profile was not fitted on."""
+    path = root / "data" / "processed" / "xdev_halueval_dialogue.jsonl"
+    if not path.exists():
+        return []
+    samples = list(read_jsonl(path))
+    fitted = set(labelled_choice(len(samples), "dialogue"))
+    pool = [s for i, s in enumerate(samples) if i not in fitted]
+    out = []
+    for response in ("hallucinated", "grounded"):
+        for s in _select([s for s in pool if s.labels.response == response], 1, f"dialogue:{response}"):
+            out.append(from_sample(
+                s, f"A chatbot reply, {response} by the annotators",
+                "Drawn at random from HaluEval dialogue (external dev), a domain unlike RAGTruth, and checked with the HaluEval dialogue profile fitted on 50 other labelled replies.",
+                "HaluEval dialogue dev", DIALOGUE_PROFILE,
+            ))
     return out
 
 
@@ -188,7 +211,7 @@ class ExampleStore:
     def __init__(self, root: Path):
         self.folder = root / "data" / "web" / "examples"
         self.code = brain_fingerprint()
-        self.examples = {e.id: e for e in [*SHOWCASE, *dev_examples(root)]}
+        self.examples = {e.id: e for e in [*SHOWCASE, *dev_examples(root), *domain_examples(root)]}
         self.agents = {e.id: e for e in agent_examples(root)}
 
     def find(self, example_id: str) -> Example | None:

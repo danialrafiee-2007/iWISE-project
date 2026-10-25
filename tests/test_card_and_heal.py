@@ -3,8 +3,8 @@ from truth_guardian.heal import Change, apply, corrections
 from truth_guardian.report import ClaimReport, Evidence, Fix, Report
 
 
-def claim(start, end, text, status="supported", fixes=(), evidence=None, cautions=()):
-    return ClaimReport(start=start, end=end, text=text, status=status, risk=0.9 if status != "supported" else 0.1,
+def claim(start, end, text, status="supported", fixes=(), evidence=None, cautions=(), type=None):
+    return ClaimReport(start=start, end=end, text=text, status=status, risk=0.9 if status != "supported" else 0.1, type=type,
                        explanation="", action="keep", fixes=list(fixes), evidence=evidence, cautions=list(cautions))
 
 
@@ -17,7 +17,7 @@ def test_grades_follow_risk_bands():
 
 
 def test_card_counts_supported_claims_and_overclaims():
-    card = build_card(report([claim(0, 5, "a"), claim(6, 10, "b", "unsupported", cautions=["overclaim: x"])]))
+    card = build_card(report([claim(0, 5, "a"), claim(6, 10, "b", "unsupported", type="overclaim")]))
     dims = {d.name: d.score for d in card.dimensions}
     assert card.grade == "D" and dims["claims supported"] == 0.5 and dims["certainty"] == 0.5 and dims["citations"] is None
 

@@ -17,7 +17,8 @@ from huggingface_hub import HfApi
 ROOT = Path(__file__).resolve().parents[1]
 FILES = [
     "Dockerfile", ".dockerignore", "pyproject.toml", "uv.lock",
-    "src/**", "scripts/**", "models/fusion/**", "models/tracer/**", "eval/results/**",
+    "src/**", "scripts/**", "models/fusion/**", "models/tracer/**", "models/profiles/**", "eval/results/**",
+    "models/detector/full/*.json", "models/detector/full/model.safetensors",
 ]
 NEVER = ["**/__pycache__/**", "**/*.pyc"]
 

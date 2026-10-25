@@ -1,0 +1,84 @@
+{
+  "model_version": "20261022-082833-ensemble",
+  "labelled": 50,
+  "profiles": {
+    "halueval-qa": {
+      "title": "HaluEval QA",
+      "labelled": {
+        "hallucinated": 20,
+        "grounded": 30
+      },
+      "held_out_answers": 450,
+      "auroc": {
+        "model": 0.9163833992094861,
+        "profile": 0.8943675889328063
+      },
+      "ece": {
+        "model": 0.2532075905908934,
+        "profile": 0.0679442589454176
+      },
+      "verdict_accuracy": {
+        "model": 0.7044444444444444,
+        "profile": 0.8266666666666667
+      },
+      "weights": {
+        "model_risk_logit": 0.8039363820493431,
+        "lex_unsupported_mean": 0.369839009117101,
+        "dense_max_mean": 0.15310767386113777,
+        "hhem_consistency_mean": -0.599803293155839
+      }
+    },
+    "halueval-dialogue": {
+      "title": "HaluEval dialogue",
+      "labelled": {
+        "hallucinated": 27,
+        "grounded": 23
+      },
+      "held_out_answers": 450,
+      "auroc": {
+        "model": 0.6829379111435967,
+        "profile": 0.7233954287746192
+      },
+      "ece": {
+        "model": 0.2263727228419344,
+        "profile": 0.0636106952796116
+      },
+      "verdict_accuracy": {
+        "model": 0.5977777777777777,
+        "profile": 0.6777777777777778
+      },
+      "weights": {
+        "model_risk_logit": 0.5313410720573,
+        "lex_unsupported_mean": -0.3212507639244312,
+        "dense_max_mean": 0.07109436469280511,
+        "hhem_consistency_mean": -0.3827382528167976
+      }
+    },
+    "halueval-summary": {
+      "title": "HaluEval summary",
+      "labelled": {
+        "hallucinated": 25,
+        "grounded": 25
+      },
+      "held_out_answers": 450,
+      "auroc": {
+        "model": 0.6992395061728396,
+        "profile": 0.7886617283950618
+      },
+      "ece": {
+        "model": 0.23993186452591736,
+        "profile": 0.06908140939992533
+      },
+      "verdict_accuracy": {
+        "model": 0.5822222222222222,
+        "profile": 0.72
+      },
+      "weights": {
+        "model_risk_logit": -0.2900074563917396,
+        "lex_unsupported_mean": 0.7491026253930116,
+        "dense_max_mean": 0.4896295560943682,
+        "hhem_consistency_mean": -0.4216661292006491
+      }
+    }
+  }
+}

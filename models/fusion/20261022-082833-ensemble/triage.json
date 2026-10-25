@@ -1,7 +1,7 @@
 {
   "model_version": "20261022-082833-ensemble",
   "data": "ragtruth_dev.jsonl",
-  "pass_below": 0.17784556528163567,
+  "pass_below": 0.179082261187405,
   "block_from": 0.705916239496188,
   "pass_error": 0.1,
   "block_false_alarm": 0.05,

@@ -24,12 +24,14 @@ class SentenceScore(BaseModel):
 
 
 class Prediction(BaseModel):
-    """Hallucination score for one response (higher = more likely hallucinated), plus per-sentence scores."""
+    """Hallucination score for one response (higher = more likely hallucinated), plus per-sentence scores and, when a
+    span model gives them, the exact character ranges it marks (used inside flagged sentences)."""
 
     model_config = ConfigDict(extra="forbid")
     id: str
     score: float
     sentences: list[SentenceScore] = Field(default_factory=list)
+    spans: list[tuple[int, int]] | None = None
 
 
 def write_predictions(predictions: Iterable[Prediction], path: str | Path) -> int:
@@ -50,7 +52,14 @@ def read_predictions(path: str | Path) -> dict[str, Prediction]:
 
 
 def predicted_spans(prediction: Prediction, threshold: float) -> list[tuple[int, int]]:
-    return [(s.start, s.end) for s in prediction.sentences if s.score >= threshold]
+    """Flagged sentences, narrowed to the marked ranges inside them when the prediction has any."""
+    out = []
+    for s in prediction.sentences:
+        if s.score < threshold:
+            continue
+        inside = [(a, b) for a, b in prediction.spans or [] if s.start <= a and b <= s.end]
+        out += inside or [(s.start, s.end)]
+    return out
 
 
 def span_counts(gold: Sequence[tuple[int, int]], predicted: Sequence[tuple[int, int]]) -> tuple[int, int, int]:

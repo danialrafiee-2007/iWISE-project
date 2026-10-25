@@ -107,10 +107,10 @@ function Bars({ rows, max = 1, digits = 3 }: { rows: { label: string; value: num
 }
 
 const LIMITS = [
-  "Trained and calibrated on RAGTruth (English news, QA and business data). On another domain the ranking holds less well (locked HaluEval dialogue 0.67 and summary 0.69 AUROC, with calibration error about 0.23) and the guarantees break until a domain profile is fitted on a few dozen labelled answers.",
-  "Some edits slip through often: opposite words, stronger quantifiers and dropped hedges are the weakest columns of the Fool-the-Guardian suite.",
-  "On natural agent runs (AgentHallu) no setting of the live guardian separates faithful from hallucinating agents well (detection AUROC about 0.53 on the locked test); strict mode stops many faithful runs, lenient mode stops few hallucinating ones. Finding the faulty step works better than chance, not reliably.",
-  "Span F1 on the locked RAGTruth test (0.30) is lower than on dev (0.38): the verdict for the whole answer holds up better than the exact place of the error.",
+  "Trained and calibrated on RAGTruth (English news, QA and business data). On another domain the ranking holds less well (locked HaluEval dialogue 0.67 and summary 0.69 AUROC, calibration error about 0.23) until a domain profile is fitted on a few dozen labelled answers; with 50, dialogue rises to about 0.72 and summary to 0.79 on answers the profile did not see, and the calibration error falls to about 0.07.",
+  "Some edits still slip through: an opposite word is caught 45% of the time, a stronger quantifier 57% and a dropped hedge 37% (up from 37% and 20% after D-114).",
+  "On natural agent runs (AgentHallu) no setting of the live guardian separates faithful from hallucinating agents well (detection AUROC about 0.53 on the locked test); three fixes tried out of fold made no difference (D-116). Finding the faulty step works better than chance, not reliably.",
+  "Span F1 on the locked RAGTruth test (0.30) is lower than on dev (0.38): the verdict for the whole answer holds up better than the exact place of the error. Exact words from the trained detector lift dev span F1 to 0.41; the locked test has not been opened again to measure it.",
   "Healing edits are often right but not always: read the changes before using a healed answer.",
   "It checks answers against the given sources only. A claim that is true in the world but absent from the sources counts as unsupported.",
 ];
@@ -241,6 +241,36 @@ export default function ModelCard() {
           </Panel>
         )}
 
+        {card?.profiles && (
+          <Panel title={`A new domain from ${card.profiles.labelled} labelled answers: the shipped domain profiles, checked on answers they did not see`}>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+                <thead className="text-xs text-fog-400">
+                  <tr>
+                    <th className="py-2 pr-3 font-normal">Profile</th>
+                    <th className="py-2 pr-3 font-normal">Answers checked</th>
+                    <th className="py-2 pr-3 font-normal">AUROC, model → profile</th>
+                    <th className="py-2 pr-3 font-normal">Calibration error</th>
+                    <th className="py-2 font-normal">Verdict accuracy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(card.profiles.domains).map(([name, p]) => (
+                    <tr key={name} className="border-t border-white/6">
+                      <td className="py-2 pr-3">{name}</td>
+                      <td className="py-2 pr-3 font-mono text-fog-300">{p.held_out_answers}</td>
+                      <td className="py-2 pr-3 font-mono">{`${num(p.auroc.model, 3)} → ${num(p.auroc.profile, 3)}`}</td>
+                      <td className="py-2 pr-3 font-mono">{`${num(p.ece.model, 3)} → ${num(p.ece.profile, 3)}`}</td>
+                      <td className="py-2 font-mono">{`${pct(p.verdict_accuracy.model)} → ${pct(p.verdict_accuracy.profile)}`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <span className="text-xs leading-relaxed text-fog-400">{`Each profile re-weights the model's risk and three evidence signals averaged over the answer's sentences, recalibrates the risk and sets the domain's own guarantee lines and verdict. It never uses the answer's length: on HaluEval, length alone separates the labels${card.profiles.length_alone_auroc ? ` (AUROC ${Object.entries(card.profiles.length_alone_auroc).map(([d, v]) => `${d} ${num(v, 2)}`).join(", ")})` : ""}, a shortcut no real domain offers. HaluEval external dev; the locked HaluEval sets were not used.`}</span>
+          </Panel>
+        )}
+
         {card?.challenge_cases && <ChallengeCasesPanel cases={card.challenge_cases} />}
 
         {card?.fool_the_guardian && (
@@ -330,6 +360,7 @@ export default function ModelCard() {
                 {card?.locked_halueval && <li>{`HaluEval (never trained on): ${Object.entries(card.locked_halueval).map(([t, v]) => `${t} ${num(v.auroc, 3)}`).join(", ")} AUROC, ${Object.values(card.locked_halueval)[0]?.answers ?? ""} answers each.`}</li>}
                 {card?.locked_agenthallu && <li>{`AgentHallu (${card.locked_agenthallu.trajectories} natural agent runs): faulty step found exactly in ${pct(card.locked_agenthallu.exact)} (random ${pct(card.locked_agenthallu.random)}), detection AUROC ${num(card.locked_agenthallu.detection_auroc, 2)}.`}</li>}
                 <li>Each was evaluated once and logged in eval/locked_runs.log; nothing was tuned on them.</li>
+                <li>These are the results of the system as it stood then (D-109). Later changes (domain profiles, exact words, overclaim rules: D-113 to D-115) are measured on development data only; the locked sets were not opened again.</li>
               </ul>
             ) : (
               <p className="m-0 text-sm leading-relaxed text-fog-300">Not opened yet. It is evaluated once, with the final model, and reported here as it comes out.</p>

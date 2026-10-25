@@ -7,6 +7,7 @@ from truth_guardian.evaluation import (
     best_threshold,
     evaluate,
     expected_calibration_error,
+    predicted_spans,
     read_predictions,
     span_counts,
     write_predictions,
@@ -55,6 +56,22 @@ def test_span_metrics_use_sentence_scores_above_threshold():
     pred = Prediction(id="s0", score=0.9, sentences=[{"start": 0, "end": 20, "score": 0.1}, {"start": 21, "end": 41, "score": 0.9}])
     span = evaluate(samples, {"s0": pred}, threshold=0.5, bootstrap_rounds=10)["span"]
     assert span == {"precision": 1.0, "recall": 1.0, "f1": 1.0}
+
+
+def test_flagged_sentences_narrow_to_marked_words_inside_them():
+    pred = Prediction(
+        id="s0", score=0.9, sentences=[{"start": 0, "end": 20, "score": 0.1}, {"start": 21, "end": 41, "score": 0.9}],
+        spans=[(0, 5), (35, 40)],
+    )
+    assert predicted_spans(pred, 0.5) == [(35, 40)]
+    assert predicted_spans(pred.model_copy(update={"spans": [(0, 5)]}), 0.5) == [(21, 41)]
+
+
+def test_detector_tokens_merge_into_word_ranges():
+    from truth_guardian.detector import merged
+
+    tokens = [(0, 4, 0.1), (5, 9, 0.6), (10, 14, 0.7), (16, 20, 0.2), (21, 25, 0.9)]
+    assert merged(tokens, 0.5) == [(5, 14), (21, 25)]
 
 
 def test_separate_sentence_threshold_and_tuning():

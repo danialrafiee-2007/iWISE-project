@@ -1,0 +1,43 @@
+{
+  "data": "agenthallu_dev_capped.jsonl",
+  "trajectories": 231,
+  "hallucinated": 140,
+  "folds": 5,
+  "auroc": {
+    "tracer_run_risk": 0.5624018838304553,
+    "answer_risk": 0.43649921507064365,
+    "stacked": 0.5161695447409733
+  },
+  "by_category": {
+    "Human-Interaction Hallucination": {
+      "n": 13,
+      "tracer_run_risk": 0.4547759932375317,
+      "answer_risk": 0.5198647506339814,
+      "stacked": 0.3584108199492815
+    },
+    "Planning Hallucination": {
+      "n": 28,
+      "tracer_run_risk": 0.5580847723704867,
+      "answer_risk": 0.3284929356357928,
+      "stacked": 0.6220565149136578
+    },
+    "Reasoning Hallucination": {
+      "n": 35,
+      "tracer_run_risk": 0.5836734693877551,
+      "answer_risk": 0.41255886970172684,
+      "stacked": 0.5249607535321821
+    },
+    "Retrieval Hallucination": {
+      "n": 31,
+      "tracer_run_risk": 0.48316199929103154,
+      "answer_risk": 0.31868131868131866,
+      "stacked": 0.5937610776320453
+    },
+    "Tool-Use Hallucination": {
+      "n": 33,
+      "tracer_run_risk": 0.6603396603396603,
+      "answer_risk": 0.6313686313686313,
+      "stacked": 0.40626040626040627
+    }
+  }
+}

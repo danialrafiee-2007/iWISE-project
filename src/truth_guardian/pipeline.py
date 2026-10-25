@@ -19,13 +19,14 @@ from truth_guardian.claims import localize
 from truth_guardian.correct import suggest
 from truth_guardian.evidence import Encoder
 from truth_guardian.fusion import EnsembleModel, FusionModel, build_table
-from truth_guardian.adapt import DomainProfile
+from truth_guardian.adapt import DomainProfile, domain_features
 from truth_guardian.conformal import Calibration
 from truth_guardian.guardian import Policy, replay
 from truth_guardian.heal import Healing
 from truth_guardian.heal import heal as heal_answer
-from truth_guardian.overrides import apply_polarity, apply_shifts
-from truth_guardian.report import DomainReport, Report, agent_report, build_report, completeness_report, with_diagnosis, with_guarantee, with_triage
+from truth_guardian.detector import shipped as shipped_detector
+from truth_guardian.overrides import apply_flips, apply_polarity, apply_shifts, with_words
+from truth_guardian.report import DomainReport, Report, agent_report, build_report, completeness_report, verdict, with_diagnosis, with_guarantee, with_triage
 from truth_guardian.triage import BLOCK_FALSE_ALARM
 from truth_guardian.triage import Policy as TriagePolicy
 from truth_guardian.schema import AgentStep, Document, Meta, Sample
@@ -73,6 +74,8 @@ def _risk(sample: Sample, model, per_signal: dict[str, list[dict]], keep: list[i
         prediction = apply_polarity(prediction, [per_signal["polarity"][i] for i in keep])
     if use_shifts and "shifts" in per_signal:
         prediction = apply_shifts(prediction, [per_signal["shifts"][i] for i in keep])
+    if "flips" in per_signal:
+        prediction = apply_flips(prediction, [per_signal["flips"][i] for i in keep])
     return prediction.score
 
 
@@ -99,6 +102,8 @@ def analyze(
     encode: Encoder | None = None,
     guardian_policy: Policy = "strict",
     use_shifts: bool = True,
+    use_flips: bool = True,
+    use_detector: bool = True,
     classify=None,
     calibration: Calibration | None = None,
     alpha: float = 0.1,
@@ -114,7 +119,8 @@ def analyze(
     encode = encode or models.encode
     classify = classify or models.nli_probabilities
     progress = progress or (lambda stage: None)
-    overrides = [*(["polarity"] if use_polarity else []), *(["shifts"] if use_shifts else [])]
+    overrides = [*(["polarity"] if use_polarity else []), *(["shifts"] if use_shifts else []), *(["flips"] if use_flips else [])]
+    overrides += ["detector"] if use_detector and shipped_detector() is not None else []
     signal_fns = signal_fns or {name: SIGNALS[name][1] for name in [*model.signals, *overrides]}
     sentences = split_sentences(sample.answer)
     per_signal = {}
@@ -128,6 +134,10 @@ def analyze(
         prediction = apply_polarity(prediction, per_signal["polarity"])
     if use_shifts and "shifts" in per_signal:
         prediction = apply_shifts(prediction, per_signal["shifts"])
+    if use_flips and "flips" in per_signal:
+        prediction = apply_flips(prediction, per_signal["flips"])
+    if "detector" in per_signal:
+        prediction = with_words(prediction, per_signal["detector"])
 
     progress("claims")
     merged = [{k: v for name in per_signal for k, v in per_signal[name][i].items()} for i in range(len(sentences))]
@@ -146,11 +156,16 @@ def analyze(
     shares = contributions(sample, model, per_signal, prediction.score, use_polarity, use_shifts)
     progress("verdict")
     report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, agent, focus, omissions, found, sides, citation_checks, shares)
+    if profile is not None:
+        risk = profile.domain_risk(report.risk, domain_features(report.risk, merged))
+        report = report.model_copy(update={
+            "verdict": verdict(risk, profile.decision, report.claims),
+            "domain": DomainReport(name=profile.name, examples=profile.examples, calibrated_risk=risk, model_risk=report.risk, decision=profile.decision),
+        })
     report = with_diagnosis(report, diagnosis.diagnose(sample, report.verdict != "grounded", encode))
     if profile is not None:
-        report = with_guarantee(report, profile.calibration(), alpha)
-        report = report.model_copy(update={"domain": DomainReport(name=profile.name, examples=profile.examples, calibrated_risk=profile.calibrated(report.risk))})
-        report = _domain_lane(report, profile)
+        report = with_guarantee(report, profile.calibration(), alpha, risk=report.domain.calibrated_risk)
+        report = _domain_lane(report, profile, report.domain.calibrated_risk)
     else:
         if calibration is not None:
             report = with_guarantee(report, calibration, alpha, sample.meta.task)
@@ -169,10 +184,10 @@ def _lane(report: Report, policy: TriagePolicy) -> Report:
     return with_triage(report, lane, reason)
 
 
-def _domain_lane(report: Report, profile: DomainProfile) -> Report:
+def _domain_lane(report: Report, profile: DomainProfile, risk: float) -> Report:
     """No pass lane on a domain profile: a few dozen labels cannot back one; blocking uses the domain's alarm line."""
     t = next((x for x in profile.thresholds if abs(x.alpha - BLOCK_FALSE_ALARM) < 1e-9), None)
-    if t is not None and report.risk > t.alarm:
+    if t is not None and risk > t.alarm:
         return with_triage(report, "block", f"risk above this domain's alarm line {t.alarm:.2f}: at most {BLOCK_FALSE_ALARM:.0%} of its grounded answers are blocked")
     return with_triage(report, "review", f"domain profile {profile.name}: answers go to review unless blocked")
 

@@ -1,0 +1,78 @@
+{
+  "signals": [
+    "lexical",
+    "symbolic",
+    "dense",
+    "hhem"
+  ],
+  "kind": "ensemble",
+  "structure": false,
+  "polarity_override": true,
+  "shift_override": true,
+  "dev_auroc": 0.8377347333971675,
+  "train_samples": 8089,
+  "response_threshold": 0.4538356475415264,
+  "sentence_threshold": 0.27729592997878105,
+  "control_false_alarm_rate": 0.26666666666666666,
+  "control_caution_rate": 0.0,
+  "by_edit": {
+    "number": {
+      "n": 53,
+      "detected": 0.7924528301886793,
+      "auroc_vs_controls": 0.8290880503144654,
+      "located": 0.9622641509433962,
+      "fixed_exactly": 0.7169811320754716,
+      "cautioned": 0.018867924528301886
+    },
+    "entity": {
+      "n": 51,
+      "detected": 0.6862745098039216,
+      "auroc_vs_controls": 0.7799019607843137,
+      "located": 0.7647058823529411,
+      "fixed_exactly": 0.19607843137254902,
+      "cautioned": 0.0
+    },
+    "negation": {
+      "n": 58,
+      "detected": 0.5517241379310345,
+      "auroc_vs_controls": 0.7695402298850574,
+      "located": 0.4482758620689655,
+      "cautioned": 0.0
+    },
+    "antonym": {
+      "n": 49,
+      "detected": 0.4489795918367347,
+      "auroc_vs_controls": 0.6350340136054422,
+      "located": 0.22448979591836735,
+      "cautioned": 0.0
+    },
+    "addition": {
+      "n": 60,
+      "detected": 0.9333333333333333,
+      "auroc_vs_controls": 0.8905555555555555,
+      "located": 0.9833333333333333,
+      "cautioned": 0.0
+    },
+    "role_swap": {
+      "n": 41,
+      "detected": 0.5609756097560976,
+      "auroc_vs_controls": 0.7349593495934958,
+      "located": 0.34146341463414637,
+      "cautioned": 0.21951219512195122
+    },
+    "quantifier": {
+      "n": 30,
+      "detected": 0.5666666666666667,
+      "auroc_vs_controls": 0.7388888888888889,
+      "located": 0.4,
+      "cautioned": 0.2
+    },
+    "certainty": {
+      "n": 30,
+      "detected": 0.36666666666666664,
+      "auroc_vs_controls": 0.6147222222222223,
+      "located": 0.13333333333333333,
+      "cautioned": 0.06666666666666667
+    }
+  }
+}

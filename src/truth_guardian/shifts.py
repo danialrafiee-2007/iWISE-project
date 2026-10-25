@@ -7,10 +7,12 @@ Like the polarity check, each rule compares an answer sentence with a source sen
   contradiction and overrides the model's score.
 - quantifier: the answer uses a stronger quantifier than the source for the same thing ("some people" -> "most people").
 - certainty: the source hedges a statement ("may reduce", "allegedly traveled") and the answer states it as fact.
-Quantifier and certainty shifts are advisory cautions: RAGTruth annotators rarely count them as hallucinations, so
-they are reported next to the verdict instead of changing it. They need NLI to find that the source sentence does
-not entail the answer sentence. Word classes are closed linguistic categories (quantifiers, modal and epistemic
-hedges); settings come from RAGTruth train (scripts/evaluate_shifts.py).
+Quantifier and certainty shifts need NLI to find that the source sentence does not entail the answer sentence; a
+confirmed one counts as an overclaim (overrides.py), since saying more than the evidence is one of the challenge's
+named cases, even though RAGTruth annotators rarely mark it. The quantifier rule accepts a looser restatement (40% of
+the content words instead of 65%): the quantifier word itself is rare, and on RAGTruth train that setting adds
+recall on edits at no more than 0.5% false alarms (scripts/evaluate_rule_alignment.py). Word classes are closed
+linguistic categories (quantifiers, modal and epistemic hedges); settings come from RAGTruth train.
 """
 
 import re
@@ -47,6 +49,7 @@ CONFIRM_ENTAILMENT = {"role_swap": 1.01, "quantifier": 0.5, "certainty": 0.5}
 OVERRIDE_KINDS = {"role_swap"}
 KINDS = tuple(CONFIRM_ENTAILMENT)
 QUANTIFIER_WINDOW = 2
+QUANTIFIER_OVERLAP = 0.4
 ROLE_SWAP_OVERLAP = 0.5
 _WORD = re.compile(r"[A-Za-z]+")
 
@@ -92,8 +95,9 @@ def _parser():
     return spacy.load("en_core_web_sm", exclude=["ner", "lemmatizer"])
 
 
-def _aligned(sentence: Sentence, source_texts: tuple[str, ...], ignore: set[str], min_overlap: float = MIN_OVERLAP) -> list[str]:
+def _aligned(sentence: Sentence, source_texts: tuple[str, ...], ignore: set[str], min_overlap: float | None = None) -> list[str]:
     """Source sentences the answer sentence nearly restates (by default the polarity check's criteria)."""
+    min_overlap = MIN_OVERLAP if min_overlap is None else min_overlap
     sources, bm25 = _index(source_texts)
     if not sources:
         return []
@@ -202,8 +206,9 @@ def check_sentence(sentence: Sentence, source_texts: tuple[str, ...]) -> ShiftCh
         if found:
             return found
     ignore = BOOSTERS | set(QUANTIFIER_STRENGTH) | {w for m in HEDGE.finditer(" ".join(source_texts)) for w in m.group().lower().split()}
-    for source in _aligned(sentence, source_texts, ignore):
-        for rule in (_quantifier, _certainty):
+    restated = set(_aligned(sentence, source_texts, ignore))
+    for source in _aligned(sentence, source_texts, ignore, QUANTIFIER_OVERLAP):
+        for rule in (_quantifier, _certainty) if source in restated else (_quantifier,):
             found = rule(sentence, source)
             if found:
                 return found

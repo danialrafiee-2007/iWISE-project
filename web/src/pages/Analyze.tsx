@@ -18,7 +18,7 @@ type View = Result & { input: CheckInput; gold: Example | null };
 
 export function exampleInput(e: Example): CheckInput {
   const task = (["qa", "summary", "data2text"].includes(e.task) ? e.task : "other") as Task;
-  return { question: e.question ?? "", sources: e.sources.length ? e.sources : [""], answer: e.answer, task, profile: null, exampleId: e.id };
+  return { question: e.question ?? "", sources: e.sources.length ? e.sources : [""], answer: e.answer, task, profile: e.profile ?? null, exampleId: e.id };
 }
 
 export function downloadJson(name: string, data: unknown) {

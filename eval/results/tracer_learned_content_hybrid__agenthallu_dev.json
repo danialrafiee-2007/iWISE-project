@@ -1,14 +1,14 @@
 {
   "trajectories": 231,
   "folds": 5,
-  "detection_auroc_learned": 0.555337519623234,
-  "detection_auroc_v0": 0.5448587127158555,
+  "detection_auroc_learned": 0.558712715855573,
+  "detection_auroc_v0": 0.5428571428571428,
   "localization": {
     "all": {
       "learned_exact": 0.37857142857142856,
       "learned_within_1": 0.5642857142857143,
       "learned_top3": 0.7142857142857143,
-      "v0_exact": 0.30714285714285716,
+      "v0_exact": 0.3,
       "first_step": 0.2714285714285714,
       "random": 0.17496513338083106,
       "n": 140
@@ -53,7 +53,7 @@
       "learned_exact": 0.42424242424242425,
       "learned_within_1": 0.45454545454545453,
       "learned_top3": 0.696969696969697,
-      "v0_exact": 0.24242424242424243,
+      "v0_exact": 0.21212121212121213,
       "first_step": 0.06060606060606061,
       "random": 0.10439123166395893,
       "n": 33

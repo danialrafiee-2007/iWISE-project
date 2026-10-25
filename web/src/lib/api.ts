@@ -97,6 +97,8 @@ export interface Summary {
 
 export type LockedAuroc = Partial<Record<"ragtruth" | "qa" | "dialogue" | "summary" | "ragtruth_span_f1", number>>;
 
+export type Before = { model: number; profile: number };
+
 export interface CalibrationBin {
   low: number;
   high: number;
@@ -136,6 +138,11 @@ export interface ModelCard {
   guarantee?: { alpha: number; splits: number; miss_rate: number; false_alarm_rate: number };
   challenge_cases?: ChallengeCases;
   calibration?: Record<string, { answers: number; ece: number; bins: CalibrationBin[] }>;
+  profiles?: {
+    labelled: number;
+    domains: Record<string, { held_out_answers: number; auroc: Before; ece: Before; verdict_accuracy: Before }>;
+    length_alone_auroc?: Record<string, number>;
+  };
   triage?: Record<string, number>;
   healing?: { hallucinated: Record<string, number | null>; grounded: Record<string, number | null> };
   tracer_tg_agent?: { trajectories: number; detection_auroc: number; tracer_exact: number; tracer_within_1: number; baseline_random: number };

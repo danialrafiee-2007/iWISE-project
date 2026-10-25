@@ -149,11 +149,14 @@ class TriageReport(_Strict):
 
 
 class DomainReport(_Strict):
-    """The answer seen through a domain profile: the risk recalibrated on that domain's labelled answers."""
+    """The answer seen through a domain profile: the domain's own risk (recalibrated, and re-weighted when the profile
+    has a ranking), the verdict line it is judged against, and the model's RAGTruth risk beside it."""
 
     name: str
     examples: int
     calibrated_risk: float
+    model_risk: float | None = None
+    decision: float | None = None
 
 
 class Dimension(_Strict):
@@ -215,8 +218,6 @@ def best_evidence(sample: Sample, sentence: Sentence) -> Evidence | None:
 
 def _cautions(row: dict, citation: CitationCheck | None) -> list[str]:
     cautions = []
-    if row.get("shift_confirmed") and not row.get("shift_overrides"):
-        cautions.append(f"overclaim: {row['shift_detail']}")
     if citation is not None and citation.wrong:
         cited = ", ".join(str(n) for n in citation.cited)
         cautions.append(f"cites document {cited}, but the passage that matches this claim is in document {citation.best_other}")
@@ -260,6 +261,11 @@ def claim_report(
     if risk < threshold and not row.get("pol_confirmed"):
         return ClaimReport(start=sentence.start, end=sentence.end, text=sentence.text, status="supported", risk=risk, evidence=evidence, explanation="the sources support this claim", action="keep", **extras)
     explanation = explain_sentence(row, sentence.start, sentence.end)
+    if explanation.spans == [(sentence.start, sentence.end)] and row.get("det_tokens"):
+        from truth_guardian.detector import WORD_THRESHOLD, merged
+
+        words = merged([tuple(t) for t in row["det_tokens"]], WORD_THRESHOLD)
+        explanation = explanation._replace(spans=words or explanation.spans)
     status: Status = _STATUS[explanation.type]
     replacements = [Fix(start=f.start, end=f.end, original=f.original, replacement=f.replacement, confidence=f.confidence) for f in fixes]
     if any(f.replacement for f in replacements):
@@ -323,11 +329,13 @@ def with_diagnosis(report: Report, d: Diagnosis) -> Report:
     return report.model_copy(update={"diagnosis": diagnosis, "warnings": warnings})
 
 
-def with_guarantee(report: Report, calibration: Calibration, alpha: float, task: str | None = None) -> Report:
+def with_guarantee(report: Report, calibration: Calibration, alpha: float, task: str | None = None, risk: float | None = None) -> Report:
+    """risk: the score the calibration's thresholds were set on, when it is not the model's (a domain profile's)."""
     t = calibration.get(alpha, task)
+    risk = report.risk if risk is None else risk
     guarantee = GuaranteeReport(
         alpha=alpha, catch_threshold=t.catch, alarm_threshold=t.alarm,
-        flagged_with_catch_guarantee=report.risk >= t.catch, flagged_with_alarm_guarantee=report.risk > t.alarm,
+        flagged_with_catch_guarantee=risk >= t.catch, flagged_with_alarm_guarantee=risk > t.alarm,
         calibrated_on=f"{calibration.data} ({t.hallucinated} hallucinated, {t.grounded} grounded answers)",
     )
     return report.model_copy(update={"guarantee": guarantee})

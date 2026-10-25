@@ -8,8 +8,10 @@ quantifiers, hedges) are left out, so the Fool-the-Guardian suite still measures
 checkpoint every few hundred steps and resumes from it.
 """
 
+import hashlib
 import math
 import random
+from functools import lru_cache
 from pathlib import Path
 from typing import NamedTuple
 
@@ -20,11 +22,13 @@ from truth_guardian.schema import Sample
 from truth_guardian.signals import premises
 from truth_guardian.text import split_sentences
 
+SHIPPED = Path(__file__).resolve().parents[2] / "models" / "detector" / "full"
 BACKBONE = "sentence-transformers/all-MiniLM-L6-v2"
 MAX_LENGTH = 256
 ATTACK_KINDS = ("number", "entity", "negation", "role_swap", "addition")
 POSITIVE_WEIGHT = 3.0
 SPAN_THRESHOLD = 0.5
+WORD_THRESHOLD = 0.25
 
 
 class Example(NamedTuple):
@@ -110,6 +114,30 @@ def train(data: list[Example], out_dir: Path, epochs: int = 2, batch_size: int =
     return out_dir
 
 
+@lru_cache(maxsize=1)
+def shipped() -> "Detector | None":
+    """The trained detector the app uses for exact words, if it is present."""
+    return Detector(SHIPPED) if (SHIPPED / "model.safetensors").exists() else None
+
+
+def fingerprint() -> str:
+    path = SHIPPED / "model.safetensors"
+    return hashlib.sha256(path.read_bytes()).hexdigest()[:12] if path.exists() else "missing"
+
+
+def merged(tokens: list[tuple[int, int, float]], threshold: float) -> list[tuple[int, int]]:
+    """Ranges of consecutive tokens at or above the threshold (gaps of one character, such as a space, are bridged)."""
+    spans: list[tuple[int, int]] = []
+    for a, b, p in tokens:
+        if p < threshold:
+            continue
+        if spans and a - spans[-1][1] <= 1:
+            spans[-1] = (spans[-1][0], b)
+        else:
+            spans.append((a, b))
+    return spans
+
+
 class Detector:
     def __init__(self, path: Path, batch_size: int = 32):
         from transformers import AutoModelForTokenClassification, AutoTokenizer
@@ -120,6 +148,10 @@ class Detector:
 
     def score(self, pairs: list[tuple[str, str]]) -> list[tuple[float, list[tuple[int, int]]]]:
         """Per (premise, sentence): highest token probability and the sentence's character ranges above SPAN_THRESHOLD."""
+        return [(max((p for *_, p in tokens), default=0.0), merged(tokens, SPAN_THRESHOLD)) for tokens in self.tokens(pairs)]
+
+    def tokens(self, pairs: list[tuple[str, str]]) -> list[list[tuple[int, int, float]]]:
+        """Per (premise, sentence): (start, end, probability) of each sentence token, offsets within the sentence."""
         out = []
         for i in range(0, len(pairs), self.batch_size):
             chunk = pairs[i : i + self.batch_size]
@@ -128,14 +160,5 @@ class Detector:
             with torch.no_grad():
                 probs = torch.softmax(self.model(**enc).logits, dim=-1)[:, :, 1]
             for k in range(len(chunk)):
-                tokens = [(a, b, float(p)) for part, (a, b), p in zip(enc.sequence_ids(k), offsets[k].tolist(), probs[k].tolist()) if part == 1 and b > a]
-                spans: list[tuple[int, int]] = []
-                for a, b, p in tokens:
-                    if p < SPAN_THRESHOLD:
-                        continue
-                    if spans and a - spans[-1][1] <= 1:
-                        spans[-1] = (spans[-1][0], b)
-                    else:
-                        spans.append((a, b))
-                out.append((max((p for *_, p in tokens), default=0.0), spans))
+                out.append([(a, b, float(p)) for part, (a, b), p in zip(enc.sequence_ids(k), offsets[k].tolist(), probs[k].tolist()) if part == 1 and b > a])
         return out

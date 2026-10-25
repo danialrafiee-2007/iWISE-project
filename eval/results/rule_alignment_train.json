@@ -1,0 +1,295 @@
+{
+  "natural_answers": 1500,
+  "grounded_answers": 830,
+  "edits_per_kind": 150,
+  "max_false_alarms": 0.005,
+  "chosen": {
+    "antonym": {
+      "overlap": 0.6,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.09333333333333334,
+        "false_alarms": 0.004819277108433735,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.05333333333333334,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.04,
+        "false_alarms": 0.006024096385542169,
+        "hallucinated_answers_hit": 3
+      }
+    },
+    "quantifier": {
+      "overlap": 0.4,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.11333333333333333,
+        "false_alarms": 0.01566265060240964,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.12,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.09333333333333334,
+        "false_alarms": 0.02891566265060241,
+        "hallucinated_answers_hit": 12
+      }
+    },
+    "certainty": {
+      "overlap": 0.65,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.08,
+        "false_alarms": 0.0012048192771084338,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.04,
+        "false_alarms": 0.0024096385542168677,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.03333333333333333,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 1
+      }
+    }
+  },
+  "grid": [
+    {
+      "overlap": 0.65,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.07333333333333333,
+        "false_alarms": 0.0012048192771084338,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.04,
+        "false_alarms": 0.0024096385542168677,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.02666666666666667,
+        "false_alarms": 0.0024096385542168677,
+        "hallucinated_answers_hit": 1
+      }
+    },
+    {
+      "overlap": 0.6,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.08666666666666667,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.05333333333333334,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.03333333333333333,
+        "false_alarms": 0.004819277108433735,
+        "hallucinated_answers_hit": 3
+      }
+    },
+    {
+      "overlap": 0.55,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.09333333333333334,
+        "false_alarms": 0.004819277108433735,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.06,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.06666666666666667,
+        "false_alarms": 0.008433734939759036,
+        "hallucinated_answers_hit": 4
+      }
+    },
+    {
+      "overlap": 0.5,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.11333333333333333,
+        "false_alarms": 0.010843373493975903,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.08666666666666667,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.08,
+        "false_alarms": 0.018072289156626505,
+        "hallucinated_answers_hit": 5
+      }
+    },
+    {
+      "overlap": 0.45,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.12,
+        "false_alarms": 0.012048192771084338,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.1,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.08,
+        "false_alarms": 0.024096385542168676,
+        "hallucinated_answers_hit": 6
+      }
+    },
+    {
+      "overlap": 0.4,
+      "length_ratio": 2.5,
+      "antonym": {
+        "recall": 0.11333333333333333,
+        "false_alarms": 0.01566265060240964,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.12,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.09333333333333334,
+        "false_alarms": 0.02891566265060241,
+        "hallucinated_answers_hit": 12
+      }
+    },
+    {
+      "overlap": 0.65,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.08,
+        "false_alarms": 0.0012048192771084338,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.04,
+        "false_alarms": 0.0024096385542168677,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.03333333333333333,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 1
+      }
+    },
+    {
+      "overlap": 0.6,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.09333333333333334,
+        "false_alarms": 0.004819277108433735,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.05333333333333334,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.04,
+        "false_alarms": 0.006024096385542169,
+        "hallucinated_answers_hit": 3
+      }
+    },
+    {
+      "overlap": 0.55,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.1,
+        "false_alarms": 0.006024096385542169,
+        "hallucinated_answers_hit": 0
+      },
+      "quantifier": {
+        "recall": 0.06,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.07333333333333333,
+        "false_alarms": 0.00963855421686747,
+        "hallucinated_answers_hit": 4
+      }
+    },
+    {
+      "overlap": 0.5,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.12,
+        "false_alarms": 0.012048192771084338,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.08666666666666667,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.08666666666666667,
+        "false_alarms": 0.01927710843373494,
+        "hallucinated_answers_hit": 6
+      }
+    },
+    {
+      "overlap": 0.45,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.12666666666666668,
+        "false_alarms": 0.01325301204819277,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.1,
+        "false_alarms": 0.0036144578313253013,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.08666666666666667,
+        "false_alarms": 0.02530120481927711,
+        "hallucinated_answers_hit": 7
+      }
+    },
+    {
+      "overlap": 0.4,
+      "length_ratio": 4.0,
+      "antonym": {
+        "recall": 0.12,
+        "false_alarms": 0.016867469879518072,
+        "hallucinated_answers_hit": 1
+      },
+      "quantifier": {
+        "recall": 0.12,
+        "false_alarms": 0.004819277108433735,
+        "hallucinated_answers_hit": 0
+      },
+      "certainty": {
+        "recall": 0.1,
+        "false_alarms": 0.030120481927710843,
+        "hallucinated_answers_hit": 14
+      }
+    }
+  ]
+}

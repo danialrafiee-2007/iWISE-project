@@ -52,6 +52,8 @@ def readiness(root: Path) -> list[Item]:
         Item("development data for the examples", (processed / "ragtruth_dev.jsonl").exists(), False, f"{SETUP} (without it only the written showcase examples appear)"),
         Item("Fool-the-Guardian answers", (processed / "perturb_dev.jsonl").exists(), False, f"{SETUP} (the game needs them)"),
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
+        Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "copy models/detector/full from the team, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
+        Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
     ]
 
 

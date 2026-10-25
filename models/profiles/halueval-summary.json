@@ -1,0 +1,62 @@
+{
+  "name": "HaluEval summary",
+  "model_version": "20261022-082833-ensemble",
+  "examples": 50,
+  "hallucinated": 25,
+  "grounded": 25,
+  "thresholds": [
+    {
+      "alpha": 0.05,
+      "catch": 0.11357311973677756,
+      "alarm": 0.7960435702888742,
+      "hallucinated": 25,
+      "grounded": 25
+    },
+    {
+      "alpha": 0.1,
+      "catch": 0.29080140075427013,
+      "alarm": 0.7071609648783939,
+      "hallucinated": 25,
+      "grounded": 25
+    },
+    {
+      "alpha": 0.2,
+      "catch": 0.40597053549405776,
+      "alarm": 0.6493342080467922,
+      "hallucinated": 25,
+      "grounded": 25
+    }
+  ],
+  "platt": [
+    0.12950395807360615,
+    0.1386417983282787
+  ],
+  "ranking": {
+    "features": [
+      "model_risk_logit",
+      "lex_unsupported_mean",
+      "dense_max_mean",
+      "hhem_consistency_mean"
+    ],
+    "mean": [
+      -1.068090485710912,
+      0.21226921662829448,
+      0.7011642403907721,
+      0.6628588857761184
+    ],
+    "scale": [
+      1.427225231065289,
+      0.12941610055415836,
+      0.06593224408197755,
+      0.23256159696266604
+    ],
+    "coef": [
+      -0.2900074563917396,
+      0.7491026253930116,
+      0.4896295560943682,
+      -0.4216661292006491
+    ],
+    "intercept": 0.01613294269083304
+  },
+  "decision": 0.5
+}

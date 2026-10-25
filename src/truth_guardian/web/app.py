@@ -173,7 +173,8 @@ def prepare(engine, store: ExampleStore) -> None:
     engine.load()
     for example in [*store.examples.values(), *store.agents.values()]:
         if store.cached(example.id, engine.version) is None:
-            store.store(example.id, engine.version, engine.analyze(example.sample()))
+            profile = example.profile if example.profile in getattr(engine, "profiles", {}) else None
+            store.store(example.id, engine.version, engine.analyze(example.sample(), profile))
 
 
 def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True) -> FastAPI:
@@ -212,13 +213,14 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
 
         def work(emit, cancelled) -> dict:
             started = time.perf_counter()
-            cached = store.cached(example_id, engine.version) if example_id and not profile and policy == "strict" else None
+            own = example_id is not None and profile == (store.find(example_id).profile if store.find(example_id) else None)
+            cached = store.cached(example_id, engine.version) if own and policy == "strict" else None
             if cached is not None:
                 return {"report": cached.model_dump(mode="json"), "seconds": 0.0, "cached": True}
             if engine.busy():
                 emit({"type": "queued"})
             report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled)
-            if example_id and not profile and policy == "strict":
+            if own and policy == "strict":
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}
 

@@ -110,6 +110,25 @@ The risk still ranks the wrong answers above their faithful twins (AUROC 0.94, 1
 unsupported, weak sources and agents); the misses are answers just under the line, and an agent that keeps an
 outdated value after a newer tool result is not caught (0 of 5). See D-110 in `docs/DECISIONS.md` for the full record.
 
+### After the locked test (measured on development data only)
+
+The locked sets were opened once (D-109) and not again; these later changes are measured on development and external
+development data:
+
+- **Domain profiles** (D-113): from 50 labelled answers of a new domain, a profile re-weights the model's evidence and
+  recalibrates its risk. On HaluEval answers the profiles did not see: dialogue AUROC 0.683 to 0.723, summary 0.699 to
+  0.789, calibration error about 0.24 to 0.07, verdict accuracy 60% to 68% and 58% to 72%. QA ranking was already high
+  (0.916). Profiles never use answer length, which on HaluEval alone separates the labels (QA 0.98 AUROC).
+- **Exact words** (D-115): a token-level detector trained on all of RAGTruth train narrows each flagged sentence to
+  its marked words. RAGTruth dev span F1 0.371 to 0.406 (threshold chosen on one half of dev, measured on the other).
+- **Overclaims** (D-114): stronger quantifiers and dropped hedges now count as hallucinations when confirmed, with
+  settings chosen on train. Fool the Guardian: quantifier edits caught 37% to 57%, hedge edits 20% to 37%; opposite
+  words unchanged at 45%.
+- **Agents** (D-116): three fixes tried out of fold on AgentHallu dev made no difference; detection stays near chance.
+
+The exact-word detector (90 MB) is not in the repository; without it the app marks whole sentences. Train it with
+`uv run python scripts/train_detector.py --full` (about 7 hours on a laptop CPU) or copy `models/detector/full`.
+
 ## Online demo and Docker
 
 The `Dockerfile` builds the whole app into one image (packages with the CPU build of PyTorch, datasets with

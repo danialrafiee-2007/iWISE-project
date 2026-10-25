@@ -59,7 +59,7 @@ export interface Report {
   completeness: { score: number | null; key_evidence: string[]; missing: string[]; omitted_caveats: string[] } | null;
   conflicts: { first: string; first_document: string; second: string; second_document: string; first_value: string; second_value: string }[];
   guarantee: { alpha: number; catch_threshold: number; alarm_threshold: number; flagged_with_catch_guarantee: boolean; flagged_with_alarm_guarantee: boolean; calibrated_on: string } | null;
-  domain: { name: string; examples: number; calibrated_risk: number } | null;
+  domain: { name: string; examples: number; calibrated_risk: number; model_risk?: number | null; decision?: number | null } | null;
   triage: { lane: Lane; reason: string } | null;
   card: { grade: Grade; risk: number; dimensions: { name: string; score: number | null; note: string }[] } | null;
   cited_answer: string | null;
@@ -88,6 +88,7 @@ export interface Example {
   agent_steps: Step[];
   gold: "grounded" | "hallucinated" | null;
   gold_spans: { start: number; end: number; type: string | null }[];
+  profile?: string | null;
 }
 
 export type ExampleBrief = Pick<Example, "id" | "title" | "about" | "origin" | "task">;

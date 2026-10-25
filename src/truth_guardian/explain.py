@@ -25,6 +25,12 @@ def explain_sentence(row: dict, start: int, end: int) -> Explanation:
     if row.get("shift_overrides", 0):
         spans = [tuple(span) for span in row.get("shift_spans", [])] or [(start, end)]
         return Explanation(HallucinationType.CONTRADICTED, spans, f"it swaps who did what: {row.get('shift_detail', '')}")
+    if row.get("shift_confirmed", 0):
+        spans = [tuple(span) for span in row.get("shift_spans", [])] or [(start, end)]
+        return Explanation(HallucinationType.OVERCLAIM, spans, f"it claims more than the sources: {row.get('shift_detail', '')}")
+    if row.get("flip_confirmed", 0):
+        spans = [tuple(span) for span in row.get("flip_spans", [])] or [(start, end)]
+        return Explanation(HallucinationType.OVERCLAIM, spans, f"it claims more than the sources: {row.get('flip_detail', '')}")
     if row.get("sym_numbers_unmatched", 0) or row.get("sym_entities_unmatched", 0):
         return Explanation(HallucinationType.NUMERIC_ENTITY_MISMATCH, symbolic_spans, "a number, date or name does not appear in the sources")
     if row.get("sym_null_mentions", 0):

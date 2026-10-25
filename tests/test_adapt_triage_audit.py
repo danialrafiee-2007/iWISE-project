@@ -23,6 +23,24 @@ def test_profile_recalibrates_risk_and_round_trips(tmp_path):
     assert adapt.load(tmp_path / "p.json", "m2") is None
 
 
+def test_profile_reweights_the_signals_and_sets_thresholds_on_its_own_scale():
+    rng = np.random.default_rng(0)
+    labels = np.array([0, 1] * 40)
+    risks = np.clip(0.5 + rng.normal(0, 0.2, 80), 0.01, 0.99)
+    signal = labels + rng.normal(0, 0.3, 80)
+    features = [[float(adapt._logit([r])[0]), s, 0.5, 0.5] for r, s in zip(risks, signal)]
+    profile = adapt.fit("unit", risks, labels, "m1", features=features)
+    assert profile.ranking is not None and profile.ranking.coef[1] > 0
+    assert profile.domain_risk(0.5, [0.0, 1.5, 0.5, 0.5]) > 0.5 > profile.domain_risk(0.5, [0.0, -0.5, 0.5, 0.5])
+    assert all(0 <= t.catch <= 1 for t in profile.thresholds)
+    assert adapt.domain_features(0.5, [{"lex_unsupported": 0.2, "dense_max": 0.6, "hhem_consistency": 0.8}]) == [0.0, 0.2, 0.6, 0.8]
+
+
+def test_profile_never_reverses_the_ranking_when_recalibrating():
+    profile = adapt.fit("unit", [0.9, 0.8, 0.2, 0.1], [0, 0, 1, 1], "m1")
+    assert profile.platt is None
+
+
 def test_profile_with_one_class_keeps_the_risk():
     profile = adapt.fit("unit", [0.2, 0.3, 0.4], [0, 0, 0], "m1")
     assert profile.platt is None and profile.calibrated(0.3) == 0.3

@@ -3,7 +3,9 @@
 Bump a signal's version whenever its output could change, so cached features are rebuilt.
 """
 
+import hashlib
 from collections.abc import Callable
+from pathlib import Path
 
 import numpy as np
 
@@ -113,10 +115,53 @@ def shifts(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     ]
 
 
-def _shift_version() -> str:
-    from truth_guardian.shifts import CONFIRM_ENTAILMENT
+def flips(sample: Sample, sentences: list[Sentence]) -> list[dict]:
+    from truth_guardian.flips import check_sample as flip_check
 
-    return f"v2:wordnet3.0:{models.NLI_MODEL}:" + ":".join(f"{k}{v}" for k, v in CONFIRM_ENTAILMENT.items())
+    return [
+        {
+            "flip_kind": c.kind if c.confirmed else "",
+            "flip_confirmed": int(c.confirmed),
+            "flip_original": c.original_entailment if c.original_entailment is not None else 0.0,
+            "flip_flipped": c.flipped_entailment if c.flipped_entailment is not None else 0.0,
+            "flip_spans": [list(x) for x in c.spans] if c.confirmed else [],
+            "flip_detail": c.detail if c.confirmed else "",
+        }
+        for c in flip_check(sample, sentences, premises(sample, sentences))
+    ]
+
+
+def detector(sample: Sample, sentences: list[Sentence]) -> list[dict]:
+    """Token probabilities of the trained detector (detector.py), as absolute character ranges in the answer."""
+    from truth_guardian.detector import shipped
+
+    model = shipped()
+    if model is None or not sentences:
+        return [{"det_max": 0.0, "det_tokens": []} for _ in sentences]
+    tokens = model.tokens(list(zip(premises(sample, sentences), (s.text for s in sentences))))
+    return [
+        {"det_max": max((p for *_, p in t), default=0.0), "det_tokens": [[s.start + a, s.start + b, round(p, 4)] for a, b, p in t]}
+        for s, t in zip(sentences, tokens)
+    ]
+
+
+def _detector_version() -> str:
+    """Keyed by the trained detector's weights, read directly (detector.py imports this module)."""
+    weights = Path(__file__).resolve().parents[2] / "models" / "detector" / "full" / "model.safetensors"
+    fingerprint = hashlib.sha256(weights.read_bytes()).hexdigest()[:12] if weights.exists() else "missing"
+    return f"v1:{fingerprint}:top{PREMISE_SENTENCES}"
+
+
+def _flip_version() -> str:
+    from truth_guardian.flips import ACTIVE, MAX_FLIPS, MIN_FLIPPED_ENTAILMENT, MIN_GAIN
+
+    return f"v1:wordnet3.0:{models.NLI_MODEL}:top{PREMISE_SENTENCES}:max{MAX_FLIPS}:" + ":".join(f"{k}{MIN_FLIPPED_ENTAILMENT[k]}-{MIN_GAIN[k]}" for k in ACTIVE)
+
+
+def _shift_version() -> str:
+    from truth_guardian.shifts import CONFIRM_ENTAILMENT, QUANTIFIER_OVERLAP
+
+    return f"v3:wordnet3.0:{models.NLI_MODEL}:" + ":".join(f"{k}{v}" for k, v in CONFIRM_ENTAILMENT.items()) + f":qoverlap{QUANTIFIER_OVERLAP}"
 
 
 def spans_per_sentence(spans: list[dict], sentences: list[Sentence]) -> list[dict]:
@@ -148,4 +193,6 @@ SIGNALS: dict[str, tuple[str, Callable]] = {
     "lettuce": (f"v1:{models.LETTUCE_MODEL}", lettuce),
     "polarity": (f"v2:wordnet3.0:{models.NLI_MODEL}:overlap0.65:ratio2.5:confirm0.8", polarity),
     "shifts": (_shift_version(), shifts),
+    "flips": (_flip_version(), flips),
+    "detector": (_detector_version(), detector),
 }

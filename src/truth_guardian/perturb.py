@@ -56,6 +56,9 @@ def _source_numbers(sample: Sample) -> set[str]:
 
 
 def _changed_number(text: str, rng: random.Random, taken: set[str]) -> str | None:
+    """A plausible wrong value; None for strings that only look numeric, such as an address "192.168.1.1"."""
+    if not re.fullmatch(r"\d+(?::\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+", text):
+        return None
     for _ in range(20):
         if ":" in text:
             if len(text.split(":")) != 2 or not text.replace(":", "").isdigit():

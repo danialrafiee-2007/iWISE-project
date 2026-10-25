@@ -19,7 +19,7 @@ from truth_guardian import fusion
 from truth_guardian.correct import suggest
 from truth_guardian.evaluation import best_span_threshold, best_threshold
 from truth_guardian.features import load_rows, usable
-from truth_guardian.overrides import apply_polarity, apply_shifts
+from truth_guardian.overrides import apply_flips, apply_polarity, apply_shifts
 from truth_guardian.perturb import KINDS
 from truth_guardian.schema import read_jsonl
 from truth_guardian.symbolic import normalize_number
@@ -42,6 +42,7 @@ def main() -> None:
     parser.add_argument("--no-structure", action="store_true", help="drop position, length and count features")
     parser.add_argument("--polarity-override", action="store_true", help="apply confirmed polarity contradictions after the model")
     parser.add_argument("--shift-override", action="store_true", help="apply confirmed role swaps after the model and report cautions")
+    parser.add_argument("--flips-override", action="store_true", help="apply confirmed flips (flips.py) after the model")
     args = parser.parse_args()
     structure = not args.no_structure
 
@@ -53,6 +54,9 @@ def main() -> None:
         if args.shift_override:
             rows = load_rows(["shifts"], path, FEATURES)["shifts"]
             predictions = {k: apply_shifts(p, rows[k]) for k, p in predictions.items()}
+        if args.flips_override:
+            rows = load_rows(["flips"], path, FEATURES)["flips"]
+            predictions = {k: apply_flips(p, rows[k]) for k, p in predictions.items()}
         return predictions
 
     def load(name: str, good_only: bool = False):
@@ -124,7 +128,7 @@ def main() -> None:
             **({"fixed_exactly": fixed[kind] / fixable[kind]} if fixable[kind] else {}),
             **({"cautioned": cautioned[kind] / len(values)} if args.shift_override else {}),
         }
-    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure") + ("-polarity" if args.polarity_override else "") + ("-shifts" if args.shift_override else "")
+    name = f"{args.kind}-{'+'.join(args.signals)}" + ("" if structure else "-nostructure") + ("-polarity" if args.polarity_override else "") + ("-shifts" if args.shift_override else "") + ("-flips" if args.flips_override else "")
     out = ROOT / "eval" / "results" / f"perturbations__{name}.json"
     out.write_text(json.dumps(report, indent=2), encoding="utf-8", newline="\n")
     print(f"{name}: train {report['train_samples']}, dev AUROC {report['dev_auroc']:.3f}, control false alarms {report['control_false_alarm_rate']:.2f}")

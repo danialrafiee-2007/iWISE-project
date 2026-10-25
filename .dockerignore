@@ -9,7 +9,9 @@ data/features
 data/web
 eval/predictions
 models/onnx
-models/detector
+models/detector/pilot
+models/detector/*/train_examples.jsonl
+models/detector/*/checkpoint.pt
 web
 GetLayers
 deploy

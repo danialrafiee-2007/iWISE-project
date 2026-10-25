@@ -11,7 +11,7 @@ from pathlib import Path
 FINAL = "final__ragtruth_dev.json"
 BASELINES = {"B1 lexical overlap": "B1-lexical__ragtruth_dev.json", "B2 embedding similarity": "B2-embedding__ragtruth_dev.json", "B3 NLI": "B3-nli__ragtruth_dev.json"}
 ANALYSIS = "analysis__ensemble-lexical+symbolic+dense+hhem-nostructure.json"
-SUITE = "perturbations__ensemble-lexical+symbolic+dense+hhem-nostructure-polarity-shifts.json"
+SUITE = "perturbations__ensemble-lexical+symbolic+dense+hhem-nostructure-polarity-shifts-flips.json"
 LOCKED = "final__ragtruth_test.json"
 LOCKED_HALUEVAL = {"qa": "final__halueval_qa.json", "dialogue": "final__halueval_dialogue.json", "summary": "final__halueval_summary.json"}
 LOCKED_AGENT = "tracer_learned__agenthallu_test.json"
@@ -19,6 +19,7 @@ LOCKED_BASELINES = {"B1 lexical overlap": "B1-lexical", "B2 embedding similarity
 LOCKED_REFERENCE = "lettuce"
 CASES = "challenge_cases.json"
 CALIBRATION = "calibration.json"
+PROFILES = "profiles.json"
 LOCKED_SETS = {"ragtruth": "ragtruth_test", "qa": "halueval_qa", "dialogue": "halueval_dialogue", "summary": "halueval_summary"}
 
 
@@ -62,6 +63,10 @@ def model_card(root: Path) -> dict:
             "controls_flagged": suite["control_false_alarm_rate"],
             "edits": {k: {"n": v["n"], "detected": v["detected"], "auroc": v["auroc_vs_controls"], "located": v["located"], "cautioned": v.get("cautioned")} for k, v in suite["by_edit"].items()},
         }
+    if profiles := use(PROFILES):
+        card["profiles"] = {"labelled": profiles["labelled"], "domains": {p["title"]: {k: p[k] for k in ("held_out_answers", "auroc", "ece", "verdict_accuracy")} for p in profiles["profiles"].values()}}
+        if adaptation := use("adaptation.json"):
+            card["profiles"]["length_alone_auroc"] = {d: r["answer_length_alone_auroc"] for d, r in adaptation["domains"].items() if "answer_length_alone_auroc" in r}
     if calibration := use(CALIBRATION):
         card["calibration"] = {name: {k: s[k] for k in ("answers", "ece", "bins")} for name, s in calibration["sets"].items()}
     if cases := use(CASES):

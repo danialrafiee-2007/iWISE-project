@@ -4,29 +4,29 @@
   "block_false_alarm": 0.05,
   "confidence": 0.9,
   "held_out": {
-    "pass": 0.0976984126984127,
-    "review": 0.6787367724867726,
+    "pass": 0.09462301587301589,
+    "review": 0.6818121693121693,
     "block": 0.2235648148148148,
-    "hallucinated_among_passed": 0.051647437250939815,
+    "hallucinated_among_passed": 0.05151782892523104,
     "hallucinated_among_blocked": 0.8811912855227457,
     "grounded_blocked": 0.048559611141619816,
-    "hallucinations_caught": 0.9824952732405925,
-    "passed_within_target": 0.8859060402684564,
+    "hallucinations_caught": 0.9830455486629457,
+    "passed_within_target": 0.9115646258503401,
     "blocked_within_target": 0.59
   },
   "risk_coverage": {
     "10%": 0.05333333333333334,
     "20%": 0.06976744186046512,
-    "30%": 0.11529933481152993,
-    "40%": 0.1611295681063123,
-    "50%": 0.1952191235059761,
-    "60%": 0.22591362126245848
+    "30%": 0.12195121951219512,
+    "40%": 0.1644518272425249,
+    "50%": 0.20053120849933598,
+    "60%": 0.22812846068660023
   },
   "base_rate": 0.4435590969455511,
   "final_policy": {
     "model_version": "20261022-082833-ensemble",
     "data": "ragtruth_dev.jsonl",
-    "pass_below": 0.17784556528163567,
+    "pass_below": 0.179082261187405,
     "block_from": 0.705916239496188,
     "pass_error": 0.1,
     "block_false_alarm": 0.05,
@@ -52,13 +52,13 @@
       "hallucinations_caught": 0.988
     },
     "summary": {
-      "pass": 0.384,
-      "review": 0.51,
+      "pass": 0.378,
+      "review": 0.516,
       "block": 0.106,
-      "hallucinated_among_passed": 0.3020833333333333,
+      "hallucinated_among_passed": 0.30158730158730157,
       "hallucinated_among_blocked": 0.5660377358490566,
       "grounded_blocked": 0.092,
-      "hallucinations_caught": 0.768
+      "hallucinations_caught": 0.772
     }
   }
 }

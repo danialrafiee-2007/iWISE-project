@@ -24,7 +24,7 @@ export function RiskGauge({ report }: { report: Report }) {
   const color = VERDICT[report.verdict].color;
   const marks: [string, number][] = report.guarantee
     ? [["catch", report.guarantee.catch_threshold], ["alarm", report.guarantee.alarm_threshold]]
-    : [["decision", report.response_threshold]];
+    : [["decision", report.domain?.decision ?? report.response_threshold]];
   return (
     <div className="flex flex-col gap-2">
       <div className="relative h-2.5 rounded-full bg-ink-600" role="meter" aria-valuemin={0} aria-valuemax={1} aria-valuenow={risk} aria-label="Hallucination risk">
@@ -65,7 +65,9 @@ export function VerdictCard({ report }: { report: Report }) {
           </span>
           <span className="text-[13px] text-fog-300">
             Risk {risk.toFixed(2)}
-            {report.domain ? ` (recalibrated for ${report.domain.name})` : ""}: the model's probability that this answer contains a hallucination.
+            {report.domain
+              ? ` for ${report.domain.name}, from its profile of ${report.domain.examples} labelled answers${report.domain.model_risk != null ? ` (the RAGTruth model alone: ${report.domain.model_risk.toFixed(2)})` : ""}: the probability that this answer contains a hallucination.`
+              : ": the model's probability that this answer contains a hallucination."}
           </span>
         </div>
       </div>
