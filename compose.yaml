@@ -23,10 +23,9 @@ services:
     stop_grace_period: 30s
     healthcheck:
       test: ["CMD", "python", "scripts/docker_healthcheck.py"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       start_period: 5m
-      start_interval: 5s
       retries: 3
 
 volumes:

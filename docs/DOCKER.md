@@ -1,15 +1,20 @@
 # Truth Guardian in Docker
 
-One Linux image runs the whole web app on the CPU, offline, with no Python, uv or packages installed on the host. It
-works wherever Docker runs Linux containers: Docker Engine on Linux, Docker Desktop on Windows (WSL 2) and macOS.
-What was actually tested is listed at the end; everything else is expected to work but not verified.
+One Linux image runs the whole web app on the CPU, offline, with no Python, uv or packages installed on the host. It is
+built for any host that runs Linux containers (Docker Engine on Linux, Docker Desktop on Windows with WSL 2 or on
+macOS), but only the setups listed under [Tested](#tested) have been run; the others are expected to work, not
+verified. The image is `linux/amd64` and CPU only, and it holds the current app, which checks text: photo and audio
+inputs are not implemented yet.
 
 On Windows without Docker, `TruthGuardian.bat` is the other way to run the app (see the README); the two can run side
 by side, the launcher on port 8765 and the container on 7860.
 
 ## Requirements
 
-- Docker Engine 24 or later, or Docker Desktop with Linux containers (on Windows: the WSL 2 backend).
+- **Docker Engine 24.0 or later with Docker Compose v2**, or Docker Desktop with Linux containers (on Windows: the
+  WSL 2 backend). Tested on Engine 24.0.9 with Compose 2.29.1 and on Engine 29.9.2 with Compose 5.6.1. The build
+  uses BuildKit cache mounts (BuildKit is the default builder from Engine 23.0). The health check leaves out
+  `start_interval` on purpose: it needs Engine 25.0 and Compose 2.20.2.
 - **Memory: at least 2 GB for the container.** Measured: 1.4 GB once the models are loaded; with a 1 GB limit the
   container is killed while loading (exit code 137, `OOMKilled=true`). Docker Desktop gives Linux containers half the
   computer's memory by default, which is enough on an 8 GB computer.
@@ -31,7 +36,8 @@ docker compose up -d --build
 ```
 
 Then open http://127.0.0.1:7860. The models load in the background: the page works at once, and checks start when
-`docker compose ps` shows the container as `healthy` (about 15 seconds on the project laptop, longer on slower CPUs).
+`docker compose ps` shows the container as `healthy` (about 17 seconds on the project laptop, longer on slower CPUs;
+the check runs every 10 seconds, so `healthy` follows `ready` within 10 seconds).
 
 ## Everyday commands
 
@@ -109,13 +115,15 @@ work: it would be a separate build target with the CUDA build of PyTorch, offere
 | date | 2026-10-27 |
 | host | Windows 11 Pro 10.0.26300, AMD Ryzen 7 5800H (16 threads), 16 GB RAM, AMD integrated graphics (no NVIDIA) |
 | Docker | Docker Desktop 4.97.0, Engine 29.9.2, Compose 5.6.1, Buildx 0.38.1, WSL 2.6.1 (kernel 6.6.87.2) |
+| oldest Docker | Engine 24.0.9, Compose 2.29.1, Buildx 0.16.2, run as Docker-in-Docker (`docker:24-dind`) on the same host |
 | image | `linux/amd64`, 3.3 GB of layers |
 
 | Check | Result |
 |---|---|
 | `docker compose config` | valid, no unset variables |
 | build | from an empty build cache 6.0 min (downloads included); after a code change 2.6 min; a failed model download or export stops the build with a message, and a final offline readiness check fails the build if anything is missing |
-| cold start | `starting` → app `warming` (5 s) → `ready` and `healthy` (16 s); never healthy before ready |
+| cold start | `starting` → app `warming` (5 s) → `ready` (16 s) → `healthy` (17 s); never healthy before ready |
+| Engine 24.0.9 (Docker-in-Docker) | `compose config` valid; build from an empty cache 4.6 min; `healthy` in 21 s; page, health, cached example and fresh analysis as above; ready in 13 s with `--network none` |
 | page, health, a cached example, a fresh analysis | 200; example from the cache in 0.01 s; a wrong year flagged in 0.5 s (risk 0.91) |
 | no network (`--network none`, read-only root) | ready in 14 s, every probe as above |
 | restart; `down` then `up` | ready in 17 s; the example cache kept (19 reports) |
@@ -126,6 +134,26 @@ work: it would be a separate build target with the CUDA build of PyTorch, offere
 | memory | 1 GB limit: killed while loading (137, OOMKilled); 2 GB: ready, an 18-second analysis completes, 1.3 GB used |
 | stop during an analysis | the analysis finishes and is answered; stopped after 9.4 s |
 | GPU requested, none present | Docker refuses with a clear error; inside the image `torch.cuda.is_available()` is False and the app runs on the CPU |
+
+To repeat the main checks (from the project folder; Docker Desktop or the Docker engine must be running):
+
+```bash
+docker compose config --quiet                     # the compose file is valid
+docker compose up -d --build && docker compose ps # healthy once the models are ready
+docker run --rm --network none --read-only --tmpfs /tmp truth-guardian:local python -m truth_guardian.web --check
+docker run --rm --entrypoint ls truth-guardian:local data/processed   # only the four development files
+docker compose down
+```
+
+The oldest Docker check runs Engine 24 inside a privileged container, so the project is built from an empty cache there
+(about 5 minutes, internet needed), then removed with its data:
+
+```bash
+docker run -d --privileged --name tg-dind24 -e DOCKER_TLS_CERTDIR= -v "$PWD:/src:ro" docker:24-dind
+docker exec tg-dind24 sh -c "cd /src && docker compose build && docker compose up -d"
+docker exec tg-dind24 docker compose -f /src/compose.yaml ps    # healthy after about 20 seconds
+docker rm -f -v tg-dind24
+```
 
 **Not tested, so not claimed:** Linux on its own hardware (only the WSL 2 Linux kernel of Docker Desktop), macOS
 (Intel or Apple Silicon), `linux/arm64` (would need a native ARM64 run, not just an emulated build), any GPU, and

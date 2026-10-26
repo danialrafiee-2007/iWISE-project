@@ -63,6 +63,6 @@ COPY --from=prepare /app/data/processed/ragtruth_dev.jsonl /app/data/processed/x
 COPY --from=prepare --chown=user /app/data/web data/web
 USER user
 EXPOSE 7860
-HEALTHCHECK --interval=15s --timeout=5s --start-period=5m --start-interval=5s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5m --retries=3 \
   CMD ["python", "scripts/docker_healthcheck.py"]
 CMD ["python", "-m", "truth_guardian.web", "--host", "0.0.0.0", "--port", "7860", "--no-browser"]
