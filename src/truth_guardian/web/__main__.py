@@ -46,6 +46,12 @@ def main() -> None:
 
     from truth_guardian.web.app import create_app
 
+    if args.host not in ("127.0.0.1", "localhost", "::1") and not os.environ.get("TG_ACCESS_CODE"):
+        print(
+            "Warning: listening beyond this computer without TG_ACCESS_CODE, so anyone who reaches the port can use the app. "
+            "Fine in a container published on 127.0.0.1 only (compose.yaml); set TG_ACCESS_CODE before exposing it.",
+            flush=True,
+        )
     url = f"http://{'127.0.0.1' if args.host == '0.0.0.0' else args.host}:{args.port}"
     if not args.no_browser:
         threading.Timer(1.5, webbrowser.open, [url]).start()

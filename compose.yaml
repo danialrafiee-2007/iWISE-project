@@ -1,0 +1,33 @@
+# Truth Guardian on this computer, in a Linux container (CPU only). docs/DOCKER.md lists every command.
+#   docker compose up -d --build    build once (internet needed), then start: http://127.0.0.1:7860
+#   docker compose ps               "healthy" once the models are loaded (about a minute; longer on slow CPUs)
+#   docker compose down             stop; the example cache volume is kept (down -v deletes it)
+# The port is published on 127.0.0.1 only, so nothing outside this computer can reach the app. TG_PORT picks another
+# host port; TG_ACCESS_CODE (no default) asks every visitor for that code.
+name: truth-guardian
+
+services:
+  app:
+    build: .
+    image: truth-guardian:local
+    ports:
+      - "127.0.0.1:${TG_PORT:-7860}:7860"
+    environment:
+      TG_ACCESS_CODE: ${TG_ACCESS_CODE:-}
+    volumes:
+      - web-cache:/home/user/app/data/web
+    read_only: true
+    tmpfs:
+      - /tmp
+    init: true
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "scripts/docker_healthcheck.py"]
+      interval: 15s
+      timeout: 5s
+      start_period: 5m
+      start_interval: 5s
+      retries: 3
+
+volumes:
+  web-cache:

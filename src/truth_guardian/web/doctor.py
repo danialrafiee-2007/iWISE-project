@@ -12,7 +12,11 @@ from truth_guardian import models
 from truth_guardian.polarity import NLTK_DATA
 from truth_guardian.web.app import STATIC
 
-SETUP = "run TruthGuardian.bat setup once with internet"
+SETUP = (
+    "run TruthGuardian.bat setup once with internet"
+    if sys.platform == "win32"
+    else "run python -m truth_guardian.web --prepare once with internet (in Docker: rebuild the image, docker compose build)"
+)
 
 
 class Item(NamedTuple):
@@ -57,8 +61,8 @@ def readiness(root: Path) -> list[Item]:
     return [
         Item("built web front end", (STATIC / "index.html").exists(), True, "cd web && npm install && npm run build"),
         Item("trained fusion model and tracer", _trained(root, "fusion") and _trained(root, "tracer"), True, "restore models/fusion and models/tracer from the repository"),
-        Item("sentence encoder (all-MiniLM-L6-v2)", _cached(models.EMBEDDING_MODEL), True, SETUP),
-        Item("NLI model (nli-deberta-v3-base)", _cached(models.NLI_MODEL), True, SETUP),
+        Item("sentence encoder (all-MiniLM-L6-v2)", _cached(models.EMBEDDING_MODEL, models.REVISIONS[models.EMBEDDING_MODEL]), True, SETUP),
+        Item("NLI model (nli-deberta-v3-base)", _cached(models.NLI_MODEL, models.REVISIONS[models.NLI_MODEL]), True, SETUP),
         Item("HHEM consistency model", hhem, True, SETUP),
         Item("spaCy English model", importlib.util.find_spec("en_core_web_sm") is not None, True, SETUP),
         Item("WordNet", (NLTK_DATA / "corpora" / "wordnet").exists(), True, SETUP),
@@ -68,8 +72,7 @@ def readiness(root: Path) -> list[Item]:
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "copy models/detector/full from the team, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
-        Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer"),
-    ]
+    ] + ([Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer")] if sys.platform == "win32" else [])
 
 
 def report(root: Path) -> bool:

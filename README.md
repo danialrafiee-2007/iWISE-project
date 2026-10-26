@@ -15,7 +15,8 @@ Setup keeps everything the app needs inside the project folder, in `runtime/`: u
 the language models (about 2 GB, not committed). After it, **the whole folder can be copied to another 64-bit Windows
 computer and runs there offline, with nothing to install**. On the first start in a new folder the launcher rebuilds
 `.venv` from `runtime/` without internet (about 20 seconds), so `.venv` itself need not be copied. Other systems use
-the Docker image below.
+the Docker image below. Code run directly (tests, scripts, `uv run`) keeps the language models in `runtime/hf` too
+unless `HF_HOME` says otherwise, so nothing is downloaded into the user profile.
 
 | Command | What it does |
 |---|---|
@@ -137,17 +138,18 @@ The exact-word detector (90 MB) is not in the repository; without it the app mar
 
 ## Online demo and Docker
 
-The `Dockerfile` builds the whole app into one image (packages with the CPU build of PyTorch, datasets with
-checksums, language models, the ONNX export and the example cache; about half an hour, internet needed) and serves it
-on port 7860:
+The `Dockerfile` builds the whole app into one CPU-only Linux image (locked packages with the CPU build of PyTorch,
+datasets with checksums, the two language models at pinned revisions, the ONNX export and the example cache; internet
+needed for the build only) that runs offline on Docker Engine or Docker Desktop. `compose.yaml` runs it on this
+computer only, with a health check that waits for the models:
 
 ```bash
-docker build -t truth-guardian .
-docker run -p 7860:7860 -e TG_ACCESS_CODE=choose-a-code truth-guardian
+docker compose up -d --build     # then http://127.0.0.1:7860; "docker compose ps" shows healthy when ready
 ```
 
-`TG_ACCESS_CODE` asks every visitor for that code (any user name); without it the app is open. `TG_ALLOWED_HOSTS`
-adds host names the server accepts. To give the judges a link, put it on a Hugging Face Space with your own account:
+`docs/DOCKER.md` has every command, the measured requirements (2 GB of memory for the container), what the image holds,
+the security settings and the tested setups. `TG_ACCESS_CODE` asks every visitor for that code (any user name); without
+it the app is open. `TG_ALLOWED_HOSTS` adds host names the server accepts. To give the judges a link, put it on a Hugging Face Space with your own account:
 
 ```bash
 hf auth login
@@ -183,4 +185,5 @@ Each line is a `Sample`: question, documents, answer, optional evidence and agen
 - `docs/AI_USAGE.md`: AI tools used, by whom, for what, and how outputs were verified
 - `docs/CREDITS.md`: datasets, models and libraries with their licenses
 - `docs/DECISIONS.md`: key technical decisions and why
+- `docs/DOCKER.md`: running the app in Docker, its requirements and what was tested
 - `benchmark/README.md`: TG-Bench data card

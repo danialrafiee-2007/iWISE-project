@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+# ONNX Runtime starts its usage telemetry when imported unless this is set; nothing here should report anywhere
+os.environ.setdefault("ORT_DISABLE_TELEMETRY", "1")
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 NLI_MODEL = "cross-encoder/nli-deberta-v3-base"
@@ -23,6 +25,12 @@ NLI_LABELS = ("contradiction", "entailment", "neutral")
 HHEM_MODEL = "vectara/hallucination_evaluation_model"
 HHEM_REVISION = "de9a5e6ba9ba49531a022dba17e35ffeb2a6fad8"
 LETTUCE_MODEL = "KRLabsOrg/lettucedect-base-modernbert-en-v1"
+# The live models load from these exact Hub commits, so every setup and image gets the files the results were made with
+REVISIONS = {
+    EMBEDDING_MODEL: "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    NLI_MODEL: "6c749ce3425cd33b46d187e45b92bbf96ee12ec7",
+    HHEM_MODEL: HHEM_REVISION,
+}
 CACHE_SIZE = 50_000
 HHEM_ONNX = Path(__file__).resolve().parents[2] / "models" / "onnx" / f"hhem-{HHEM_REVISION[:8]}.onnx"
 HHEM_TOKENIZER = HHEM_ONNX.with_name(f"hhem-{HHEM_REVISION[:8]}-tokenizer")
@@ -48,14 +56,14 @@ def _cached(name: str, keys: list, compute) -> np.ndarray:
 def _embedder():
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer(EMBEDDING_MODEL, device="cpu")
+    return SentenceTransformer(EMBEDDING_MODEL, device="cpu", revision=REVISIONS[EMBEDDING_MODEL])
 
 
 @lru_cache(maxsize=2)
 def _nli(name: str = NLI_MODEL):
     from sentence_transformers import CrossEncoder
 
-    return CrossEncoder(name, device="cpu")
+    return CrossEncoder(name, device="cpu", revision=REVISIONS.get(name))
 
 
 @lru_cache(maxsize=1)
