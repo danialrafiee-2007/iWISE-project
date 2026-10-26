@@ -10,6 +10,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Portable runtime made by TruthGuardian.bat setup: uv, Python, package cache and language models (about 2 GB)
+runtime/
+
 # Data and model artifacts (downloaded or generated, never committed)
 data/raw/
 data/processed/

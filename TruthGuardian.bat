@@ -1,17 +1,27 @@
 @echo off
 rem Truth Guardian launcher for Windows.
 rem   TruthGuardian.bat         start the web app (offline) and open the browser
-rem   TruthGuardian.bat setup   first time on a computer: install and download everything (needs internet once)
+rem   TruthGuardian.bat setup   once, with internet: install and download everything into this folder
 rem   TruthGuardian.bat check   show what is present and what is missing
 rem   TruthGuardian.bat test    run the test suite
 rem   TruthGuardian.bat smoke   end-to-end check of the web app against the real models
 rem   TruthGuardian.bat help    this help
 rem Options: --port N (default 8765), --no-browser
+rem
+rem Everything the app needs is kept inside this folder (uv, Python, the package cache and the language models in
+rem runtime\), so after one setup the whole folder can be copied to another Windows computer and run offline there.
 
 setlocal EnableExtensions DisableDelayedExpansion
 chcp 65001 >nul
 cd /d "%~dp0"
 title Truth Guardian
+set "RUNTIME=%CD%\runtime"
+set "UV_CACHE_DIR=%RUNTIME%\uv-cache"
+set "UV_PYTHON_INSTALL_DIR=%RUNTIME%\python"
+set "UV_MANAGED_PYTHON=1"
+set "UV_PYTHON_INSTALL_BIN=0"
+set "UV_PYTHON_INSTALL_REGISTRY=0"
+set "HF_HOME=%RUNTIME%\hf"
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 set "TRANSFORMERS_VERBOSITY=error"
@@ -66,6 +76,8 @@ echo.
 if /i "%MODE%"=="help" goto help
 call :find_uv || goto fail
 if /i "%MODE%"=="setup" goto setup
+call :env_check || goto fail
+if "%NEED_ENV%"=="1" call :env_build || goto fail
 if /i "%MODE%"=="check" goto check
 if /i "%MODE%"=="test" goto test
 if /i "%MODE%"=="smoke" goto smoke
@@ -114,7 +126,7 @@ rem ----------------------------------------------------------------------------
 echo   %B%Setting up this computer%R% %DIM%(needs internet once; safe to run again, finished steps are skipped)%R%
 echo.
 set "HF_HUB_OFFLINE="
-call :step 1 "Python and packages" "uv sync --inexact" || goto fail
+call :step 1 "Python and packages, kept in runtime" "call :env_setup" || goto fail
 set "HAVE_RAW=0"
 if exist "data\raw\nltk_data\corpora\wordnet" if exist "data\raw\ragtruth\response.jsonl" set "HAVE_RAW=1"
 if "%HAVE_RAW%"=="1" (call :skip 2 "Datasets and WordNet") else (call :step 2 "Datasets and WordNet (checksums verified)" "uv run python scripts\download_data.py" || goto fail)
@@ -128,6 +140,7 @@ echo   %B%Final check (offline)%R%
 uv run --offline --quiet python -m truth_guardian.web --check || goto fail
 echo.
 echo   %OK%Setup complete.%R% From now on just double-click %B%TruthGuardian.bat%R%; no internet is needed.
+echo   %DIM%The whole folder, runtime included, can be copied to another Windows computer and runs there offline.%R%
 goto done
 
 rem ---------------------------------------------------------------------------------------------------------------
@@ -148,7 +161,7 @@ goto done
 
 :help
 echo   %B%TruthGuardian.bat%R%         start the web app offline and open the browser
-echo   %B%TruthGuardian.bat setup%R%   first time on a computer: install and download everything (needs internet once)
+echo   %B%TruthGuardian.bat setup%R%   once, with internet: install and download everything into this folder
 echo   %B%TruthGuardian.bat check%R%   show what is present and what is missing
 echo   %B%TruthGuardian.bat test%R%    run the test suite
 echo   %B%TruthGuardian.bat smoke%R%   end-to-end check of the web app against the real models
@@ -159,12 +172,58 @@ goto done
 
 rem ---------------------------------------------------------------------------------------------------------------
 :find_uv
+if exist "%RUNTIME%\uv\uv.exe" (set "PATH=%RUNTIME%\uv;%PATH%" & exit /b 0)
 where uv >nul 2>&1 && exit /b 0
 if exist "%USERPROFILE%\.local\bin\uv.exe" (set "PATH=%USERPROFILE%\.local\bin;%PATH%" & exit /b 0)
 if exist "%USERPROFILE%\.cargo\bin\uv.exe" (set "PATH=%USERPROFILE%\.cargo\bin;%PATH%" & exit /b 0)
 echo %ERR%uv is not installed.%R% It manages Python and the packages for this project. Install it once, then run TruthGuardian.bat setup:
 echo     winget install --id=astral-sh.uv -e
 echo   or see https://docs.astral.sh/uv/getting-started/installation/
+exit /b 1
+
+:env_check
+rem The Python environment (.venv) holds absolute paths. When it was built in another folder (the project was copied
+rem or moved) or no longer runs, it is removed and NEED_ENV=1 asks for a rebuild for this folder.
+set "NEED_ENV=0"
+set "BUILT_IN="
+if exist ".venv\built-in.txt" set /p BUILT_IN=<".venv\built-in.txt"
+if /i "%BUILT_IN%"=="%CD%" if exist ".venv\Scripts\python.exe" ".venv\Scripts\python.exe" -c "" >nul 2>&1 && exit /b 0
+set "NEED_ENV=1"
+rem uv links the Python minor version to its install with a junction, an absolute path that points back into the old
+rem folder after a copy; without it uv uses the install itself. rmdir removes the link only, never what it points to.
+for /f "delims=" %%d in ('dir /a:l /b "%RUNTIME%\python" 2^>nul') do rmdir "%RUNTIME%\python\%%d"
+for /d %%d in ("%RUNTIME%\python\cpython-*") do if not exist "%%d\python.exe" rmdir "%%d" 2>nul
+if not exist ".venv" exit /b 0
+rmdir /s /q ".venv"
+if not exist ".venv" exit /b 0
+echo %ERR%The old .venv folder could not be removed.%R% Close the programs that use it, then try again.
+exit /b 1
+
+:env_build
+if not exist "%RUNTIME%\uv-cache" (
+  echo %WARN%This computer is not set up yet.%R% Run %B%TruthGuardian.bat setup%R% once with internet, then TruthGuardian.bat again.
+  exit /b 1
+)
+echo   %DIM%First start in this folder: building its Python environment offline from runtime, about a minute...%R%
+uv sync --offline --frozen --quiet
+if errorlevel 1 (
+  echo %ERR%The Python environment could not be built offline.%R% Copy the whole folder including runtime, or run %B%TruthGuardian.bat setup%R% once with internet.
+  exit /b 1
+)
+>".venv\built-in.txt" echo %CD%
+exit /b 0
+
+:env_setup
+call :env_check || exit /b 1
+uv sync --inexact || exit /b 1
+>".venv\built-in.txt" echo %CD%
+if exist "%RUNTIME%\uv\uv.exe" exit /b 0
+rem keep the uv that built the package cache next to it, so another computer needs no uv of its own
+for /f "delims=" %%u in ('where uv 2^>nul') do (
+  if not exist "%RUNTIME%\uv" mkdir "%RUNTIME%\uv"
+  copy /y "%%u" "%RUNTIME%\uv\uv.exe" >nul || exit /b 1
+  exit /b 0
+)
 exit /b 1
 
 :step

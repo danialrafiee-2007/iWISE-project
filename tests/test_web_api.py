@@ -1,12 +1,14 @@
 import json
 import threading
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
+from truth_guardian import models
 from truth_guardian.heal import Change, Healing
 from truth_guardian.report import ClaimReport, Report
-from truth_guardian.web.app import _changed_range, create_app
+from truth_guardian.web.app import _changed_range, create_app, prepare
 from truth_guardian.web.engine import ROOT, Cancelled, Engine
 from truth_guardian.web.examples import ExampleStore
 
@@ -176,6 +178,16 @@ def test_a_check_whose_client_left_is_dropped_before_it_runs():
         Engine().analyze(None, cancelled=gone)
     with pytest.raises(Cancelled):
         Engine().heal(None, cancelled=gone)
+
+
+def test_setup_runs_the_nli_model_even_when_every_example_is_cached(monkeypatch):
+    pairs = []
+    monkeypatch.setattr(models, "nli_probabilities", pairs.extend)
+    store = SimpleNamespace(examples={}, agents={})
+    prepare(FakeEngine(), store)
+    assert pairs == []
+    prepare(FakeEngine(), store, every_model=True)
+    assert len(pairs) == 1
 
 
 def test_changed_range_finds_the_edit():

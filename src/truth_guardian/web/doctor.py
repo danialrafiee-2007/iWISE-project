@@ -4,6 +4,7 @@ Nothing here touches the network; Hugging Face models are looked up in the local
 """
 
 import importlib.util
+import sys
 from pathlib import Path
 from typing import NamedTuple
 
@@ -36,6 +37,19 @@ def _trained(root: Path, kind: str) -> bool:
     return latest.exists() and (root / "models" / kind / latest.read_text(encoding="utf-8").strip() / "model.joblib").exists()
 
 
+def _portable(root: Path) -> bool:
+    """uv, Python, the package cache and the language models all live in runtime/, so a copy of the folder runs offline."""
+    from huggingface_hub import constants
+
+    runtime = (root / "runtime").resolve()
+    return (
+        (runtime / "uv" / "uv.exe").exists()
+        and (runtime / "uv-cache").is_dir()
+        and Path(sys.base_prefix).resolve().is_relative_to(runtime)
+        and Path(constants.HF_HUB_CACHE).resolve().is_relative_to(runtime)
+    )
+
+
 def readiness(root: Path) -> list[Item]:
     processed = root / "data" / "processed"
     onnx = models.HHEM_ONNX.exists() and models.HHEM_ONNX.with_suffix(".json").exists() and models.HHEM_TOKENIZER.exists()
@@ -54,6 +68,7 @@ def readiness(root: Path) -> list[Item]:
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "copy models/detector/full from the team, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
+        Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer"),
     ]
 
 

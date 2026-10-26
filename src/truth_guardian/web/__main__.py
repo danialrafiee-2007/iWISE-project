@@ -36,7 +36,7 @@ def main() -> None:
 
         engine = Engine(ROOT)
         try:
-            prepare(engine, ExampleStore(ROOT))
+            prepare(engine, ExampleStore(ROOT), every_model=True)
         except Exception as e:
             sys.exit(f"preparation failed: {engine.error or f'{type(e).__name__}: {e}'}")
         print(f"models ready (warm-up {engine.warm_seconds:.0f} s); examples cached in data/web/examples")

@@ -27,6 +27,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from truth_guardian import models
 from truth_guardian.audit import summarize
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.pipeline import make_sample
@@ -168,9 +169,15 @@ def _parse_log(text: str) -> list[Sample]:
     return samples
 
 
-def prepare(engine, store: ExampleStore) -> None:
-    """Load and warm up the models, then check every ready-made example once and keep its report on disk."""
+def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
+    """Load and warm up the models, then check every ready-made example once and keep its report on disk.
+
+    every_model (the setup step) also runs the NLI model once: only rule-proposed sentence pairs reach it, so the
+    warm-up never calls it and, with every example report already cached, setup would not download it.
+    """
     engine.load()
+    if every_model:
+        models.nli_probabilities([("The sky is blue.", "The sky is not blue.")])
     for example in [*store.examples.values(), *store.agents.values()]:
         if store.cached(example.id, engine.version) is None:
             profile = example.profile if example.profile in getattr(engine, "profiles", {}) else None

@@ -6,15 +6,21 @@ Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 ## Quick start (Windows)
 
 Double-click `TruthGuardian.bat`. It checks that everything is in place, starts the web app offline and opens it in
-the browser. On a new computer, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run
-`TruthGuardian.bat setup` once with internet: it installs the packages, downloads the datasets (checksums verified)
-and the language models, builds the processed data and the fast HHEM export, warms up and caches the examples, and
-skips whatever is already there.
+the browser. To prepare the folder, install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run
+`TruthGuardian.bat setup` once with internet: it installs Python and the packages, downloads the datasets (checksums
+verified) and the language models, builds the processed data and the fast HHEM export, warms up and caches the
+examples, and skips whatever is already there.
+
+Setup keeps everything the app needs inside the project folder, in `runtime/`: uv, Python 3.13, the package cache and
+the language models (about 2 GB, not committed). After it, **the whole folder can be copied to another 64-bit Windows
+computer and runs there offline, with nothing to install**. On the first start in a new folder the launcher rebuilds
+`.venv` from `runtime/` without internet (about 20 seconds), so `.venv` itself need not be copied. Other systems use
+the Docker image below.
 
 | Command | What it does |
 |---|---|
 | `TruthGuardian.bat` | start the web app (port 8765) and open the browser; if it is already running, just open it |
-| `TruthGuardian.bat setup` | prepare a new computer (internet needed once) |
+| `TruthGuardian.bat setup` | once, with internet: install and download everything into this folder |
 | `TruthGuardian.bat check` | list what is present and what is missing |
 | `TruthGuardian.bat test` | run the test suite |
 | `TruthGuardian.bat smoke` | end-to-end check of the web app against the real models |
