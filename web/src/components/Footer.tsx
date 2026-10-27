@@ -37,9 +37,11 @@ export function Footer() {
       <div className="mx-auto max-w-[1320px] px-4 pb-10 pt-16 sm:px-8 lg:pt-20">
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr] lg:gap-10">
           <div className="flex flex-col gap-5 sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex w-fit items-center gap-3 text-[#23513a] no-underline">
-              <ShieldMark size={38} turning={false} />
-              <span className="font-display text-[30px] font-medium leading-none tracking-tight" lang="en">
+            {/* The name and shield as in the top bar: the breathing light all round, the sheen, the turning shield. */}
+            <Link to="/" className="brand relative isolate flex w-fit items-center gap-3 no-underline">
+              <span className="brand-glow" aria-hidden="true" />
+              <ShieldMark size={44} />
+              <span className="brand-name font-display text-[30px] font-medium leading-none tracking-tight" lang="en">
                 Truth Guardian
               </span>
             </Link>
@@ -48,10 +50,11 @@ export function Footer() {
           {COLUMNS.map((column) => (
             <nav key={column.title} aria-label={t(column.title)} className="flex flex-col gap-5">
               <h2 className="m-0 font-serif text-[13px] font-semibold uppercase tracking-[0.2em] text-[#286046]">{t(column.title)}</h2>
-              <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
+              <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
                 {column.links.map((link) => (
                   <li key={link.to}>
-                    <Link to={link.to} className="text-[17px] text-[#34443b] no-underline transition-colors hover:text-[#286046] hover:underline hover:decoration-[#d4c2a6] hover:underline-offset-4">
+                    {/* Lit under the pointer like the top bar's links: Home's tint and the soft jade light. */}
+                    <Link to={link.to} className="nav-glow -mx-3 inline-block rounded-full px-3 py-1 text-[17px] text-[#34443b] no-underline">
                       {t(link.label)}
                     </Link>
                   </li>

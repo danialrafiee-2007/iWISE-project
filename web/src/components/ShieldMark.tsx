@@ -4,12 +4,12 @@ const SHIELD = "M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z";
 const CHECK = "M8.5 12l2.5 2.5 4.5-5";
 
 /** The shield, drawn solid and in depth: a darker copy below and to the side as its edge, a lit face with a bright
- *  rim, and a raised check mark. In the top bar it turns once about its upright axis every three seconds
- *  (styles.css, .shield-3d); `turning={false}` keeps it still, as in the footer. */
-export function ShieldMark({ size = 36, turning = true }: { size?: number; turning?: boolean }) {
+ *  rim, and a raised check mark. In the top bar and the footer it turns once about its upright axis every three
+ *  seconds (styles.css, .shield-3d). */
+export function ShieldMark({ size = 36 }: { size?: number }) {
   const id = useId();
   return (
-    <svg width={size} height={size} viewBox="3 1.5 19 21.5" className={`${turning ? "shield-3d" : "shield-still"} shrink-0`} aria-hidden="true">
+    <svg width={size} height={size} viewBox="3 1.5 19 21.5" className="shield-3d shrink-0" aria-hidden="true">
       <defs>
         <linearGradient id={`${id}-face`} x1="0.15" y1="0" x2="0.85" y2="1">
           <stop offset="0" stopColor="#9dffc4" />

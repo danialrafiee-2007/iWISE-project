@@ -261,9 +261,10 @@
     background: color-mix(in oklab, var(--color-beam-400) 10%, transparent);
   }
 
-  /* The top bar's phosphor green: every link, button and menu item under the pointer takes Home's darker tint and
-     throws a green light below and around it; the models' lamp glows when they are ready; a light breathes all
-     round the name, a sheen runs through its letters, and the shield turns once every three seconds. */
+  /* The top bar's and the footer's light, in a muted jade (--glow) that sits with the site's soft greens and creams:
+     every link, button and menu item under the pointer takes Home's darker tint and throws a soft light below and
+     around it; a light breathes all round the name, a sheen runs through its letters, and the shield turns once
+     every three seconds. Only the models' lamp keeps the phosphor green (--neon). */
   .nav-glow {
     transition: background-color 180ms, box-shadow 220ms, color 180ms;
   }
@@ -271,9 +272,9 @@
   .nav-glow:focus-visible {
     background-color: color-mix(in oklab, var(--color-beam-400) 14%, transparent);
     box-shadow:
-      0 0 0 1px rgb(var(--neon-rgb) / 0.45),
-      0 8px 16px -4px rgb(var(--neon-rgb) / 0.9),
-      0 0 24px 3px rgb(var(--neon-rgb) / 0.45);
+      0 0 0 1px rgb(var(--glow-rgb) / 0.3),
+      0 7px 14px -5px rgb(var(--glow-rgb) / 0.55),
+      0 0 18px 1px rgb(var(--glow-rgb) / 0.22);
     color: var(--neon-ink);
   }
   .status-lamp {
@@ -290,13 +291,13 @@
     inset: -10px -18px;
     border-radius: 999px;
     pointer-events: none;
-    background: radial-gradient(ellipse at 50% 50%, rgb(var(--neon-rgb) / 0.75), rgb(var(--neon-rgb) / 0.3) 48%, transparent 74%);
+    background: radial-gradient(ellipse at 50% 50%, rgb(var(--glow-rgb) / 0.42), rgb(var(--glow-rgb) / 0.16) 48%, transparent 74%);
     filter: blur(10px);
     animation: brand-glow 4.2s ease-in-out infinite;
   }
   /* The letters themselves glow at their edges, and a band of light passes through them. */
   .brand-name {
-    background: linear-gradient(100deg, var(--color-fog-100) 0 38%, #17b864 45%, #c8ffdf 50%, #17b864 55%, var(--color-fog-100) 62% 100%);
+    background: linear-gradient(100deg, var(--color-fog-100) 0 38%, #3d8c63 45%, #cfe9da 50%, #3d8c63 55%, var(--color-fog-100) 62% 100%);
     background-size: 260% 100%;
     background-clip: text;
     -webkit-background-clip: text;
@@ -304,11 +305,8 @@
     animation: brand-sheen 7s ease-in-out infinite, brand-letters 4.2s ease-in-out infinite;
   }
   .shield-3d {
-    filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 7px rgb(var(--neon-rgb) / 0.55));
+    filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 6px rgb(var(--glow-rgb) / 0.4));
     animation: shield-turn 3s cubic-bezier(0.55, 0.05, 0.3, 1) infinite;
-  }
-  .shield-still {
-    filter: drop-shadow(0 2px 3px rgb(6 48 27 / 0.3));
   }
   @media (prefers-reduced-motion: reduce) {
     .brand-glow,
@@ -324,6 +322,8 @@
   --neon: #39ff88;
   --neon-rgb: 57 255 136;
   --neon-ink: #0b4a2b;
+  /* A darker, quieter jade for the bar's and footer's light (#2f855a). */
+  --glow-rgb: 47 133 90;
 }
 
 @keyframes brand-glow {
@@ -349,16 +349,16 @@
 @keyframes brand-letters {
   0%,
   100% {
-    filter: drop-shadow(0 0 1px rgb(var(--neon-rgb) / 0.5)) drop-shadow(0 0 4px rgb(var(--neon-rgb) / 0.25));
+    filter: drop-shadow(0 0 1px rgb(var(--glow-rgb) / 0.3)) drop-shadow(0 0 4px rgb(var(--glow-rgb) / 0.12));
   }
   28% {
-    filter: drop-shadow(0 0 2px rgb(var(--neon-rgb) / 0.95)) drop-shadow(0 0 10px rgb(var(--neon-rgb) / 0.7));
+    filter: drop-shadow(0 0 2px rgb(var(--glow-rgb) / 0.6)) drop-shadow(0 0 9px rgb(var(--glow-rgb) / 0.35));
   }
   42% {
-    filter: drop-shadow(0 0 1px rgb(var(--neon-rgb) / 0.7)) drop-shadow(0 0 6px rgb(var(--neon-rgb) / 0.4));
+    filter: drop-shadow(0 0 1px rgb(var(--glow-rgb) / 0.45)) drop-shadow(0 0 6px rgb(var(--glow-rgb) / 0.2));
   }
   58% {
-    filter: drop-shadow(0 0 3px rgb(var(--neon-rgb) / 1)) drop-shadow(0 0 14px rgb(var(--neon-rgb) / 0.8));
+    filter: drop-shadow(0 0 2px rgb(var(--glow-rgb) / 0.7)) drop-shadow(0 0 12px rgb(var(--glow-rgb) / 0.42));
   }
 }
 
