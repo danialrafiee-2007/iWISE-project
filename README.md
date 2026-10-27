@@ -101,7 +101,7 @@ and its peak memory in `eval/results/media_pilot.json`. Those samples are synthe
 well they do on real media, which still needs labelled data.
 
 A click on the landing page's brain opens it into four parts, one per input, each naming itself under the pointer and
-saying what the engine does with it (D-128). On the landing page each of the four challenge inputs also opens a panel
+saying what the engine does with it; a click on a part opens that input's page, and scrolling closes it (D-128, D-129). On the landing page each of the four challenge inputs also opens a panel
 where it is given to the models (D-126): write or
 paste an answer with its sources, choose or paste an image, choose a video, or press the microphone and speak, in any
 language; what was read or found comes back in the same panel, with where it was found and how sure the reader is. The

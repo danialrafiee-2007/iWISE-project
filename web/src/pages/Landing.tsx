@@ -111,10 +111,10 @@ export default function Landing() {
   const { dir, t } = useI18n();
   const stage = useBrainStage(words, dir === "rtl", roomForBrain);
   const [open, setOpen] = useState<number | null>(null);
-  // The inputs' frame sticks just under the top bar and ends above the page's footer (64px), which would otherwise push
-  // it up at the last row; the card inside leaves room for the section's heading.
+  // The inputs' frame sticks just under the top bar with a small margin below (at the last row the section ends at the
+  // window's bottom edge, the footer below it); the card inside leaves room for the section's heading.
   const top = useBarHeight() + 8;
-  const frame = window.innerHeight - top - 68;
+  const frame = window.innerHeight - top - 24;
 
   // Escape closes the open panel, unless the person is typing in it.
   useEffect(() => {
@@ -166,7 +166,7 @@ export default function Landing() {
       </section>
 
       <section ref={how} className="relative h-[300vh]" aria-label={t("landing.inputs")}>
-        <div className="sticky mx-auto flex max-w-[1320px] flex-col gap-4 px-4 sm:px-8" style={{ top, height: `calc(100dvh - ${top + 68}px)` }}>
+        <div className="sticky mx-auto flex max-w-[1320px] flex-col gap-4 px-4 sm:px-8" style={{ top, height: `calc(100dvh - ${top + 24}px)` }}>
           <h2 className="eyebrow m-0">{t("landing.inputs")}</h2>
           <div className="min-h-0 flex-1">
             <Ascent

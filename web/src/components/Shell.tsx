@@ -1,7 +1,9 @@
-import { useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useI18n, type MessageKey } from "../i18n";
 import { EngineMenu } from "./EngineMenu";
+import { Footer } from "./Footer";
 import { LanguageMenu } from "./LanguageMenu";
+import { ShieldMark } from "./ShieldMark";
 import { TourMenu } from "./Tour";
 import { Link, useRouter } from "../lib/router";
 import { useWorkspace } from "../lib/workspace";
@@ -13,35 +15,6 @@ const PAGES: { to: string; label: MessageKey }[] = [
   { to: "/contact", label: "nav.contact" },
 ];
 const LINK = "whitespace-nowrap rounded-full px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.14em] no-underline transition-colors";
-
-const SHIELD = "M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z";
-const CHECK = "M8.5 12l2.5 2.5 4.5-5";
-
-/** The shield, drawn solid and in depth: a darker copy below and to the side as its edge, a lit face with a bright
- *  rim, and a raised check mark. It turns once about its upright axis every three seconds (styles.css). */
-export function ShieldMark({ size = 36 }: { size?: number }) {
-  const id = useId();
-  return (
-    <svg width={size} height={size} viewBox="3 1.5 19 21.5" className="shield-3d shrink-0" aria-hidden="true">
-      <defs>
-        <linearGradient id={`${id}-face`} x1="0.15" y1="0" x2="0.85" y2="1">
-          <stop offset="0" stopColor="#9dffc4" />
-          <stop offset="0.45" stopColor="#2fb36a" />
-          <stop offset="1" stopColor="#0f5a34" />
-        </linearGradient>
-        <linearGradient id={`${id}-edge`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#145c37" />
-          <stop offset="1" stopColor="#06301b" />
-        </linearGradient>
-      </defs>
-      <path d={SHIELD} fill={`url(#${id}-edge)`} transform="translate(0.9 1.1)" />
-      <path d={SHIELD} fill={`url(#${id}-face)`} stroke="#d9ffe9" strokeOpacity="0.7" strokeWidth="0.7" strokeLinejoin="round" />
-      <path d="M12 4.6l5.6 2.4" stroke="#ffffff" strokeOpacity="0.75" strokeWidth="0.9" strokeLinecap="round" />
-      <path d={CHECK} fill="none" stroke="#06301b" strokeOpacity="0.55" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" transform="translate(0.35 0.5)" />
-      <path d={CHECK} fill="none" stroke="#f3fff8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function EngineStatus() {
   const { health, offline } = useWorkspace();
@@ -145,10 +118,11 @@ export function Shell({ children }: { children: ReactNode }) {
           </p>
         )}
       </header>
-      <main id="main" className="flex-1">
+      {/* Every page but the landing one (its own night) stands on iridology's near-white ground with soft hazes. */}
+      <main id="main" className={`flex-1 ${path === "/" ? "" : "page-ground"}`}>
         {children}
       </main>
-      <footer className="border-t border-hair bg-ink-950 px-4 py-6 text-center text-xs text-fog-400 sm:px-8">{t("shell.footer")}</footer>
+      <Footer />
     </div>
   );
 }

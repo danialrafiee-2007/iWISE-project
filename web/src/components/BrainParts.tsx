@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n, type MessageKey } from "../i18n";
 import { NeuralBrain, type BrainSpot } from "../layers/brain/NeuralBrain";
+import { useRouter } from "../lib/router";
 
 // The landing page's brain, made to answer: a click on it brings it forward and parts it into four, one part per
 // challenge input (upper left text, upper right sound, lower left images, lower right video, mirrored on right-to-left
 // pages). Under the pointer a part lights up and shows its name; held there, a small card says what the engine does
-// with that input, joined to the part by a line, after iridology.app's iris chart. A click outside, Escape or
-// scrolling on closes it. The names and cards sit above the page; the brain itself stays in its background layer.
+// with that input, joined to the part by a line, after iridology.app's iris chart; a click on a part opens that
+// input's page. A click outside, Escape or the first scroll closes it, and the page scrolls on as usual. The names
+// and cards sit above the page; the brain itself stays in its background layer.
 
-const PARTS: { name: MessageKey; about: MessageKey }[] = [
-  { name: "nav.text", about: "brain.text" },
-  { name: "nav.audio", about: "brain.audio" },
-  { name: "nav.image", about: "brain.image" },
-  { name: "nav.video", about: "brain.video" },
+const PARTS: { name: MessageKey; about: MessageKey; to: string }[] = [
+  { name: "nav.text", about: "brain.text", to: "/analyze" },
+  { name: "nav.audio", about: "brain.audio", to: "/audio" },
+  { name: "nav.image", about: "brain.image", to: "/image" },
+  { name: "nav.video", about: "brain.video", to: "/video" },
 ];
 const DWELL = 450; // ms the pointer rests on a part before its card opens
 const CARD = 260;
@@ -31,6 +33,7 @@ const CONTROLS = "a, button, input, textarea, select, label, header, [role=dialo
 
 export function BrainParts({ progress, paused, mirror }: { progress: number; paused: boolean; mirror: boolean }) {
   const { t } = useI18n();
+  const { navigate } = useRouter();
   const [spot, setSpot] = useState<BrainSpot | null>(null);
   const [open, setOpen] = useState(false);
   const [piece, setPiece] = useState(-1);
@@ -38,8 +41,10 @@ export function BrainParts({ progress, paused, mirror }: { progress: number; pau
   const [told, setTold] = useState(false);
   const spotRef = useRef(spot);
   const openRef = useRef(open);
+  const shownRef = useRef({ piece, told });
   spotRef.current = spot;
   openRef.current = open;
+  shownRef.current = { piece, told };
 
   // Only in the opening frame: once the page scrolls on, the camera flies away and the brain closes.
   const away = progress > 0.02;
@@ -89,23 +94,38 @@ export function BrainParts({ progress, paused, mirror }: { progress: number; pau
         }
       } else if (d > OUTSIDE) setOpen(false);
       else {
-        // A tap (no hover on touch screens) picks the part and opens its card at once.
-        setPiece(nearest(s, e.clientX, e.clientY));
-        window.setTimeout(() => setTold(true));
+        // A click opens the part's page. Touch screens have no hover, so there a first tap shows the part's card and a
+        // second tap on the same part opens its page.
+        const part = nearest(s, e.clientX, e.clientY);
+        const kind = (e as PointerEvent).pointerType;
+        const shown = shownRef.current;
+        if ((kind !== "touch" && kind !== "pen") || (part === shown.piece && shown.told)) navigate(PARTS[part].to);
+        else {
+          setPiece(part);
+          window.setTimeout(() => setTold(true));
+        }
       }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
+    // The first turn of the wheel, or any scroll, puts the brain back together; the page scrolls on as usual.
+    const onScroll = () => {
+      if (openRef.current) setOpen(false);
+    };
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("click", onClick);
     window.addEventListener("keydown", onKey);
+    window.addEventListener("wheel", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("click", onClick);
       window.removeEventListener("keydown", onKey);
+      window.removeEventListener("wheel", onScroll);
+      window.removeEventListener("scroll", onScroll);
     };
-  }, []);
+  }, [navigate]);
 
   // The brain is drawn behind the page, so the hand cursor is set on the whole page while it can be clicked.
   const pointing = over || piece >= 0;
@@ -140,7 +160,7 @@ export function BrainParts({ progress, paused, mirror }: { progress: number; pau
                   {t(PARTS[i].name)}
                 </span>
               ))}
-            {open && piece >= 0 && told && <Callout spot={shown} piece={piece} title={t(PARTS[piece].name)} text={t(PARTS[piece].about)} mirror={mirror} />}
+            {open && piece >= 0 && told && <Callout spot={shown} piece={piece} title={t(PARTS[piece].name)} text={t(PARTS[piece].about)} action={t("brain.open")} mirror={mirror} />}
           </div>,
           document.body,
         )}
@@ -158,7 +178,7 @@ function Hint({ x, y, text }: { x: number; y: number; text: string }) {
 
 /** A ringed marker on the part, a line, and the card: on the side away from the page's words (right of the marker on
  *  left-to-right pages) when the screen has room there, else on the other; kept inside the window. */
-function Callout({ spot, piece, title, text, mirror }: { spot: BrainSpot; piece: number; title: string; text: string; mirror: boolean }) {
+function Callout({ spot, piece, title, text, action, mirror }: { spot: BrainSpot; piece: number; title: string; text: string; action: string; mirror: boolean }) {
   const at = spot.pieces[piece];
   const away = mirror ? -1 : 1;
   const room = away > 0 ? window.innerWidth - at.x - GAP - EDGE : at.x - GAP - EDGE;
@@ -177,6 +197,12 @@ function Callout({ spot, piece, title, text, mirror }: { spot: BrainSpot; piece:
       <div className="absolute animate-[rise_.35s_ease-out_both] rounded-2xl border border-[#5eead4]/30 bg-[rgba(4,14,11,.78)] p-4 shadow-[0_18px_40px_-16px_rgba(0,0,0,.8)] backdrop-blur-md" style={{ left, top, width: CARD }}>
         <h3 className="m-0 font-sans text-lg font-semibold text-[#eafff6]">{title}</h3>
         <p className="m-0 mt-1.5 text-[14px] leading-relaxed text-fog-200">{text}</p>
+        <p className="m-0 mt-2.5 flex items-center gap-1.5 font-sans text-xs font-medium text-[#5eead4]">
+          {action}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="rtl:-scale-x-100">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </p>
       </div>
     </>
   );

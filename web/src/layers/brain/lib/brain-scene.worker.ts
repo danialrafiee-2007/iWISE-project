@@ -130,7 +130,8 @@ interface Stage {
  * (the page names them). The page says which part the pointer is on; this side eases the motion and reports where
  * the brain and its parts stand on the canvas, so the page can place their names and its pointer tests.
  */
-const SPLIT = { forward: 0.45, rate: 4 };
+// It closes faster than it opens, so the brain is whole again by the time the scroll it gave way to gets going.
+const SPLIT = { forward: 0.45, rate: 4, closeRate: 8 };
 
 interface Opening {
   target: number;
@@ -171,7 +172,8 @@ const measureParts = (s: Stage, positions: Float32Array) => {
 /** Eases the opening, moves the brain, and posts where it stands (only when that changed). */
 const stepOpening = (s: Stage, delta: number) => {
   const o = s.open;
-  const k = s.reduced ? 1 : 1 - Math.exp(-SPLIT.rate * Math.min(delta, 0.1));
+  const rate = o.target < o.amount ? SPLIT.closeRate : SPLIT.rate;
+  const k = s.reduced ? 1 : 1 - Math.exp(-rate * Math.min(delta, 0.1));
   o.amount += (o.target - o.amount) * k;
   o.lift += ((o.piece >= 0 ? 1 : 0) - o.lift) * Math.min(1, k * 1.5);
   if (Math.abs(o.target - o.amount) < 1e-4) o.amount = o.target;

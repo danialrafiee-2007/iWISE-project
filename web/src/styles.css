@@ -153,11 +153,27 @@
 }
 
 @layer components {
+  /* Boxes on the inner pages, after iridology.app's call-to-action panel: sage at the top left fading to warm cream
+     at the bottom right, a pale sage rim, and a soft green shadow (colours measured from iridology). On the landing
+     page's night they keep the dark tokens. */
   .card {
-    border: 1px solid var(--color-hair);
+    border: 1px solid #c6d9ca;
     border-radius: var(--radius-card);
+    background: linear-gradient(135deg, #e7efe7 0%, #ecebdd 52%, #f1e7d4 100%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.55), 0 18px 40px -26px rgb(40 96 70 / 0.35);
+  }
+  .theme-night .card {
+    border-color: var(--color-hair);
     background: var(--color-ink-800);
     box-shadow: var(--shadow-soft);
+  }
+  /* The ground of every page but the landing one: iridology's near-white, with a sage haze at the left and a faint
+     rose one at the right. */
+  .page-ground {
+    background:
+      radial-gradient(55% 45% at 0% 35%, rgb(231 240 232 / 0.8), transparent 70%),
+      radial-gradient(45% 40% at 100% 25%, rgb(248 240 243 / 0.9), transparent 70%),
+      #fdfcfa;
   }
   .label {
     font-family: var(--font-sans);
@@ -290,6 +306,9 @@
   .shield-3d {
     filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 7px rgb(var(--neon-rgb) / 0.55));
     animation: shield-turn 3s cubic-bezier(0.55, 0.05, 0.3, 1) infinite;
+  }
+  .shield-still {
+    filter: drop-shadow(0 2px 3px rgb(6 48 27 / 0.3));
   }
   @media (prefers-reduced-motion: reduce) {
     .brand-glow,
