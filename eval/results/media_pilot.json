@@ -1,5 +1,5 @@
 {
-  "created": "2026-10-27T09:27:17+00:00",
+  "created": "2026-10-27T10:22:54+00:00",
   "network": "cut off (dead proxy; models from local files only)",
   "machine": {
     "system": "Windows-11-10.0.26300-SP0",
@@ -39,7 +39,7 @@
           "language": "ja",
           "language_confidence": 0.93,
           "quality": 0.93,
-          "seconds": 2.07,
+          "seconds": 1.89,
           "needs_review": false,
           "reasons": [],
           "notes": [
@@ -58,7 +58,7 @@
           "language": "am",
           "language_confidence": 0.95,
           "quality": 0.95,
-          "seconds": 1.41,
+          "seconds": 1.24,
           "needs_review": true,
           "reasons": [
             "Ethiopic text reads almost as well as amh and tir; the language is uncertain"
@@ -84,7 +84,7 @@
           "language": "fa",
           "language_confidence": 0.75,
           "quality": 0.856,
-          "seconds": 0.45,
+          "seconds": 0.41,
           "needs_review": false,
           "reasons": [],
           "notes": [
@@ -112,7 +112,7 @@
           "language": null,
           "language_confidence": null,
           "quality": 0.87,
-          "seconds": 0.33,
+          "seconds": 0.29,
           "needs_review": true,
           "reasons": [
             "the language of the Arabic text could not be told from the image"
@@ -146,7 +146,7 @@
           "language": "sw",
           "language_confidence": 0.385,
           "quality": 0.95,
-          "seconds": 0.67,
+          "seconds": 0.64,
           "needs_review": false,
           "reasons": [],
           "notes": [],
@@ -163,7 +163,7 @@
           "language": "en",
           "language_confidence": 0.222,
           "quality": 0.94,
-          "seconds": 0.52,
+          "seconds": 0.48,
           "needs_review": false,
           "reasons": [],
           "notes": [],
@@ -180,7 +180,7 @@
           "language": "en",
           "language_confidence": 0.222,
           "quality": 0.94,
-          "seconds": 0.52,
+          "seconds": 0.51,
           "needs_review": false,
           "reasons": [],
           "notes": [
@@ -192,13 +192,13 @@
       ],
       "checks": 21,
       "seconds": {
-        "ocr-ja": 2.07,
-        "ocr-am": 1.41,
-        "ocr-fa": 0.45,
-        "ocr-ar": 0.33,
-        "ocr-sw": 0.67,
-        "ocr-en": 0.52,
-        "ocr-en-rotated": 0.52
+        "ocr-ja": 1.89,
+        "ocr-am": 1.24,
+        "ocr-fa": 0.41,
+        "ocr-ar": 0.29,
+        "ocr-sw": 0.64,
+        "ocr-en": 0.48,
+        "ocr-en-rotated": 0.51
       },
       "peak_mb": 512.3,
       "passed_checks": 21,
@@ -310,7 +310,7 @@
         }
       ],
       "passed": true,
-      "wall_seconds": 6.3
+      "wall_seconds": 5.8
     },
     "speech": {
       "reader": "faster-whisper 1.2.1, Whisper Small (CTranslate2 int8)",
@@ -390,7 +390,7 @@
           "sample": "video",
           "language": "en",
           "quality": 0.964,
-          "seconds": 10.34,
+          "seconds": 9.36,
           "needs_review": false,
           "reasons": [],
           "notes": [
@@ -401,9 +401,9 @@
       ],
       "checks": 3,
       "seconds": {
-        "video": 10.34
+        "video": 9.36
       },
-      "peak_mb": 709.7,
+      "peak_mb": 709.4,
       "passed_checks": 3,
       "check_list": [
         {
@@ -423,7 +423,7 @@
         }
       ],
       "passed": true,
-      "wall_seconds": 10.7
+      "wall_seconds": 9.7
     },
     "retrieval": {
       "reader": "intfloat/multilingual-e5-small",

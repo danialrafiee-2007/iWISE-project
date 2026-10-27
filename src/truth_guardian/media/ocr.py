@@ -12,6 +12,8 @@ mapped back to the original image.
 import re
 import threading
 import time
+import unicodedata
+from collections import Counter
 from pathlib import Path
 
 from truth_guardian.media import models_dir
@@ -88,6 +90,10 @@ FUNCTION_WORDS = {
 SHARED_SCRIPTS = {"Latin": ["eng", "fra", "spa", "deu", "ita", "por", "nld", "swa", "yor", "afr", "tur"], "Arabic": ["fas", "ara", "urd"]}
 OWN_LETTERS = {"fas": "پچژگ", "urd": "ٹڈڑںے"}  # letters the other Arabic-script languages here do not write
 LOOKALIKE = {"Cyrillic": "Latin", "Latin": "Cyrillic", "Greek": "Latin"}  # scripts OSD confuses, checked by reading
+# Unicode's name for a letter's script (the first word of the character's name) to the script models' names.
+WRITTEN = {"LATIN": "Latin", "ARABIC": "Arabic", "CYRILLIC": "Cyrillic", "ETHIOPIC": "Ethiopic", "HIRAGANA": "Japanese", "KATAKANA": "Japanese",
+           "HANGUL": "Hangul", "DEVANAGARI": "Devanagari", "GREEK": "Greek", "HEBREW": "Hebrew", "THAI": "Thai"}
+NEAR = 0.9  # a script model scoring this share of the best one or more reads the text about as well
 BLOCK_MODE = 6  # Tesseract page segmentation: one uniform block of text
 WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
 # Tesseract puts a space between Chinese and Japanese characters, which those languages do not use (Korean does).
@@ -255,22 +261,44 @@ def best_scale(path: str, image, lang: str) -> tuple[float, "object"]:
     return best[1], best[2]
 
 
-def _score(path: str, lang: str, image) -> float:
-    """How much text a model reads with confidence: characters read times their confidence. The mean confidence alone
-    flatters a wrong model that reads a few characters of noise confidently (a Japanese model on Amharic did)."""
+def _scored(path: str, lang: str, image) -> tuple[float, str]:
+    """How much text a model reads with confidence (characters read times their confidence), and the words it read. The
+    mean confidence alone flatters a wrong model that reads a few characters of noise confidently (a Japanese model on
+    Amharic did)."""
     from tesserocr import PSM, PyTessBaseAPI
 
     with PyTessBaseAPI(path=path, lang=lang, psm=PSM.AUTO) as api:
         api.SetImage(image)
         api.Recognize()
-        return sum(len(w.strip()) * c / 100 for w, c in api.MapWordConfidences() if w and w.strip())
+        words = [(w.strip(), c) for w, c in api.MapWordConfidences() if w and w.strip()]
+    return sum(len(w) * c / 100 for w, c in words), " ".join(w for w, _ in words)
+
+
+def _score(path: str, lang: str, image) -> float:
+    return _scored(path, lang, image)[0]
+
+
+def written_script(text: str) -> str | None:
+    """The script most letters of `text` are written in, by their Unicode names; None without letters it knows."""
+    counts = Counter(WRITTEN.get(unicodedata.name(ch, "").split(" ")[0]) for ch in text if ch.isalpha())
+    counts.pop(None, None)
+    return counts.most_common(1)[0][0] if counts else None
 
 
 def sweep(path: str, image, detected: str | None) -> str | None:
-    """The script whose Tesseract script model reads the most text with confidence (_score), OSD's own guess first."""
+    """The script whose Tesseract script model reads the most text with confidence (_score), OSD's own guess first.
+    Several script models also carry Latin letters: the Hebrew, Devanagari, Hangul, Arabic and Thai ones read a frame
+    saying "FIRST SLIDE ONE" exactly as well as the Latin one, and the Hebrew language model then read it as Hebrew. So
+    among the models that read about as well as the best (NEAR), the script of the letters actually read wins."""
     order = list(dict.fromkeys(([detected] if detected else []) + SWEEP))
-    scored = [(_score(path, f"script/{s}", image), s) for s in order if (tessdata() / "script" / f"{s}.traineddata").is_file()]
-    return max(scored)[1] if scored and max(scored)[0] > 0 else None
+    scored = {s: _scored(path, f"script/{s}", image) for s in order if (tessdata() / "script" / f"{s}.traineddata").is_file()}
+    if not scored or max(score for score, _ in scored.values()) <= 0:
+        return None
+    best = max(scored, key=lambda s: scored[s][0])
+    written = written_script(scored[best][1])
+    if written and written != best and written in scored and scored[written][0] >= NEAR * scored[best][0]:
+        return written
+    return best
 
 
 def read_text(image_or_path, languages: list[str] | None = None) -> Reading:
@@ -329,7 +357,7 @@ def read_text(image_or_path, languages: list[str] | None = None) -> Reading:
                 here, there = candidates(page_script, hint, tall)[0], candidates(other, hint, tall)[0]
                 if _score(path, there, block_image) > 1.2 * _score(path, here, block_image):  # checked by reading, not taken on trust
                     script = other
-                    reading.notes.append(f"a block is in {script}, unlike the rest of the image")
+                    reading.notes.append(f"a block is in {script} script, unlike the rest of the image")
             tried = []
             for lang in candidates(script, hint, tall=box["h"] > 1.5 * box["w"]):
                 lines, mean = _read(path, lang, block_image)

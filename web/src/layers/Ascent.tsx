@@ -2,7 +2,9 @@ import { useEffect, useRef, type ReactNode } from "react";
 
 // GetLayers "Roadmap Ascent", adapted to a component: a spine with rows sliding past a fixed glowing node whose ring
 // fills with progress, a readout that rises in when the active row changes, and the pixel-cube field. Driven by a
-// value (row index as a float) instead of page scroll; recoloured through --tone.
+// value (row index as a float) instead of page scroll; recoloured through --tone. With onToggle, each row's label and
+// the node open that row: the row holds still, the node's arrow turns to point right and `panel` takes the place of
+// the row's description.
 
 export interface AscentRow {
   label: string;
@@ -17,8 +19,15 @@ const LOOKS = {
   night: { ground: "#05070b", frame: "border-white/8", spine: "rgba(233,240,233,.16)", tick: "bg-white/30", track: "rgba(255,255,255,.09)", disc: "border-white/10 bg-[radial-gradient(120%_120%_at_50%_18%,#1a1f27,#0a0d12_82%)] shadow-[0_14px_40px_-10px_rgba(0,0,0,.75)]" },
 };
 
-export function Ascent({ rows, value, night = false, tone = night ? "#5eead4" : "#456b56", metric, icon, height = 460, compact = false }: { rows: AscentRow[]; value: number; night?: boolean; tone?: string; metric?: ReactNode; icon?: ReactNode; height?: number; compact?: boolean }) {
+export function Ascent({
+  rows, value, night = false, tone = night ? "#5eead4" : "#456b56", metric, icon, height = 460, compact = false, open = null, onToggle, panel, cta, closeLabel,
+}: {
+  rows: AscentRow[]; value: number; night?: boolean; tone?: string; metric?: ReactNode; icon?: ReactNode; height?: number; compact?: boolean;
+  open?: number | null; onToggle?: (row: number) => void; panel?: ReactNode; cta?: string; closeLabel?: string;
+}) {
   const look = night ? LOOKS.night : LOOKS.light;
+  const opened = open != null && onToggle != null;
+  value = open != null && onToggle ? open : value;
   const wrap = useRef<HTMLDivElement>(null);
   const labels = useRef<(HTMLDivElement | null)[]>([]);
   const ticks = useRef<(HTMLDivElement | null)[]>([]);
@@ -105,11 +114,11 @@ export function Ascent({ rows, value, night = false, tone = night ? "#5eead4" : 
     <div
       ref={wrap}
       className={`relative overflow-hidden rounded-[24px] border ${look.frame}`}
-      style={{ height, ["--tone" as string]: tone, ["--tone-rgb" as string]: toneRgb, background: `radial-gradient(70% 80% at 96% 0%, rgba(${toneRgb},.18), transparent 52%), radial-gradient(60% 90% at 100% 50%, rgba(${toneRgb},.08), transparent 60%), ${look.ground}` }}
+      style={{ height, ["--tone" as string]: tone, ["--tone-rgb" as string]: toneRgb, ["--ground" as string]: look.ground, background: `radial-gradient(70% 80% at 96% 0%, rgba(${toneRgb},.18), transparent 52%), radial-gradient(60% 90% at 100% 50%, rgba(${toneRgb},.08), transparent 60%), ${look.ground}` }}
     >
       <canvas ref={pix} className="pointer-events-none absolute right-0 top-0 h-full w-[56%]" aria-hidden="true" />
       <div className="pointer-events-none absolute top-0 h-full w-px" style={{ left: spineX, background: `linear-gradient(180deg, transparent, ${look.spine} 16%, ${look.spine} 84%, transparent)` }} />
-      <div className="pointer-events-none absolute inset-0 [mask:linear-gradient(180deg,transparent_2%,#000_26%,#000_74%,transparent_98%)]" aria-hidden="true">
+      <div className={`pointer-events-none absolute inset-0 [mask:linear-gradient(180deg,transparent_2%,#000_26%,#000_74%,transparent_98%)] ${opened ? "max-md:invisible" : ""}`} aria-hidden={onToggle ? undefined : true}>
         {rows.map((r, i) => (
           <div key={`l${i}`}>
             <div
@@ -120,7 +129,13 @@ export function Ascent({ rows, value, night = false, tone = night ? "#5eead4" : 
               className="absolute left-0 origin-right pl-8 text-right text-sm font-medium leading-tight text-fog-100"
               style={{ width: `calc(${spineX} - 60px)` }}
             >
-              {r.label}
+              {onToggle ? (
+                <button type="button" className="pointer-events-auto cursor-pointer rounded-md bg-transparent p-1 text-inherit hover:text-[var(--tone)]" aria-expanded={opened && open === i} onClick={() => onToggle(i)}>
+                  {r.label}
+                </button>
+              ) : (
+                r.label
+              )}
             </div>
             <div
               ref={(el) => {
@@ -135,22 +150,67 @@ export function Ascent({ rows, value, night = false, tone = night ? "#5eead4" : 
       <div ref={glow} className="pointer-events-none absolute top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[3px]" style={{ left: spineX, background: `radial-gradient(circle, rgba(${toneRgb},.42) 0%, rgba(${toneRgb},.11) 36%, transparent 66%)` }} />
       <div className="pointer-events-none absolute top-1/2 grid h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full" style={{ left: spineX }}>
         <div ref={ring} className="absolute inset-0 rounded-full [mask:radial-gradient(farthest-side,transparent_calc(100%-3px),#000_calc(100%-3px))]" style={{ background: `conic-gradient(var(--tone) calc(var(--p, 0) * 360deg), ${look.track} 0)` }} />
-        <div className={`absolute inset-[5px] grid place-items-center rounded-full border ${look.disc}`}>
-          {icon ?? (
-            <svg viewBox="0 0 24 24" className="h-[42%] w-[42%] animate-[bob_2.6s_ease-in-out_infinite]" fill="none" stroke="#e6efe1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6 13l6-6 6 6M6 18l6-6 6 6" />
-            </svg>
-          )}
-        </div>
+        {onToggle ? (
+          <button
+            type="button"
+            className={`pointer-events-auto absolute inset-[5px] grid cursor-pointer place-items-center rounded-full border ${look.disc} hover:brightness-125`}
+            aria-expanded={opened}
+            aria-label={opened ? closeLabel : rows[active]?.label}
+            onClick={() => onToggle(active)}
+          >
+            {/* The arrow points up while the rows scroll past, and turns to point right at the open row's panel. */}
+            <span className="grid h-[42%] w-[42%] place-items-center transition-transform duration-300" style={{ transform: opened ? "rotate(90deg)" : "none" }}>
+              <svg viewBox="0 0 24 24" className={`h-full w-full ${opened ? "" : "animate-[bob_2.6s_ease-in-out_infinite]"}`} fill="none" stroke="#e6efe1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 13l6-6 6 6M6 18l6-6 6 6" />
+              </svg>
+            </span>
+          </button>
+        ) : (
+          <div className={`absolute inset-[5px] grid place-items-center rounded-full border ${look.disc}`}>
+            {icon ?? (
+              <svg viewBox="0 0 24 24" className="h-[42%] w-[42%] animate-[bob_2.6s_ease-in-out_infinite]" fill="none" stroke="#e6efe1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 13l6-6 6 6M6 18l6-6 6 6" />
+              </svg>
+            )}
+          </div>
+        )}
       </div>
-      <div className="absolute flex flex-col" style={{ left: compact ? "36%" : "40%", right: "5%", top: "50%", transform: metric ? "translateY(calc(-100% - 10px))" : "translateY(-50%)" }} aria-live="polite">
-        <div key={`r${active}`} className="flex flex-col animate-[rise_.6s_cubic-bezier(.22,.61,.36,1)_both]">
-          <span className="inline-flex items-center gap-2 self-start rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide" style={{ color: `rgb(${toneRgb})`, borderColor: `rgba(${toneRgb},.3)`, background: `rgba(${toneRgb},.08)` }}>
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: tone, boxShadow: `0 0 8px ${tone}` }} />
-            {row?.chip}
-          </span>
-          <h3 className="m-0 mt-4 text-[clamp(22px,2.6vw,34px)] font-semibold leading-[1.08] tracking-tight text-fog-100">{row?.title}</h3>
-          <div className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-fog-300">{row?.sub}</div>
+      <div
+        // Open, the panel fills the card beside the spine; on a narrow screen it covers the spine too, on the card's own ground.
+        className={opened ? `absolute inset-y-[22px] left-[3%] right-[3%] z-10 flex flex-col max-md:rounded-[16px] max-md:bg-[var(--ground)] ${compact ? "md:left-[36%]" : "md:left-[40%]"}` : "absolute flex flex-col"}
+        style={opened ? undefined : { left: compact ? "36%" : "40%", right: "5%", top: "50%", transform: metric ? "translateY(calc(-100% - 10px))" : "translateY(-50%)" }}
+        aria-live={opened ? undefined : "polite"}
+      >
+        <div key={`r${active}${opened ? "o" : ""}`} className={`flex flex-col animate-[rise_.6s_cubic-bezier(.22,.61,.36,1)_both] ${opened ? "min-h-0 flex-1" : ""}`}>
+          <div className="flex items-start justify-between gap-3">
+            <span className="inline-flex items-center gap-2 self-start rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide" style={{ color: `rgb(${toneRgb})`, borderColor: `rgba(${toneRgb},.3)`, background: `rgba(${toneRgb},.08)` }}>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: tone, boxShadow: `0 0 8px ${tone}` }} />
+              {row?.chip}
+            </span>
+            {opened && (
+              <button type="button" className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-fog-300 hover:bg-white/10 hover:text-fog-100" aria-label={closeLabel} title={closeLabel} onClick={() => onToggle(active)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            )}
+          </div>
+          <h3 className={`m-0 font-semibold leading-[1.08] tracking-tight text-fog-100 ${opened ? "mt-3 text-[clamp(20px,2vw,26px)]" : "mt-4 text-[clamp(22px,2.6vw,34px)]"}`}>{row?.title}</h3>
+          {opened ? (
+            <div className="mt-4 flex min-h-0 flex-1 flex-col">{panel}</div>
+          ) : (
+            <>
+              <div className="mt-3 max-w-[46ch] text-[15px] leading-relaxed text-fog-300">{row?.sub}</div>
+              {onToggle && cta && (
+                <button type="button" className="mt-5 inline-flex cursor-pointer items-center gap-2 self-start rounded-full border px-4 py-2 text-sm font-medium" style={{ color: `rgb(${toneRgb})`, borderColor: `rgba(${toneRgb},.35)` }} onClick={() => onToggle(active)}>
+                  {cta}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="rtl:-scale-x-100">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
       {metric && (

@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import InputPanel, { type InputKind } from "../components/InputPanels";
 import { formatNumber, useI18n, type MessageKey } from "../i18n";
 import { Ascent, type AscentRow } from "../layers/Ascent";
 import { NeuralBrain } from "../layers/brain/NeuralBrain";
 import { Heading } from "../layers/Heading";
 import { useWorkspace } from "../lib/workspace";
 
-const INPUT_COUNT = 4;
+// The challenge inputs in the order the rows show them; each row opens its own input panel.
+const KINDS: InputKind[] = ["text", "audio", "image", "video"];
+const INPUT_COUNT = KINDS.length;
 
 // The brain is drawn only where the screen leaves room for it beside the words (.hero-words in styles.css keeps the
 // words narrow enough); on narrow or upright screens it would sit under them.
@@ -74,6 +77,19 @@ function useScrollFraction(ref: React.RefObject<HTMLElement | null>) {
   return value;
 }
 
+/** The height of the site's sticky top bar, which grows to several lines on a narrow screen and in some languages. */
+function useBarHeight() {
+  const [height, setHeight] = useState(64);
+  useEffect(() => {
+    const bar = document.querySelector("header");
+    if (!bar) return;
+    const observer = new ResizeObserver(() => setHeight(bar.getBoundingClientRect().height));
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, []);
+  return height;
+}
+
 function useMedia(query: string) {
   const [match, setMatch] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
@@ -94,6 +110,31 @@ export default function Landing() {
   const roomForBrain = useMedia(SIDE_BY_SIDE);
   const { dir, t } = useI18n();
   const stage = useBrainStage(words, dir === "rtl", roomForBrain);
+  const [open, setOpen] = useState<number | null>(null);
+  // The inputs' frame sticks just under the top bar and ends above the page's footer (64px), which would otherwise push
+  // it up at the last row; the card inside leaves room for the section's heading.
+  const top = useBarHeight() + 8;
+  const frame = window.innerHeight - top - 68;
+
+  // Escape closes the open panel, unless the person is typing in it.
+  useEffect(() => {
+    if (open == null) return;
+    const onKey = (e: KeyboardEvent) => {
+      const typing = e.target instanceof HTMLElement && e.target.closest("input, textarea, select");
+      if (e.key === "Escape" && !typing) setOpen(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  /** Opens row `i` (or closes it when it is open) and scrolls to where that row stands, so closing leaves it in place. */
+  const toggle = (i: number) => {
+    setOpen((o) => (o === i ? null : i));
+    const el = how.current;
+    if (!el) return;
+    const travel = el.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + (travel * i) / (INPUT_COUNT - 1), behavior: "smooth" });
+  };
   const INPUTS: AscentRow[] = Array.from({ length: INPUT_COUNT }, (_, k) => ({
     label: t(`landing.in${k + 1}.label` as MessageKey),
     chip: t("landing.chip", { i: formatNumber(k + 1), n: formatNumber(INPUT_COUNT) }),
@@ -124,14 +165,20 @@ export default function Landing() {
       </section>
 
       <section ref={how} className="relative h-[300vh]" aria-label={t("landing.inputs")}>
-        <div className="sticky top-[72px] mx-auto flex h-[calc(100dvh-96px)] max-w-[1320px] flex-col gap-4 px-4 sm:px-8">
+        <div className="sticky mx-auto flex max-w-[1320px] flex-col gap-4 px-4 sm:px-8" style={{ top, height: `calc(100dvh - ${top + 68}px)` }}>
           <h2 className="eyebrow m-0">{t("landing.inputs")}</h2>
           <div className="min-h-0 flex-1">
             <Ascent
               night
               rows={INPUTS}
               value={howProgress * (INPUTS.length - 1)}
-              height={Math.max(380, Math.min(620, typeof window !== "undefined" ? window.innerHeight - 160 : 520))}
+              // Open, the card takes all the room the sticky frame has, for the panel's answer and its writing box.
+              height={open != null ? Math.max(440, frame - 40) : Math.max(360, Math.min(620, frame - 60))}
+              open={open}
+              onToggle={toggle}
+              panel={open != null ? <InputPanel kind={KINDS[open]} /> : null}
+              cta={t("inputs.cta")}
+              closeLabel={t("inputs.close")}
             />
           </div>
         </div>

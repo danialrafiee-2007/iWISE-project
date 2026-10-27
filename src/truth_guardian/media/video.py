@@ -23,6 +23,9 @@ def frames(path: str | Path, count: int = FRAMES) -> list[tuple[float, "object"]
         if stream is None:
             return []
         duration = float(container.duration / av.time_base) if container.duration else float(stream.duration * stream.time_base) if stream.duration else 0.0
+        if not duration:  # a browser's recording often leaves its length out of the header: take it from the packets
+            duration = max((float(p.pts * p.time_base) for p in container.demux(stream) if p.pts is not None), default=0.0)
+            container.seek(0)
         count = max(1, min(count, int(duration // MIN_GAP) + 1)) if duration else 1
         times = [duration * (i + 0.5) / count for i in range(count)] if duration else [0.0]
         found = []
@@ -32,7 +35,25 @@ def frames(path: str | Path, count: int = FRAMES) -> list[tuple[float, "object"]
                 if frame.time is None or frame.time >= at - 0.05:
                     found.append((round(float(frame.time or at), 2), frame.to_image()))
                     break
-        return found
+    if len(found) < len(times) and duration:  # the frames' times are missing or wrong: spread the picks by frame order
+        return _by_order(path, count, duration)
+    return found
+
+
+def _by_order(path: str | Path, count: int, duration: float) -> list[tuple[float, "object"]]:
+    """Frames picked by their place in the decoded sequence, timed as if evenly spread over `duration`. Read from a
+    freshly opened file, since seeking by broken times can leave the first one at its end."""
+    import av
+
+    with av.open(str(path)) as container:
+        total = sum(1 for _ in container.decode(video=0))
+    wanted = {int(total * (i + 0.5) / count) for i in range(count)}
+    found = []
+    with av.open(str(path)) as container:
+        for i, frame in enumerate(container.decode(video=0)):
+            if i in wanted:
+                found.append((round(duration * i / total, 2), frame.to_image()))
+    return found
 
 
 def has_sound(path: str | Path) -> bool:

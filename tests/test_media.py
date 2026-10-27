@@ -86,6 +86,47 @@ def test_media_endpoints_report_status_and_refuse_what_they_cannot_read(client):
     assert client.post("/api/media/read", json={"name": "notes.txt", "data": data}).status_code == 422
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "languages": ["fa; rm -rf"]}).status_code == 422
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "languages": ["fa", "ja", "am", "en"]}).status_code == 422
+    # The type can be overridden (a browser's sound recording comes as .webm), but only for a file type that is read.
+    assert client.post("/api/media/read", json={"name": "notes.txt", "data": data, "kind": "audio"}).status_code == 422
+    assert client.post("/api/media/read", json={"name": "a.png", "data": data, "question": "x" * 501}).status_code == 422
+
+
+def test_the_script_of_the_letters_read_is_told_by_their_unicode_names():
+    assert ocr.written_script("FIRST SLIDE ONE") == "Latin"
+    assert ocr.written_script("שלום עולם") == "Hebrew"
+    assert ocr.written_script("سلام دنیا") == "Arabic"
+    assert ocr.written_script("カタカナとひらがな") == "Japanese"
+    assert ocr.written_script("12 / 34") is None
+
+
+@needs("ocr")
+def test_capital_latin_on_a_frame_is_not_read_as_another_script():
+    # Hebrew, Devanagari, Hangul, Arabic and Thai script models read these words as well as the Latin one does.
+    image = Image.new("RGB", (960, 540), "white")
+    ImageDraw.Draw(image).text((120, 230), "FIRST SLIDE ONE", fill="black", font=ImageFont.truetype("arial.ttf", 64))
+    assert ocr.read_text(image).text == "FIRST SLIDE ONE"
+
+
+@needs("video")
+def test_frames_are_spread_over_a_video_whose_frame_times_are_broken(tmp_path):
+    import av
+    from truth_guardian.media import video
+
+    path = tmp_path / "broken.webm"
+    with av.open(str(path), "w", format="webm") as out:
+        stream = out.add_stream("libvpx", rate=10)
+        stream.width, stream.height, stream.pix_fmt = 320, 240, "yuv420p"
+        for i in range(80):  # 8 s, growing lighter; no frame times given, as some recorders write them
+            frame = av.VideoFrame.from_image(Image.new("RGB", (320, 240), (3 * i, 3 * i, 3 * i)))
+            frame.pts = None
+            out.mux(stream.encode(frame))
+        out.mux(stream.encode())
+    picked = video.frames(path)
+    assert len(picked) == 3
+    times = [at for at, _ in picked]
+    shades = [np.asarray(image.convert("L")).mean() for _, image in picked]
+    assert times == sorted(times) and times[-1] - times[0] > 4
+    assert shades == sorted(shades) and shades[-1] - shades[0] > 60
 
 
 @needs("ocr")
