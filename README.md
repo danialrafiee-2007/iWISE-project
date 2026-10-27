@@ -62,10 +62,39 @@ uv run --offline python -m truth_guardian.web
 ```
 
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
-been downloaded once) and only answers on localhost. Pages: Analyze, Heal, Fool the Guardian, Agent guardian, Audit and
-Model card. The **Tour** button walks through every tool in about three minutes (`?tour=play` runs it hands-free), the size
+been downloaded once) and only answers on localhost. The top bar has Home, **AI engine** (rest the pointer on it for the
+tools: Analyze, Heal, Fool the Guardian, Agent guardian, Audit and Model card), About, Team and Contact us. The **Examples** button in the top bar opens six written answers, each showing one check, and the **Tour** button walks through every tool in about three minutes (`?tour=play` runs it hands-free), the size
 button enlarges everything for a projector, and sources can be added from PDF, Word, HTML, Markdown or text files.
+The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe at the end of the top bar,
+or `?lang=fa`); Persian and Arabic pages read right to left. The checks themselves work on English answers and sources.
 The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
+
+The Contact page is the one part that uses the internet: its server sends each message by SMTP to the team's mailbox
+(majidrafiee1404@gmail.com, fixed in `contact.py`). Copy `smtp.example.env` to `smtp.local.env` (ignored by git and
+Docker) and fill in the sending account, for Gmail an app password; or set `TG_SMTP_USER` and `TG_SMTP_PASSWORD` in the
+environment. Without them the page says that sending is not set up, and everything else stays offline.
+
+### Images, sound and video (media readers, D-125)
+
+The challenge's other inputs have local readers in `src/truth_guardian/media`, offline like the rest. Each turns a file
+into text segments that say where they came from (a box in the image, a time range in the sound), which language and
+script, and how sure the reader is; an unknown or uncertain language, silence or a weak reading goes to review instead
+of being guessed.
+
+| Input | Reader | Model (in `runtime/multimodal`, checked against `MODEL_MANIFEST.json`) |
+|---|---|---|
+| Sound | `speech.py` | Whisper Small through faster-whisper (CTranslate2 int8), language per segment |
+| Text in images | `ocr.py` | Tesseract 5.5 (inside the `tesserocr` package) with tessdata_fast: the script first, then a few likely languages |
+| What an image shows | `vision.py` | Qwen3-VL-2B (GGUF) through llama.cpp's `llama-server` in `runtime/tools`, an opinion, never proof |
+| Video | `video.py` | PyAV: the soundtrack to Whisper, a few timed frames to Tesseract |
+| Other languages' text | `multilingual.py` | multilingual E5 (retrieval) and mDeBERTa NLI, not yet part of the fusion model |
+
+They come with the default `media` dependency group (`uv sync`), not with the Docker image. `GET /api/media/status`
+shows, per reader, whether its files are present, its runtime is installed, it has run on known samples and its quality
+has been evaluated, four separate things; `POST /api/media/read` reads one file. `uv run python scripts/media_pilot.py`
+draws samples with known content, runs every reader on them with the network cut off and records what it read, its time
+and its peak memory in `eval/results/media_pilot.json`. Those samples are synthetic: they show the readers work, not how
+well they do on real media, which still needs labelled data.
 
 To change the front end (Node 20 or later):
 

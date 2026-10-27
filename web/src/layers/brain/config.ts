@@ -79,6 +79,11 @@ export interface BrainConfig {
   cursorFade: number;
   /** Multiplier on the brain's tilt-toward-cursor parallax. 0 = no tilt. */
   cursorParallax: number;
+  /** Vertical field of view of the camera, in degrees (the template's was 45; 38 shows the brain 1.2 times larger). */
+  cameraFov: number;
+  /** Scene background and fog colour (the template's was "#01040e"). The output pass brightens dark values, so
+   *  "#010403" shows as a deep forest green. */
+  backgroundColor: string;
   /** Corner gradient colours for the warped background. */
   cornerBlue: string;
   cornerOrange: string;
@@ -129,8 +134,11 @@ export const BRAIN_CONFIG: BrainConfig = {
   cursorFollow: 0.39,
   cursorFade: 0.1,
   cursorParallax: 1,
-  cornerBlue: "#0f7a6e",
-  cornerOrange: "#04121a",
+  // The background in iridology's forest greens, so the landing page's night ground matches the light pages.
+  backgroundColor: "#010403",
+  cameraFov: 38,
+  cornerBlue: "#2f6b52",
+  cornerOrange: "#0b1712",
   bloomStrength: 0.69,
   bloomRadius: 0.75,
   bloomThreshold: 0,

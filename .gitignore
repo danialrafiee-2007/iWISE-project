@@ -20,8 +20,9 @@ data/processed/
 *.safetensors
 *.onnx
 
-# Secrets
+# Secrets (the Contact page's mail account lives in smtp.local.env; smtp.example.env shows its lines)
 .env
+smtp.local.env
 
 # Frontend
 node_modules/

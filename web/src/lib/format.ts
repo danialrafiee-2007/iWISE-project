@@ -1,21 +1,39 @@
+import { formatNumber, formatPercent, t, type MessageKey } from "../i18n";
 import type { Blame, Grade, Lane, Status, Verdict } from "./types";
 
-export const pct = (x: number | null | undefined, digits = 0) => (x == null ? "n/a" : `${(x * 100).toFixed(digits)}%`);
-export const num = (x: number | null | undefined, digits = 2) => (x == null ? "n/a" : x.toFixed(digits));
+// Numbers and labels in the interface language. The labels are getters, read at render time, so a component that
+// re-renders after a language change shows them in the new language.
 
-export const STATUS: Record<Status, { label: string; color: string; line: string }> = {
-  supported: { label: "Supported", color: "var(--color-ok)", line: "solid" },
-  contradicted: { label: "Contradicted", color: "var(--color-bad)", line: "solid" },
-  unsupported: { label: "Unsupported", color: "var(--color-warn)", line: "dashed" },
-  insufficient_evidence: { label: "Weak evidence", color: "var(--color-weak)", line: "dotted" },
-  contested: { label: "Sources disagree", color: "var(--color-split)", line: "double" },
-};
+export const pct = (x: number | null | undefined, digits = 0) => (x == null ? t("common.na") : formatPercent(x, digits));
+export const num = (x: number | null | undefined, digits = 2) => (x == null ? t("common.na") : formatNumber(x, digits));
 
-export const VERDICT: Record<Verdict, { label: string; color: string }> = {
-  grounded: { label: "Grounded", color: "var(--color-ok)" },
-  hallucinated: { label: "Hallucinated", color: "var(--color-bad)" },
-  uncertain: { label: "Uncertain", color: "var(--color-warn)" },
-};
+function labels<K extends string>(prefix: string, keys: readonly K[]): Record<K, string> {
+  const out = {} as Record<K, string>;
+  for (const key of keys) Object.defineProperty(out, key, { get: () => t(`${prefix}.${key}` as MessageKey), enumerable: true });
+  return out;
+}
+
+function withLabels<K extends string, V extends object>(prefix: string, rows: Record<K, V>): Record<K, V & { label: string }> {
+  const out = {} as Record<K, V & { label: string }>;
+  for (const key of Object.keys(rows) as K[]) {
+    out[key] = Object.defineProperty({ ...rows[key] }, "label", { get: () => t(`${prefix}.${key}` as MessageKey), enumerable: true }) as V & { label: string };
+  }
+  return out;
+}
+
+export const STATUS = withLabels<Status, { color: string; line: string }>("status", {
+  supported: { color: "var(--color-ok)", line: "solid" },
+  contradicted: { color: "var(--color-bad)", line: "solid" },
+  unsupported: { color: "var(--color-warn)", line: "dashed" },
+  insufficient_evidence: { color: "var(--color-weak)", line: "dotted" },
+  contested: { color: "var(--color-split)", line: "double" },
+});
+
+export const VERDICT = withLabels<Verdict, { color: string }>("verdict", {
+  grounded: { color: "var(--color-ok)" },
+  hallucinated: { color: "var(--color-bad)" },
+  uncertain: { color: "var(--color-warn)" },
+});
 
 export const GRADE_COLOR: Record<Grade, string> = {
   A: "var(--color-ok)",
@@ -25,43 +43,18 @@ export const GRADE_COLOR: Record<Grade, string> = {
   F: "var(--color-bad)",
 };
 
-export const LANE: Record<Lane, { label: string; color: string; hint: string }> = {
-  pass: { label: "Pass", color: "var(--color-ok)", hint: "can go out unchecked" },
-  review: { label: "Review", color: "var(--color-warn)", hint: "a person should check it" },
-  block: { label: "Block", color: "var(--color-bad)", hint: "should not go out" },
-};
+const LANE_ROWS = withLabels<Lane, { color: string }>("lane", {
+  pass: { color: "var(--color-ok)" },
+  review: { color: "var(--color-warn)" },
+  block: { color: "var(--color-bad)" },
+});
+for (const key of Object.keys(LANE_ROWS) as Lane[]) Object.defineProperty(LANE_ROWS[key], "hint", { get: () => t(`laneHint.${key}`), enumerable: true });
+export const LANE = LANE_ROWS as Record<Lane, { label: string; color: string; hint: string }>;
 
-export const BLAME: Record<Blame, string> = {
-  retrieval: "Retrieval",
-  generation: "The language model",
-  weak_sources: "Weak sources",
-  conflicting_sources: "Conflicting sources",
-  none: "Nobody",
-  unknown: "Cannot tell",
-};
+export const BLAME: Record<Blame, string> = labels("blame", ["retrieval", "generation", "weak_sources", "conflicting_sources", "none", "unknown"] as const);
 
-export const STAGES: Record<string, string> = {
-  lexical: "Word overlap with the sources",
-  symbolic: "Numbers, names and dates",
-  dense: "Meaning similarity",
-  hhem: "Consistency model (HHEM)",
-  polarity: "Negations and opposites",
-  shifts: "Swapped roles and overclaims",
-  score: "Fusion model score",
-  claims: "Claims, fixes and exact words",
-  checks: "Omissions, conflicts, citations",
-  verdict: "Verdict, guarantee and card",
-};
+export const STAGES: Record<string, string> = labels("stage", ["lexical", "symbolic", "dense", "hhem", "polarity", "shifts", "score", "claims", "checks", "verdict"] as const);
 
-export const KIND_LABEL: Record<string, string> = {
-  number: "Change a number",
-  entity: "Swap a name",
-  negation: "Add a negation",
-  antonym: "Use the opposite word",
-  addition: "Add an unsupported claim",
-  role_swap: "Swap who did what",
-  quantifier: "Exaggerate a quantity",
-  certainty: "Drop a hedge",
-};
+export const KIND_LABEL: Record<string, string> = labels("kind", ["number", "entity", "negation", "antonym", "addition", "role_swap", "quantifier", "certainty"] as const);
 
-export const TASK_LABEL: Record<string, string> = { qa: "Question answering", summary: "Summary", data2text: "Data to text", other: "Other", agent: "Agent", live: "Other" };
+export const TASK_LABEL: Record<string, string> = labels("task", ["qa", "summary", "data2text", "other", "agent", "live"] as const);

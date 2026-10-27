@@ -52,6 +52,7 @@ the check runs every 10 seconds, so `healthy` follows `ready` within 10 seconds)
 | also delete the example cache | `docker compose down -v` |
 | another host port | `TG_PORT=8000 docker compose up -d` (PowerShell: `$env:TG_PORT=8000; docker compose up -d`) |
 | ask visitors for a code | `TG_ACCESS_CODE=your-code docker compose up -d`; any user name, the code as password |
+| let the Contact page send mail | `TG_SMTP_USER=you@gmail.com TG_SMTP_PASSWORD=app-password docker compose up -d` (the image never contains `smtp.local.env`); the container then needs internet access to send |
 
 `/api/health` answers from the first second, also while the models are loading. The container's health check
 (`scripts/docker_healthcheck.py`, standard library only) reads its JSON and reports healthy only on `"state": "ready"`;

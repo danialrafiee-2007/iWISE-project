@@ -1,5 +1,6 @@
 import { createOrb, createOrbTheme, type OrbController, type OrbState } from "orbloom";
 import { useEffect, useRef } from "react";
+import { useI18n, type MessageKey } from "../i18n";
 import type { Mood } from "../lib/workspace";
 
 // GetLayers Orb Studio, "core-teal-01" structure with the shipped teal palette; red and amber share its structure.
@@ -17,12 +18,12 @@ const THEMES = {
   amber: createOrbTheme({ ...shared, id: "tg-orb-amber", colors: { base: "#2b1d07", interior: "#090806", accents: ["#fbbf24", "#fde68a", "#38e1ff"] } }),
 };
 
-const LOOK: Record<Mood, { theme: keyof typeof THEMES; state: OrbState; label: string }> = {
-  idle: { theme: "teal", state: "idle", label: "Guardian is idle" },
-  thinking: { theme: "teal", state: "thinking", label: "Guardian is checking" },
-  grounded: { theme: "teal", state: "success", label: "Last answer: grounded" },
-  uncertain: { theme: "amber", state: "idle", label: "Last answer: uncertain" },
-  hallucinated: { theme: "red", state: "error", label: "Last answer: hallucination found" },
+const LOOK: Record<Mood, { theme: keyof typeof THEMES; state: OrbState; label: MessageKey }> = {
+  idle: { theme: "teal", state: "idle", label: "orb.idle" },
+  thinking: { theme: "teal", state: "thinking", label: "orb.thinking" },
+  grounded: { theme: "teal", state: "success", label: "orb.grounded" },
+  uncertain: { theme: "amber", state: "idle", label: "orb.uncertain" },
+  hallucinated: { theme: "red", state: "error", label: "orb.hallucinated" },
 };
 
 export function GuardianOrb({ mood, diameter = 40, quality = "low" }: { mood: Mood; diameter?: number; quality?: "low" | "balanced" | "high" }) {
@@ -30,6 +31,7 @@ export function GuardianOrb({ mood, diameter = 40, quality = "low" }: { mood: Mo
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const orbRef = useRef<OrbController | null>(null);
   const look = LOOK[mood];
+  const { t } = useI18n();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,10 +66,10 @@ export function GuardianOrb({ mood, diameter = 40, quality = "low" }: { mood: Mo
   }, [look.theme, look.state]);
 
   return (
-    <div ref={motionRef} className="orb-motion" style={{ ["--orb-diameter" as string]: `${diameter}px` }} title={look.label}>
+    <div ref={motionRef} className="orb-motion" style={{ ["--orb-diameter" as string]: `${diameter}px` }} title={t(look.label)}>
       <div className="orb-shell">
         <div className="orb-clip">
-          <canvas ref={canvasRef} className="orb-canvas" aria-label={look.label} role="img" />
+          <canvas ref={canvasRef} className="orb-canvas" aria-label={t(look.label)} role="img" />
           <div className="orb-fallback" aria-hidden="true" />
         </div>
         <div className="orb-chrome" aria-hidden="true" />

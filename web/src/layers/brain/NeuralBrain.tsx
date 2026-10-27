@@ -5,7 +5,7 @@ import type { FromSceneWorker, SceneSize, ToSceneWorker } from "./lib/brain-scen
 // GetLayers "Neural Monitor" particle brain, from the template's worker path (BrainStage): the page keeps only a
 // <canvas>, whose control goes to brain-scene.worker.ts as an OffscreenCanvas; three.js, the model and the frame loop
 // live in the worker. Where a worker cannot draw, the template's still image is shown instead. `progress` (0..1) flies
-// the camera along the story keyframes; `paused` stops drawing.
+// the camera along the story keyframes; `paused` stops drawing; `mirror` says the page shows the canvas mirrored.
 
 const sizeOf = (canvas: HTMLCanvasElement): SceneSize => ({
   width: Math.max(1, canvas.clientWidth),
@@ -15,8 +15,9 @@ const sizeOf = (canvas: HTMLCanvasElement): SceneSize => ({
 
 const supported = () => typeof OffscreenCanvas !== "undefined" && typeof Worker !== "undefined" && "transferControlToOffscreen" in HTMLCanvasElement.prototype;
 
-export function NeuralBrain({ progress, paused = false, className = "" }: { progress: number; paused?: boolean; className?: string }) {
+export function NeuralBrain({ progress, paused = false, mirror = false, className = "" }: { progress: number; paused?: boolean; mirror?: boolean; className?: string }) {
   const boxRef = useRef<HTMLDivElement>(null);
+  const mirrorRef = useRef(mirror);
   const workerRef = useRef<Worker | null>(null);
   const [failed, setFailed] = useState(!supported());
   const [loaded, setLoaded] = useState(false);
@@ -47,7 +48,12 @@ export function NeuralBrain({ progress, paused = false, className = "" }: { prog
     }
     const observer = new ResizeObserver(() => worker.postMessage({ type: "size", ...sizeOf(canvas) } satisfies ToSceneWorker));
     observer.observe(canvas);
-    const onMove = (e: PointerEvent) => worker.postMessage({ type: "pointer", x: (e.clientX / window.innerWidth) * 2 - 1, y: -((e.clientY / window.innerHeight) * 2 - 1) } satisfies ToSceneWorker);
+    // Measured on the canvas, which the page may shift or mirror, so the cursor halo stays under the pointer.
+    const onMove = (e: PointerEvent) => {
+      const box = canvas.getBoundingClientRect();
+      const x = ((e.clientX - box.left) / Math.max(1, box.width)) * 2 - 1;
+      worker.postMessage({ type: "pointer", x: mirrorRef.current ? -x : x, y: -(((e.clientY - box.top) / Math.max(1, box.height)) * 2 - 1) } satisfies ToSceneWorker);
+    };
     const onOut = () => worker.postMessage({ type: "pointerout" } satisfies ToSceneWorker);
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onOut);
@@ -60,6 +66,10 @@ export function NeuralBrain({ progress, paused = false, className = "" }: { prog
       canvas.remove();
     };
   }, [failed]);
+
+  useEffect(() => {
+    mirrorRef.current = mirror;
+  }, [mirror]);
 
   useEffect(() => {
     workerRef.current?.postMessage({ type: "story", progress } satisfies ToSceneWorker);

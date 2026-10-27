@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useI18n, type MessageKey } from "../i18n";
 import { useRouter } from "../lib/router";
 
 // A guided tour for judges and first-time users: it opens each tool on a ready-made example, dims the page around the
@@ -9,78 +10,78 @@ import { useRouter } from "../lib/router";
 interface Step {
   url: string;
   target?: string;
-  title: string;
-  body: string;
+  title: MessageKey;
+  body: MessageKey;
   seconds?: number;
 }
 
 const STEPS: Step[] = [
   {
     url: "/",
-    title: "Welcome to Truth Guardian",
-    body: "It checks an AI answer against the sources it was given, claim by claim, explains every flag and fixes what it can, entirely on this computer. This tour takes about three minutes. Use the arrow keys or the buttons; Esc leaves.",
+    title: "tour.s1.title",
+    body: "tour.s1.body",
   },
   {
     url: "/analyze?example=anne-frank",
     target: "answer",
-    title: "Every claim, checked",
-    body: "The answer is split into claims. The underline colour is the verdict, and the highlighted words are exactly what the sources do not support: here, the year.",
+    title: "tour.s2.title",
+    body: "tour.s2.body",
   },
   {
     url: "/analyze?example=anne-frank",
     target: "claim",
-    title: "Why, and how to fix it",
-    body: "Each flag comes with the closest source sentence, a plain-language reason and, when a source has the right value, a fix taken from it.",
+    title: "tour.s3.title",
+    body: "tour.s3.body",
   },
   {
     url: "/analyze?example=anne-frank",
     target: "verdict",
-    title: "A grade, a guarantee, a lane",
-    body: "The risk is calibrated, so it reads as a probability. The conformal guarantee bounds how many hallucinations slip past the line, and the triage lane says whether the answer can go out, needs a person, or should be blocked.",
+    title: "tour.s4.title",
+    body: "tour.s4.body",
   },
   {
     url: "/analyze?example=anne-frank",
     target: "blame",
-    title: "Who is to blame",
-    body: "Retrieval or the language model? Here the sources do answer the question, so the fault lies with the generator. When the sources miss the question, retrieval is blamed instead.",
+    title: "tour.s5.title",
+    body: "tour.s5.body",
   },
   {
     url: "/analyze?example=library",
     target: "conflicts",
-    title: "When the sources disagree",
-    body: "Two sources give different years. The claim is marked contested rather than hallucinated: the answer did not invent it, but someone has to check which source is right.",
+    title: "tour.s6.title",
+    body: "tour.s6.body",
   },
   {
     url: "/heal?example=anne-frank",
     target: "heal-rounds",
-    title: "Heal, then check again",
-    body: "Fixes are applied round by round and the whole answer is checked again after each one. Every change says why, and the risk is shown for every round.",
+    title: "tour.s7.title",
+    body: "tour.s7.body",
     seconds: 10,
   },
   {
     url: "/fool",
     target: "tricks",
-    title: "Try to fool it",
-    body: "Pick a trick, apply it to a grounded answer and see whether the guardian finds the exact words. Each card shows how often that trick is caught on the test suite, weak ones included.",
+    title: "tour.s8.title",
+    body: "tour.s8.body",
   },
   {
     url: "/agent?example=agent-liberation",
     target: "agent-timeline",
-    title: "Stop an agent in time",
-    body: "Steps arrive one by one, each checked only against what came before it. When the agent states a fact no tool returned, the guardian stops the run before the answer reaches anyone.",
+    title: "tour.s9.title",
+    body: "tour.s9.body",
     seconds: 12,
   },
   {
     url: "/model",
     target: "headline",
-    title: "Measured, limits included",
-    body: "Every number on this page is read from the evaluation files: accuracy against baselines, data the model never saw, the guarantees, and the limits we found.",
+    title: "tour.s10.title",
+    body: "tour.s10.body",
   },
   {
     url: "/analyze",
     target: "upload",
-    title: "Your turn",
-    body: "Drop a PDF or Word document as a source, paste an answer and check it. Nothing leaves this computer.",
+    title: "tour.s11.title",
+    body: "tour.s11.body",
   },
 ];
 
@@ -107,6 +108,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   const lastUrl = useRef<string | null>(null);
   const card = useRef<HTMLDivElement>(null);
   const step = index === null ? null : STEPS[index];
+  const { t } = useI18n();
 
   const start = useCallback((play = false) => {
     lastUrl.current = null;
@@ -232,10 +234,10 @@ export function TourProvider({ children }: { children: ReactNode }) {
             {rect ? (
               <div
                 className="absolute rounded-[22px] outline outline-2 outline-beam-400 transition-[top,left,width,height] duration-200"
-                style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2, boxShadow: "0 0 0 9999px rgb(3 5 8 / 0.62)" }}
+                style={{ top: rect.top - PAD, left: rect.left - PAD, width: rect.width + PAD * 2, height: rect.height + PAD * 2, boxShadow: "0 0 0 9999px rgb(44 58 52 / 0.42)" }}
               />
             ) : (
-              <div className="absolute inset-0 bg-[rgb(3_5_8_/_0.55)]" />
+              <div className="absolute inset-0 bg-[rgb(44_58_52_/_0.38)]" />
             )}
             <div
               ref={card}
@@ -243,24 +245,24 @@ export function TourProvider({ children }: { children: ReactNode }) {
               aria-modal="false"
               aria-labelledby="tour-title"
               tabIndex={-1}
-              className="pointer-events-auto absolute flex flex-col gap-3 rounded-[20px] border border-beam-400/40 bg-ink-850 p-5 shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)] outline-none"
+              className="pointer-events-auto absolute flex flex-col gap-3 rounded-[20px] border border-beam-400/40 bg-ink-850 p-5 shadow-[0_24px_60px_-20px_rgba(44,58,52,.45)] outline-none"
               style={cardStyle}
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="font-mono text-xs text-beam-300">{`${index! + 1} / ${STEPS.length}`}</span>
-                <button type="button" className="grid h-8 w-8 place-items-center rounded-full text-fog-400 hover:bg-ink-700 hover:text-fog-100" aria-label="Close the tour" onClick={stop}>
+                <span className="font-mono text-xs text-beam-300">{t("tour.count", { i: index! + 1, n: STEPS.length })}</span>
+                <button type="button" className="grid h-8 w-8 place-items-center rounded-full text-fog-400 hover:bg-ink-700 hover:text-fog-100" aria-label={t("tour.close")} onClick={stop}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
                 </button>
               </div>
               <h2 id="tour-title" key={`t${index}`} className="m-0 text-lg font-medium text-fog-100">
-                {step.title}
+                {t(step.title)}
               </h2>
               <p key={`b${index}`} className="m-0 text-sm leading-relaxed text-fog-300">
-                {step.body}
+                {t(step.body)}
               </p>
-              {step.target && !found && <p className="m-0 text-xs text-warn">{"Opening this part… (a live check can take a few seconds)"}</p>}
+              {step.target && !found && <p className="m-0 text-xs text-warn-ink">{t("tour.opening")}</p>}
               {autoplay && (
                 <div className="h-1 overflow-hidden rounded-full bg-ink-600" aria-hidden="true">
                   <div className="h-1 rounded-full bg-beam-400" style={{ width: `${Math.min(100, (elapsed / seconds) * 100)}%` }} />
@@ -268,13 +270,13 @@ export function TourProvider({ children }: { children: ReactNode }) {
               )}
               <div className="flex items-center justify-between gap-2">
                 <button type="button" className="btn btn-ghost min-h-9 px-4 text-sm" onClick={() => go(-1)} disabled={index === 0}>
-                  Back
+                  {t("tour.back")}
                 </button>
                 <button type="button" className="btn btn-ghost min-h-9 px-4 text-sm" onClick={() => setAutoplay((a) => !a)} aria-pressed={autoplay}>
-                  {autoplay ? "Pause" : "Autoplay"}
+                  {autoplay ? t("common.pause") : t("tour.autoplay")}
                 </button>
                 <button type="button" className="btn btn-primary min-h-9 px-4 text-sm" onClick={() => go(1)}>
-                  {index === STEPS.length - 1 ? "Finish" : "Next"}
+                  {index === STEPS.length - 1 ? t("tour.finish") : t("tour.next")}
                 </button>
               </div>
             </div>
@@ -287,13 +289,15 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
 export function TourButton() {
   const { start, active } = useTour();
+  const { t } = useI18n();
   return (
-    <button type="button" className="chip whitespace-nowrap" onClick={() => start(false)} disabled={active} aria-label="Start the guided tour">
+    <button type="button" className="chip whitespace-nowrap" onClick={() => start(false)} disabled={active} aria-label={t("tour.start")} title={t("tour.start")}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" />
       </svg>
-      Tour
+      {/* Icon only, so the longer languages keep the top bar on one line; the name is in the tooltip and for screen readers. */}
+      <span className="sr-only">{t("tour.button")}</span>
     </button>
   );
 }

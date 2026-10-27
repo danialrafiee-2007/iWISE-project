@@ -11,7 +11,14 @@ export interface AscentRow {
   sub: ReactNode;
 }
 
-export function Ascent({ rows, value, tone = "#5eead4", metric, icon, height = 460, compact = false }: { rows: AscentRow[]; value: number; tone?: string; metric?: ReactNode; icon?: ReactNode; height?: number; compact?: boolean }) {
+// Two looks: the app's light one, and GetLayers' original night (the landing page, on its dark ground).
+const LOOKS = {
+  light: { ground: "#f6f1e4", frame: "border-hair", spine: "rgba(44,58,52,.16)", tick: "bg-fog-400/40", track: "rgba(44,58,52,.1)", disc: "border-hair bg-[radial-gradient(120%_120%_at_50%_18%,#fdfcfa,#ece4d2_82%)] shadow-[0_14px_40px_-10px_rgba(44,58,52,.35)]" },
+  night: { ground: "#05070b", frame: "border-white/8", spine: "rgba(233,240,233,.16)", tick: "bg-white/30", track: "rgba(255,255,255,.09)", disc: "border-white/10 bg-[radial-gradient(120%_120%_at_50%_18%,#1a1f27,#0a0d12_82%)] shadow-[0_14px_40px_-10px_rgba(0,0,0,.75)]" },
+};
+
+export function Ascent({ rows, value, night = false, tone = night ? "#5eead4" : "#456b56", metric, icon, height = 460, compact = false }: { rows: AscentRow[]; value: number; night?: boolean; tone?: string; metric?: ReactNode; icon?: ReactNode; height?: number; compact?: boolean }) {
+  const look = night ? LOOKS.night : LOOKS.light;
   const wrap = useRef<HTMLDivElement>(null);
   const labels = useRef<(HTMLDivElement | null)[]>([]);
   const ticks = useRef<(HTMLDivElement | null)[]>([]);
@@ -97,11 +104,11 @@ export function Ascent({ rows, value, tone = "#5eead4", metric, icon, height = 4
   return (
     <div
       ref={wrap}
-      className="relative overflow-hidden rounded-[24px] border border-white/8"
-      style={{ height, ["--tone" as string]: tone, ["--tone-rgb" as string]: toneRgb, background: `radial-gradient(70% 80% at 96% 0%, rgba(${toneRgb},.18), transparent 52%), radial-gradient(60% 90% at 100% 50%, rgba(${toneRgb},.08), transparent 60%), #05070b` }}
+      className={`relative overflow-hidden rounded-[24px] border ${look.frame}`}
+      style={{ height, ["--tone" as string]: tone, ["--tone-rgb" as string]: toneRgb, background: `radial-gradient(70% 80% at 96% 0%, rgba(${toneRgb},.18), transparent 52%), radial-gradient(60% 90% at 100% 50%, rgba(${toneRgb},.08), transparent 60%), ${look.ground}` }}
     >
       <canvas ref={pix} className="pointer-events-none absolute right-0 top-0 h-full w-[56%]" aria-hidden="true" />
-      <div className="pointer-events-none absolute top-0 h-full w-px" style={{ left: spineX, background: "linear-gradient(180deg, transparent, rgba(233,240,233,.16) 16%, rgba(233,240,233,.16) 84%, transparent)" }} />
+      <div className="pointer-events-none absolute top-0 h-full w-px" style={{ left: spineX, background: `linear-gradient(180deg, transparent, ${look.spine} 16%, ${look.spine} 84%, transparent)` }} />
       <div className="pointer-events-none absolute inset-0 [mask:linear-gradient(180deg,transparent_2%,#000_26%,#000_74%,transparent_98%)]" aria-hidden="true">
         {rows.map((r, i) => (
           <div key={`l${i}`}>
@@ -109,7 +116,8 @@ export function Ascent({ rows, value, tone = "#5eead4", metric, icon, height = 4
               ref={(el) => {
                 labels.current[i] = el;
               }}
-              className="absolute left-0 origin-right whitespace-nowrap text-right text-sm font-medium text-fog-100"
+              // The left padding leaves room for the active label's lift to the left; long labels wrap rather than run off the card.
+              className="absolute left-0 origin-right pl-8 text-right text-sm font-medium leading-tight text-fog-100"
               style={{ width: `calc(${spineX} - 60px)` }}
             >
               {r.label}
@@ -118,7 +126,7 @@ export function Ascent({ rows, value, tone = "#5eead4", metric, icon, height = 4
               ref={(el) => {
                 ticks.current[i] = el;
               }}
-              className="absolute h-px w-3.5 -translate-y-1/2 bg-white/30"
+              className={`absolute h-px w-3.5 -translate-y-1/2 ${look.tick}`}
               style={{ left: `calc(${spineX} - 7px)` }}
             />
           </div>
@@ -126,8 +134,8 @@ export function Ascent({ rows, value, tone = "#5eead4", metric, icon, height = 4
       </div>
       <div ref={glow} className="pointer-events-none absolute top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[3px]" style={{ left: spineX, background: `radial-gradient(circle, rgba(${toneRgb},.42) 0%, rgba(${toneRgb},.11) 36%, transparent 66%)` }} />
       <div className="pointer-events-none absolute top-1/2 grid h-[72px] w-[72px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full" style={{ left: spineX }}>
-        <div ref={ring} className="absolute inset-0 rounded-full [mask:radial-gradient(farthest-side,transparent_calc(100%-3px),#000_calc(100%-3px))]" style={{ background: `conic-gradient(var(--tone) calc(var(--p, 0) * 360deg), rgba(255,255,255,.09) 0)` }} />
-        <div className="absolute inset-[5px] grid place-items-center rounded-full border border-white/10 bg-[radial-gradient(120%_120%_at_50%_18%,#1a1f27,#0a0d12_82%)] shadow-[0_14px_40px_-10px_rgba(0,0,0,.75)]">
+        <div ref={ring} className="absolute inset-0 rounded-full [mask:radial-gradient(farthest-side,transparent_calc(100%-3px),#000_calc(100%-3px))]" style={{ background: `conic-gradient(var(--tone) calc(var(--p, 0) * 360deg), ${look.track} 0)` }} />
+        <div className={`absolute inset-[5px] grid place-items-center rounded-full border ${look.disc}`}>
           {icon ?? (
             <svg viewBox="0 0 24 24" className="h-[42%] w-[42%] animate-[bob_2.6s_ease-in-out_infinite]" fill="none" stroke="#e6efe1" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 13l6-6 6 6M6 18l6-6 6 6" />

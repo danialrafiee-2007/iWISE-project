@@ -32,12 +32,24 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
+media = [
+    "av==19.0.2",
+    "ctranslate2==4.8.4",
+    "faster-whisper==1.2.1",
+    "pillow==13.0.0",
+    "tesserocr==2.12.0",
+]
 study = [
     "lettucedetect==0.2.3",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv]
+# The media group (speech to text, text in images, audio and video decoding) is part of the local app and the
+# launcher; the Docker image leaves it out (Dockerfile: --no-group media), as media there is a separate optional service.
+default-groups = ["dev", "media"]
 
 [tool.uv.sources]
 en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }

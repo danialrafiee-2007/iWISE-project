@@ -24,6 +24,12 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | en_core_web_sm 3.8.0 | https://github.com/explosion/spacy-models | MIT | verified 2026-10-21 | Named entities for symbolic checks |
 | LettuceDetect base (lettucedect-base-modernbert-en-v1) | https://huggingface.co/KRLabsOrg/lettucedect-base-modernbert-en-v1 | MIT | verified 2026-10-21 | Signal study only (trained on RAGTruth) |
 | HHEM-2.1-Open @ de9a5e6 | https://huggingface.co/vectara/hallucination_evaluation_model | Apache-2.0 | verified 2026-10-21; remote code reviewed | Consistency signal; downloads the google/flan-t5-base tokenizer |
+| faster-whisper-small @ 536b066 | https://huggingface.co/Systran/faster-whisper-small | MIT (Whisper: openai/whisper) | downloaded 2026-10-27, SHA-256 in runtime/multimodal/MODEL_MANIFEST.json | Speech to text (media readers, D-125) |
+| Qwen3-VL-2B-Instruct-GGUF @ 52d6c8f | https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct-GGUF | Apache-2.0 | downloaded 2026-10-27, SHA-256 in the manifest | What an image shows, through llama.cpp (D-125) |
+| tessdata_fast @ 8741641 | https://github.com/tesseract-ocr/tessdata_fast | Apache-2.0 | downloaded 2026-10-27, SHA-256 in the manifest | Text in images, 163 language, script and orientation models (D-125) |
+| multilingual-e5-small @ 614241f | https://huggingface.co/intfloat/multilingual-e5-small | MIT | downloaded 2026-10-27, SHA-256 in the manifest | Multilingual retrieval, not yet in the fusion model (D-125) |
+| mDeBERTa-v3-base-mnli-xnli @ 8adb042 | https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-mnli-xnli | MIT | downloaded 2026-10-27, SHA-256 in the manifest | Multilingual NLI, not yet in the fusion model (D-125) |
+| llama.cpp b11923 (llama-server, Windows CPU x64) | https://github.com/ggml-org/llama.cpp/releases/tag/b11923 | MIT | downloaded 2026-10-27; zip SHA-256 matches the release's digest (runtime/tools/llama.cpp/VERSION.txt) | Runs the Qwen image model locally |
 
 ## Lexical resources
 
@@ -57,6 +63,11 @@ Read from the installed package metadata on 2026-10-21.
 | starlette | 1.9.0 | BSD-3-Clause |
 | uvicorn | 0.54.0 | BSD-3-Clause |
 | httpx (tests) | 0.28.1 | BSD-3-Clause |
+| faster-whisper (media group) | 1.2.1 | MIT |
+| ctranslate2 (media group) | 4.8.4 | MIT |
+| av / PyAV (media group; its wheel carries FFmpeg's libraries, LGPL-2.1-or-later) | 19.0.2 | BSD-3-Clause |
+| tesserocr (media group; its wheel carries Tesseract 5.5.3, Apache-2.0, and Leptonica, BSD-2-Clause) | 2.12.0 | MIT |
+| Pillow (media group) | 13.0.0 | MIT-CMU |
 
 ## Web app (Phase 4)
 
@@ -75,9 +86,14 @@ Read from the installed package metadata on 2026-10-23.
 | @vitejs/plugin-react | 6.1.2 | MIT |
 | typescript | 5.9.3 | Apache-2.0 |
 | @fontsource/jetbrains-mono | 5.3.0 | OFL-1.1 |
+| @fontsource/vazirmatn (Vazirmatn by Saber Rastikerdar, Arabic-script subset: Persian and Arabic interface text) | 5.3.0 | OFL-1.1 |
+| @fontsource/fraunces (Fraunces by Undercase Type: headings, after iridology.app) | 5.3.0 | OFL-1.1 |
+| @fontsource/newsreader (Newsreader by Production Type: reading text) | 5.3.0 | OFL-1.1 |
+| @fontsource/jost (Jost by indestructible type*: menus, buttons, labels, numbers) | 5.3.0 | OFL-1.1 |
+| @fontsource/literata (Literata by TypeTogether, Cyrillic subset: Russian headings and text) | 5.3.0 | OFL-1.1 |
 
 | Resource | Source | License | Status | Use |
 |---|---|---|---|---|
 | GetLayers layers: Neural Monitor (template), Roadmap Ascent, Slider Spectra, Cards Cascade (sections), Glass Halo, Halftone Iris, Lumen Grid, Signal Array (scenes), Pharos, Loupe, Riffle (gradients), Orb Studio, Text Animations (tools) | https://www.getlayers.ai | GetLayers licence, purchased by the team | team to confirm the licence terms, including whether the sources may sit in a public repository | Visual layers of the web app; changes listed in web/scripts/vendor-layers.mjs and in each adapted component |
-| General Sans (woff2 files shipped in the Neural Monitor template) | Fontshare (Indian Type Foundry) | ITF Free Font License, as published by Fontshare | not verified | Interface typeface |
+| General Sans (woff2 files shipped in the Neural Monitor template) | Fontshare (Indian Type Foundry) | ITF Free Font License, as published by Fontshare | not verified | No longer used: the interface moved to Jost with the iridology.app look, and the build ships no General Sans file (the three files still sit unused in web/src/assets/fonts) |
 | Brain model rotten-brain.glb (in the Neural Monitor template) | GetLayers template | as the template | team to confirm | Particle brain on the landing page |

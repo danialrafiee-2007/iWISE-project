@@ -3,9 +3,10 @@ import { InputForm } from "../components/InputForm";
 import { AnswerView } from "../components/report/AnswerView";
 import { Panel, RiskGauge, WarnIcon } from "../components/report/Panels";
 import { Riffle } from "../layers/Gradients";
+import { formatNumber, useI18n } from "../i18n";
 import { Heading } from "../layers/Heading";
 import { api, checkBody } from "../lib/api";
-import { GRADE_COLOR, pct, VERDICT } from "../lib/format";
+import { GRADE_COLOR, num, pct, VERDICT } from "../lib/format";
 import type { Change, Healing, Report } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useRouter } from "../lib/router";
@@ -32,6 +33,7 @@ function diff(before: string, changes: Change[]): Piece[] {
 }
 
 function Verdict({ report }: { report: Report }) {
+  const { t } = useI18n();
   const v = VERDICT[report.verdict];
   const grade = report.card?.grade;
   return (
@@ -45,7 +47,7 @@ function Verdict({ report }: { report: Report }) {
         <span className="font-medium" style={{ color: v.color }}>
           {v.label}
         </span>
-        <span className="font-mono text-xs text-fog-400">risk {report.risk.toFixed(2)}</span>
+        <span className="font-mono text-xs text-fog-400">{t("heal.risk", { r: num(report.risk) })}</span>
       </div>
     </div>
   );
@@ -59,6 +61,7 @@ export default function Heal() {
   const heal = useStream<Healing & { report?: Report }>();
   const { search, consume } = useRouter();
   const ready = health?.state === "ready";
+  const { t, tp } = useI18n();
 
   useEffect(() => {
     api.examples().then((e) => setExamples(e.answers)).catch(() => {});
@@ -103,33 +106,33 @@ export default function Heal() {
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
-      <div className="relative isolate overflow-hidden rounded-[28px] border border-white/8">
+      <div className="relative isolate overflow-hidden rounded-[28px] border border-hair">
         <div className="absolute inset-0 -z-10 opacity-80">
           <Riffle paused={busy} />
         </div>
         <div className="flex flex-col gap-2 bg-gradient-to-r from-ink-950/85 via-ink-950/50 to-transparent px-6 py-7 sm:px-8">
-          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">Heal and re-check</Heading>
+          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("heal.title")}</Heading>
           <p className="m-0 max-w-2xl text-[15px] leading-relaxed text-fog-300">
-            Each round applies the report's fixes: a wrong number or name becomes the value in the sources, a contradicted sentence becomes the source sentence, an unsupported clause is removed. Then the whole answer is checked again, until nothing is left to change.
+            {t("heal.lead")}
           </p>
         </div>
       </div>
 
       {!result && !heal.running && (
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-          <Panel title="Pick an answer to heal">
+          <Panel title={t("heal.pick")}>
             <ExamplePicker examples={examples} current={input.exampleId} onPick={pick} />
           </Panel>
-          <Panel title="Or paste your own">
-            <InputForm value={input} onChange={setInput} onSubmit={run} disabled={!ready} submitLabel={ready ? "Heal the answer" : "Models are loading…"} />
+          <Panel title={t("common.orOwn")}>
+            <InputForm value={input} onChange={setInput} onSubmit={run} disabled={!ready} submitLabel={ready ? t("heal.submit") : t("common.loadingModels")} />
           </Panel>
         </div>
       )}
 
       {heal.running && (
-        <Panel title="Healing">
+        <Panel title={t("heal.healing")}>
           <p className="m-0 text-sm text-fog-300" aria-live="polite">
-            {heal.queued ? "Waiting for the previous check to finish…" : checks <= 1 ? "Checking the original answer…" : `Round ${checks - 1}: applying fixes and checking the answer again…`}
+            {heal.queued ? t("panels.waiting") : checks <= 1 ? t("heal.checkingOriginal") : t("heal.checkingRound", { i: formatNumber(checks - 1) })}
           </p>
           <div className="h-1 overflow-hidden rounded-full bg-ink-600">
             <div className="h-1 w-1/3 animate-[slide_1.4s_ease-in-out_infinite] rounded-full bg-beam-400" />
@@ -138,15 +141,15 @@ export default function Heal() {
       )}
 
       {heal.error && (
-        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-rose-200">
-          Healing did not finish: {heal.error}
+        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-bad-ink">
+          {t("heal.failed", { error: heal.error })}
         </div>
       )}
 
       {result && shown && (
         <div key={`${result.original}:${result.answer}`} className="flex flex-col gap-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div role="tablist" aria-label="Rounds" className="flex flex-wrap gap-1 rounded-full border border-white/10 bg-ink-800 p-1">
+            <div role="tablist" aria-label={t("heal.rounds")} className="flex flex-wrap gap-1 rounded-full border border-hair bg-ink-800 p-1">
               {result.rounds.map((_, i) => (
                 <button
                   key={i}
@@ -155,30 +158,30 @@ export default function Heal() {
                   className={`min-h-10 rounded-full px-4 text-sm transition-colors ${round === i ? "bg-beam-400 text-beam-900" : "text-fog-300 hover:text-fog-100"}`}
                   onClick={() => setRound(i)}
                 >
-                  {i === 0 ? "Original" : `Round ${i}`}
+                  {i === 0 ? t("heal.original") : t("heal.round", { i: formatNumber(i) })}
                 </button>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
               <button type="button" className="btn btn-ghost" onClick={() => navigator.clipboard?.writeText(result.answer)}>
-                Copy healed answer
+                {t("heal.copy")}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => downloadJson("truth-guardian-healing.json", { input, healing: result })}>
-                Download
+                {t("common.download")}
               </button>
               <button type="button" className="btn btn-primary" onClick={() => heal.reset()}>
-                Heal another answer
+                {t("heal.another")}
               </button>
             </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="flex min-w-0 flex-col gap-4">
-              <Panel key={round} title={round === 0 ? "Original answer" : `Round ${round}: ${shown.changes.length} change${shown.changes.length === 1 ? "" : "s"}, then checked again`}>
+              <Panel key={round} title={round === 0 ? t("heal.originalAnswer") : tp("heal.roundTitle", shown.changes.length, { i: formatNumber(round) })}>
                 {round === 0 || !before ? (
                   <AnswerView answer={answers[0]} claims={shown.report.claims} />
                 ) : (
-                  <p className="m-0 whitespace-pre-wrap text-[19px] leading-[1.95] text-fog-200">
+                  <p className="m-0 whitespace-pre-wrap text-[19px] leading-[1.95] text-fog-200" dir="auto">
                     {diff(before, shown.changes).map((p, i) =>
                       p.kind === "same" ? (
                         <span key={i}>{p.text}</span>
@@ -187,7 +190,7 @@ export default function Heal() {
                           {p.text}
                         </del>
                       ) : (
-                        <ins key={i} title={p.reason} className="rounded-[4px] bg-ok/15 px-0.5 text-emerald-300 no-underline">
+                        <ins key={i} title={p.reason} className="rounded-[4px] bg-ok/15 px-0.5 text-ok-ink no-underline">
                           {p.text}
                         </ins>
                       ),
@@ -196,37 +199,37 @@ export default function Heal() {
                 )}
               </Panel>
               {round > 0 && (
-                <Panel key={round} title="What changed and why">
+                <Panel key={round} title={t("heal.why")}>
                   <ul className="m-0 flex list-none flex-col gap-2 p-0">
                     {shown.changes.map((c, i) => (
                       <li key={i} className="flex flex-col gap-1 rounded-2xl bg-ink-700/70 px-4 py-3">
-                        <span className="font-mono text-[13px] text-fog-200">{c.new ? `“${c.original}” → “${c.new}”` : `− “${c.original.length > 120 ? c.original.slice(0, 117) + "…" : c.original}”`}</span>
-                        <span className="text-[13px] text-fog-400">{c.reason[0].toUpperCase() + c.reason.slice(1)}.</span>
+                        <span className="font-mono text-[13px] text-fog-200" dir="auto">{c.new ? `“${c.original}” → “${c.new}”` : `− “${c.original.length > 120 ? c.original.slice(0, 117) + "…" : c.original}”`}</span>
+                        <span className="text-[13px] text-fog-400" dir="auto">{c.reason[0].toUpperCase() + c.reason.slice(1)}.</span>
                       </li>
                     ))}
                   </ul>
                 </Panel>
               )}
               {round === result.rounds.length - 1 && round > 0 && (
-                <Panel title="Healed answer">
+                <Panel title={t("heal.healed")}>
                   <AnswerView answer={result.answer} claims={shown.report.claims} />
                   {shown.report.verdict !== "grounded" && (
-                    <div className="flex gap-2.5 rounded-2xl border border-warn/25 bg-warn/8 px-4 py-3 text-sm leading-relaxed text-amber-200">
+                    <div className="flex gap-2.5 rounded-2xl border border-warn/25 bg-warn/8 px-4 py-3 text-sm leading-relaxed text-warn-ink">
                       <WarnIcon />
-                      <span>Healing stopped here: nothing more can be fixed from the sources. The remaining risk needs a person.</span>
+                      <span>{t("heal.stopped")}</span>
                     </div>
                   )}
                 </Panel>
               )}
             </div>
             <aside className="flex min-w-0 flex-col gap-4">
-              <Panel title="Risk, round by round" tour="heal-rounds">
+              <Panel title={t("heal.riskRounds")} tour="heal-rounds">
                 <ol className="m-0 flex list-none flex-col gap-3 p-0">
                   {result.rounds.map((r, i) => (
                     <li key={i}>
-                      <button type="button" onClick={() => setRound(i)} className={`flex w-full flex-col gap-2 rounded-2xl p-3 text-left ${round === i ? "bg-ink-700" : "hover:bg-ink-700/50"}`}>
+                      <button type="button" onClick={() => setRound(i)} className={`flex w-full flex-col gap-2 rounded-2xl p-3 text-start ${round === i ? "bg-ink-700" : "hover:bg-ink-700/50"}`}>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-fog-300">{i === 0 ? "Original" : `Round ${i}`}</span>
+                          <span className="text-sm text-fog-300">{i === 0 ? t("heal.original") : t("heal.round", { i: formatNumber(i) })}</span>
                           <Verdict report={r.report} />
                         </div>
                         <RiskGauge report={r.report} />
@@ -236,9 +239,9 @@ export default function Heal() {
                 </ol>
               </Panel>
               {healing && (
-                <Panel title="How well healing works (measured)">
+                <Panel title={t("heal.measuredTitle")}>
                   <p className="m-0 text-sm leading-relaxed text-fog-300">
-                    On {healing.n} hallucinated RAGTruth dev answers: {pct(healing.grounded_after_among_flagged as number)} of the flagged ones end up judged grounded, and {pct(healing.edit_recall as number)} of the annotated wrong text is removed or replaced. Precision of the edits is {pct(healing.edit_precision as number)}, so read the changes before you use them.
+                    {t("heal.measured", { n: formatNumber(healing.n as number), a: pct(healing.grounded_after_among_flagged as number), b: pct(healing.edit_recall as number), c: pct(healing.edit_precision as number) })}
                   </p>
                 </Panel>
               )}

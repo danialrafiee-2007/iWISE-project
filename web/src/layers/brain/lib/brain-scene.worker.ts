@@ -281,10 +281,10 @@ const init = (message: Extract<ToSceneWorker, { type: "init" }>) => {
   gl.outputColorSpace = SRGBColorSpace;
 
   const scene = new Scene();
-  scene.background = new Color("#01040e");
-  scene.fog = new Fog("#01040e", 0, 18);
+  scene.background = new Color(config.backgroundColor);
+  scene.fog = new Fog(config.backgroundColor, 0, 18);
 
-  const camera = new PerspectiveCamera(45, message.width / Math.max(1, message.height), 0.1, 80);
+  const camera = new PerspectiveCamera(config.cameraFov, message.width / Math.max(1, message.height), 0.1, 80);
   camera.position.set(...STORY_KEYFRAMES[0].position);
   camera.lookAt(0, 0, 0);
 

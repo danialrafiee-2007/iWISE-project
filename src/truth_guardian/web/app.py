@@ -3,7 +3,8 @@
 Long checks stream newline-delimited JSON events ({"type": "stage" | "check" | "progress" | "queued" | "result" |
 "error", ...}) so the page shows live progress instead of a blank wait. Every answer goes through the same report
 contract as the Python API (report.py). Inputs are capped, nothing is fetched from the internet, no path is taken
-from the user, and only localhost host names are accepted (against DNS rebinding). For a hosted demo,
+from the user, and only localhost host names are accepted (against DNS rebinding). The one exception to staying offline
+is the Contact page, whose messages the server sends by SMTP when the owner has set up a mail account (contact.py). For a hosted demo,
 TG_ALLOWED_HOSTS adds host names (comma-separated, "*.hf.space" style) and TG_ACCESS_CODE asks every visitor for
 that code (HTTP basic authentication, any user name).
 """
@@ -15,9 +16,13 @@ import json
 import os
 import queue
 import secrets
+import smtplib
+import sys
+import tempfile
 import threading
 import time
 from collections.abc import Callable
+from email.message import EmailMessage
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Literal
@@ -32,6 +37,7 @@ from truth_guardian.audit import summarize
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.pipeline import make_sample
 from truth_guardian.schema import Sample
+from truth_guardian.web import contact
 from truth_guardian.web.engine import ROOT, Cancelled, Engine
 from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
@@ -41,6 +47,12 @@ STATIC = Path(__file__).with_name("static")
 MAX_QUESTION, MAX_ANSWER, MAX_SOURCE, MAX_SOURCES = 1_000, 5_000, 20_000, 10
 MAX_STEPS, MAX_STEP = 30, 5_000
 MAX_AUDIT_ANSWERS, MAX_AUDIT_CHARS = 100, 2_000_000
+MAX_MEDIA_BYTES = 25_000_000
+MEDIA_KINDS = {
+    "image": {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif"},
+    "audio": {".wav", ".mp3", ".m4a", ".ogg", ".opus", ".flac", ".aac", ".wma"},
+    "video": {".mp4", ".mkv", ".mov", ".avi", ".webm", ".m4v"},
+}
 HOSTS = ["127.0.0.1", "localhost", "testserver"]
 ACCESS_PROMPT = 'Basic realm="Truth Guardian", charset="UTF-8"'
 Task = Literal["qa", "summary", "data2text", "other"]
@@ -108,6 +120,21 @@ class FileIn(_Strict):
 class AuditIn(_Strict):
     jsonl: str = Field(max_length=MAX_AUDIT_CHARS)
     profile: str | None = None
+
+
+class MediaIn(_Strict):
+    name: str = Field(min_length=1, max_length=255)
+    data: str = Field(max_length=(MAX_MEDIA_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
+    languages: Annotated[list[Annotated[str, Field(pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$")]], Field(max_length=3)] = []
+    describe: bool = Field(default=False, description="also ask the image model what the image (or each sampled frame) shows")
+
+
+class ContactIn(_Strict):
+    name: str = Field(min_length=1, max_length=100)
+    email: str = Field(min_length=3, max_length=254, pattern=r"^[^@\s<>,;]+@[^@\s<>,;]+\.[^@\s<>,;]+$")
+    subject: str = Field(min_length=1, max_length=150)
+    message: str = Field(min_length=1, max_length=5_000)
+    lang: str = Field(default="en", max_length=10)
 
 
 def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
@@ -184,8 +211,12 @@ def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
             store.store(example.id, engine.version, engine.analyze(example.sample(), profile))
 
 
-def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True) -> FastAPI:
+def create_app(
+    engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True, mailer: Callable[[contact.Settings, EmailMessage], None] = contact.send
+) -> FastAPI:
     engine = engine or Engine(root)
+    limit = contact.RateLimit()
+    media_lock = threading.Lock()
     store = store or ExampleStore(root)
     fool = {s.id: s for s in fool_answers(root)}
 
@@ -194,6 +225,8 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
         if load and engine.state != "ready":
             threading.Thread(target=prepare, args=(engine, store), daemon=True).start()
         yield
+        if "truth_guardian.media.vision" in sys.modules:
+            sys.modules["truth_guardian.media.vision"].stop()
 
     app = FastAPI(title="Truth Guardian", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json", redoc_url=None)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
@@ -388,6 +421,76 @@ def create_app(engine=None, store: ExampleStore | None = None, root: Path = ROOT
     @app.get("/api/model-card")
     def card() -> dict:
         return {**model_card(root), "engine": engine.info()}
+
+    @app.get("/api/media/status")
+    def media_status() -> dict:
+        """What each media reader can do here: files present, runtime installed, run on known samples, quality evaluated."""
+        from truth_guardian.media import status
+
+        return {"components": status.status()}
+
+    @app.post("/api/media/read")
+    def media_read(body: MediaIn) -> dict:
+        """The text in an image, a recording or a video, with where each piece came from (truth_guardian.media). One
+        media job runs at a time: the readers are large and the image model alone takes about 2 GB."""
+        suffix = Path(body.name).suffix.lower()
+        kind = next((k for k, suffixes in MEDIA_KINDS.items() if suffix in suffixes), None)
+        if kind is None:
+            raise HTTPException(422, f"unsupported file type {suffix or '(none)'}; images, sound and video are read")
+        try:
+            raw = base64.b64decode(body.data, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(422, "the file could not be read") from None
+        if len(raw) > MAX_MEDIA_BYTES:
+            raise HTTPException(413, f"the file is larger than {MAX_MEDIA_BYTES // 1_000_000} MB")
+        try:
+            from truth_guardian.media import ocr, speech, video, vision
+        except ImportError:
+            raise HTTPException(503, "the media readers are not installed on this computer") from None
+        if not media_lock.acquire(timeout=1):
+            raise HTTPException(429, "another media file is being read; try again in a moment")
+        try:
+            with tempfile.TemporaryDirectory(prefix="tg-media-") as folder:
+                path = Path(folder) / f"input{suffix}"
+                path.write_bytes(raw)
+                if kind == "image":
+                    reading = ocr.read_text(path, body.languages)
+                    if body.describe:
+                        seen = vision.describe(path)
+                        reading.segments += seen.segments
+                        for reason in seen.reasons:
+                            reading.review(reason)
+                elif kind == "audio":
+                    hint = body.languages[0].replace("_", "-").split("-")[0].lower() if body.languages else None
+                    reading = speech.transcribe(path, language=hint)
+                else:
+                    reading = video.read_video(path, body.languages, describe=body.describe)
+        except (OSError, RuntimeError, ValueError) as e:
+            raise HTTPException(422, f"the file could not be read: {type(e).__name__}") from None
+        finally:
+            media_lock.release()
+        return {"name": body.name, "kind": kind, "reading": reading.model_dump(mode="json")}
+
+    @app.get("/api/contact")
+    def contact_status() -> dict:
+        return {"configured": contact.settings(root) is not None}
+
+    @app.post("/api/contact")
+    def send_message(body: ContactIn, request: Request) -> dict:
+        config = contact.settings(root)
+        if config is None:
+            raise HTTPException(503, "sending email is not set up on this computer")
+        if not contact.one_line(body.name) or not contact.one_line(body.subject) or not body.message.strip():
+            raise HTTPException(422, "a name, a subject and a message are needed")
+        if not limit.allow(request.client.host if request.client else "unknown"):
+            raise HTTPException(429, "too many messages; try again later")
+        try:
+            mailer(config, contact.compose(config.user, body.name, body.email, body.subject, body.message, body.lang))
+        except smtplib.SMTPAuthenticationError:
+            raise HTTPException(502, "the mail server refused the account; check TG_SMTP_USER and the app password") from None
+        except (OSError, smtplib.SMTPException) as e:
+            raise HTTPException(502, f"the mail server could not be reached ({type(e).__name__})") from None
+        return {"sent": True}
 
     @app.get("/{path:path}", include_in_schema=False)
     def static(path: str) -> FileResponse:

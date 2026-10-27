@@ -1,6 +1,11 @@
 import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report } from "./types";
 
-export class ApiError extends Error {}
+export class ApiError extends Error {
+  /** The HTTP status, when the server answered (0 otherwise). */
+  constructor(message: string, readonly status = 0) {
+    super(message);
+  }
+}
 
 export type StreamEvent =
   | { type: "stage"; stage: string; t: number }
@@ -23,20 +28,20 @@ async function detail(response: Response): Promise<string> {
 
 export async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
-  if (!response.ok) throw new ApiError(await detail(response));
+  if (!response.ok) throw new ApiError(await detail(response), response.status);
   return response.json() as Promise<T>;
 }
 
 export async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  if (!response.ok) throw new ApiError(await detail(response));
+  if (!response.ok) throw new ApiError(await detail(response), response.status);
   return response.json() as Promise<T>;
 }
 
 /** POST and read the newline-delimited JSON events; resolves with the final result event. */
 export async function stream<T>(path: string, body: unknown, onEvent: (event: StreamEvent) => void, signal?: AbortSignal): Promise<T> {
   const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal });
-  if (!response.ok || !response.body) throw new ApiError(await detail(response));
+  if (!response.ok || !response.body) throw new ApiError(await detail(response), response.status);
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";

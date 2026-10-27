@@ -1,5 +1,7 @@
 import { useId, useRef, useState, type DragEvent } from "react";
+import { formatNumber, useI18n } from "../i18n";
 import { postJson } from "../lib/api";
+import { num, TASK_LABEL } from "../lib/format";
 import type { CheckInput, Task } from "../lib/types";
 import { useWorkspace } from "../lib/workspace";
 
@@ -36,8 +38,9 @@ function place(value: CheckInput, parts: string[], labels: string[]): { next: Ch
   return { next: { ...value, sources, sourceNames: names, exampleId: null }, placed };
 }
 
-export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "Check the answer" }: { value: CheckInput; onChange: (v: CheckInput) => void; onSubmit: () => void; disabled?: boolean; submitLabel?: string }) {
+export function InputForm({ value, onChange, onSubmit, disabled, submitLabel }: { value: CheckInput; onChange: (v: CheckInput) => void; onSubmit: () => void; disabled?: boolean; submitLabel?: string }) {
   const id = useId();
+  const { t, tp } = useI18n();
   const { health } = useWorkspace();
   const fileInput = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -56,29 +59,34 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
     setNote(null);
     let current = value;
     const done: string[] = [];
+    let short = false;
     try {
       for (const file of files) {
         if (file.size > MAX_FILE_BYTES) {
-          setNote({ text: `${file.name} is ${(file.size / 1e6).toFixed(1)} MB; the limit is 10 MB.`, bad: true });
+          setNote({ text: t("form.tooBig", { name: file.name, mb: num(file.size / 1e6, 1) }), bad: true });
           continue;
         }
         let read: Read;
         try {
           read = await postJson<Read>("/api/documents", { name: file.name, data: await toBase64(file) });
         } catch (e) {
-          setNote({ text: `${file.name}: ${e instanceof Error ? e.message : String(e)}.`, bad: true });
+          setNote({ text: t("form.fileError", { name: file.name, error: e instanceof Error ? e.message : String(e) }), bad: true });
           continue;
         }
         const n = read.parts.length;
-        const labels = read.parts.map((_, k) => `${file.name}${n > 1 ? ` · part ${k + 1} of ${n}` : ""}`);
+        // Sent to the server with the sources, so kept free of the interface language.
+        const labels = read.parts.map((_, k) => (n > 1 ? `${file.name} · ${k + 1}/${n}` : file.name));
         const { next, placed } = place(current, read.parts, labels);
         current = next;
-        const size = `${read.pages ? `${read.pages} page${read.pages === 1 ? "" : "s"}, ` : ""}${read.chars.toLocaleString("en")} characters`;
-        done.push(placed === n ? `${file.name} (${size}) as ${n} source${n === 1 ? "" : "s"}` : `${placed} of ${n} parts of ${file.name}: at most ${MAX_SOURCES} sources fit`);
-        if (placed < n) break;
+        const size = `${read.pages ? tp("form.pages", read.pages) : ""}${t("form.chars", { n: formatNumber(read.chars) })}`;
+        done.push(placed === n ? tp("form.addedAs", n, { name: file.name, size }) : t("form.partial", { placed: formatNumber(placed), n: formatNumber(n), name: file.name, max: formatNumber(MAX_SOURCES) }));
+        if (placed < n) {
+          short = true;
+          break;
+        }
       }
       onChange(current);
-      if (done.length) setNote({ text: `Added ${done.join("; ")}.`, bad: done.some((d) => d.includes("at most")) });
+      if (done.length) setNote({ text: t("form.added", { list: done.reduce((a, b) => t("form.list", { a, b })) }), bad: short });
     } finally {
       setReading(false);
       if (fileInput.current) fileInput.current.value = "";
@@ -107,9 +115,9 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
     >
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`${id}-q`} className="label">
-          Question <span className="text-fog-400/70">(optional, needed to judge retrieval and omissions)</span>
+          {t("form.question")} <span className="text-fog-400/70">{t("form.questionHint")}</span>
         </label>
-        <input id={`${id}-q`} className="field" value={value.question} maxLength={1000} onChange={(e) => edit({ question: e.target.value })} placeholder="What was the AI asked?" />
+        <input id={`${id}-q`} className="field" dir="auto" value={value.question} maxLength={1000} onChange={(e) => edit({ question: e.target.value })} placeholder={t("form.questionPlaceholder")} />
       </div>
 
       <fieldset
@@ -126,21 +134,21 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
         }}
         onDrop={onDrop}
       >
-        <legend className="label mb-1.5">Sources the answer should rest on</legend>
+        <legend className="label mb-1.5">{t("form.sources")}</legend>
         {value.sources.map((source, i) => (
           <div key={i} className="flex items-start gap-2">
-            <span className="mt-3 w-6 shrink-0 text-right font-mono text-xs text-beam-400" aria-hidden="true">
-              {`[${i + 1}]`}
+            <span className="mt-3 w-6 shrink-0 text-end font-mono text-xs text-beam-400" aria-hidden="true">
+              {`[${formatNumber(i + 1)}]`}
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-1">
-              {names[i] && <span className="truncate font-mono text-[11px] text-fog-400">{`from ${names[i]}`}</span>}
+              {names[i] && <span className="truncate font-mono text-[11px] text-fog-400" dir="auto">{t("form.from", { name: names[i] })}</span>}
               <label htmlFor={`${id}-s${i}`} className="sr-only">
-                {`Source ${i + 1}`}
+                {t("form.source", { i: formatNumber(i + 1) })}
               </label>
-              <textarea id={`${id}-s${i}`} className="field min-h-[76px] resize-y text-sm" rows={3} maxLength={20000} value={source} onChange={(e) => setSource(i, e.target.value)} placeholder="Paste a retrieved passage, or drop a PDF, Word or text file here" />
+              <textarea id={`${id}-s${i}`} className="field min-h-[76px] resize-y text-sm" dir="auto" rows={3} maxLength={20000} value={source} onChange={(e) => setSource(i, e.target.value)} placeholder={t("form.sourcePlaceholder")} />
             </div>
             {value.sources.length > 1 && (
-              <button type="button" className="mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-fog-400 hover:bg-ink-700 hover:text-fog-100" aria-label={`Remove source ${i + 1}`} onClick={() => removeSource(i)}>
+              <button type="button" className="mt-2 grid h-9 w-9 shrink-0 place-items-center rounded-full text-fog-400 hover:bg-ink-700 hover:text-fog-100" aria-label={t("form.remove", { i: formatNumber(i + 1) })} onClick={() => removeSource(i)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M6 6l12 12M18 6L6 18" />
                 </svg>
@@ -148,10 +156,10 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
             )}
           </div>
         ))}
-        <div className="ml-8 flex flex-wrap items-center gap-2">
+        <div className="ms-8 flex flex-wrap items-center gap-2">
           {value.sources.length < MAX_SOURCES && (
             <button type="button" className="chip" onClick={() => edit({ sources: [...value.sources, ""], sourceNames: [...names, null] })}>
-              + Add a source
+              {t("form.add")}
             </button>
           )}
           <input ref={fileInput} id={`${id}-files`} type="file" multiple accept={ACCEPT} className="sr-only" onChange={(e) => addFiles([...(e.target.files ?? [])])} />
@@ -159,44 +167,44 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 16V4M7 9l5-5 5 5M5 20h14" />
             </svg>
-            {reading ? "Reading the file…" : "Add from files"}
+            {reading ? t("form.reading") : t("form.addFiles")}
           </label>
-          <span className="text-xs text-fog-400">PDF, Word, HTML, Markdown or text, up to 10 MB; or drop files here</span>
+          <span className="text-xs text-fog-400">{t("form.fileTypes")}</span>
         </div>
         {note && (
-          <p role="status" className={`m-0 ml-8 text-sm ${note.bad ? "text-warn" : "text-fog-300"}`}>
+          <p role="status" className={`m-0 ms-8 text-sm ${note.bad ? "text-warn-ink" : "text-fog-300"}`}>
             {note.text}
           </p>
         )}
-        {totalChars > LONG_SOURCES && <p className="m-0 ml-8 text-xs text-fog-400">{`${totalChars.toLocaleString("en")} characters of sources: the check takes longer on long documents.`}</p>}
+        {totalChars > LONG_SOURCES && <p className="m-0 ms-8 text-xs text-fog-400">{t("form.long", { n: formatNumber(totalChars) })}</p>}
       </fieldset>
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`${id}-a`} className="label">
-          AI answer to check
+          {t("form.answer")}
         </label>
-        <textarea id={`${id}-a`} className="field min-h-[120px] resize-y" rows={5} maxLength={5000} value={value.answer} onChange={(e) => edit({ answer: e.target.value })} placeholder="Paste the generated answer" />
+        <textarea id={`${id}-a`} className="field min-h-[120px] resize-y" dir="auto" rows={5} maxLength={5000} value={value.answer} onChange={(e) => edit({ answer: e.target.value })} placeholder={t("form.answerPlaceholder")} />
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`${id}-t`} className="label">
-            Kind of task
+            {t("form.task")}
           </label>
           <select id={`${id}-t`} className="field h-11 py-0" value={value.task} onChange={(e) => edit({ task: e.target.value as Task })}>
-            <option value="qa">Question answering</option>
-            <option value="summary">Summary</option>
-            <option value="data2text">Data to text</option>
-            <option value="other">Other</option>
+            <option value="qa">{TASK_LABEL.qa}</option>
+            <option value="summary">{TASK_LABEL.summary}</option>
+            <option value="data2text">{TASK_LABEL.data2text}</option>
+            <option value="other">{TASK_LABEL.other}</option>
           </select>
         </div>
         {health && health.profiles.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <label htmlFor={`${id}-p`} className="label">
-              Domain profile
+              {t("form.profile")}
             </label>
             <select id={`${id}-p`} className="field h-11 py-0" value={value.profile ?? ""} onChange={(e) => edit({ profile: e.target.value || null })}>
-              <option value="">RAGTruth (default)</option>
+              <option value="">{t("form.profileDefault")}</option>
               {health.profiles.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -205,11 +213,11 @@ export function InputForm({ value, onChange, onSubmit, disabled, submitLabel = "
             </select>
           </div>
         )}
-        <button type="submit" className="btn btn-primary ml-auto" disabled={!ready || disabled}>
-          {submitLabel}
+        <button type="submit" className="btn btn-primary ms-auto" disabled={!ready || disabled}>
+          {submitLabel ?? t("analyze.submit")}
         </button>
       </div>
-      <span className="text-xs text-fog-400">Ctrl + Enter also runs the check. Nothing is sent outside this computer.</span>
+      <span className="text-xs text-fog-400">{t("form.hint")}</span>
     </form>
   );
 }

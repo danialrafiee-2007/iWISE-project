@@ -17,7 +17,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
 RUN --mount=type=cache,id=tg-uv,target=/root/.cache/uv \
     uv venv /opt/venv --python /usr/local/bin/python \
- && uv export --frozen --no-dev --no-emit-project --no-hashes -o /tmp/locked.txt \
+ && uv export --frozen --no-dev --no-group media --no-emit-project --no-hashes -o /tmp/locked.txt \
  && grep -v -E "^(nvidia-|cuda-|triton)" /tmp/locked.txt > /tmp/requirements.txt \
  && uv pip install --python /opt/venv/bin/python --index-strategy unsafe-best-match \
       --extra-index-url https://download.pytorch.org/whl/cpu -r /tmp/requirements.txt

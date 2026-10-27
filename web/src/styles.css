@@ -1,71 +1,107 @@
 @import "tailwindcss";
+/* Type, after iridology.app: Fraunces for headings, Newsreader for reading text, Jost for the interface (menus,
+   buttons, labels). All SIL OFL 1.1 and bundled, so nothing is fetched online. Fraunces and Newsreader have no Cyrillic
+   letters, so Russian headings and text use Literata's Cyrillic subset; Chinese falls back to the system's CJK fonts. */
+@import "@fontsource/fraunces/latin-400.css";
+@import "@fontsource/fraunces/latin-500.css";
+@import "@fontsource/fraunces/latin-600.css";
+@import "@fontsource/fraunces/latin-400-italic.css";
+@import "@fontsource/fraunces/latin-500-italic.css";
+@import "@fontsource/newsreader/latin-400.css";
+@import "@fontsource/newsreader/latin-500.css";
+@import "@fontsource/newsreader/latin-400-italic.css";
+@import "@fontsource/literata/cyrillic-400.css";
+@import "@fontsource/literata/cyrillic-500.css";
+@import "@fontsource/literata/cyrillic-400-italic.css";
+@import "@fontsource/jost/latin-400.css";
+@import "@fontsource/jost/latin-500.css";
+@import "@fontsource/jost/cyrillic-400.css";
+@import "@fontsource/jost/cyrillic-500.css";
 @import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
+/* Persian and Arabic letters (Vazirmatn, SIL OFL 1.1); the Arabic-script subset only, loaded when such text appears. */
+@import "@fontsource/vazirmatn/arabic-400.css";
+@import "@fontsource/vazirmatn/arabic-500.css";
+@import "@fontsource/vazirmatn/arabic-600.css";
 @import "orbloom/styles.css";
 
-@font-face {
-  font-family: "General Sans";
-  src: url("./assets/fonts/general-sans-400.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("./assets/fonts/general-sans-500.woff2") format("woff2");
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: "General Sans";
-  src: url("./assets/fonts/general-sans-600.woff2") format("woff2");
-  font-weight: 600;
-  font-display: swap;
-}
-
+/* Colours, after iridology.app: cream paper, deep green ink, forest-green actions, iris blue and gold accents.
+   The token names come from the earlier dark design and keep their roles: ink-* are the surfaces (now cream, from
+   the page at 950 to the deeper fills at 500), fog-* the text (now green-black, strongest at 100), beam-* the action
+   colour. */
 @theme {
-  --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Jost", "Vazirmatn", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Newsreader", "Literata", "Vazirmatn", "Songti SC", "SimSun", "Noto Serif CJK SC", Georgia, Cambria, "Times New Roman", serif;
+  --font-display: "Fraunces", "Literata", "Vazirmatn", "Songti SC", "SimSun", "Noto Serif CJK SC", Georgia, serif;
+  --font-mono: "Jost", "Vazirmatn", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-ink-950: #05070b;
-  --color-ink-900: #080b11;
-  --color-ink-850: #0c1018;
-  --color-ink-800: #10151f;
-  --color-ink-700: #171d29;
-  --color-ink-600: #222a39;
-  --color-ink-500: #343e51;
-  --color-fog-400: #7d879a;
-  --color-fog-300: #a7b0c0;
-  --color-fog-200: #d5dbe5;
-  --color-fog-100: #eceff4;
+  --color-ink-950: #fbf7ed;
+  --color-ink-900: #fdfcfa;
+  --color-ink-850: #fdfcfa;
+  --color-ink-800: #fdfcfa;
+  --color-ink-700: #f3eddf;
+  --color-ink-600: #e4ddca;
+  --color-ink-500: #cfc3aa;
+  --color-fog-400: #637067;
+  --color-fog-300: #5c6b60;
+  --color-fog-200: #3d4c44;
+  --color-fog-100: #2c3a34;
 
-  --color-beam-300: #99f6e4;
-  --color-beam-400: #5eead4;
-  --color-beam-500: #2dd4bf;
-  --color-beam-900: #04201b;
+  --color-beam-300: #3a5b48;
+  --color-beam-400: #456b56;
+  --color-beam-500: #5d7d6a;
+  --color-beam-700: #3a5b48;
+  --color-beam-900: #fbf7ed;
 
-  --color-ok: #34d399;
-  --color-bad: #fb7185;
-  --color-warn: #fbbf24;
-  --color-weak: #93c5fd;
-  --color-split: #c4b5fd;
+  --color-hair: #e4ddca;
+  --color-line: #d7cab2;
+  --color-mist: #e4ece1;
+  --color-sand: #f1e7d3;
+  --color-sage: #7fa88a;
+  --color-iris: #5b7fb0;
+  --color-iris-deep: #3f5f8c;
+  --color-gold: #c7a258;
+  --color-rose: #d99a86;
 
-  --radius-card: 20px;
+  --color-ok: #4f8a63;
+  --color-ok-ink: #2f6a46;
+  --color-bad: #c0584a;
+  --color-bad-ink: #9e3f33;
+  --color-warn: #c39236;
+  --color-warn-ink: #85621f;
+  --color-weak: #5b7fb0;
+  --color-split: #8c6db0;
+
+  --radius-card: 22px;
+  --shadow-card: 0 18px 50px -28px rgb(44 58 52 / 0.45);
+  --shadow-soft: 0 10px 30px -20px rgb(44 58 52 / 0.4);
 }
 
 @layer base {
   html {
     background: var(--color-ink-950);
     color: var(--color-fog-100);
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   body {
     margin: 0;
     min-height: 100dvh;
     background: var(--color-ink-950);
   }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--color-fog-100);
+  }
   ::selection {
-    background: color-mix(in oklab, var(--color-beam-400) 35%, transparent);
+    background: color-mix(in oklab, var(--color-sage) 40%, transparent);
   }
   :focus-visible {
     outline: 2px solid var(--color-beam-400);
@@ -78,31 +114,80 @@
   button:disabled {
     cursor: not-allowed;
   }
+  /* Letter spacing pulls joined Persian and Arabic letters apart, so right-to-left pages drop it. */
+  [dir="rtl"],
+  [dir="rtl"] * {
+    letter-spacing: 0 !important;
+  }
+  /* The landing page sits on a deep forest-green night (iridology's ink green) so the glowing brain reads in full.
+     The same tokens, redefined for a dark ground, turn every text, border and button inside it light. */
+  .theme-night {
+    --color-ink-950: #0d211b;
+    --color-ink-900: #13261f;
+    --color-ink-850: #16261e;
+    --color-ink-800: #1a2b22;
+    --color-ink-700: #22362c;
+    --color-ink-600: #2d4338;
+    --color-ink-500: #3d5649;
+    --color-fog-400: #a99d82;
+    --color-fog-300: #cbbd9f;
+    --color-fog-200: #ddd0b2;
+    --color-fog-100: #e9dcc0;
+    --color-beam-300: #cfe3d4;
+    --color-beam-400: #f1ead9;
+    --color-beam-500: #d9e6da;
+    --color-beam-700: #fbf7ed;
+    --color-beam-900: #13211a;
+    --color-hair: rgb(243 238 226 / 0.12);
+    --color-line: rgb(243 238 226 / 0.26);
+    --color-mist: rgb(243 238 226 / 0.08);
+    --color-iris-deep: #a9c1e4;
+    --shadow-soft: 0 10px 30px -18px rgb(0 0 0 / 0.6);
+    --shadow-card: 0 18px 50px -24px rgb(0 0 0 / 0.65);
+    color: var(--color-fog-100);
+    color-scheme: dark;
+  }
 }
 
 @layer components {
   .card {
-    border: 1px solid rgb(255 255 255 / 0.08);
+    border: 1px solid var(--color-hair);
     border-radius: var(--radius-card);
-    background: color-mix(in oklab, var(--color-ink-800) 92%, transparent);
+    background: var(--color-ink-800);
+    box-shadow: var(--shadow-soft);
   }
   .label {
+    font-family: var(--font-sans);
     font-size: 0.8125rem;
+    letter-spacing: 0.01em;
     color: var(--color-fog-400);
+  }
+  /* Small uppercase line above a heading, iridology's "THE LAMP OF THE BODY IS THE EYE". */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-iris-deep);
   }
   .field {
     width: 100%;
     border-radius: 14px;
-    border: 1px solid rgb(255 255 255 / 0.1);
+    border: 1px solid var(--color-line);
     background: var(--color-ink-900);
     color: var(--color-fog-100);
     padding: 0.75rem 0.9rem;
     font: inherit;
     line-height: 1.55;
   }
+  .field::placeholder {
+    color: color-mix(in oklab, var(--color-fog-400) 75%, transparent);
+  }
   .field:focus {
     outline: none;
     border-color: var(--color-beam-400);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-beam-400) 14%, transparent);
   }
   .btn {
     display: inline-flex;
@@ -110,29 +195,34 @@
     justify-content: center;
     gap: 0.5rem;
     min-height: 44px;
-    padding: 0 1.15rem;
+    padding: 0 1.25rem;
     border-radius: 999px;
-    font-size: 0.9375rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
     font-weight: 500;
-    transition: background-color 150ms, border-color 150ms, color 150ms;
+    letter-spacing: 0.04em;
+    transition: background-color 150ms, border-color 150ms, color 150ms, box-shadow 150ms;
   }
   .btn-primary {
     background: var(--color-beam-400);
     color: var(--color-beam-900);
+    box-shadow: var(--shadow-soft);
   }
   .btn-primary:hover:not(:disabled) {
-    background: var(--color-beam-300);
+    background: var(--color-beam-700);
   }
   .btn-primary:disabled {
     background: var(--color-ink-600);
     color: var(--color-fog-400);
+    box-shadow: none;
   }
   .btn-ghost {
-    border: 1px solid rgb(255 255 255 / 0.16);
+    border: 1px solid var(--color-line);
     color: var(--color-fog-100);
   }
   .btn-ghost:hover:not(:disabled) {
-    border-color: rgb(255 255 255 / 0.32);
+    border-color: var(--color-fog-400);
+    background: color-mix(in oklab, var(--color-mist) 60%, transparent);
   }
   .chip {
     display: inline-flex;
@@ -141,14 +231,47 @@
     min-height: 36px;
     padding: 0 0.85rem;
     border-radius: 999px;
-    border: 1px solid rgb(255 255 255 / 0.12);
+    border: 1px solid var(--color-line);
+    font-family: var(--font-sans);
     font-size: 0.8125rem;
     color: var(--color-fog-300);
   }
   .chip[aria-pressed="true"] {
     border-color: var(--color-beam-400);
     color: var(--color-beam-300);
-    background: color-mix(in oklab, var(--color-beam-400) 12%, transparent);
+    background: color-mix(in oklab, var(--color-beam-400) 10%, transparent);
+  }
+}
+
+@layer utilities {
+  /* Numbers line up in tables and meters; JSON and code keep a monospaced face. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+  textarea.font-mono,
+  code {
+    font-family: var(--font-code);
+    font-variant-numeric: normal;
+  }
+  /* Landing hero: the brain stands 2.5rem past the words (Landing.tsx places it) and is 60vh wide, so beside the
+     brain the words may take what is left after keeping 6vw free at the screen's edge. The slogan's size follows
+     that width, so its longest line (about 11.8 times the font size) still fits on one line. */
+  .hero-words {
+    --words: min(92vw, 780px);
+    max-width: var(--words);
+  }
+  @media (min-width: 1024px) and (min-aspect-ratio: 5/4) {
+    .hero-words {
+      --words: min(48vw, 780px, 94vw - max(2rem, 50vw - 660px + 2rem) - 2.5rem - 60vh);
+    }
+  }
+  .hero-title {
+    font-size: clamp(36px, calc(var(--words) / 11.8), 66px);
+  }
+  /* The GetLayers scenes glow on black. Inverting their lightness while keeping their hue turns them into
+     green-ink lines on cream, so they sit in the light theme without touching the shipped scenes. */
+  .ink-invert {
+    filter: invert(1) hue-rotate(180deg) sepia(0.18) saturate(0.8);
   }
 }
 
@@ -185,7 +308,7 @@
 }
 
 .cascade-face {
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25), 0 24px 44px -18px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  box-shadow: 0 2px 3px rgba(44, 58, 52, 0.18), 0 24px 44px -18px rgba(44, 58, 52, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   backface-visibility: hidden;
 }
 .cascade-face::after {
@@ -199,9 +322,14 @@
   mix-blend-mode: soft-light;
 }
 
+/* Right-to-left headings rise whole (see layers/Heading.tsx). */
+.heading-fade {
+  animation: rise 0.7s ease-out both;
+}
+
 mark.gold {
-  background: color-mix(in oklab, var(--color-split) 28%, transparent);
-  color: #fff;
+  background: color-mix(in oklab, var(--color-split) 22%, transparent);
+  color: var(--color-fog-100);
   border-radius: 4px;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;

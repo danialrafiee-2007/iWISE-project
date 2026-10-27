@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
-import { STATUS } from "../../lib/format";
+import { t } from "../../i18n";
+import { num, STATUS } from "../../lib/format";
 import type { Claim } from "../../lib/types";
 
 type Range = [number, number];
@@ -80,8 +81,8 @@ export function AnswerView({
           type="button"
           onClick={() => onSelect(i)}
           aria-pressed={isSelected}
-          aria-label={`${s.label} claim, risk ${claim.risk.toFixed(2)}: ${claim.text}`}
-          className="inline rounded-[4px] border-0 p-0 text-left [font:inherit] [line-height:inherit] focus-visible:outline-2"
+          aria-label={t("answer.claimAria", { status: s.label, r: num(claim.risk), text: claim.text })}
+          className="inline rounded-[4px] border-0 p-0 text-start [font:inherit] [line-height:inherit] focus-visible:outline-2"
           style={style}
         >
           {content}
@@ -95,7 +96,11 @@ export function AnswerView({
     at = claim.end;
   });
   if (at < answer.length) parts.push(<Fragment key="tail">{marked(answer, 0, at, answer.length, showGold ? gold ?? [] : [], "gold")}</Fragment>);
-  return <p className="m-0 whitespace-pre-wrap text-[19px] leading-[1.95]">{parts}</p>;
+  return (
+    <p className="m-0 whitespace-pre-wrap text-[19px] leading-[1.95]" dir="auto">
+      {parts}
+    </p>
+  );
 }
 
 export function StatusLegend() {

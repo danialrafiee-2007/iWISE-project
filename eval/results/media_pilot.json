@@ -1,0 +1,799 @@
+{
+  "created": "2026-10-27T09:27:17+00:00",
+  "network": "cut off (dead proxy; models from local files only)",
+  "machine": {
+    "system": "Windows-11-10.0.26300-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "ram_gb": 15.4,
+    "python": "3.13.17"
+  },
+  "samples": {
+    "ocr-ja": "ocr-ja.png",
+    "ocr-am": "ocr-am.png",
+    "ocr-fa": "ocr-fa.png",
+    "ocr-ar": "ocr-ar.png",
+    "ocr-sw": "ocr-sw.png",
+    "ocr-en": "ocr-en.png",
+    "ocr-en-rotated": "ocr-en-rotated.png",
+    "vision-scene": "vision-scene.png",
+    "voices": [
+      "Microsoft David Desktop (en-US)",
+      "Microsoft Zira Desktop (en-US)"
+    ],
+    "speech-en": "speech-en.wav",
+    "video": "video.mkv",
+    "silence": "silence.wav"
+  },
+  "note": "Synthetic samples with known content and checks written by the AI assistant: they show each reader runs offline and reads what it should, not its accuracy on real media.",
+  "components": {
+    "ocr": {
+      "reader": "Tesseract 5.5.3 (tesserocr 2.12.0), tessdata_fast",
+      "results": [
+        {
+          "sample": "ocr-ja",
+          "similarity": 1.0,
+          "words_found": [
+            "会議",
+            "十時"
+          ],
+          "language": "ja",
+          "language_confidence": 0.93,
+          "quality": 0.93,
+          "seconds": 2.07,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [
+            "the image was read at 0.48 times its size, where the text reads best"
+          ],
+          "text": "会議は午前十時に始まります。\n資料は受付で配ります。",
+          "alternatives": []
+        },
+        {
+          "sample": "ocr-am",
+          "similarity": 1.0,
+          "words_found": [
+            "አዲስ",
+            "አበባ"
+          ],
+          "language": "am",
+          "language_confidence": 0.95,
+          "quality": 0.95,
+          "seconds": 1.41,
+          "needs_review": true,
+          "reasons": [
+            "Ethiopic text reads almost as well as amh and tir; the language is uncertain"
+          ],
+          "notes": [
+            "the script detector said Cyrillic; reading the text, Ethiopic fits best",
+            "the image was read at 0.49 times its size, where the text reads best"
+          ],
+          "text": "የኢትዮጵያ ዋና ከተማ አዲስ አበባ ናት።",
+          "alternatives": [
+            {
+              "language": "ti",
+              "confidence": 0.93
+            }
+          ]
+        },
+        {
+          "sample": "ocr-fa",
+          "similarity": 0.977,
+          "words_found": [
+            "تهران"
+          ],
+          "language": "fa",
+          "language_confidence": 0.75,
+          "quality": 0.856,
+          "seconds": 0.45,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [
+            "the image was read at 0.46 times its size, where the text reads best"
+          ],
+          "text": "پایتخت ايران تهران است.\nجلسه ساعت ده صبح شروع می‌شود.",
+          "alternatives": [
+            {
+              "language": "fa",
+              "confidence": 0.9
+            },
+            {
+              "language": "ur",
+              "confidence": 0.76
+            }
+          ]
+        },
+        {
+          "sample": "ocr-ar",
+          "similarity": 0.878,
+          "words_found": [
+            "القاهرة",
+            "مصر"
+          ],
+          "language": null,
+          "language_confidence": null,
+          "quality": 0.87,
+          "seconds": 0.33,
+          "needs_review": true,
+          "reasons": [
+            "the language of the Arabic text could not be told from the image"
+          ],
+          "notes": [
+            "the image was read at 0.46 times its size, where the text reads best"
+          ],
+          "text": "عاصمة\nاصمة\nمصر 1\nهي القاهرة.",
+          "alternatives": [
+            {
+              "language": "ar",
+              "confidence": 0.87
+            },
+            {
+              "language": "fa",
+              "confidence": 0.82
+            },
+            {
+              "language": "ur",
+              "confidence": 0.72
+            }
+          ]
+        },
+        {
+          "sample": "ocr-sw",
+          "similarity": 1.0,
+          "words_found": [
+            "Nairobi",
+            "Kenya"
+          ],
+          "language": "sw",
+          "language_confidence": 0.385,
+          "quality": 0.95,
+          "seconds": 0.67,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [],
+          "text": "Mji mkuu wa Kenya ni Nairobi na ni mji mkubwa wa Afrika\nMashariki.",
+          "alternatives": []
+        },
+        {
+          "sample": "ocr-en",
+          "similarity": 1.0,
+          "words_found": [
+            "meeting",
+            "214"
+          ],
+          "language": "en",
+          "language_confidence": 0.222,
+          "quality": 0.94,
+          "seconds": 0.52,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [],
+          "text": "The meeting starts at ten o'clock in room 214.",
+          "alternatives": []
+        },
+        {
+          "sample": "ocr-en-rotated",
+          "similarity": 1.0,
+          "words_found": [
+            "meeting",
+            "214"
+          ],
+          "language": "en",
+          "language_confidence": 0.222,
+          "quality": 0.94,
+          "seconds": 0.52,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [
+            "the image is turned 270 degrees; it was read upright"
+          ],
+          "text": "The meeting starts at ten o'clock in room 214.",
+          "alternatives": []
+        }
+      ],
+      "checks": 21,
+      "seconds": {
+        "ocr-ja": 2.07,
+        "ocr-am": 1.41,
+        "ocr-fa": 0.45,
+        "ocr-ar": 0.33,
+        "ocr-sw": 0.67,
+        "ocr-en": 0.52,
+        "ocr-en-rotated": 0.52
+      },
+      "peak_mb": 512.3,
+      "passed_checks": 21,
+      "check_list": [
+        {
+          "check": "ocr-ja: text read (character similarity 1.0 >= 0.85)",
+          "passed": true,
+          "detail": "会議は午前十時に始まります。\n資料は受付で配ります。"
+        },
+        {
+          "check": "ocr-ja: language ja or sent to review",
+          "passed": true,
+          "detail": "ja review=False []"
+        },
+        {
+          "check": "ocr-ja: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-am: text read (character similarity 1.0 >= 0.85)",
+          "passed": true,
+          "detail": "የኢትዮጵያ ዋና ከተማ አዲስ አበባ ናት።"
+        },
+        {
+          "check": "ocr-am: language am or sent to review",
+          "passed": true,
+          "detail": "am review=True ['Ethiopic text reads almost as well as amh and tir; the language is uncertain']"
+        },
+        {
+          "check": "ocr-am: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-fa: text read (character similarity 0.977 >= 0.85)",
+          "passed": true,
+          "detail": "پایتخت ايران تهران است.\nجلسه ساعت ده صبح شروع می‌شود."
+        },
+        {
+          "check": "ocr-fa: language fa or sent to review",
+          "passed": true,
+          "detail": "fa review=False []"
+        },
+        {
+          "check": "ocr-fa: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-ar: text read (character similarity 0.878 >= 0.85)",
+          "passed": true,
+          "detail": "عاصمة\nاصمة\nمصر 1\nهي القاهرة."
+        },
+        {
+          "check": "ocr-ar: language ar or sent to review",
+          "passed": true,
+          "detail": "None review=True ['the language of the Arabic text could not be told from the image']"
+        },
+        {
+          "check": "ocr-ar: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-sw: text read (character similarity 1.0 >= 0.85)",
+          "passed": true,
+          "detail": "Mji mkuu wa Kenya ni Nairobi na ni mji mkubwa wa Afrika\nMashariki."
+        },
+        {
+          "check": "ocr-sw: language sw or sent to review",
+          "passed": true,
+          "detail": "sw review=False []"
+        },
+        {
+          "check": "ocr-sw: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-en: text read (character similarity 1.0 >= 0.85)",
+          "passed": true,
+          "detail": "The meeting starts at ten o'clock in room 214."
+        },
+        {
+          "check": "ocr-en: language en or sent to review",
+          "passed": true,
+          "detail": "en review=False []"
+        },
+        {
+          "check": "ocr-en: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "ocr-en-rotated: text read (character similarity 1.0 >= 0.85)",
+          "passed": true,
+          "detail": "The meeting starts at ten o'clock in room 214."
+        },
+        {
+          "check": "ocr-en-rotated: language en or sent to review",
+          "passed": true,
+          "detail": "en review=False []"
+        },
+        {
+          "check": "ocr-en-rotated: boxes inside the original image",
+          "passed": true,
+          "detail": ""
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 6.3
+    },
+    "speech": {
+      "reader": "faster-whisper 1.2.1, Whisper Small (CTranslate2 int8)",
+      "results": [
+        {
+          "sample": "speech-en",
+          "language": "en",
+          "language_confidence": 0.996,
+          "quality": 0.972,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [],
+          "text": "The capital of France is Paris, and the meeting starts at 10 o'clock.",
+          "segments": [
+            {
+              "text": "The capital of France is Paris, and the meeting starts at 10 o'clock.",
+              "role": "transcript",
+              "language": "en",
+              "language_confidence": 0.992,
+              "script": null,
+              "confidence": 0.972,
+              "place": {
+                "box": null,
+                "start": 0.0,
+                "end": 3.98
+              }
+            }
+          ]
+        },
+        {
+          "sample": "silence",
+          "needs_review": true,
+          "reasons": [
+            "no speech was found",
+            "the language is uncertain (en 0.37)"
+          ],
+          "text": ""
+        }
+      ],
+      "checks": 4,
+      "seconds": {
+        "load": 1.29,
+        "speech-en": 8.99,
+        "silence": 2.65
+      },
+      "peak_mb": 700.1,
+      "passed_checks": 4,
+      "check_list": [
+        {
+          "check": "speech-en: words heard (ten may be written 10)",
+          "passed": true,
+          "detail": "The capital of France is Paris, and the meeting starts at 10 o'clock."
+        },
+        {
+          "check": "speech-en: language en",
+          "passed": true,
+          "detail": "en 0.996"
+        },
+        {
+          "check": "speech-en: word times inside the file",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "silence: nothing invented, sent to review",
+          "passed": true,
+          "detail": "0 segments, ['no speech was found', 'the language is uncertain (en 0.37)']"
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 13.3
+    },
+    "video": {
+      "reader": "PyAV frames and sound; Tesseract 5.5.3 (tesserocr 2.12.0), tessdata_fast; faster-whisper 1.2.1, Whisper Small (CTranslate2 int8)",
+      "results": [
+        {
+          "sample": "video",
+          "language": "en",
+          "quality": 0.964,
+          "seconds": 10.34,
+          "needs_review": false,
+          "reasons": [],
+          "notes": [
+            "only 6 frames at most are read; something absent from them may still be in the video"
+          ],
+          "text": "The capital of France is Paris, and the meeting starts at 10 o'clock.\nTRUTH GUARDIAN VIDEO TEST\nTRUTH GUARDIAN VIDEO TEST\nTRUTH GUARDIAN VIDEO TEST"
+        }
+      ],
+      "checks": 3,
+      "seconds": {
+        "video": 10.34
+      },
+      "peak_mb": 709.7,
+      "passed_checks": 3,
+      "check_list": [
+        {
+          "check": "video: soundtrack heard",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "video: text on frames read",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "video: every segment has a time",
+          "passed": true,
+          "detail": ""
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 10.7
+    },
+    "retrieval": {
+      "reader": "intfloat/multilingual-e5-small",
+      "results": [
+        {
+          "query": "会議は何時に始まりますか。",
+          "ranked": [
+            [
+              1,
+              0.8826
+            ],
+            [
+              2,
+              0.744
+            ],
+            [
+              0,
+              0.6979
+            ]
+          ],
+          "expected": 1
+        },
+        {
+          "query": "پایتخت ایران کجاست؟",
+          "ranked": [
+            [
+              0,
+              0.7856
+            ],
+            [
+              1,
+              0.7397
+            ],
+            [
+              2,
+              0.6545
+            ]
+          ],
+          "expected": 0
+        },
+        {
+          "query": "Where does the train leave from?",
+          "ranked": [
+            [
+              0,
+              0.8132
+            ],
+            [
+              1,
+              0.7313
+            ],
+            [
+              2,
+              0.7126
+            ]
+          ],
+          "expected": 0
+        },
+        {
+          "query": "¿Cuándo cierra la biblioteca?",
+          "ranked": [
+            [
+              0,
+              0.8673
+            ],
+            [
+              1,
+              0.7457
+            ],
+            [
+              2,
+              0.7029
+            ]
+          ],
+          "expected": 0
+        }
+      ],
+      "checks": 4,
+      "seconds": {
+        "load": 9.24,
+        "queries": 0.16
+      },
+      "peak_mb": 1215.3,
+      "passed_checks": 4,
+      "check_list": [
+        {
+          "check": "retrieval: 会議は何時に始まりますか。",
+          "passed": true,
+          "detail": "[(1, 0.8826), (2, 0.744), (0, 0.6979)]"
+        },
+        {
+          "check": "retrieval: پایتخت ایران کجاست؟",
+          "passed": true,
+          "detail": "[(0, 0.7856), (1, 0.7397), (2, 0.6545)]"
+        },
+        {
+          "check": "retrieval: Where does the train lea",
+          "passed": true,
+          "detail": "[(0, 0.8132), (1, 0.7313), (2, 0.7126)]"
+        },
+        {
+          "check": "retrieval: ¿Cuándo cierra la biblio",
+          "passed": true,
+          "detail": "[(0, 0.8673), (1, 0.7457), (2, 0.7029)]"
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 10.7
+    },
+    "nli": {
+      "reader": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+      "results": [
+        {
+          "premise": "会議は午前十時に始まります。",
+          "hypothesis": "会議は朝に始まります。",
+          "expected": "entailment",
+          "entailment": 0.9989,
+          "neutral": 0.001,
+          "contradiction": 0.0001,
+          "label": "entailment",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "会議は午前十時に始まります。",
+          "hypothesis": "会議は正午に始まります。",
+          "expected": "contradiction",
+          "entailment": 0.0006,
+          "neutral": 0.0004,
+          "contradiction": 0.999,
+          "label": "contradiction",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "会議は午前十時に始まります。",
+          "hypothesis": "会議には三十人が参加します。",
+          "expected": "neutral",
+          "entailment": 0.0005,
+          "neutral": 0.9993,
+          "contradiction": 0.0002,
+          "label": "neutral",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "پایتخت ایران تهران است.",
+          "hypothesis": "تهران پایتخت ایران است.",
+          "expected": "entailment",
+          "entailment": 0.9973,
+          "neutral": 0.0025,
+          "contradiction": 0.0002,
+          "label": "entailment",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "پایتخت ایران تهران است.",
+          "hypothesis": "پایتخت ایران اصفهان است.",
+          "expected": "contradiction",
+          "entailment": 0.0002,
+          "neutral": 0.0005,
+          "contradiction": 0.9994,
+          "label": "contradiction",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "پایتخت ایران تهران است.",
+          "hypothesis": "تهران شهری پرجمعیت است.",
+          "expected": "neutral",
+          "entailment": 0.0429,
+          "neutral": 0.9568,
+          "contradiction": 0.0003,
+          "label": "neutral",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "The museum is closed on Mondays.",
+          "hypothesis": "The museum does not open on Mondays.",
+          "expected": "entailment",
+          "entailment": 0.9971,
+          "neutral": 0.0025,
+          "contradiction": 0.0004,
+          "label": "entailment",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "The museum is closed on Mondays.",
+          "hypothesis": "The museum is open every day of the week.",
+          "expected": "contradiction",
+          "entailment": 0.0006,
+          "neutral": 0.0015,
+          "contradiction": 0.9979,
+          "label": "contradiction",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "The museum is closed on Mondays.",
+          "hypothesis": "The museum has a large collection of paintings.",
+          "expected": "neutral",
+          "entailment": 0.0005,
+          "neutral": 0.999,
+          "contradiction": 0.0006,
+          "label": "neutral",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "La biblioteca cierra a las seis de la tarde.",
+          "hypothesis": "La biblioteca abre por la noche hasta medianoche.",
+          "expected": "contradiction",
+          "entailment": 0.0033,
+          "neutral": 0.0013,
+          "contradiction": 0.9954,
+          "label": "contradiction",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "La biblioteca cierra a las seis de la tarde.",
+          "hypothesis": "La biblioteca cierra por la tarde.",
+          "expected": "entailment",
+          "entailment": 0.9987,
+          "neutral": 0.0012,
+          "contradiction": 0.0001,
+          "label": "entailment",
+          "window": 0,
+          "windows": 1
+        },
+        {
+          "premise": "Столица России — Москва.",
+          "hypothesis": "Москва является столицей России.",
+          "expected": "entailment",
+          "entailment": 0.9971,
+          "neutral": 0.0028,
+          "contradiction": 0.0001,
+          "label": "entailment",
+          "window": 0,
+          "windows": 1
+        }
+      ],
+      "checks": 14,
+      "seconds": {
+        "load": 7.2,
+        "pairs": 5.67
+      },
+      "peak_mb": 1887.6,
+      "passed_checks": 14,
+      "check_list": [
+        {
+          "check": "nli: 会議は朝に始まります。 -> entailment",
+          "passed": true,
+          "detail": "{\"entailment\": 0.9989, \"neutral\": 0.001, \"contradiction\": 0.0001, \"label\": \"entailment\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: 会議は正午に始まります。 -> contradiction",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0006, \"neutral\": 0.0004, \"contradiction\": 0.999, \"label\": \"contradiction\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: 会議には三十人が参加します。 -> neutral",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0005, \"neutral\": 0.9993, \"contradiction\": 0.0002, \"label\": \"neutral\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: تهران پایتخت ایران است. -> entailment",
+          "passed": true,
+          "detail": "{\"entailment\": 0.9973, \"neutral\": 0.0025, \"contradiction\": 0.0002, \"label\": \"entailment\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: پایتخت ایران اصفهان است. -> contradiction",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0002, \"neutral\": 0.0005, \"contradiction\": 0.9994, \"label\": \"contradiction\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: تهران شهری پرجمعیت است. -> neutral",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0429, \"neutral\": 0.9568, \"contradiction\": 0.0003, \"label\": \"neutral\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: The museum does not open on  -> entailment",
+          "passed": true,
+          "detail": "{\"entailment\": 0.9971, \"neutral\": 0.0025, \"contradiction\": 0.0004, \"label\": \"entailment\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: The museum is open every day -> contradiction",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0006, \"neutral\": 0.0015, \"contradiction\": 0.9979, \"label\": \"contradiction\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: The museum has a large colle -> neutral",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0005, \"neutral\": 0.999, \"contradiction\": 0.0006, \"label\": \"neutral\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: La biblioteca abre por la no -> contradiction",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0033, \"neutral\": 0.0013, \"contradiction\": 0.9954, \"label\": \"contradiction\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: La biblioteca cierra por la  -> entailment",
+          "passed": true,
+          "detail": "{\"entailment\": 0.9987, \"neutral\": 0.0012, \"contradiction\": 0.0001, \"label\": \"entailment\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: Москва является столицей Рос -> entailment",
+          "passed": true,
+          "detail": "{\"entailment\": 0.9971, \"neutral\": 0.0028, \"contradiction\": 0.0001, \"label\": \"entailment\", \"window\": 0, \"windows\": 1}"
+        },
+        {
+          "check": "nli: a fact at the end of a long premise is still read",
+          "passed": true,
+          "detail": "{\"entailment\": 0.0005, \"neutral\": 0.0014, \"contradiction\": 0.9982, \"label\": \"contradiction\", \"window\": 6, \"windows\": 7}"
+        },
+        {
+          "check": "nli: labels read by name",
+          "passed": true,
+          "detail": "{0: 'entailment', 1: 'neutral', 2: 'contradiction'}"
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 14.1
+    },
+    "vision": {
+      "reader": "Qwen3-VL-2B-Instruct Q4_K_M + mmproj Q8_0, llama.cpp b11923",
+      "results": [
+        {
+          "sample": "vision-scene",
+          "text": "The image contains two geometric shapes on a white background. On the left is a red circle, and on the right is a blue square. Below these shapes, the word \"OPEN\" is written in black, lowercase letters. There is no visible text that is not in the original language or script, and no other objects, people, actions, or numbers are present. The text is clear and legible, and all elements are visible as shown.",
+          "reasons": [
+            "an image description is the model's opinion, not proof on its own"
+          ]
+        }
+      ],
+      "checks": 4,
+      "seconds": {
+        "start": 2.09,
+        "describe": 13.77
+      },
+      "server_peak_mb": 2960.2,
+      "peak_mb": 47.1,
+      "passed_checks": 4,
+      "check_list": [
+        {
+          "check": "vision: the round red shape",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "vision: the blue square",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "vision: the word OPEN copied",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "check": "vision: sent to review (an opinion)",
+          "passed": true,
+          "detail": ""
+        }
+      ],
+      "passed": true,
+      "wall_seconds": 16.4
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { formatNumber, t } from "../i18n";
 
 // GetLayers "Slider Spectra", adapted: the same ring coverflow (fan geometry, glide, drag with momentum, arrow keys,
 // autoplay that pauses on hover and when hidden) and the halo that takes the centre card's colour; the cards hold
@@ -87,9 +88,9 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
 
   return (
     <section
-      className="relative flex flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-white/8 bg-[radial-gradient(120%_90%_at_50%_0%,#0a1020,#05070c_70%)] px-4 pb-10 pt-12"
+      className="relative flex flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-hair bg-[radial-gradient(120%_90%_at_50%_0%,#e4ece1,#f6f1e4_70%)] px-4 pb-10 pt-12"
       aria-roledescription="carousel"
-      aria-label="Examples"
+      aria-label={t("examples.button")}
       onMouseEnter={() => (state.current.hover = true)}
       onMouseLeave={() => (state.current.hover = false)}
       onKeyDown={(e) => {
@@ -105,7 +106,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
         className="relative h-[340px] w-full touch-pan-y select-none"
         style={{ perspective: C.persp }}
         role="group"
-        aria-label="Drag, swipe or use the arrow keys to browse"
+        aria-label={t("deck.browse")}
         onPointerDown={(e) => {
           const s = state.current;
           s.dragging = true;
@@ -141,9 +142,9 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
                 refs.current[i] = el;
               }}
               type="button"
-              aria-label={`${c.label}, ${i + 1} of ${N}`}
+              aria-label={t("deck.item", { label: c.label, i: formatNumber(i + 1), n: formatNumber(N) })}
               className="absolute -left-[130px] -top-[165px] h-[330px] w-[260px] rounded-[26px] p-0 text-left"
-              style={{ background: `linear-gradient(160deg, ${c.c1}, ${c.c2})`, boxShadow: "0 30px 60px -22px rgba(0,0,0,.85)" }}
+              style={{ background: `linear-gradient(160deg, ${c.c1}, ${c.c2})`, boxShadow: "0 30px 60px -22px rgba(44,58,52,.55)" }}
               onClick={() => {
                 if (state.current.moved) return;
                 if (i === active) onOpen(i);

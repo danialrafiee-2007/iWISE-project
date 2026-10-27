@@ -1,11 +1,12 @@
 # Demo script (8 to 10 minutes)
 
-Before judging: double-click `TruthGuardian.bat` at least two minutes early, wait for
-"offline · models ready" in the top bar, and switch Wi-Fi off. Every example below opens instantly from the cache.
+Before judging: double-click `TruthGuardian.bat` at least two minutes early, wait for the
+dot in the top bar to turn green (its tooltip reads "models ready"), and switch Wi-Fi off. Every example below opens instantly from the cache.
+The tools are under **AI engine** in the top bar (rest the pointer on it); Home goes back to the first page.
 
 | Time | Page | What to do | What to say |
 |---|---|---|---|
-| 0:00 | Landing | Scroll once through "How it works" | AI answers sound right even when they are not. Truth Guardian checks every claim against the sources, on this laptop, offline. Five stages: evidence, four signals, a calibrated fusion model, rules for what models miss, and a report. |
+| 0:00 | Landing | Scroll once through the challenge inputs | AI answers sound right even when they are not. The challenge covers text, images, sound and video; what we show today is text, checked claim by claim against the sources, on this laptop, offline: evidence for every sentence, four signals, a calibrated fusion model, rules for what models miss, and a report. |
 | 1:00 | Analyze | "A wrong year and a wrong citation" | The year is marked on the exact word, with the source sentence and the fix 2022 → 1945. The citation [2] is flagged: source 1 is the one that supports the claim. Blame goes to the language model, because the sources do answer the question. The grade, the risk and the conformal guarantee sit on the right. |
 | 2:30 | Analyze | "Sources that disagree", then "The retriever fetched the wrong page" | When the sources contradict each other the answer is marked contested, not hallucinated. When the sources miss the question, the fault is retrieval, not the model. |
 | 3:30 | Heal | "Heal this answer" from the first example | Round by round: the wrong year is replaced from the source, then the answer is checked again; the risk falls and every change says why. |
@@ -21,7 +22,7 @@ the final model, every run logged in eval/locked_runs.log), what happens on a ne
 
 ## Tour, presentation size and the demo video
 
-- **Tour** (top bar, or "Take the 3-minute tour" on the first page): eleven steps through every tool on ready-made
+- **Tour** (the play button in the top bar): eleven steps through every tool on ready-made
   examples. Hand it to a judge who wants to explore alone; arrow keys move, Esc leaves.
 - **Size** button (100, 125, 150%): use 125% on a projector.
 - **Demo video**: open `http://127.0.0.1:8765/?tour=play` (or press Autoplay in the tour) and record the screen, for

@@ -1,4 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { formatNumber, t } from "../i18n";
 
 // GetLayers "Cards Cascade", adapted: the same fold geometry (a back stack that lies away from the crest, dismissed
 // cards folding forward over the lip into the pit), driven by the chosen card instead of page scroll, so it fits a
@@ -74,7 +75,7 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
 
   return (
     <div className="relative flex items-stretch gap-4" style={{ height }}>
-      <div className="relative min-w-0 flex-1 overflow-hidden rounded-[24px] bg-[radial-gradient(130%_100%_at_50%_10%,#121a24_0%,#07090d_78%)]" style={{ perspective: Math.max(1200, height * 2.8), perspectiveOrigin: "50% 38%" }} tabIndex={0} onKeyDown={onKey} aria-roledescription="carousel" aria-label="Tricks">
+      <div className="relative min-w-0 flex-1 overflow-hidden rounded-[24px] bg-[radial-gradient(130%_100%_at_50%_10%,#e4ece1_0%,#efe6d3_78%)]" style={{ perspective: Math.max(1200, height * 2.8), perspectiveOrigin: "50% 38%" }} tabIndex={0} onKeyDown={onKey} aria-roledescription="carousel" aria-label={t("fool.tricks")}>
         <div className="absolute left-1/2 top-[44%] h-0 w-0" style={{ transformStyle: "preserve-3d" }}>
           {cards.map((c, i) => (
             <article
@@ -95,10 +96,10 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
           ))}
         </div>
         <div className="sr-only" aria-live="polite">
-          {`Trick ${active + 1} of ${cards.length}: ${cards[active]?.label}`}
+          {t("fool.trickOf", { i: formatNumber(active + 1), n: formatNumber(cards.length), label: cards[active]?.label ?? "" })}
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center gap-3" role="tablist" aria-label="Choose a trick">
+      <div className="flex flex-col items-center justify-center gap-3" role="tablist" aria-label={t("fool.chooseTrick")}>
         <span className="font-mono text-2xl font-medium tabular-nums text-fog-100">
           <span key={active}>{String(active + 1).padStart(2, "0")}</span>
           <span className="text-sm text-fog-400">/{String(cards.length).padStart(2, "0")}</span>
@@ -114,7 +115,7 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
             onClick={() => onActive(i)}
             className={`grid h-6 w-6 place-items-center rounded-full ${i === active ? "" : "hover:bg-ink-700"}`}
           >
-            <span className={`block rounded-full transition-all ${i === active ? "h-3 w-3 bg-beam-400 shadow-[0_0_0_4px_rgb(94_234_212_/_0.2),0_0_14px_rgb(94_234_212_/_0.8)]" : "h-1.5 w-1.5 bg-ink-500"}`} />
+            <span className={`block rounded-full transition-all ${i === active ? "h-3 w-3 bg-beam-400 shadow-[0_0_0_4px_rgb(69_107_86_/_0.18),0_0_12px_rgb(69_107_86_/_0.45)]" : "h-1.5 w-1.5 bg-ink-500"}`} />
           </button>
         ))}
       </div>

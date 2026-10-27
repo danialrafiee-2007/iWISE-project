@@ -3,7 +3,8 @@
 #   docker compose ps               "healthy" once the models are loaded (about a minute; longer on slow CPUs)
 #   docker compose down             stop; the example cache volume is kept (down -v deletes it)
 # The port is published on 127.0.0.1 only, so nothing outside this computer can reach the app. TG_PORT picks another
-# host port; TG_ACCESS_CODE (no default) asks every visitor for that code.
+# host port; TG_ACCESS_CODE (no default) asks every visitor for that code; TG_SMTP_USER and TG_SMTP_PASSWORD (no
+# default) let the Contact page send its messages.
 name: truth-guardian
 
 services:
@@ -14,6 +15,10 @@ services:
       - "127.0.0.1:${TG_PORT:-7860}:7860"
     environment:
       TG_ACCESS_CODE: ${TG_ACCESS_CODE:-}
+      TG_SMTP_USER: ${TG_SMTP_USER:-}
+      TG_SMTP_PASSWORD: ${TG_SMTP_PASSWORD:-}
+      TG_SMTP_HOST: ${TG_SMTP_HOST:-}
+      TG_SMTP_PORT: ${TG_SMTP_PORT:-}
     volumes:
       - web-cache:/home/user/app/data/web
     read_only: true

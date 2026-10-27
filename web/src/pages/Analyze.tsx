@@ -3,8 +3,10 @@ import { InputForm } from "../components/InputForm";
 import { AnswerView, StatusLegend } from "../components/report/AnswerView";
 import { ClaimDetail, ConflictsPanel, DiagnosisPanel, OmissionsPanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
 import { Loupe } from "../layers/Gradients";
+import { useI18n } from "../i18n";
 import { Heading } from "../layers/Heading";
 import { api, checkBody } from "../lib/api";
+import { num, VERDICT } from "../lib/format";
 import { lazyPage } from "../lib/lazyPage";
 import { useRouter } from "../lib/router";
 import type { CheckInput, Example, ExampleBrief, Report, Task } from "../lib/types";
@@ -29,8 +31,9 @@ export function downloadJson(name: string, data: unknown) {
 }
 
 export function ExamplePicker({ examples, current, onPick, disabled }: { examples: ExampleBrief[]; current?: string | null; onPick: (id: string) => void; disabled?: boolean }) {
+  const { t } = useI18n();
   const groups = examples.reduce<Record<string, ExampleBrief[]>>((acc, e) => {
-    const group = e.origin.startsWith("written") ? "Showcase" : e.origin;
+    const group = e.origin.startsWith("written") ? t("common.showcase") : e.origin;
     (acc[group] ??= []).push(e);
     return acc;
   }, {});
@@ -38,10 +41,10 @@ export function ExamplePicker({ examples, current, onPick, disabled }: { example
     <div className="flex flex-col gap-3">
       {Object.entries(groups).map(([group, items]) => (
         <div key={group} className="flex flex-col gap-2">
-          <span className="label">{group}</span>
+          <span className="label" dir="auto">{group}</span>
           <div className="flex flex-wrap gap-2">
             {items.map((e) => (
-              <button key={e.id} type="button" className="chip" aria-pressed={current === e.id} disabled={disabled} onClick={() => onPick(e.id)}>
+              <button key={e.id} type="button" className="chip" aria-pressed={current === e.id} disabled={disabled} onClick={() => onPick(e.id)} dir="auto">
                 {e.title}
               </button>
             ))}
@@ -56,6 +59,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
   const firstFlagged = report.claims.findIndex((c) => c.status !== "supported");
   const [selected, setSelected] = useState<number>(firstFlagged >= 0 ? firstFlagged : 0);
   const [showGold, setShowGold] = useState(false);
+  const { t, tp } = useI18n();
   useEffect(() => setSelected(firstFlagged >= 0 ? firstFlagged : 0), [report]);
   const claim = report.claims[selected];
   const goldSpans = gold?.gold_spans.map((s) => [s.start, s.end] as [number, number]) ?? [];
@@ -65,19 +69,21 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
       <div className="flex min-w-0 flex-col gap-4">
         <Panel tour="answer">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="m-0 text-[13px] font-normal text-fog-400">Answer · select a claim to see why</h2>
+            <h2 className="m-0 text-[13px] font-normal font-sans text-fog-400">{t("analyze.answerTitle")}</h2>
             <StatusLegend />
           </div>
           <AnswerView key={showGold ? "gold" : "guardian"} answer={input.answer} claims={report.claims} selected={selected} onSelect={setSelected} gold={goldSpans} showGold={showGold} />
           {gold?.gold && (
-            <div className="flex flex-wrap items-center gap-3 border-t border-white/6 pt-3 text-sm text-fog-300">
+            <div className="flex flex-wrap items-center gap-3 border-t border-hair pt-3 text-sm text-fog-300">
               <span>
-                Annotators judged this answer <b className="font-medium text-fog-100">{gold.gold}</b>
-                {gold.gold_spans.length ? `, marking ${gold.gold_spans.length} span${gold.gold_spans.length > 1 ? "s" : ""}` : ""}.
+                {t("analyze.goldPre")}
+                <b className="font-medium text-fog-100">{gold.gold in VERDICT ? VERDICT[gold.gold as keyof typeof VERDICT].label : gold.gold}</b>
+                {gold.gold_spans.length ? tp("analyze.goldSpans", gold.gold_spans.length) : ""}
+                {t("analyze.goldPost")}
               </span>
               {gold.gold_spans.length > 0 && (
                 <button type="button" className="chip" aria-pressed={showGold} onClick={() => setShowGold((v) => !v)}>
-                  {showGold ? "Show the guardian's view" : "Show the annotators' marks"}
+                  {showGold ? t("analyze.showGuardian") : t("analyze.showGold")}
                 </button>
               )}
             </div>
@@ -86,12 +92,12 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
         {claim && !showGold && <ClaimDetail key={selected} claim={claim} sources={input.sources} />}
         <WarningsPanel report={report} />
         {report.cited_answer && (
-          <Panel title="The answer with citations to the sources that support each claim">
-            <p className="m-0 text-[15px] leading-relaxed text-fog-200">{report.cited_answer}</p>
+          <Panel title={t("analyze.cited")}>
+            <p className="m-0 text-[15px] leading-relaxed text-fog-200" dir="auto">{report.cited_answer}</p>
           </Panel>
         )}
       </div>
-      <aside className="flex min-w-0 flex-col gap-4" aria-label="Reliability">
+      <aside className="flex min-w-0 flex-col gap-4" aria-label={t("analyze.reliability")}>
         <VerdictCard report={report} />
         <DiagnosisPanel report={report} />
         <ConflictsPanel report={report} />
@@ -111,6 +117,7 @@ export function Analyze() {
   const [view, setView] = useState<View | null>(null);
   const picking = useRef(0);
   const check = useStream<Result>();
+  const { t } = useI18n();
   const ready = health?.state === "ready";
 
   useEffect(() => {
@@ -155,24 +162,24 @@ export function Analyze() {
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
-      <div className="relative isolate overflow-hidden rounded-[28px] border border-white/8">
+      <div className="relative isolate overflow-hidden rounded-[28px] border border-hair">
         <div className="absolute inset-0 -z-10 opacity-70">
           <Loupe paused={busy} />
         </div>
         <div className="flex flex-col gap-2 bg-gradient-to-r from-ink-950/85 via-ink-950/55 to-transparent px-6 py-7 sm:px-8">
-          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">Analyze an answer</Heading>
+          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("analyze.title")}</Heading>
           <p className="m-0 max-w-2xl text-[15px] leading-relaxed text-fog-300">
-            Paste a question, its sources and an AI answer. Every claim is checked against the sources: wrong numbers and names, swapped roles, overclaims, sources that disagree, citations that point to the wrong passage, and what the answer leaves out.
+            {t("analyze.lead")}
           </p>
         </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <Panel title="Try an example">
+        <Panel title={t("analyze.try")}>
           <ExamplePicker examples={examples} current={input.exampleId} onPick={pick} />
-          {example && input.exampleId === example.id && <p className="m-0 text-sm leading-relaxed text-fog-300">{example.about}</p>}
+          {example && input.exampleId === example.id && <p className="m-0 text-sm leading-relaxed text-fog-300" dir="auto">{example.about}</p>}
         </Panel>
-        <Panel title="Or paste your own">
+        <Panel title={t("common.orOwn")}>
           <InputForm
             value={input}
             onChange={setInput}
@@ -181,7 +188,7 @@ export function Analyze() {
               run(input, example && example.id === input.exampleId ? example : null);
             }}
             disabled={check.running || !ready}
-            submitLabel={ready ? "Check the answer" : "Models are loading…"}
+            submitLabel={ready ? t("analyze.submit") : t("common.loadingModels")}
           />
         </Panel>
       </div>
@@ -191,16 +198,16 @@ export function Analyze() {
           <Suspense fallback={null}>
             <GlassHalo active={check.running} />
           </Suspense>
-          <span className="absolute bottom-5 font-mono text-xs text-fog-300">checking every claim against the sources…</span>
+          <span className="absolute bottom-5 font-mono text-xs text-fog-300">{t("analyze.checking")}</span>
         </div>
-        <Panel title="Progress">
+        <Panel title={t("analyze.progress")}>
           <StageProgress stages={stages} queued={check.queued} />
         </Panel>
       </div>
 
       {check.error && (
-        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-rose-200">
-          The check did not finish: {check.error}
+        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-bad-ink">
+          {t("common.checkFailed", { error: check.error })}
         </div>
       )}
 
@@ -208,11 +215,11 @@ export function Analyze() {
         <div className={`flex flex-col gap-6 transition-opacity duration-300 ${check.running ? "pointer-events-none opacity-35" : ""}`} aria-busy={check.running}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-xs text-fog-400">
-              {`${check.running ? "previous report, shown until the new check finishes" : view.cached ? "ready-made report (computed by the same model)" : `checked in ${view.seconds.toFixed(1)} s on this computer`} · model ${view.report.model_version}`}
+              {t("analyze.model", { state: check.running ? t("analyze.previous") : view.cached ? t("analyze.readyMade") : t("analyze.checkedIn", { s: num(view.seconds, 1) }), v: view.report.model_version ?? "" })}
             </span>
             <div className="flex flex-wrap gap-2">
               <button type="button" className="btn btn-ghost" onClick={() => downloadJson(`truth-guardian-report-${view.report.id}.json`, { input: view.input, report: view.report })}>
-                Download report
+                {t("analyze.download")}
               </button>
               {view.report.verdict !== "grounded" && (
                 <button
@@ -223,7 +230,7 @@ export function Analyze() {
                     navigate("/heal?auto=1");
                   }}
                 >
-                  Heal this answer
+                  {t("analyze.heal")}
                 </button>
               )}
             </div>

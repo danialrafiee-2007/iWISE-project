@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
 import { Panel } from "../components/report/Panels";
+import { formatNumber, t, useI18n } from "../i18n";
 import { Heading } from "../layers/Heading";
 import { api } from "../lib/api";
-import { BLAME, GRADE_COLOR, LANE, pct, VERDICT } from "../lib/format";
+import { BLAME, GRADE_COLOR, LANE, num, pct, VERDICT } from "../lib/format";
 import type { AuditRow, AuditSummary, Grade } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
@@ -24,12 +25,12 @@ function Breakdown({ title, counts, colors, labels }: { title: string; counts: R
       <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm">
         {entries.map(([k, v]) => (
           <li key={k} className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2" dir="auto">
               <span className="h-2 w-2 rounded-full" style={{ background: colors?.[k] ?? "var(--color-beam-500)" }} aria-hidden="true" />
               {labels?.[k] ?? k.replaceAll("_", " ")}
             </span>
             <span className="font-mono text-fog-300">
-              {v} <span className="text-fog-400">· {pct(v / total)}</span>
+              {formatNumber(v)} <span className="text-fog-400">· {pct(v / total)}</span>
             </span>
           </li>
         ))}
@@ -47,11 +48,12 @@ export default function Audit() {
   const audit = useStream<{ summary: AuditSummary; answers: AuditRow[]; seconds: number }>();
   const ready = health?.state === "ready";
   const lines = text.split("\n").filter((l) => l.trim()).length;
+  const { tp } = useI18n();
   const progress = [...audit.events].reverse().find((e) => e.type === "progress") as { done: number; total: number } | undefined;
 
   const load = async (f: File) => {
     if (f.size > MAX_BYTES) {
-      setProblem(`The file is ${(f.size / 1e6).toFixed(1)} MB; the limit is 2 MB (about 100 answers).`);
+      setProblem(t("audit.tooBig", { mb: num(f.size / 1e6, 1) }));
       return;
     }
     setProblem(null);
@@ -61,7 +63,7 @@ export default function Audit() {
 
   const sample = async () => {
     const s = await api.auditSample();
-    setName(`sample log (${s.answers} answers)`);
+    setName(t("audit.sampleName", { n: formatNumber(s.answers) }));
     setText(s.jsonl);
   };
 
@@ -71,38 +73,40 @@ export default function Audit() {
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
       <div className="flex max-w-3xl flex-col gap-2">
-        <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">Audit a RAG system</Heading>
+        <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("audit.title")}</Heading>
         <p className="m-0 text-[15px] leading-relaxed text-fog-300">
-          Run a whole log of a system's answers through the guardian and get its health: the estimated hallucination rate with an interval, which lane each answer goes to, who is to blame, which kinds of error appear and which documents sit behind the flagged claims.
+          {t("audit.lead")}
         </p>
       </div>
 
-      <Panel title="The log">
+      <Panel title={t("audit.log")}>
         <p className="m-0 text-sm leading-relaxed text-fog-300">
-          One JSON object per line: <code className="rounded bg-ink-700 px-1.5 py-0.5 font-mono text-[12.5px]">{'{"id": 1, "question": "...", "sources": ["..."], "answer": "..."}'}</code>, or the project's Sample format (then the true rate is shown too). At most 100 answers; about 3 seconds each on this laptop.
+          {t("audit.formatPre")}
+          <code className="rounded bg-ink-700 px-1.5 py-0.5 font-mono text-[12.5px]" dir="ltr">{'{"id": 1, "question": "...", "sources": ["..."], "answer": "..."}'}</code>
+          {t("audit.formatPost")}
         </p>
         <div className="flex flex-wrap gap-2">
           <input ref={file} type="file" accept=".jsonl,.json,.txt" className="sr-only" id="audit-file" onChange={(e) => e.target.files?.[0] && load(e.target.files[0])} />
           <label htmlFor="audit-file" className="btn btn-ghost">
-            Choose a file
+            {t("audit.choose")}
           </label>
           <button type="button" className="btn btn-ghost" onClick={sample}>
-            Use the sample log
+            {t("audit.sample")}
           </button>
-          {name && <span className="self-center text-sm text-fog-300">{name}</span>}
+          {name && <span className="self-center text-sm text-fog-300" dir="auto">{name}</span>}
         </div>
         <label htmlFor="audit-text" className="label">
-          Or paste the lines
+          {t("audit.paste")}
         </label>
-        <textarea id="audit-text" className="field min-h-[140px] resize-y font-mono text-[12.5px]" value={text} spellCheck={false} onChange={(e) => { setText(e.target.value); setName(null); }} />
+        <textarea id="audit-text" className="field min-h-[140px] resize-y font-mono text-[12.5px]" dir="ltr" value={text} spellCheck={false} onChange={(e) => { setText(e.target.value); setName(null); }} />
         {problem && (
-          <p role="alert" className="m-0 text-sm text-warn">
+          <p role="alert" className="m-0 text-sm text-warn-ink">
             {problem}
           </p>
         )}
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" className="btn btn-primary" disabled={!ready || !lines || audit.running} onClick={() => audit.run("/api/audit", { jsonl: text }, () => "idle")}>
-            {audit.running ? "Auditing…" : `Audit ${lines || ""} answer${lines === 1 ? "" : "s"}`}
+            {audit.running ? t("audit.auditing") : lines ? tp("audit.run", lines) : t("audit.runNone")}
           </button>
           {audit.running && progress && (
             <div className="flex min-w-[240px] flex-1 items-center gap-3" aria-live="polite">
@@ -110,7 +114,7 @@ export default function Audit() {
                 <div className="h-1.5 rounded-full bg-beam-400 transition-[width]" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
               </div>
               <span className="font-mono text-xs text-fog-300">
-                {`${progress.done} / ${progress.total}`}
+                {`${formatNumber(progress.done)} / ${formatNumber(progress.total)}`}
               </span>
             </div>
           )}
@@ -118,8 +122,8 @@ export default function Audit() {
       </Panel>
 
       {audit.error && (
-        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-rose-200">
-          The audit did not finish: {audit.error}
+        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-bad-ink">
+          {t("audit.failed", { error: audit.error })}
         </div>
       )}
 
@@ -127,81 +131,81 @@ export default function Audit() {
         <div key={`${s.answers}:${result.seconds}`} className="flex flex-col gap-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-xs text-fog-400">
-              {s.answers} answers audited in {result.seconds.toFixed(0)} s
+              {t("audit.done", { n: formatNumber(s.answers), s: num(result.seconds, 0) })}
             </span>
             <button type="button" className="btn btn-ghost" onClick={() => downloadJson("truth-guardian-audit.json", result)}>
-              Download the audit
+              {t("audit.download")}
             </button>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            <Panel title="Estimated hallucination rate" className="md:col-span-1">
+            <Panel title={t("audit.rate")} className="md:col-span-1">
               <span className="font-mono text-[44px] leading-none">{pct(s.estimated_hallucination_rate, 1)}</span>
               <span className="text-sm text-fog-300">
-                95% interval {pct(s.estimate_interval[0], 1)} to {pct(s.estimate_interval[1], 1)} (mean calibrated risk, bootstrap)
+                {t("audit.interval", { a: pct(s.estimate_interval[0], 1), b: pct(s.estimate_interval[1], 1) })}
               </span>
-              {s.true_hallucination_rate != null && <span className="text-sm text-fog-200">Labelled rate in this log: {pct(s.true_hallucination_rate, 1)}</span>}
-              <span className="text-xs text-fog-400">On a domain unlike RAGTruth the estimate can be far off; fit a domain profile first.</span>
+              {s.true_hallucination_rate != null && <span className="text-sm text-fog-200">{t("audit.labelled", { r: pct(s.true_hallucination_rate, 1) })}</span>}
+              <span className="text-xs text-fog-400">{t("audit.rateNote")}</span>
             </Panel>
-            <Breakdown title="Triage lanes" counts={s.lanes} colors={Object.fromEntries(Object.entries(LANE).map(([k, v]) => [k, v.color]))} labels={Object.fromEntries(Object.entries(LANE).map(([k, v]) => [k, `${v.label}: ${v.hint}`]))} />
-            <Breakdown title="Verdicts" counts={s.verdicts} colors={Object.fromEntries(Object.entries(VERDICT).map(([k, v]) => [k, v.color]))} />
-            <Breakdown title="Grades" counts={s.grades} colors={GRADE_COLOR as Record<string, string>} labels={{ A: "A", B: "B", C: "C", D: "D", F: "F" }} />
-            <Breakdown title="Who is to blame" counts={s.blame} labels={BLAME} />
-            <Breakdown title="Kinds of error in flagged claims" counts={s.error_types} />
-            <Breakdown title="Cautions" counts={s.cautions} />
-            <Breakdown title="Documents behind flagged claims" counts={s.flagged_documents} />
+            <Breakdown title={t("audit.lanes")} counts={s.lanes} colors={Object.fromEntries(Object.entries(LANE).map(([k, v]) => [k, v.color]))} labels={Object.fromEntries(Object.entries(LANE).map(([k, v]) => [k, t("audit.laneLabel", { label: v.label, hint: v.hint })]))} />
+            <Breakdown title={t("audit.verdicts")} counts={s.verdicts} colors={Object.fromEntries(Object.entries(VERDICT).map(([k, v]) => [k, v.color]))} labels={Object.fromEntries(Object.entries(VERDICT).map(([k, v]) => [k, v.label]))} />
+            <Breakdown title={t("audit.grades")} counts={s.grades} colors={GRADE_COLOR as Record<string, string>} labels={{ A: "A", B: "B", C: "C", D: "D", F: "F" }} />
+            <Breakdown title={t("audit.blame")} counts={s.blame} labels={BLAME} />
+            <Breakdown title={t("audit.errors")} counts={s.error_types} />
+            <Breakdown title={t("audit.cautions")} counts={s.cautions} />
+            <Breakdown title={t("audit.docs")} counts={s.flagged_documents} />
           </div>
-          <Panel title="Riskiest answers">
+          <Panel title={t("audit.riskiest")}>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <table className="w-full min-w-[640px] border-collapse text-start text-sm">
                 <thead className="text-xs text-fog-400">
                   <tr>
-                    <th className="py-2 pr-3 font-normal">Answer</th>
-                    <th className="py-2 pr-3 font-normal">Grade</th>
-                    <th className="py-2 pr-3 font-normal">Risk</th>
-                    <th className="py-2 pr-3 font-normal">Flagged claim</th>
-                    <th className="py-2 font-normal">Why</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.answer")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.grade")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.risk")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.flaggedClaim")}</th>
+                    <th className="py-2 font-normal">{t("col.why")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {s.worst.map((w) => (
-                    <tr key={w.id} className="border-t border-white/6 align-top">
-                      <td className="py-2.5 pr-3 font-mono text-xs text-fog-300">{w.id}</td>
-                      <td className="py-2.5 pr-3" style={{ color: GRADE_COLOR[w.grade as Grade] }}>
+                    <tr key={w.id} className="border-t border-hair align-top">
+                      <td className="py-2.5 pe-3 font-mono text-xs text-fog-300">{w.id}</td>
+                      <td className="py-2.5 pe-3" style={{ color: GRADE_COLOR[w.grade as Grade] }}>
                         {w.grade}
                       </td>
-                      <td className="py-2.5 pr-3 font-mono">{w.risk.toFixed(2)}</td>
-                      <td className="max-w-[380px] py-2.5 pr-3 text-fog-200">{w.claim}</td>
-                      <td className="py-2.5 text-fog-300">{w.explanation}</td>
+                      <td className="py-2.5 pe-3 font-mono">{num(w.risk)}</td>
+                      <td className="max-w-[380px] py-2.5 pe-3 text-fog-200" dir="auto">{w.claim}</td>
+                      <td className="py-2.5 text-fog-300" dir="auto">{w.explanation}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </Panel>
-          <Panel title="Every answer">
+          <Panel title={t("audit.every")}>
             <div className="max-h-[420px] overflow-auto">
-              <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+              <table className="w-full min-w-[640px] border-collapse text-start text-sm">
                 <thead className="sticky top-0 bg-ink-800 text-xs text-fog-400">
                   <tr>
-                    <th className="py-2 pr-3 font-normal">Answer</th>
-                    <th className="py-2 pr-3 font-normal">Verdict</th>
-                    <th className="py-2 pr-3 font-normal">Grade</th>
-                    <th className="py-2 pr-3 font-normal">Lane</th>
-                    <th className="py-2 pr-3 font-normal">Flagged claims</th>
-                    <th className="py-2 font-normal">Start of the answer</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.answer")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.verdict")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.grade")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.lane")}</th>
+                    <th className="py-2 pe-3 font-normal">{t("col.flagged")}</th>
+                    <th className="py-2 font-normal">{t("col.start")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {result.answers.map((a) => (
-                    <tr key={a.id} className="border-t border-white/6 align-top">
-                      <td className="py-2 pr-3 font-mono text-xs text-fog-300">{a.id}</td>
-                      <td className="py-2 pr-3" style={{ color: VERDICT[a.verdict].color }}>
+                    <tr key={a.id} className="border-t border-hair align-top">
+                      <td className="py-2 pe-3 font-mono text-xs text-fog-300">{a.id}</td>
+                      <td className="py-2 pe-3" style={{ color: VERDICT[a.verdict].color }}>
                         {VERDICT[a.verdict].label}
                       </td>
-                      <td className="py-2 pr-3">{a.grade}</td>
-                      <td className="py-2 pr-3">{a.lane ? LANE[a.lane].label : "n/a"}</td>
-                      <td className="py-2 pr-3 font-mono">{a.flagged}</td>
-                      <td className="py-2 text-fog-300">{a.answer}</td>
+                      <td className="py-2 pe-3">{a.grade}</td>
+                      <td className="py-2 pe-3">{a.lane ? LANE[a.lane].label : t("common.na")}</td>
+                      <td className="py-2 pe-3 font-mono">{formatNumber(a.flagged)}</td>
+                      <td className="py-2 text-fog-300" dir="auto">{a.answer}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,26 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { Panel, StageProgress } from "../components/report/Panels";
 import { CardsCascade, type CascadeCard } from "../layers/CardsCascade";
+import { formatNumber, useI18n, type MessageKey } from "../i18n";
 import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
 import { api, ApiError, type ModelCard } from "../lib/api";
-import { KIND_LABEL, pct } from "../lib/format";
+import { KIND_LABEL, num, pct } from "../lib/format";
 import type { FoolAnswer, FoolResult } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
 import { ReportView } from "./Analyze";
 
+// Signal Array's studio field is near-black; a warm grey one makes the lamp read as a product photo on the light page.
+// The values are in the scene's linear working space, so they render lighter than they look here.
+const STUDIO = { bgTop: "#d6c9a8", bgBottom: "#9c8f6c" };
+
 const KINDS = ["number", "entity", "negation", "role_swap", "addition", "antonym", "quantifier", "certainty"] as const;
-const HINT: Record<string, string> = {
-  number: "Change a year, an amount or a count.",
-  entity: "Replace a person, place or organisation with another one.",
-  negation: "Turn a statement into its negation.",
-  role_swap: "Keep every word, swap who did what to whom.",
-  addition: "Add a plausible claim the sources never make.",
-  antonym: "Replace a word with its opposite.",
-  quantifier: "Turn 'some' into 'most', 'often' into 'always'.",
-  certainty: "Drop a hedge such as 'may' or 'reportedly'.",
-};
 const FILL: Record<string, string> = {
   number: "linear-gradient(150deg,#0f766e,#134e4a 55%,#042f2e)",
   entity: "linear-gradient(150deg,#1d4ed8,#1e3a8a 55%,#0b1437)",
@@ -55,6 +50,7 @@ export default function Fool() {
   const check = useStream<FoolResult>();
   const ready = health?.state === "ready";
   const current = answers[index];
+  const { lang, t } = useI18n();
 
   useEffect(() => {
     api.foolAnswers().then((a) => {
@@ -81,18 +77,18 @@ export default function Fool() {
         content: (
           <>
             <div className="flex items-center justify-between">
-              <span className="rounded-lg border border-white/25 bg-white/15 px-2 py-1 font-mono text-xs font-medium tracking-widest backdrop-blur">{String(i + 1).padStart(2, "0")} / 08</span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/80">{rates?.[kind] ? `caught ${pct(rates[kind].detected)}` : ""}</span>
+              <span className="rounded-lg border border-hair bg-white/15 px-2 py-1 font-mono text-xs font-medium tracking-widest backdrop-blur">{t("fool.cardCount", { i: formatNumber(i + 1, 0, 2), n: formatNumber(KINDS.length, 0, 2) })}</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/80">{rates?.[kind] ? t("fool.caughtRate", { p: pct(rates[kind].detected) }) : ""}</span>
             </div>
             <div>
-              <p className="m-0 mb-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">Trick {String(i + 1).padStart(2, "0")}</p>
+              <p className="m-0 mb-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">{t("fool.trick", { i: formatNumber(i + 1, 0, 2) })}</p>
               <h3 className="m-0 text-[28px] font-semibold leading-[1.05] tracking-tight">{KIND_LABEL[kind]}</h3>
-              <p className="m-0 mt-2 max-w-[30ch] text-[13px] text-white/75">{HINT[kind]}</p>
+              <p className="m-0 mt-2 max-w-[30ch] text-[13px] text-white/75">{t(`fool.hint.${kind}` as MessageKey)}</p>
             </div>
           </>
         ),
       })),
-    [rates],
+    [rates, lang],
   );
 
   const applyTrick = async () => {
@@ -104,7 +100,7 @@ export default function Fool() {
       setEdit(result.edit);
       check.reset();
     } catch (e) {
-      setNotice(e instanceof ApiError ? e.message : "the trick could not be applied");
+      setNotice(e instanceof ApiError ? e.message : t("fool.trickFailed"));
     }
   };
 
@@ -126,32 +122,32 @@ export default function Fool() {
   const outcome = !result
     ? null
     : !result.edit
-      ? { signal: "amber" as const, title: "Nothing was changed", text: "Edit the answer or apply a trick first: an unedited answer is the control." }
+      ? { signal: "amber" as const, title: t("fool.noneTitle"), text: t("fool.noneText") }
       : result.caught && result.located
-        ? { signal: "green" as const, title: "Caught, and it found the exact place", text: "The guardian flagged the answer and marked the claim you edited." }
+        ? { signal: "green" as const, title: t("fool.locatedTitle"), text: t("fool.locatedText") }
         : result.caught
-          ? { signal: "amber" as const, title: "Flagged, but not at your edit", text: "The answer was flagged as risky, but the edited claim was not the one marked." }
+          ? { signal: "amber" as const, title: t("fool.flaggedTitle"), text: t("fool.flaggedText") }
           : result.cautioned
-            ? { signal: "amber" as const, title: "Not flagged, only cautioned", text: "The answer passed, with a caution on the claim you edited." }
-            : { signal: "red" as const, title: "You fooled it", text: "The guardian judged your edited answer grounded. This is one of its known blind spots; the suite numbers on each card show how often each trick gets through." };
+            ? { signal: "amber" as const, title: t("fool.cautionedTitle"), text: t("fool.cautionedText") }
+            : { signal: "red" as const, title: t("fool.fooledTitle"), text: t("fool.fooledText") };
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-2xl flex-col gap-2">
-          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">Can you fool it?</Heading>
+          <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("fool.title")}</Heading>
           <p className="m-0 text-[15px] leading-relaxed text-fog-300">
-            Take a grounded answer, slip one lie into it, and see whether the guardian finds the exact words. Pick a trick, or edit the answer yourself.
+            {t("fool.lead")}
           </p>
         </div>
         <div className="card flex items-center gap-5 px-5 py-3" aria-live="polite">
           <div className="flex flex-col">
-            <span className="font-mono text-2xl">{score.tries}</span>
-            <span className="text-xs text-fog-400">your tries</span>
+            <span className="font-mono text-2xl">{formatNumber(score.tries)}</span>
+            <span className="text-xs text-fog-400">{t("fool.tries")}</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-mono text-2xl text-bad">{score.fooled}</span>
-            <span className="text-xs text-fog-400">got through</span>
+            <span className="font-mono text-2xl text-bad-ink">{formatNumber(score.fooled)}</span>
+            <span className="text-xs text-fog-400">{t("fool.through")}</span>
           </div>
         </div>
       </div>
@@ -163,56 +159,56 @@ export default function Fool() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className="btn btn-primary" onClick={applyTrick} disabled={!ready || !current || check.running}>
-              {`Apply “${KIND_LABEL[KINDS[trick]]}”`}
+              {t("fool.apply", { trick: KIND_LABEL[KINDS[trick]] })}
             </button>
             <span className="text-xs text-fog-400">
-              {rates?.[KINDS[trick]] ? `Suite: ${rates[KINDS[trick]].n} edits, caught ${pct(rates[KINDS[trick]].detected)}, exact place found ${pct(rates[KINDS[trick]].located)}.` : ""}
+              {rates?.[KINDS[trick]] ? t("fool.suite", { n: formatNumber(rates[KINDS[trick]].n), c: pct(rates[KINDS[trick]].detected), l: pct(rates[KINDS[trick]].located) }) : ""}
             </span>
           </div>
           {notice && (
-            <p role="alert" className="m-0 text-sm text-warn">
+            <p role="alert" className="m-0 text-sm text-warn-ink">
               {`${notice[0].toUpperCase() + notice.slice(1)}.`}
             </p>
           )}
         </div>
 
-        <Panel key={current?.id ?? "loading"} title={current ? "A grounded answer from the development data" : "Loading answers…"}>
+        <Panel key={current?.id ?? "loading"} title={current ? t("fool.answerTitle") : t("fool.loadingAnswers")}>
           {current && (
             <>
               {current.question && (
                 <p className="m-0 text-[15px]">
-                  <span className="text-fog-400">Question: </span>
-                  {current.question}
+                  <span className="text-fog-400">{t("fool.question")}</span>
+                  <span dir="auto">{current.question}</span>
                 </p>
               )}
               <details className="rounded-2xl bg-ink-700/60 px-4 py-3 text-sm text-fog-300">
-                <summary className="cursor-pointer text-fog-200">Sources ({current.sources.length})</summary>
-                <div className="mt-2 flex max-h-56 flex-col gap-2 overflow-y-auto pr-2">
+                <summary className="cursor-pointer text-fog-200">{t("fool.sources", { n: formatNumber(current.sources.length) })}</summary>
+                <div className="mt-2 flex max-h-56 flex-col gap-2 overflow-y-auto pe-2">
                   {current.sources.map((s, i) => (
-                    <p key={i} className="m-0 leading-relaxed">
-                      <span className="font-mono text-beam-400">[{i + 1}]</span> {s}
+                    <p key={i} className="m-0 leading-relaxed" dir="auto">
+                      <span className="font-mono text-beam-400">[{formatNumber(i + 1)}]</span> {s}
                     </p>
                   ))}
                 </div>
               </details>
               <label htmlFor="fool-answer" className="label">
-                The answer (edit it freely)
+                {t("fool.answerLabel")}
               </label>
-              <textarea id="fool-answer" className="field min-h-[180px] resize-y" maxLength={5000} value={text} onChange={(e) => { setText(e.target.value); setEdit(null); check.reset(); }} />
+              <textarea id="fool-answer" className="field min-h-[180px] resize-y" dir="auto" maxLength={5000} value={text} onChange={(e) => { setText(e.target.value); setEdit(null); check.reset(); }} />
               {edit && (
-                <span className="self-start rounded-lg bg-bad/12 px-2.5 py-1 font-mono text-[13px] text-rose-300">
-                  {edit.original ? `“${edit.original}” → “${edit.new}”` : `added “${edit.new}”`}
+                <span className="self-start rounded-lg bg-bad/12 px-2.5 py-1 font-mono text-[13px] text-bad-ink" dir="auto">
+                  {edit.original ? t("fool.edited", { a: edit.original, b: edit.new }) : t("fool.added", { x: edit.new })}
                 </span>
               )}
               <div className="flex flex-wrap gap-2">
                 <button type="button" className="btn btn-primary" onClick={run} disabled={!ready || check.running || !text.trim()}>
-                  {check.running ? "Checking…" : "Check my edit"}
+                  {check.running ? t("fool.checking") : t("fool.check")}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={() => setText(current.answer)} disabled={check.running || text === current.answer}>
-                  Undo edits
+                  {t("fool.undo")}
                 </button>
                 <button type="button" className="btn btn-ghost" onClick={() => setIndex((index + 1) % answers.length)} disabled={check.running}>
-                  Another answer
+                  {t("fool.another")}
                 </button>
               </div>
             </>
@@ -221,14 +217,14 @@ export default function Fool() {
       </div>
 
       {check.running && (
-        <Panel title="Checking your edit">
+        <Panel title={t("fool.checkingEdit")}>
           <StageProgress stages={check.events.flatMap((e) => (e.type === "stage" ? [{ stage: e.stage, t: e.t }] : []))} queued={check.queued} />
         </Panel>
       )}
 
       {check.error && (
-        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-rose-200">
-          The check did not finish: {check.error}
+        <div role="alert" className="rounded-2xl border border-bad/30 bg-bad/10 px-5 py-4 text-sm text-bad-ink">
+          {t("common.checkFailed", { error: check.error })}
         </div>
       )}
 
@@ -236,17 +232,17 @@ export default function Fool() {
         <div key={`${current.id}:${text}:${result.report.risk}`} className="flex flex-col gap-6">
           <div className="card grid overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="relative h-[300px] md:h-auto md:min-h-[320px]">
-              <SceneFrame name="signal-array" signal={outcome.signal} paused={false} interactive={false} />
+              <SceneFrame name="signal-array" signal={outcome.signal} config={STUDIO} paused={false} interactive={false} />
             </div>
             <div className="flex flex-col justify-center gap-3 p-7" aria-live="polite">
               <span className="font-mono text-xs uppercase tracking-[0.18em]" style={{ color: outcome.signal === "green" ? "var(--color-ok)" : outcome.signal === "red" ? "var(--color-bad)" : "var(--color-warn)" }}>
-                {outcome.signal === "green" ? "Caught" : outcome.signal === "red" ? "Got through" : "Partly"}
+                {outcome.signal === "green" ? t("fool.signalCaught") : outcome.signal === "red" ? t("fool.signalThrough") : t("fool.signalPartly")}
               </span>
               <h2 className="m-0 text-[28px] font-normal leading-tight">{outcome.title}</h2>
               <p className="m-0 text-[15px] leading-relaxed text-fog-300">{outcome.text}</p>
               <p className="m-0 font-mono text-xs text-fog-400">
-                risk {result.report.risk.toFixed(2)} · decision line {result.report.response_threshold.toFixed(2)} · checked in {result.seconds.toFixed(1)} s
-                {card?.fool_the_guardian ? ` · unedited answers are flagged ${pct(card.fool_the_guardian.controls_flagged)} of the time` : ""}
+                {t("fool.meta", { r: num(result.report.risk), d: num(result.report.response_threshold), s: num(result.seconds, 1) })}
+                {card?.fool_the_guardian ? t("fool.controls", { p: pct(card.fool_the_guardian.controls_flagged) }) : ""}
               </p>
             </div>
           </div>
