@@ -159,7 +159,11 @@
   .card {
     border: 1px solid #c6d9ca;
     border-radius: var(--radius-card);
-    background: linear-gradient(135deg, #e7efe7 0%, #ecebdd 52%, #f1e7d4 100%);
+    /* Two layers: a soft band of light, parked off the box until the pointer comes (see .card:hover), over the
+       sage-to-cream ground. */
+    background:
+      linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.5) 50%, transparent 60%) 100% 0 / 250% 100% no-repeat,
+      linear-gradient(135deg, #e7efe7 0%, #ecebdd 52%, #f1e7d4 100%);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.55), 0 18px 40px -26px rgb(40 96 70 / 0.35);
     transition:
       box-shadow 280ms ease,
@@ -176,6 +180,8 @@
       0 24px 40px -20px rgb(var(--glow-rgb) / 0.55),
       0 10px 22px -16px rgb(var(--glow-rgb) / 0.45);
     transform: translateY(-3px) scale(1.018);
+    /* A soft sheen passes over it, as through the name in the top bar, and again every few seconds while it stays. */
+    animation: card-sheen 3.6s ease-in-out infinite;
   }
   .card:hover:has(input, textarea, select) {
     transform: translateY(-2px) scale(1.006);
@@ -190,11 +196,13 @@
     background: var(--color-ink-800);
     box-shadow: var(--shadow-soft);
     transform: none;
+    animation: none;
   }
   @media (prefers-reduced-motion: reduce) {
     .card:hover,
     .card:active {
       transform: none;
+      animation: none;
     }
   }
   /* The ground of every page but the landing one: iridology's near-white, with a sage haze at the left and a faint
@@ -400,6 +408,17 @@
   75%,
   100% {
     background-position: 0% 0;
+  }
+}
+
+/* The box's band of light crosses it from left to right in the first 1.4 s, then rests off the box. */
+@keyframes card-sheen {
+  0% {
+    background-position: 100% 0, 0 0;
+  }
+  40%,
+  100% {
+    background-position: 0% 0, 0 0;
   }
 }
 

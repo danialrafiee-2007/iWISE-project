@@ -5,6 +5,7 @@ Add a row every time an AI tool contributes to code, data, text or design. "Veri
 
 | Date | Tool / model | Used by | Purpose | Components affected | Verification by the team | Verified by |
 |---|---|---|---|---|---|---|
+| 2026-10-27 | Claude Code (Claude Opus 5.5) | | A soft sheen passing over hovered boxes (D-134) | `web/src/styles.css` | Hover checked in the browser | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | Boxes that rise and grow softly under the pointer and press in on a click (D-133) | `web/src/styles.css` | Hover checked in the browser | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | The examples deck turning with the mouse wheel, and the jade light under hovered boxes (D-132) | `web/src/layers/SpectraDeck.tsx`, `web/src/styles.css` | Wheel and hover checked in the browser with synthetic and real pointer events | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | A quieter jade for the bar's and footer's light, and the footer's links, name and shield behaving as the bar's (D-131) | `web/src/styles.css`, `web/src/components/Footer.tsx`, `ShieldMark.tsx` | Hover and animations checked in the browser | |
