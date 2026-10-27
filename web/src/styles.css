@@ -161,21 +161,41 @@
     border-radius: var(--radius-card);
     background: linear-gradient(135deg, #e7efe7 0%, #ecebdd 52%, #f1e7d4 100%);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.55), 0 18px 40px -26px rgb(40 96 70 / 0.35);
-    transition: box-shadow 280ms ease, border-color 280ms ease;
+    transition:
+      box-shadow 280ms ease,
+      border-color 280ms ease,
+      transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  /* Under the pointer a box casts a soft jade light from beneath, in the top bar's light colour (--glow-rgb). */
+  /* Under the pointer a box rises a little and grows softly, as if alive, and casts a soft jade light from beneath
+     in the top bar's light colour (--glow-rgb); a click presses it in a touch before it settles back. A box holding
+     fields to type in grows less, so it stays calm while one writes in it. */
   .card:hover {
     border-color: rgb(var(--glow-rgb) / 0.4);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.55),
       0 24px 40px -20px rgb(var(--glow-rgb) / 0.55),
       0 10px 22px -16px rgb(var(--glow-rgb) / 0.45);
+    transform: translateY(-3px) scale(1.018);
+  }
+  .card:hover:has(input, textarea, select) {
+    transform: translateY(-2px) scale(1.006);
+  }
+  .card:active {
+    transform: translateY(-1px) scale(1.008);
+    transition-duration: 280ms, 280ms, 140ms;
   }
   .theme-night .card,
   .theme-night .card:hover {
     border-color: var(--color-hair);
     background: var(--color-ink-800);
     box-shadow: var(--shadow-soft);
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover,
+    .card:active {
+      transform: none;
+    }
   }
   /* The ground of every page but the landing one: iridology's near-white, with a sage haze at the left and a faint
      rose one at the right. */
