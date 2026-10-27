@@ -3,9 +3,13 @@ import { formatNumber, t } from "../i18n";
 
 // GetLayers "Slider Spectra", adapted: the same ring coverflow (fan geometry, glide, drag with momentum, arrow keys,
 // autoplay that pauses on hover and when hidden) and the halo that takes the centre card's colour; the cards hold
-// our examples instead of product photos.
+// our examples instead of product photos. The mouse wheel over the deck turns it a card per notch, once the whole
+// deck is on screen (before that the wheel scrolls the page to it, so scrolling past never sticks on the deck).
 
 const C = { gap: 164, rotate: 38, depth: 150, drop: 24, shrink: 0.14, fade: 0.26, dim: 0.2, visible: 3, persp: 1680, autoplayMs: 3200, ease: 0.14, sensitivity: 0.0072 };
+// Wheel: how much scrolling makes one card (a mouse notch is about 100 px), and the pause before the next card, so a
+// trackpad's long glide turns a few cards rather than dozens.
+const WHEEL = { step: 60, pause: 260 };
 
 export interface SpectraCard {
   key: string;
@@ -18,6 +22,7 @@ export interface SpectraCard {
 
 export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCard[]; onOpen: (i: number) => void; caption: (i: number) => ReactNode; cta: string }) {
   const N = cards.length;
+  const deck = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const halo = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -78,6 +83,29 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
     };
   }, [N, cards]);
 
+  // A native listener, since React's wheel handler cannot stop the page from scrolling.
+  useEffect(() => {
+    const el = deck.current;
+    if (!el || !N) return;
+    let sum = 0;
+    let lastTurn = 0;
+    const onWheel = (e: WheelEvent) => {
+      const box = el.getBoundingClientRect();
+      const bar = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+      if (box.top < bar || box.bottom > window.innerHeight) return; // not all in view: let the page scroll to it
+      e.preventDefault();
+      const unit = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1;
+      sum += (Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * unit;
+      const now = performance.now();
+      if (Math.abs(sum) < WHEEL.step || now - lastTurn < WHEEL.pause) return;
+      state.current.target += Math.sign(sum);
+      sum = 0;
+      lastTurn = now;
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [N]);
+
   const go = (i: number) => {
     const s = state.current;
     const cur = Math.round(s.target);
@@ -88,6 +116,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
 
   return (
     <section
+      ref={deck}
       className="relative flex flex-col items-center gap-6 overflow-hidden rounded-[28px] border border-hair bg-[radial-gradient(120%_90%_at_50%_0%,#e4ece1,#f6f1e4_70%)] px-4 pb-10 pt-12"
       aria-roledescription="carousel"
       aria-label={t("examples.button")}

@@ -161,8 +161,18 @@
     border-radius: var(--radius-card);
     background: linear-gradient(135deg, #e7efe7 0%, #ecebdd 52%, #f1e7d4 100%);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.55), 0 18px 40px -26px rgb(40 96 70 / 0.35);
+    transition: box-shadow 280ms ease, border-color 280ms ease;
   }
-  .theme-night .card {
+  /* Under the pointer a box casts a soft jade light from beneath, in the top bar's light colour (--glow-rgb). */
+  .card:hover {
+    border-color: rgb(var(--glow-rgb) / 0.4);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.55),
+      0 24px 40px -20px rgb(var(--glow-rgb) / 0.55),
+      0 10px 22px -16px rgb(var(--glow-rgb) / 0.45);
+  }
+  .theme-night .card,
+  .theme-night .card:hover {
     border-color: var(--color-hair);
     background: var(--color-ink-800);
     box-shadow: var(--shadow-soft);
