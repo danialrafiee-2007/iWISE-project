@@ -1,7 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useI18n, type MessageKey } from "../i18n";
 import { useRouter } from "../lib/router";
+import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
+import { MediumIcon, NARROW, type Medium } from "./EngineMenu";
 
 // A guided tour for judges and first-time users: it opens each tool on a ready-made example, dims the page around the
 // part that matters and explains it. Autoplay advances by itself, for a hands-free demo or a screen recording. The
@@ -287,17 +289,70 @@ export function TourProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function TourButton() {
+// The tours, one per challenge input. Only the text tour is written so far; the others are listed, switched off and
+// marked as coming, until their pages are settled.
+const TOURS: { medium: Medium; label: MessageKey; ready: boolean }[] = [
+  { medium: "text", label: "tour.text", ready: true },
+  { medium: "audio", label: "tour.audio", ready: false },
+  { medium: "image", label: "tour.image", ready: false },
+  { medium: "video", label: "tour.video", ready: false },
+];
+
+/** "Tour" in the top bar: the list of tours opens while the pointer rests on it, or on a click or tap. */
+export function TourMenu() {
   const { start, active } = useTour();
   const { t } = useI18n();
+  const menu = useHoverMenu();
+  const listId = useId();
   return (
-    <button type="button" className="chip whitespace-nowrap" onClick={() => start(false)} disabled={active} aria-label={t("tour.start")} title={t("tour.start")}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" />
-      </svg>
-      {/* Icon only, so the longer languages keep the top bar on one line; the name is in the tooltip and for screen readers. */}
-      <span className="sr-only">{t("tour.button")}</span>
-    </button>
+    <div ref={menu.root} className="relative" {...menu.hover} onKeyDown={(e) => moveFocus(e, menu.root.current)}>
+      <button
+        type="button"
+        className="chip nav-glow whitespace-nowrap"
+        aria-haspopup="menu"
+        aria-expanded={menu.open}
+        aria-controls={listId}
+        disabled={active}
+        title={t("tour.start")}
+        onClick={menu.toggle}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            menu.pin();
+            window.setTimeout(() => menu.root.current?.querySelector<HTMLElement>("[role=menuitem]")?.focus());
+          }
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor" />
+        </svg>
+        {t("tour.button")}
+      </button>
+      {menu.open && (
+        <div ref={menu.list} id={listId} role="menu" aria-label={t("tour.start")} className={`${NARROW} absolute end-0 top-full z-50 pt-2`} style={{ translate: `${menu.shift}px` }}>
+          <div className="flex min-w-[230px] flex-col gap-0.5 rounded-2xl border border-hair bg-ink-850 p-1.5 font-sans shadow-[0_18px_44px_-16px_rgba(44,58,52,.35)]">
+            {TOURS.map((tour) => (
+              <button
+                key={tour.medium}
+                type="button"
+                role="menuitem"
+                aria-disabled={!tour.ready}
+                className={`flex min-h-10 items-center gap-2.5 rounded-xl px-3 text-start text-sm ${tour.ready ? "nav-glow text-fog-200" : "cursor-default text-fog-400"}`}
+                onClick={() => {
+                  if (!tour.ready) return;
+                  menu.close();
+                  start(false);
+                }}
+              >
+                <MediumIcon medium={tour.medium} />
+                <span className="flex-1">{t(tour.label)}</span>
+                {!tour.ready && <span className="rounded-full border border-hair px-2 py-0.5 text-[11px]">{t("tour.soon")}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

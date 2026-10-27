@@ -1,125 +1,136 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useI18n, type MessageKey } from "../i18n";
 import { Link, useRouter } from "../lib/router";
+import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
 
-// "AI engine" in the top bar: the tools, listed as soon as the pointer rests on it (no click needed). A click or a
-// tap opens it too, for touch screens, and the keyboard reaches it with Enter, Space or the down arrow.
+// "AI engine" in the top bar: the challenge's four inputs, and beside the one the pointer rests on (or that a tap
+// chose), the parts of the engine behind it. Text holds the claim-checking tools and the examples; sound, images and
+// video each hold a page that reads a file and one that says which models do it and what they have been shown to do.
 
-export const TOOLS: { to: string; label: MessageKey }[] = [
+export type Medium = "text" | "audio" | "image" | "video";
+type Item = { to: string; label: MessageKey };
+
+export const TOOLS: Item[] = [
   { to: "/analyze", label: "nav.analyze" },
   { to: "/heal", label: "nav.heal" },
   { to: "/fool", label: "nav.fool" },
   { to: "/agent", label: "nav.agent" },
   { to: "/audit", label: "nav.audit" },
   { to: "/model", label: "nav.model" },
+  { to: "/examples", label: "nav.examples" },
 ];
 
-const CLOSE_DELAY = 180;
+const ICONS: Record<Medium, ReactNode> = {
+  text: <path d="M5 6h14M5 10h14M5 14h9M5 18h6" />,
+  audio: <path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3" />,
+  image: <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2zM4 16l5-5 4 4 2-2 5 5M15 9h.01" />,
+  video: <path d="M4 7a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2zM16 10l4-2.5v9L16 14" />,
+};
+
+export const SECTIONS: { medium: Medium; label: MessageKey; items: Item[] }[] = [
+  { medium: "text", label: "nav.text", items: TOOLS },
+  { medium: "audio", label: "nav.audio", items: [{ to: "/audio", label: "nav.audioRead" }, { to: "/audio/models", label: "nav.models" }] },
+  { medium: "image", label: "nav.image", items: [{ to: "/image", label: "nav.imageRead" }, { to: "/image/models", label: "nav.models" }] },
+  { medium: "video", label: "nav.video", items: [{ to: "/video", label: "nav.videoRead" }, { to: "/video/models", label: "nav.models" }] },
+];
+
+/** On a phone a top-bar menu opens across the screen just under the bar (the header's blur makes it the frame that a
+ *  fixed element is placed in), rather than from its label, where it could reach past the screen's edge. */
+export const NARROW = "max-sm:fixed max-sm:inset-x-3 max-sm:top-full";
+
+export function MediumIcon({ medium, size = 16 }: { medium: Medium; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {ICONS[medium]}
+    </svg>
+  );
+}
 
 export function EngineMenu({ className }: { className: string }) {
   const { t } = useI18n();
   const { path } = useRouter();
-  const [open, setOpen] = useState(false);
-  const root = useRef<HTMLDivElement>(null);
-  const timer = useRef(0);
-  // Opened by a click or tap rather than by resting the pointer: then leaving with the pointer does not close it.
-  const pinned = useRef(false);
+  const menu = useHoverMenu();
   const listId = useId();
-  const current = TOOLS.some((tool) => path.startsWith(tool.to));
-
-  const show = () => {
-    window.clearTimeout(timer.current);
-    setOpen(true);
-  };
-  // A short delay lets the pointer cross the gap between the label and the list.
-  const hide = () => {
-    window.clearTimeout(timer.current);
-    if (!pinned.current) timer.current = window.setTimeout(() => setOpen(false), CLOSE_DELAY);
-  };
-  const close = () => {
-    pinned.current = false;
-    setOpen(false);
-  };
-  // The pointer has usually opened the list on its way to a click, so a click keeps it open; a second click closes it.
-  const toggle = () => {
-    window.clearTimeout(timer.current);
-    if (open && pinned.current) close();
-    else {
-      pinned.current = true;
-      setOpen(true);
-    }
-  };
-
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-  useEffect(close, [path]);
+  const here = SECTIONS.find((s) => s.items.some((item) => item.to === path));
+  const [chosen, setChosen] = useState<Medium | null>(null);
+  // Each opening starts on the input of the page shown, or on text.
   useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (!root.current?.contains(e.target as Node)) close();
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        close();
-        root.current?.querySelector<HTMLButtonElement>("button")?.focus();
-      }
-    };
-    window.addEventListener("pointerdown", onDown);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const moveFocus = (e: React.KeyboardEvent) => {
-    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-    e.preventDefault();
-    const items = [...(root.current?.querySelectorAll<HTMLAnchorElement>("[role=menuitem]") ?? [])];
-    const at = items.indexOf(document.activeElement as HTMLAnchorElement);
-    items[(at + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus();
-  };
+    if (!menu.open) setChosen(null);
+  }, [menu.open]);
+  const shown = SECTIONS.find((s) => s.medium === (chosen ?? here?.medium ?? "text"))!;
 
   return (
-    <div ref={root} className="relative" onPointerEnter={(e) => e.pointerType === "mouse" && show()} onPointerLeave={(e) => e.pointerType === "mouse" && hide()} onKeyDown={moveFocus}>
+    <div
+      ref={menu.root}
+      className="relative"
+      {...menu.hover}
+      onKeyDown={(e) => moveFocus(e, menu.root.current)}
+    >
       <button
         type="button"
-        className={`${className} inline-flex items-center gap-1.5 ${current ? "bg-beam-400/12 text-beam-300" : open ? "text-fog-100" : "text-fog-300 hover:text-fog-100"}`}
+        className={`${className} nav-glow inline-flex items-center gap-1.5 ${here ? "bg-beam-400/12 text-beam-300" : menu.open ? "text-fog-100" : "text-fog-300 hover:text-fog-100"}`}
         aria-haspopup="menu"
-        aria-expanded={open}
+        aria-expanded={menu.open}
         aria-controls={listId}
-        onClick={toggle}
+        onClick={menu.toggle}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
             e.preventDefault();
-            pinned.current = true;
-            setOpen(true);
-            window.setTimeout(() => root.current?.querySelector<HTMLAnchorElement>("[role=menuitem]")?.focus());
+            menu.pin();
+            window.setTimeout(() => menu.root.current?.querySelector<HTMLElement>("[role=menuitem]")?.focus());
           }
         }}
       >
         {t("nav.engine")}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={`transition-transform ${open ? "rotate-180" : ""}`}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={`transition-transform ${menu.open ? "rotate-180" : ""}`}>
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      {open && (
-        <div id={listId} role="menu" aria-label={t("nav.engine")} className="absolute start-0 top-full z-50 pt-2">
-          <div className="flex min-w-[220px] flex-col gap-0.5 rounded-2xl border border-hair bg-ink-850 p-1.5 font-sans shadow-[0_18px_44px_-16px_rgba(44,58,52,.35)]">
-            {TOOLS.map((tool) => {
-              const active = path.startsWith(tool.to);
-              return (
-                <Link
-                  key={tool.to}
-                  to={tool.to}
-                  role="menuitem"
-                  aria-current={active ? "page" : undefined}
-                  className={`flex min-h-10 items-center rounded-xl px-3 text-sm no-underline ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-200 hover:bg-ink-700"}`}
-                  onClick={close}
-                >
-                  {t(tool.label)}
-                </Link>
-              );
-            })}
+      {menu.open && (
+        <div ref={menu.list} id={listId} role="menu" aria-label={t("nav.engine")} className={`${NARROW} absolute start-0 top-full z-50 pt-2`} style={{ translate: `${menu.shift}px` }}>
+          {/* The four inputs on one side, the chosen input's parts on the other, so nothing opens off the screen. */}
+          <div className="flex w-[min(470px,calc(100vw-24px))] max-sm:w-full rounded-2xl border border-hair bg-ink-850 p-1.5 font-sans shadow-[0_18px_44px_-16px_rgba(44,58,52,.35)]">
+            <div className="flex w-[40%] shrink-0 flex-col gap-0.5 border-e border-hair pe-1.5">
+              {SECTIONS.map((section) => {
+                const active = section.medium === shown.medium;
+                return (
+                  <button
+                    key={section.medium}
+                    type="button"
+                    role="menuitem"
+                    aria-haspopup="menu"
+                    aria-expanded={active}
+                    onPointerEnter={() => setChosen(section.medium)}
+                    onFocus={() => setChosen(section.medium)}
+                    onClick={() => setChosen(section.medium)}
+                    className={`nav-glow flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-start text-sm ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-200"}`}
+                  >
+                    <MediumIcon medium={section.medium} />
+                    <span className="flex-1">{t(section.label)}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={`rtl:-scale-x-100 ${active ? "opacity-90" : "opacity-40"}`}>
+                      <path d="M9 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                );
+              })}
+            </div>
+            <div role="group" aria-label={t(shown.label)} className="flex min-w-0 flex-1 flex-col gap-0.5 ps-1.5">
+              {shown.items.map((item) => {
+                const active = path === item.to;
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    role="menuitem"
+                    aria-current={active ? "page" : undefined}
+                    className={`nav-glow flex min-h-10 items-center rounded-xl px-3 text-sm no-underline ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-200"}`}
+                    onClick={menu.close}
+                  >
+                    {t(item.label)}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

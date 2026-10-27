@@ -62,9 +62,13 @@ uv run --offline python -m truth_guardian.web
 ```
 
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
-been downloaded once) and only answers on localhost. The top bar has Home, **AI engine** (rest the pointer on it for the
-tools: Analyze, Heal, Fool the Guardian, Agent guardian, Audit and Model card), About, Team and Contact us. The **Examples** button in the top bar opens six written answers, each showing one check, and the **Tour** button walks through every tool in about three minutes (`?tour=play` runs it hands-free), the size
-button enlarges everything for a projector, and sources can be added from PDF, Word, HTML, Markdown or text files.
+been downloaded once) and only answers on localhost. The top bar has Home, **AI engine**, About, Team and Contact us.
+Resting the pointer on AI engine lists the challenge's four inputs, and on each the parts behind it (D-127): under
+Text the tools (Analyze, Heal, Fool the Guardian, Agent guardian, Audit, Model card) and Examples, six written answers
+each showing one check; under Audio, Image and Video a page that reads a file and one that names the models doing it
+and what they have been shown to do. **Tour** lists one tour per input: the text tour walks through every tool in about
+three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
+from PDF, Word, HTML, Markdown or text files.
 The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe at the end of the top bar,
 or `?lang=fa`); Persian and Arabic pages read right to left. The checks themselves work on English answers and sources.
 The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.

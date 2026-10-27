@@ -2,7 +2,7 @@
 
 Before judging: double-click `TruthGuardian.bat` at least two minutes early, wait for the
 dot in the top bar to turn green (its tooltip reads "models ready"), and switch Wi-Fi off. Every example below opens instantly from the cache.
-The tools are under **AI engine** in the top bar (rest the pointer on it); Home goes back to the first page.
+The tools are under **AI engine** in the top bar (rest the pointer on it, then on Text); Home goes back to the first page.
 
 | Time | Page | What to do | What to say |
 |---|---|---|---|
@@ -20,12 +20,14 @@ docs/DECISIONS.md), why the risk can be trusted as a probability (calibration er
 0.23 on HaluEval, whose thresholds come from RAGTruth), why the test number is trustworthy (opened once at the end with
 the final model, every run logged in eval/locked_runs.log), what happens on a new domain (domain profiles), and what the team built versus AI tools (docs/AI_USAGE.md).
 
-## Tour, presentation size and the demo video
+## Tour and the demo video
 
-- **Tour** (the play button in the top bar): eleven steps through every tool on ready-made
-  examples. Hand it to a judge who wants to explore alone; arrow keys move, Esc leaves.
-- **Size** button (100, 125, 150%): use 125% on a projector.
+- **Tour** in the top bar (rest the pointer on it), then **Text tour**: eleven steps through every tool on ready-made
+  examples. Hand it to a judge who wants to explore alone; arrow keys move, Esc leaves. The audio, image and video
+  tours are listed as coming.
+- **On a projector**: enlarge with the browser's own zoom (Ctrl and +); the app's size button was removed (D-127).
 - **Demo video**: open `http://127.0.0.1:8765/?tour=play` (or press Autoplay in the tour) and record the screen, for
   example with the Windows Game Bar (Win + Alt + R) or OBS. The tour advances by itself, about two minutes in all;
-  record at 125% so the text is readable in the video, then add the voice-over from the table above.
+  record with the browser zoomed to 125% so the text is readable in the video, then add the voice-over from the table
+  above.
 

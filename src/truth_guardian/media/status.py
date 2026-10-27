@@ -56,6 +56,6 @@ def status() -> list[dict]:
             "name": name, "role": role, "model": model,
             "files_present": files_present(folders), "runtime_ready": runtime,
             "run_tested": bool(ran.get("passed")), "quality_evaluated": bool(evaluation.get(name)),
-            "pilot": {k: ran[k] for k in ("seconds", "peak_mb", "checks", "passed_checks") if k in ran} or None,
+            "pilot": {k: ran[k] for k in ("seconds", "peak_mb", "server_peak_mb", "checks", "passed_checks") if k in ran} or None,
         })
     return rows

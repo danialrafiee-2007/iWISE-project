@@ -53,7 +53,7 @@ def main() -> None:
         check("models load and warm up", health["state"] == "ready", f"{time.perf_counter() - started:.0f} s")
         if health["state"] != "ready":
             sys.exit(1)
-        for page in ["/", "/analyze", "/heal", "/fool", "/agent", "/audit", "/model", "/layers/glass-halo.html", "/layers/signal-array.html"]:
+        for page in ["/", "/analyze", "/heal", "/fool", "/agent", "/audit", "/model", "/examples", "/audio", "/image/models", "/layers/glass-halo.html", "/layers/signal-array.html"]:
             check(f"GET {page}", client.get(page).status_code == 200)
 
         t = time.perf_counter()

@@ -1,10 +1,8 @@
-import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
-import { pct } from "../lib/format";
+import { useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useI18n, type MessageKey } from "../i18n";
 import { EngineMenu } from "./EngineMenu";
-import { ExamplesMenu } from "./ExamplesMenu";
 import { LanguageMenu } from "./LanguageMenu";
-import { TourButton } from "./Tour";
+import { TourMenu } from "./Tour";
 import { Link, useRouter } from "../lib/router";
 import { useWorkspace } from "../lib/workspace";
 
@@ -16,11 +14,31 @@ const PAGES: { to: string; label: MessageKey }[] = [
 ];
 const LINK = "whitespace-nowrap rounded-full px-3 py-2 font-sans text-[13px] font-medium uppercase tracking-[0.14em] no-underline transition-colors";
 
-export function ShieldMark({ size = 26 }: { size?: number }) {
+const SHIELD = "M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z";
+const CHECK = "M8.5 12l2.5 2.5 4.5-5";
+
+/** The shield, drawn solid and in depth: a darker copy below and to the side as its edge, a lit face with a bright
+ *  rim, and a raised check mark. It turns a little toward the pointer (styles.css, .brand). */
+export function ShieldMark({ size = 36 }: { size?: number }) {
+  const id = useId();
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="var(--color-beam-400)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" />
-      <path d="M8.5 12l2.5 2.5 4.5-5" />
+    <svg width={size} height={size} viewBox="3 1.5 19 21.5" className="shield-3d shrink-0" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}-face`} x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stopColor="#9dffc4" />
+          <stop offset="0.45" stopColor="#2fb36a" />
+          <stop offset="1" stopColor="#0f5a34" />
+        </linearGradient>
+        <linearGradient id={`${id}-edge`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#145c37" />
+          <stop offset="1" stopColor="#06301b" />
+        </linearGradient>
+      </defs>
+      <path d={SHIELD} fill={`url(#${id}-edge)`} transform="translate(0.9 1.1)" />
+      <path d={SHIELD} fill={`url(#${id}-face)`} stroke="#d9ffe9" strokeOpacity="0.7" strokeWidth="0.7" strokeLinejoin="round" />
+      <path d="M12 4.6l5.6 2.4" stroke="#ffffff" strokeOpacity="0.75" strokeWidth="0.9" strokeLinecap="round" />
+      <path d={CHECK} fill="none" stroke="#06301b" strokeOpacity="0.55" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" transform="translate(0.35 0.5)" />
+      <path d={CHECK} fill="none" stroke="#f3fff8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -34,7 +52,7 @@ function EngineStatus() {
     color = "var(--color-bad)";
     text = t("engine.unreachable");
   } else if (health?.state === "ready") {
-    color = "var(--color-ok)";
+    color = "var(--neon)";
     text = t("engine.ready");
   } else if (health?.state === "failed") {
     color = "var(--color-bad)";
@@ -44,28 +62,13 @@ function EngineStatus() {
   }
   return (
     <span className="flex items-center gap-2 whitespace-nowrap font-mono text-xs text-fog-400" role="status" aria-live="polite" title={text}>
-      <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} aria-hidden="true" />
+      {/* Lit like a lamp: the models' state glows in its colour, phosphor green when they are ready. */}
+      <span className={`status-lamp h-3.5 w-3.5 rounded-full ${health?.state === "ready" && !offline ? "status-lamp-ready" : ""}`} style={{ background: color, color }} aria-hidden="true" />
       {/* The dot's tooltip and screen readers carry the words: the bar is no wider on wide screens, so it has no room. */}
       <span key={text} className="sr-only">
         {text}
       </span>
     </span>
-  );
-}
-
-const ZOOMS = [1, 1.25, 1.5];
-
-function ZoomButton() {
-  const { zoom, setZoom } = useWorkspace();
-  const { t } = useI18n();
-  const next = ZOOMS[(ZOOMS.indexOf(zoom) + 1) % ZOOMS.length] ?? 1;
-  return (
-    <button type="button" className="chip hidden whitespace-nowrap sm:inline-flex" onClick={() => setZoom(next)} aria-label={t("zoom.label", { now: pct(zoom), next: pct(next) })} title={t("zoom.title")}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-        <path d="M3 18L8 6l5 12M5 14h6M15 18l3-7 3 7M16 16h4" />
-      </svg>
-      <span key={zoom}>{pct(zoom)}</span>
-    </button>
   );
 }
 
@@ -108,21 +111,23 @@ export function Shell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-hair bg-ink-950/95 backdrop-blur-md">
         {/* One row when it fits: name at the start, the tools in the middle, the controls at the end (mirrored right to left). */}
         <div ref={bar} className={`mx-auto flex max-w-[1320px] items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-8 ${inline ? "flex-nowrap" : "flex-wrap"}`}>
-          <Link to="/" className="flex shrink-0 items-center gap-2.5 text-fog-100 no-underline">
+          <Link to="/" className="brand relative isolate flex shrink-0 items-center gap-2.5 text-fog-100 no-underline">
+            {/* A phosphor-green light that glows on and on from under the name and its shield. */}
+            <span className="brand-glow" aria-hidden="true" />
             <ShieldMark />
-            <span className="font-display text-[20px] font-medium tracking-tight" lang="en">
+            <span className="font-display text-[21px] font-medium tracking-tight" lang="en">
               Truth Guardian
             </span>
           </Link>
           <nav ref={nav} aria-label={t("nav.main")} className={`-mx-1 flex flex-wrap gap-0.5 ${inline ? "min-w-0 flex-1 justify-center" : "order-3 w-full"}`}>
-            <Link to="/" aria-current={path === "/" ? "page" : undefined} className={`${LINK} ${path === "/" ? "bg-beam-400/12 text-beam-300" : "text-fog-300 hover:text-fog-100"}`}>
+            <Link to="/" aria-current={path === "/" ? "page" : undefined} className={`${LINK} nav-glow ${path === "/" ? "bg-beam-400/12 text-beam-300" : "text-fog-300 hover:text-fog-100"}`}>
               {t("nav.home")}
             </Link>
             <EngineMenu className={LINK} />
             {PAGES.map((item) => {
               const active = path.startsWith(item.to);
               return (
-                <Link key={item.to} to={item.to} aria-current={active ? "page" : undefined} className={`${LINK} ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-300 hover:text-fog-100"}`}>
+                <Link key={item.to} to={item.to} aria-current={active ? "page" : undefined} className={`${LINK} nav-glow ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-300 hover:text-fog-100"}`}>
                   {t(item.label)}
                 </Link>
               );
@@ -130,9 +135,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <EngineStatus />
-            <ExamplesMenu />
-            <TourButton />
-            <ZoomButton />
+            <TourMenu />
             <LanguageMenu />
           </div>
         </div>

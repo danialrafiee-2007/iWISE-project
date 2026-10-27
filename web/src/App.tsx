@@ -4,7 +4,7 @@ import { useI18n } from "./i18n";
 import { TourProvider } from "./components/Tour";
 import { LoadError, lazyPage } from "./lib/lazyPage";
 import { Router, useRouter } from "./lib/router";
-import { useWorkspace, WorkspaceProvider } from "./lib/workspace";
+import { WorkspaceProvider } from "./lib/workspace";
 import { Analyze } from "./pages/Analyze";
 
 const Landing = lazyPage(() => import("./pages/Landing"));
@@ -16,6 +16,8 @@ const ModelCard = lazyPage(() => import("./pages/ModelCard"));
 const About = lazyPage(() => import("./pages/About"));
 const Team = lazyPage(() => import("./pages/Team"));
 const Contact = lazyPage(() => import("./pages/Contact"));
+const Examples = lazyPage(() => import("./pages/Examples"));
+const Media = lazyPage(() => import("./pages/Media"));
 
 const ROUTES: Record<string, ComponentType> = {
   "/": Landing,
@@ -25,6 +27,13 @@ const ROUTES: Record<string, ComponentType> = {
   "/agent": Agent,
   "/audit": Audit,
   "/model": ModelCard,
+  "/examples": Examples,
+  "/audio": Media,
+  "/audio/models": Media,
+  "/image": Media,
+  "/image/models": Media,
+  "/video": Media,
+  "/video/models": Media,
   "/about": About,
   "/team": Team,
   "/contact": Contact,
@@ -53,22 +62,14 @@ function Page() {
   );
 }
 
-/** Presentation sizes scale the whole app (not the tour card, which sits outside) for a projector. */
-function Zoomed({ children }: { children: React.ReactNode }) {
-  const { zoom } = useWorkspace();
-  return <div style={zoom === 1 ? undefined : { zoom }}>{children}</div>;
-}
-
 export function App() {
   return (
     <Router>
       <WorkspaceProvider>
         <TourProvider>
-          <Zoomed>
-            <Shell>
-              <Page />
-            </Shell>
-          </Zoomed>
+          <Shell>
+            <Page />
+          </Shell>
         </TourProvider>
       </WorkspaceProvider>
     </Router>

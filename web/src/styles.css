@@ -90,6 +90,9 @@
     margin: 0;
     min-height: 100dvh;
     background: var(--color-ink-950);
+    /* Nothing may scroll the page sideways, not even a menu that reaches past the edge for the moment it is placed
+       (clip, unlike hidden, leaves the sticky top bar working). */
+    overflow-x: clip;
   }
   h1,
   h2,
@@ -240,6 +243,78 @@
     border-color: var(--color-beam-400);
     color: var(--color-beam-300);
     background: color-mix(in oklab, var(--color-beam-400) 10%, transparent);
+  }
+
+  /* The top bar's phosphor green: links and menu items light up under the pointer, the models' lamp glows when they
+     are ready, and a light breathes from under the name and its shield. */
+  .nav-glow {
+    transition: background-color 180ms, box-shadow 180ms, color 180ms;
+  }
+  .nav-glow:hover:not(:disabled),
+  .nav-glow:focus-visible {
+    background-color: rgb(var(--neon-rgb) / 0.2);
+    box-shadow: 0 0 14px 1px rgb(var(--neon-rgb) / 0.55), inset 0 0 8px rgb(var(--neon-rgb) / 0.25);
+    color: var(--neon-ink);
+  }
+  .status-lamp {
+    box-shadow: 0 0 7px 1px currentColor;
+  }
+  .status-lamp-ready {
+    box-shadow: 0 0 0 3px rgb(var(--neon-rgb) / 0.22), 0 0 12px 3px rgb(var(--neon-rgb) / 0.85);
+    animation: lamp 2.4s ease-in-out infinite;
+  }
+  .brand-glow {
+    position: absolute;
+    z-index: -1;
+    inset-inline: -16px;
+    bottom: -12px;
+    height: 75%;
+    border-radius: 999px;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 55%, rgb(var(--neon-rgb) / 0.8), rgb(var(--neon-rgb) / 0.28) 45%, transparent 72%);
+    filter: blur(9px);
+    animation: brand-glow 3.2s ease-in-out infinite;
+  }
+  .shield-3d {
+    filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 6px rgb(var(--neon-rgb) / 0.45));
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .brand:hover .shield-3d {
+    transform: perspective(240px) rotateY(-22deg) rotateX(8deg) scale(1.06);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brand-glow,
+    .status-lamp-ready {
+      animation: none;
+    }
+  }
+}
+
+:root {
+  --neon: #39ff88;
+  --neon-rgb: 57 255 136;
+  --neon-ink: #0b4a2b;
+}
+
+@keyframes brand-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scaleX(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.05);
+  }
+}
+
+@keyframes lamp {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgb(var(--neon-rgb) / 0.18), 0 0 9px 2px rgb(var(--neon-rgb) / 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(var(--neon-rgb) / 0.3), 0 0 16px 5px rgb(var(--neon-rgb) / 0.95);
   }
 }
 
