@@ -67,6 +67,11 @@ export const BRAIN_VERTEX = /* glsl */ `
   uniform float uAspect;      // viewport width / height (circular halo)
   uniform float uCursorRadius;// NDC halo radius (shrinks as the brain gets far)
   uniform float uCursorStrength; // overall halo intensity multiplier
+  uniform float uSplit;       // Truth Guardian: 0 whole .. 1 opened into four parts
+  uniform float uSplitY;      // the height the upper and lower parts are cut at
+  uniform float uSplitDist;   // how far each part moves out
+  uniform float uPiece;       // the part under the pointer (0..3), kept while its light fades
+  uniform float uPieceLift;   // 0..1, eased: how lit that part is
   varying float vSeed;
   varying float vSynapse;
   varying float vHemi;
@@ -77,6 +82,8 @@ export const BRAIN_VERTEX = /* glsl */ `
   varying float vHighlight;
   varying float vFar;
   varying float vCursor;
+  varying float vHot;
+  varying float vCold;
   varying vec3 vWorldPos;
   void main() {
     vSeed = aSeed;
@@ -107,6 +114,17 @@ export const BRAIN_VERTEX = /* glsl */ `
     // Finale: blow the particles outward along a seeded radial direction.
     vec3 exDir = normalize(rad + vec3(sin(aSeed * 41.0), cos(aSeed * 57.0), sin(aSeed * 73.0)) * 0.45);
     p += exDir * uExplode * uExplodeDist;
+    // Truth Guardian: opened, the brain parts into four, left or right and upper or lower (0 upper left, 1 upper
+    // right, 2 lower left, 3 lower right), each moving out from the centre and a little toward the viewer; the part
+    // under the pointer moves further and lights up, the others dim.
+    float right = step(0.0, position.x);
+    float upper = step(uSplitY, position.y);
+    float piece = (1.0 - upper) * 2.0 + right;
+    float mine = 1.0 - step(0.5, abs(piece - uPiece));
+    vec3 apart = normalize(vec3(right * 2.0 - 1.0, (upper * 2.0 - 1.0) * 0.85, 0.3));
+    p += apart * uSplit * uSplitDist * (1.0 + mine * uPieceLift * 0.6);
+    vHot = mine * uPieceLift * uSplit;
+    vCold = (1.0 - mine) * uPieceLift * uSplit;
     float period = mix(3.0, 9.0, aSeed);
     float firePhase = aSeed * period;
     float ft = mod(iTime + firePhase, period);
@@ -130,7 +148,7 @@ export const BRAIN_VERTEX = /* glsl */ `
     dMouse.x *= uAspect;
     vCursor = (1.0 - smoothstep(0.0, uCursorRadius, length(dMouse))) * uCursor;
     float baseSize = uSize * (iResolutionY / 720.0) * (200.0 / -mv.z);
-    gl_PointSize = baseSize * (1.0 + fire * 2.5 + vHighlight * 1.8 + vCursor * 1.3 * uCursorStrength);
+    gl_PointSize = baseSize * (1.0 + fire * 2.5 + vHighlight * 1.8 + vCursor * 1.3 * uCursorStrength + vHot * 0.5);
     vDepth = -mv.z;
   }
 `;
@@ -164,6 +182,8 @@ export const BRAIN_FRAGMENT = /* glsl */ `
   varying float vHighlight;
   varying float vFar;
   varying float vCursor;
+  varying float vHot;
+  varying float vCold;
   varying vec3 vWorldPos;
   void main() {
     vec2 p = gl_PointCoord - 0.5;
@@ -200,6 +220,10 @@ export const BRAIN_FRAGMENT = /* glsl */ `
     alphaOut += vCursor * core * 0.32 * uCursorStrength;
     // Finale: the brain blows up and thins out as it disperses.
     alphaOut *= 1.0 - smoothstep(0.0, 1.0, uExplode) * 0.8;
+    // Truth Guardian: the part under the pointer brightens, the other three dim.
+    col += uHighlightColor * vHot * 0.9;
+    col *= 1.0 - vCold * 0.55;
+    alphaOut *= 1.0 + vHot * 0.6 - vCold * 0.45;
     gl_FragColor = vec4(col * uGlow, alphaOut);
   }
 `;

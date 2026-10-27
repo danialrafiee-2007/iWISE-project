@@ -43,7 +43,7 @@ export function LanguageMenu() {
     <div ref={root} className="relative">
       <button
         type="button"
-        className="chip whitespace-nowrap"
+        className="chip nav-glow whitespace-nowrap"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={listId}
@@ -73,7 +73,7 @@ export function LanguageMenu() {
               role="menuitemradio"
               aria-checked={l.code === lang}
               lang={nameLang(l)}
-              className={`flex min-h-10 items-center justify-between gap-3 rounded-xl px-3 text-start text-sm ${l.code === lang ? "bg-beam-400/12 text-beam-300" : "text-fog-200 hover:bg-ink-700"}`}
+              className={`nav-glow flex min-h-10 items-center justify-between gap-3 rounded-xl px-3 text-start text-sm ${l.code === lang ? "bg-beam-400/12 text-beam-300" : "text-fog-200"}`}
               onClick={() => {
                 setLang(l.code);
                 setOpen(false);

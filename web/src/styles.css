@@ -245,15 +245,19 @@
     background: color-mix(in oklab, var(--color-beam-400) 10%, transparent);
   }
 
-  /* The top bar's phosphor green: links and menu items light up under the pointer, the models' lamp glows when they
-     are ready, and a light breathes from under the name and its shield. */
+  /* The top bar's phosphor green: every link, button and menu item under the pointer takes Home's darker tint and
+     throws a green light below and around it; the models' lamp glows when they are ready; a light breathes all
+     round the name, a sheen runs through its letters, and the shield turns once every three seconds. */
   .nav-glow {
-    transition: background-color 180ms, box-shadow 180ms, color 180ms;
+    transition: background-color 180ms, box-shadow 220ms, color 180ms;
   }
-  .nav-glow:hover:not(:disabled),
+  .nav-glow:hover:not(:disabled, [aria-disabled="true"]),
   .nav-glow:focus-visible {
-    background-color: rgb(var(--neon-rgb) / 0.2);
-    box-shadow: 0 0 14px 1px rgb(var(--neon-rgb) / 0.55), inset 0 0 8px rgb(var(--neon-rgb) / 0.25);
+    background-color: color-mix(in oklab, var(--color-beam-400) 14%, transparent);
+    box-shadow:
+      0 0 0 1px rgb(var(--neon-rgb) / 0.45),
+      0 8px 16px -4px rgb(var(--neon-rgb) / 0.9),
+      0 0 24px 3px rgb(var(--neon-rgb) / 0.45);
     color: var(--neon-ink);
   }
   .status-lamp {
@@ -263,27 +267,34 @@
     box-shadow: 0 0 0 3px rgb(var(--neon-rgb) / 0.22), 0 0 12px 3px rgb(var(--neon-rgb) / 0.85);
     animation: lamp 2.4s ease-in-out infinite;
   }
+  /* An aura on every side of the name and shield, breathing on an uneven beat so it never settles into a tick. */
   .brand-glow {
     position: absolute;
     z-index: -1;
-    inset-inline: -16px;
-    bottom: -12px;
-    height: 75%;
+    inset: -10px -18px;
     border-radius: 999px;
     pointer-events: none;
-    background: radial-gradient(ellipse at 50% 55%, rgb(var(--neon-rgb) / 0.8), rgb(var(--neon-rgb) / 0.28) 45%, transparent 72%);
-    filter: blur(9px);
-    animation: brand-glow 3.2s ease-in-out infinite;
+    background: radial-gradient(ellipse at 50% 50%, rgb(var(--neon-rgb) / 0.75), rgb(var(--neon-rgb) / 0.3) 48%, transparent 74%);
+    filter: blur(10px);
+    animation: brand-glow 4.2s ease-in-out infinite;
+  }
+  /* The letters themselves glow at their edges, and a band of light passes through them. */
+  .brand-name {
+    background: linear-gradient(100deg, var(--color-fog-100) 0 38%, #17b864 45%, #c8ffdf 50%, #17b864 55%, var(--color-fog-100) 62% 100%);
+    background-size: 260% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: brand-sheen 7s ease-in-out infinite, brand-letters 4.2s ease-in-out infinite;
   }
   .shield-3d {
-    filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 6px rgb(var(--neon-rgb) / 0.45));
-    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .brand:hover .shield-3d {
-    transform: perspective(240px) rotateY(-22deg) rotateX(8deg) scale(1.06);
+    filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 7px rgb(var(--neon-rgb) / 0.55));
+    animation: shield-turn 3s cubic-bezier(0.55, 0.05, 0.3, 1) infinite;
   }
   @media (prefers-reduced-motion: reduce) {
     .brand-glow,
+    .brand-name,
+    .shield-3d,
     .status-lamp-ready {
       animation: none;
     }
@@ -299,12 +310,59 @@
 @keyframes brand-glow {
   0%,
   100% {
-    opacity: 0.55;
-    transform: scaleX(0.92);
+    opacity: 0.35;
+    transform: scale(0.94);
   }
-  50% {
+  28% {
+    opacity: 0.95;
+    transform: scale(1.04);
+  }
+  42% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  58% {
     opacity: 1;
-    transform: scaleX(1.05);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes brand-letters {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 1px rgb(var(--neon-rgb) / 0.5)) drop-shadow(0 0 4px rgb(var(--neon-rgb) / 0.25));
+  }
+  28% {
+    filter: drop-shadow(0 0 2px rgb(var(--neon-rgb) / 0.95)) drop-shadow(0 0 10px rgb(var(--neon-rgb) / 0.7));
+  }
+  42% {
+    filter: drop-shadow(0 0 1px rgb(var(--neon-rgb) / 0.7)) drop-shadow(0 0 6px rgb(var(--neon-rgb) / 0.4));
+  }
+  58% {
+    filter: drop-shadow(0 0 3px rgb(var(--neon-rgb) / 1)) drop-shadow(0 0 14px rgb(var(--neon-rgb) / 0.8));
+  }
+}
+
+@keyframes brand-sheen {
+  0%,
+  35% {
+    background-position: 100% 0;
+  }
+  75%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* One full turn about the upright axis, then a rest, every three seconds. */
+@keyframes shield-turn {
+  0%,
+  55% {
+    transform: perspective(300px) rotateY(0deg);
+  }
+  90%,
+  100% {
+    transform: perspective(300px) rotateY(360deg);
   }
 }
 

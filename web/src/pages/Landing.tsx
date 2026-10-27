@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { BrainParts } from "../components/BrainParts";
 import InputPanel, { type InputKind } from "../components/InputPanels";
 import { formatNumber, useI18n, type MessageKey } from "../i18n";
 import { Ascent, type AscentRow } from "../layers/Ascent";
-import { NeuralBrain } from "../layers/brain/NeuralBrain";
 import { Heading } from "../layers/Heading";
 import { useWorkspace } from "../lib/workspace";
 
@@ -149,7 +149,8 @@ export default function Landing() {
         {roomForBrain && (
           <div className="absolute inset-y-0" style={stage}>
             {/* The camera holds still while the opening words are on screen, and flies through its story as the inputs scroll. */}
-            <NeuralBrain progress={howProgress} paused={busy} mirror={dir === "rtl"} />
+            {/* A click on it opens it into four parts, one per challenge input (BrainParts). */}
+            <BrainParts progress={howProgress} paused={busy} mirror={dir === "rtl"} />
           </div>
         )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,18,14,.86)_0%,rgba(9,18,14,.5)_45%,rgba(9,18,14,0)_75%)] rtl:bg-[linear-gradient(270deg,rgba(9,18,14,.86)_0%,rgba(9,18,14,.5)_45%,rgba(9,18,14,0)_75%)]" />

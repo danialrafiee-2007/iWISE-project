@@ -18,7 +18,7 @@ const SHIELD = "M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z";
 const CHECK = "M8.5 12l2.5 2.5 4.5-5";
 
 /** The shield, drawn solid and in depth: a darker copy below and to the side as its edge, a lit face with a bright
- *  rim, and a raised check mark. It turns a little toward the pointer (styles.css, .brand). */
+ *  rim, and a raised check mark. It turns once about its upright axis every three seconds (styles.css). */
 export function ShieldMark({ size = 36 }: { size?: number }) {
   const id = useId();
   return (
@@ -112,10 +112,10 @@ export function Shell({ children }: { children: ReactNode }) {
         {/* One row when it fits: name at the start, the tools in the middle, the controls at the end (mirrored right to left). */}
         <div ref={bar} className={`mx-auto flex max-w-[1320px] items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-8 ${inline ? "flex-nowrap" : "flex-wrap"}`}>
           <Link to="/" className="brand relative isolate flex shrink-0 items-center gap-2.5 text-fog-100 no-underline">
-            {/* A phosphor-green light that glows on and on from under the name and its shield. */}
+            {/* A phosphor-green light that glows on and on all round the name and its shield. */}
             <span className="brand-glow" aria-hidden="true" />
-            <ShieldMark />
-            <span className="font-display text-[21px] font-medium tracking-tight" lang="en">
+            <ShieldMark size={42} />
+            <span className="brand-name font-display text-[22px] font-medium tracking-tight" lang="en">
               Truth Guardian
             </span>
           </Link>

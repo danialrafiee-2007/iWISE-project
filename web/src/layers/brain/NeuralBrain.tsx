@@ -1,11 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { BRAIN_CONFIG } from "./config";
-import type { FromSceneWorker, SceneSize, ToSceneWorker } from "./lib/brain-scene.worker";
+import type { BrainLayout, FromSceneWorker, SceneSize, ToSceneWorker } from "./lib/brain-scene.worker";
+
+/** Where the brain stands on the screen, in CSS pixels from the window's top left: its centre and the centre of each
+ *  of its four parts (indexed as in the worker: 0 upper left, 1 upper right, 2 lower left, 3 lower right of the
+ *  unmirrored brain). */
+export interface BrainSpot {
+  x: number;
+  y: number;
+  pieces: { x: number; y: number }[];
+}
+
+const toScreen = (layout: BrainLayout, canvas: HTMLCanvasElement, mirror: boolean): BrainSpot => {
+  const box = canvas.getBoundingClientRect();
+  const at = ([x, y]: [number, number]) => ({ x: box.left + (((mirror ? -x : x) + 1) / 2) * box.width, y: box.top + ((1 - y) / 2) * box.height });
+  return { ...at(layout.centre), pieces: layout.pieces.map(at) };
+};
 
 // GetLayers "Neural Monitor" particle brain, from the template's worker path (BrainStage): the page keeps only a
 // <canvas>, whose control goes to brain-scene.worker.ts as an OffscreenCanvas; three.js, the model and the frame loop
 // live in the worker. Where a worker cannot draw, the template's still image is shown instead. `progress` (0..1) flies
 // the camera along the story keyframes; `paused` stops drawing; `mirror` says the page shows the canvas mirrored.
+// `open` parts the brain into four and `piece` lights one of them; `onSpot` hears where the brain and its parts stand.
 
 const sizeOf = (canvas: HTMLCanvasElement): SceneSize => ({
   width: Math.max(1, canvas.clientWidth),
@@ -15,9 +31,13 @@ const sizeOf = (canvas: HTMLCanvasElement): SceneSize => ({
 
 const supported = () => typeof OffscreenCanvas !== "undefined" && typeof Worker !== "undefined" && "transferControlToOffscreen" in HTMLCanvasElement.prototype;
 
-export function NeuralBrain({ progress, paused = false, mirror = false, className = "" }: { progress: number; paused?: boolean; mirror?: boolean; className?: string }) {
+export function NeuralBrain({ progress, paused = false, mirror = false, open = false, piece = -1, onSpot, className = "" }: {
+  progress: number; paused?: boolean; mirror?: boolean; open?: boolean; piece?: number; onSpot?: (spot: BrainSpot | null) => void; className?: string;
+}) {
   const boxRef = useRef<HTMLDivElement>(null);
   const mirrorRef = useRef(mirror);
+  const spotRef = useRef(onSpot);
+  spotRef.current = onSpot;
   const workerRef = useRef<Worker | null>(null);
   const [failed, setFailed] = useState(!supported());
   const [loaded, setLoaded] = useState(false);
@@ -36,6 +56,7 @@ export function NeuralBrain({ progress, paused = false, mirror = false, classNam
       worker.onmessage = (event: MessageEvent<FromSceneWorker>) => {
         if (event.data.type === "error") setFailed(true);
         if (event.data.type === "progress" && !event.data.active) setLoaded(true);
+        if (event.data.type === "layout") spotRef.current?.(event.data.layout && toScreen(event.data.layout, canvas, mirrorRef.current));
       };
       worker.onerror = () => setFailed(true);
       const size = sizeOf(canvas);
@@ -74,6 +95,14 @@ export function NeuralBrain({ progress, paused = false, mirror = false, classNam
   useEffect(() => {
     workerRef.current?.postMessage({ type: "story", progress } satisfies ToSceneWorker);
   }, [progress]);
+
+  useEffect(() => {
+    workerRef.current?.postMessage({ type: "split", open } satisfies ToSceneWorker);
+  }, [open]);
+
+  useEffect(() => {
+    workerRef.current?.postMessage({ type: "piece", index: piece } satisfies ToSceneWorker);
+  }, [piece]);
 
   useEffect(() => {
     const send = () => workerRef.current?.postMessage({ type: "visible", visible: !paused && !document.hidden } satisfies ToSceneWorker);
