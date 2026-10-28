@@ -5,6 +5,7 @@ Add a row every time an AI tool contributes to code, data, text or design. "Veri
 
 | Date | Tool / model | Used by | Purpose | Components affected | Verification by the team | Verified by |
 |---|---|---|---|---|---|---|
+| 2026-10-28 | Claude Code (Claude Opus 5.5) | | A reload on any page going to the home page, at its top (D-136) | `web/src/lib/homeOnReload.ts`, `web/src/main.tsx`, `web/src/lib/lazyPage.tsx` | Reloads from two pages, a direct link, Back after a click and the site's own reload checked in the browser; smoke test | |
 | 2026-10-28 | Claude Code (Claude Opus 5.5) | | The media readers joined to the claim check: a file's evidence for the check, the answer box in the media panels, and each claim's place in the file (D-135) | `src/truth_guardian/media/evidence.py`, `src/truth_guardian/web/app.py`, `tests/test_media.py`, `web/src/components/InputPanels.tsx`, `web/src/i18n/` | Three new tests; an image, a recording and a Persian image checked in the browser; the engine's miss of a near number found and recorded, not changed; full suite and smoke test | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | A soft sheen passing over hovered boxes (D-134) | `web/src/styles.css` | Hover checked in the browser | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | Boxes that rise and grow softly under the pointer and press in on a click (D-133) | `web/src/styles.css` | Hover checked in the browser | |

@@ -1,5 +1,6 @@
 import { Component, lazy, type ComponentType, type ReactNode } from "react";
 import { t } from "../i18n";
+import { reloadHere } from "./homeOnReload";
 
 const RELOADED = "tg-reloaded-for-new-build";
 
@@ -24,7 +25,7 @@ export function lazyPage<P extends object>(load: () => Promise<{ default: Compon
           first = false;
         }
         if (first) {
-          window.location.reload();
+          reloadHere();
           return new Promise<never>(() => {});
         }
         throw error;
@@ -47,7 +48,7 @@ export class LoadError extends Component<{ children: ReactNode }, { failed: bool
       <div role="alert" className="mx-auto flex max-w-xl flex-col items-center gap-4 px-6 py-24 text-center">
         <h1 className="m-0 text-2xl font-normal">{t("app.loadError")}</h1>
         <p className="m-0 text-fog-300">{t("app.loadErrorBody")}</p>
-        <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
+        <button type="button" className="btn btn-primary" onClick={reloadHere}>
           {t("app.reload")}
         </button>
       </div>
