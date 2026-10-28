@@ -1,3 +1,4 @@
+import { languageName, t } from "../i18n";
 import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report } from "./types";
 
 export class ApiError extends Error {
@@ -15,10 +16,20 @@ export type StreamEvent =
   | { type: "error"; message: string }
   | ({ type: "result" } & Record<string, unknown>);
 
+/** The server's refusal of an answer no check reads (engine.NotChecked), said in the interface's language. */
+function notChecked(detail: { code: string; language: string | null; sources: (string | null)[] }): string {
+  if (detail.code === "not_installed") return t("check.notInstalled");
+  if (detail.code === "unknown_language") return t("check.unknownLanguage");
+  const checked = ["en", "ar", "es", "fr", "ru", "zh"];
+  const outside = [detail.language, ...detail.sources].find((code) => code && !checked.includes(code)) ?? detail.language;
+  return t("check.notChecked", { language: outside ? languageName(outside) : "?" });
+}
+
 async function detail(response: Response): Promise<string> {
   try {
     const body = await response.json();
     if (typeof body.detail === "string") return body.detail;
+    if (body.detail && typeof body.detail.code === "string") return notChecked(body.detail);
     if (Array.isArray(body.detail)) return body.detail.map((d: { loc?: string[]; msg: string }) => `${(d.loc ?? []).slice(1).join(".")}: ${d.msg}`).join("; ");
   } catch {
     /* not JSON */
@@ -72,6 +83,7 @@ export function checkBody(input: CheckInput) {
     answer: input.answer,
     task: input.task,
     profile: input.profile || null,
+    ...(input.language ? { language: input.language } : {}),
   };
 }
 

@@ -65,6 +65,8 @@ export interface Report {
   cited_answer: string | null;
   warnings: string[];
   model_version: string | null;
+  /** Which check read the answer, and the languages told (language.py); absent in reports cached before D-138. */
+  language?: { check: "english" | "multilingual"; answer: string | null; sources: (string | null)[]; guessed: boolean; measured: boolean } | null;
 }
 
 export interface Step {
@@ -171,4 +173,6 @@ export interface CheckInput {
   task: Task;
   profile?: string | null;
   exampleId?: string | null;
+  /** The language a media reader found in the sources, for texts too short to tell. */
+  language?: string | null;
 }

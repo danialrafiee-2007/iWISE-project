@@ -1,11 +1,12 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useI18n, type MessageKey } from "../i18n";
+import { languageName, useI18n, type MessageKey } from "../i18n";
 import { api, ApiError, checkBody, postJson } from "../lib/api";
 import { num, pct, STAGES, STATUS, VERDICT } from "../lib/format";
 import { useRouter } from "../lib/router";
 import type { CheckInput, Claim, Report } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
+import { languageLines } from "./report/Panels";
 
 // The landing page's challenge inputs, opened in place: a chat-like box to write or attach the input and send it, and
 // the guardian's answer above it. Text goes to the claim check (/api/analyze); an image, a recording or a video goes
@@ -190,6 +191,9 @@ function ReportSummary({ report, seconds, place, onClaim, children }: {
         <span className="font-mono text-sm text-fog-300">{t("inputs.risk", { v: pct(report.risk) })}</span>
         <span className="font-mono text-xs text-fog-400">{t("common.seconds", { s: num(seconds, 1) })}</span>
       </div>
+      {languageLines(report).map((line) => (
+        <p key={line} className="m-0 text-sm text-[#fde68a]">{line}</p>
+      ))}
       {report.diagnosis && report.diagnosis.blame !== "none" && <p className="m-0 text-sm text-fog-300">{report.diagnosis.message}</p>}
       {flagged.length === 0 && <p className="m-0 text-sm text-fog-300">{t("inputs.allSupported")}</p>}
       {shown.length > 0 && (
@@ -452,8 +456,8 @@ interface Media {
 }
 
 /** Reads a file, and with an AI's answer checks it against the words read. The same file, language and question are
- *  not read again, so a changed answer is checked straight away. A file in another language, or one whose language
- *  could not be told, is not checked unless the person asks (`anyway`), and the result then says so. */
+ *  not read again, so a changed answer is checked straight away. A file in a language no check reads gets no verdict;
+ *  one whose language could not be told is checked only if the person asks (`anyway`), and the result then says so. */
 function useMediaCheck() {
   const reader = useReader();
   const check = useStream<{ report: Report; seconds: number }>();
@@ -464,7 +468,8 @@ function useMediaCheck() {
 
   const verify = (found: MediaEvidence, name: string, answer: string, question: string, force: boolean) => {
     setForced(force && !found.checkable);
-    check.run("/api/analyze", checkBody({ question, answer, sources: found.parts, sourceNames: found.parts.map(() => name), task: "qa", profile: null, exampleId: null }));
+    // The reader's language decides when the words are too few to tell (a sign, a short recording).
+    check.run("/api/analyze", checkBody({ question, answer, sources: found.parts, sourceNames: found.parts.map(() => name), task: "qa", profile: null, exampleId: null, language: found.language }));
   };
   const run = async (media: Media, question: string, answer: string) => {
     // A recording is read without the question (only the image model is asked one), so the question does not count.
@@ -523,11 +528,11 @@ function MediaVerdict({ media, onSeek, onLight }: { media: ReturnType<typeof use
     );
   };
   if (!found.checkable && !check.running && !check.result) {
-    const language = found.language ? NAME[found.language] ?? found.language : "";
+    const language = found.language ? languageName(found.language) : "";
     return (
       <div className="flex flex-col items-start gap-2 rounded-xl border border-[#fbbf24]/30 bg-[#fbbf24]/[0.08] p-3 text-sm text-[#fde68a]">
-        <p className="m-0">{found.why_not === "empty" ? t("inputs.nothingRead") : found.why_not === "language" ? t("inputs.notEnglish", { language }) : t("inputs.noLanguage")}</p>
-        {found.why_not !== "empty" && (
+        <p className="m-0">{found.why_not === "empty" ? t("inputs.nothingRead") : found.why_not === "language" ? t("inputs.notChecked", { language }) : t("inputs.noLanguage")}</p>
+        {found.why_not === "unknown_language" && (
           <button type="button" className={SMALL} onClick={media.anyway}>
             {t("inputs.checkAnyway")}
           </button>

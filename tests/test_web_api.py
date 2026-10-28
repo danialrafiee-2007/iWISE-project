@@ -28,7 +28,10 @@ class FakeEngine:
     def info(self):
         return {"state": self.state, "model_version": self.version}
 
-    def analyze(self, sample, profile=None, policy="strict", progress=None, cancelled=None):
+    route = Engine.route  # the real language routing, with the multilingual check counted as installed
+    multilingual = object()
+
+    def analyze(self, sample, profile=None, policy="strict", progress=None, cancelled=None, hint=None):
         self.calls.append((sample, profile, policy))
         for stage in ("lexical", "score", "verdict"):
             (progress or (lambda s: None))(stage)
@@ -75,6 +78,16 @@ def test_analyze_streams_stages_then_the_report(client):
     assert found[-1]["report"]["verdict"] == "hallucinated"
     sample = client.engine.calls[-1][0]
     assert sample.meta.task == "qa" and sample.documents[0].text == "She died in 1945."
+
+
+def test_an_answer_no_check_reads_is_refused_before_the_stream_with_a_code_the_page_translates(client):
+    persian = {"sources": ["این موزه در سال ۱۳۲۹ باز شد و قدیمی‌ترین ساختمان شهر است."], "answer": "این موزه در سال ۱۳۳۰ باز شد و قدیمی‌ترین ساختمان شهر است."}
+    refused = client.post("/api/analyze", json=persian)
+    assert refused.status_code == 422 and refused.json()["detail"] == {"code": "language", "language": "fa", "sources": ["fa"]}
+    assert client.post("/api/heal", json=persian).status_code == 422
+    spanish = {"sources": ["El museo se abrió en 1950 y es el edificio más antiguo de la ciudad."], "answer": "El museo se abrió en 2022 y es el más antiguo de la ciudad."}
+    assert events(client.post("/api/analyze", json=spanish))[-1]["type"] == "result"
+    assert client.post("/api/analyze", json={"sources": ["1950"], "answer": "1950", "language": "fa"}).json()["detail"]["code"] == "language"
 
 
 def test_inputs_are_validated(client):

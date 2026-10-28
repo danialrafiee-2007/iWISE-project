@@ -31,6 +31,7 @@ def main() -> None:
     parser.add_argument("--dev", type=Path, default=ROOT / "data/processed/ragtruth_dev.jsonl")
     parser.add_argument("--no-structure", action="store_true", help="drop position, length and count features")
     parser.add_argument("--no-save", action="store_true")
+    parser.add_argument("--out", type=Path, default=MODELS, help="model folder (the multilingual check saves to models/fusion-multilingual)")
     args = parser.parse_args()
 
     train_rows = load_rows(args.signals, args.train, FEATURES)
@@ -78,7 +79,7 @@ def main() -> None:
         "thresholds": model.thresholds,
         "dev": {"data": args.dev.name, "n": len(dev), "auroc": r["auroc"], "f1": r["f1"], "ece": r["ece"], "span_f1": dev_report["span"]["f1"]},
     }
-    folder = fusion.save(model, MODELS, manifest)
+    folder = fusion.save(model, args.out.resolve(), manifest)
     print(f"  saved model -> {folder.relative_to(ROOT).as_posix()}")
 
 

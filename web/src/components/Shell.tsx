@@ -114,7 +114,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
         {lang !== "en" && (
           <p className="m-0 border-t border-hair px-4 py-1.5 text-center text-xs text-fog-400 sm:px-8" role="note">
-            {t("lang.englishOnly")}
+            {t("lang.checkedLanguages")}
           </p>
         )}
       </header>

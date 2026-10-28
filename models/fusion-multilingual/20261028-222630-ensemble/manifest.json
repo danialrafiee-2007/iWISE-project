@@ -1,0 +1,34 @@
+{
+  "version": "20261028-222630-ensemble",
+  "name": "fusion-ensemble-multilingual-nostructure",
+  "created": "2026-10-28T22:26:30+00:00",
+  "commit": "8b78698-dirty",
+  "kind": "ensemble",
+  "structure": false,
+  "signals": {
+    "multilingual": "v1:multilingual-e5-small:mdeberta-v3-base-mnli-xnli:units40:premise2"
+  },
+  "train": {
+    "data": "multilingual_train.jsonl",
+    "oof_sentence_auroc": 0.7858780766882889,
+    "oof_response_auroc": 0.870703851614016,
+    "samples": 4427,
+    "groups": 1275,
+    "sentences": 21036,
+    "excluded_quality": 9
+  },
+  "folds": 5,
+  "thresholds": {
+    "response": 0.513104492672243,
+    "sentence": 0.3712230382575703
+  },
+  "dev": {
+    "data": "multilingual_dev.jsonl",
+    "n": 1628,
+    "auroc": 0.8452230735938652,
+    "f1": 0.7951553449183781,
+    "ece": 0.06480452155201746,
+    "span_f1": 0.34126184167229523
+  },
+  "model_sha256": "7136db615df5613977dd3c3d8b65a64f945c60f1b7fa1161c259f60a3b971af4"
+}

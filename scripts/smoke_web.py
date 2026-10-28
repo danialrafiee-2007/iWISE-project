@@ -61,6 +61,15 @@ def main() -> None:
         fixes = [f["replacement"] for c in r.get("report", {}).get("claims", []) for f in c["fixes"]]
         check("analyze catches a wrong year and fixes it", r["type"] == "result" and r["report"]["verdict"] != "grounded" and "1945" in fixes, f"{time.perf_counter() - t:.1f} s")
 
+        if health.get("multilingual_version"):
+            t = time.perf_counter()
+            spanish = {"question": "¿Cuándo murió Ana Frank?", "sources": ["Ana Frank murió de tifus en febrero de 1945 en Bergen-Belsen."], "answer": "Ana Frank murió en 1950 en Bergen-Belsen.", "task": "qa"}
+            r = result(client.post("/api/analyze", json=spanish))
+            language = r.get("report", {}).get("language") or {}
+            check("a Spanish answer goes to the multilingual check", r["type"] == "result" and language.get("check") == "multilingual" and language.get("answer") == "es", f"{time.perf_counter() - t:.1f} s")
+        persian = client.post("/api/analyze", json={"sources": ["آنه فرانک در سال ۱۹۴۵ درگذشت و دفتر خاطراتش منتشر شد."], "answer": "آنه فرانک در سال ۱۹۴۶ درگذشت و دفتر خاطراتش منتشر شد."})
+        check("a Persian answer is refused with its language", persian.status_code == 422 and persian.json()["detail"].get("language") == "fa")
+
         r = result(client.post("/api/analyze", json={"example_id": "anne-frank"}))
         check("a ready-made example is served from the cache", r["type"] == "result" and r["cached"])
 

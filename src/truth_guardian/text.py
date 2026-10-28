@@ -8,6 +8,8 @@ import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 
 _LINE = re.compile(r"[^\n]+")
+# Chinese and Japanese end sentences with full-width marks and no space, which the English sentencizer never splits at.
+_CJK_PIECE = re.compile(r"[^。！？]+[。！？]*|[。！？]+")
 _WORD = re.compile(r"\w+")
 
 
@@ -25,13 +27,16 @@ def _nlp():
 
 
 def split_sentences(text: str) -> list[Sentence]:
-    """Split on line breaks first (structured data is one fact per line), then into sentences."""
+    """Split on line breaks first (structured data is one fact per line), then after Chinese full stops, then into
+    sentences. A line without 。！？ is split exactly as before they were handled."""
     sentences = []
     for line in _LINE.finditer(text):
-        for sent in _nlp()(line.group()).sents:
-            if _WORD.search(sent.text):
-                start = line.start() + sent.start_char
-                sentences.append(Sentence(start, line.start() + sent.end_char, sent.text))
+        pieces = _CJK_PIECE.finditer(line.group()) if any(c in line.group() for c in "。！？") else [line]
+        for piece in pieces:
+            offset = line.start() + (piece.start() if piece is not line else 0)
+            for sent in _nlp()(piece.group()).sents:
+                if _WORD.search(sent.text):
+                    sentences.append(Sentence(offset + sent.start_char, offset + sent.end_char, sent.text))
     return sentences
 
 

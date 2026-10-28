@@ -1,0 +1,301 @@
+{
+  "model": "20261028-222630-ensemble",
+  "threshold": 0.513104492672243,
+  "sentence_threshold": 0.3712230382575703,
+  "sets": {
+    "multilingual_dev": {
+      "language ar": {
+        "n": 106,
+        "hallucinated": 0.887,
+        "auroc": 0.77,
+        "auroc_ci95": [
+          0.633,
+          0.895
+        ],
+        "f1": 0.935,
+        "f1_flag_everything": 0.94,
+        "span_f1": 0.511
+      },
+      "language es": {
+        "n": 480,
+        "hallucinated": 0.515,
+        "auroc": 0.849,
+        "auroc_ci95": [
+          0.812,
+          0.887
+        ],
+        "f1": 0.78,
+        "f1_flag_everything": 0.68,
+        "span_f1": 0.31
+      },
+      "language fr": {
+        "n": 455,
+        "hallucinated": 0.477,
+        "auroc": 0.814,
+        "auroc_ci95": [
+          0.773,
+          0.855
+        ],
+        "f1": 0.744,
+        "f1_flag_everything": 0.646,
+        "span_f1": 0.349
+      },
+      "language zh": {
+        "n": 587,
+        "hallucinated": 0.572,
+        "auroc": 0.844,
+        "auroc_ci95": [
+          0.812,
+          0.875
+        ],
+        "f1": 0.8,
+        "f1_flag_everything": 0.728,
+        "span_f1": 0.321
+      },
+      "psiloqa_ar": {
+        "n": 106,
+        "hallucinated": 0.887,
+        "auroc": 0.77,
+        "auroc_ci95": [
+          0.633,
+          0.895
+        ],
+        "f1": 0.935,
+        "f1_flag_everything": 0.94,
+        "span_f1": 0.511
+      },
+      "psiloqa_es": {
+        "n": 120,
+        "hallucinated": 0.917,
+        "auroc": 0.927,
+        "auroc_ci95": [
+          0.826,
+          0.993
+        ],
+        "f1": 0.978,
+        "f1_flag_everything": 0.957,
+        "span_f1": 0.507
+      },
+      "psiloqa_fr": {
+        "n": 95,
+        "hallucinated": 0.842,
+        "auroc": 0.782,
+        "auroc_ci95": [
+          0.684,
+          0.872
+        ],
+        "f1": 0.893,
+        "f1_flag_everything": 0.914,
+        "span_f1": 0.6
+      },
+      "psiloqa_zh": {
+        "n": 227,
+        "hallucinated": 0.877,
+        "auroc": 0.822,
+        "auroc_ci95": [
+          0.752,
+          0.887
+        ],
+        "f1": 0.935,
+        "f1_flag_everything": 0.934,
+        "span_f1": 0.453
+      },
+      "ragtruth_es": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.752,
+        "auroc_ci95": [
+          0.703,
+          0.796
+        ],
+        "f1": 0.625,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.183
+      },
+      "ragtruth_fr": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.767,
+        "auroc_ci95": [
+          0.711,
+          0.816
+        ],
+        "f1": 0.66,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.154
+      },
+      "ragtruth_zh": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.743,
+        "auroc_ci95": [
+          0.688,
+          0.795
+        ],
+        "f1": 0.622,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.159
+      }
+    },
+    "multilingual_dev_en": {
+      "language en": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.691,
+        "auroc_ci95": [
+          0.63,
+          0.753
+        ],
+        "f1": 0.595,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.174
+      },
+      "ragtruth_en": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.691,
+        "auroc_ci95": [
+          0.63,
+          0.753
+        ],
+        "f1": 0.595,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.174
+      },
+      "English engine, same answers": {
+        "n": 360,
+        "hallucinated": 0.381,
+        "auroc": 0.838,
+        "auroc_ci95": [
+          0.798,
+          0.872
+        ],
+        "f1": 0.691,
+        "f1_flag_everything": 0.551,
+        "span_f1": 0.308
+      }
+    },
+    "xquad_edits": {
+      "language ar": {
+        "n": 594,
+        "hallucinated": 0.5,
+        "auroc": 0.77,
+        "auroc_ci95": [
+          0.742,
+          0.804
+        ],
+        "f1": 0.596,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.069
+      },
+      "language en": {
+        "n": 598,
+        "hallucinated": 0.5,
+        "auroc": 0.905,
+        "auroc_ci95": [
+          0.883,
+          0.927
+        ],
+        "f1": 0.833,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.086
+      },
+      "language es": {
+        "n": 598,
+        "hallucinated": 0.5,
+        "auroc": 0.789,
+        "auroc_ci95": [
+          0.763,
+          0.822
+        ],
+        "f1": 0.592,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.058
+      },
+      "language ru": {
+        "n": 596,
+        "hallucinated": 0.5,
+        "auroc": 0.777,
+        "auroc_ci95": [
+          0.745,
+          0.81
+        ],
+        "f1": 0.567,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.067
+      },
+      "language zh": {
+        "n": 600,
+        "hallucinated": 0.5,
+        "auroc": 0.801,
+        "auroc_ci95": [
+          0.773,
+          0.831
+        ],
+        "f1": 0.589,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.116
+      },
+      "xquad_ar": {
+        "n": 594,
+        "hallucinated": 0.5,
+        "auroc": 0.77,
+        "auroc_ci95": [
+          0.742,
+          0.804
+        ],
+        "f1": 0.596,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.069
+      },
+      "xquad_en": {
+        "n": 598,
+        "hallucinated": 0.5,
+        "auroc": 0.905,
+        "auroc_ci95": [
+          0.883,
+          0.927
+        ],
+        "f1": 0.833,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.086
+      },
+      "xquad_es": {
+        "n": 598,
+        "hallucinated": 0.5,
+        "auroc": 0.789,
+        "auroc_ci95": [
+          0.763,
+          0.822
+        ],
+        "f1": 0.592,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.058
+      },
+      "xquad_ru": {
+        "n": 596,
+        "hallucinated": 0.5,
+        "auroc": 0.777,
+        "auroc_ci95": [
+          0.745,
+          0.81
+        ],
+        "f1": 0.567,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.067
+      },
+      "xquad_zh": {
+        "n": 600,
+        "hallucinated": 0.5,
+        "auroc": 0.801,
+        "auroc_ci95": [
+          0.773,
+          0.831
+        ],
+        "f1": 0.589,
+        "f1_flag_everything": 0.667,
+        "span_f1": 0.116
+      }
+    }
+  }
+}

@@ -110,11 +110,13 @@ def test_evidence_keeps_the_words_read_one_per_line_with_their_segments():
     assert found.sha256 == hashlib.sha256(b"x").hexdigest()
 
 
-def test_evidence_in_another_language_or_an_unknown_one_is_not_checked_as_english():
+def test_evidence_in_a_language_no_check_reads_or_an_unknown_one_is_not_checked():
     said = contract.Segment(text="جلسه ساعت ده است", role="transcript")
     assert evidence(contract.Reading(kind="audio", reader="t", language="fa", segments=[said]), b"", 100, 10).why_not == "language"
     assert evidence(contract.Reading(kind="audio", reader="t", segments=[said]), b"", 100, 10).why_not == "unknown_language"
     assert evidence(contract.Reading(kind="audio", reader="t", language="en"), b"", 100, 10).why_not == "empty"
+    written = contract.Segment(text="博物馆于1950年开放", role="ocr")
+    assert evidence(contract.Reading(kind="image", reader="t", language="zh-Hans", segments=[written]), b"", 100, 10).checkable
 
 
 def test_long_evidence_is_split_into_sources_the_check_accepts():

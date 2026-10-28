@@ -70,7 +70,11 @@ and what they have been shown to do. **Tour** lists one tour per input: the text
 three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
 from PDF, Word, HTML, Markdown or text files.
 The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe at the end of the top bar,
-or `?lang=fa`); Persian and Arabic pages read right to left. The checks themselves work on English answers and sources.
+or `?lang=fa`); Persian and Arabic pages read right to left. English answers over English sources go to the English
+engine; Arabic, Chinese, French, Russian and Spanish (also across languages, such as a Chinese answer over English data)
+go to a separate, experimental multilingual check (multilingual E5 and mDeBERTa NLI, D-137, D-138), which on its dev set
+ranks answers at 0.77 to 0.85 AUROC by language but sees fewer kinds of error than the English engine; Persian and other
+languages are not checked, and the page says so. The language comes from the texts, never from the interface.
 The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
 
 The Contact page is the one part that uses the internet: its server sends each message by SMTP to the team's mailbox

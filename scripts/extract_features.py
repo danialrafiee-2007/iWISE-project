@@ -23,9 +23,17 @@ def main() -> None:
     parser.add_argument("--signals", nargs="+", required=True, choices=list(SIGNALS))
     parser.add_argument("--groups", type=int, help="only the first N source groups (nested across runs)")
     parser.add_argument("--final", action="store_true", help="required for locked test data")
+    parser.add_argument("--threads", type=int, help="PyTorch CPU threads (the multilingual NLI ran a third faster on 8 than on 4)")
     args = parser.parse_args()
     if "locked" in args.data.resolve().parts and not args.final:
         parser.error("locked test data needs --final")
+    if args.threads:
+        import torch
+
+        from truth_guardian.media import multilingual
+
+        multilingual.THREADS = args.threads
+        torch.set_num_threads(args.threads)
 
     samples = list(read_jsonl(args.data))
     if args.groups:

@@ -35,7 +35,10 @@ def explain_sentence(row: dict, start: int, end: int) -> Explanation:
         return Explanation(HallucinationType.NUMERIC_ENTITY_MISMATCH, symbolic_spans, "a number, date or name does not appear in the sources")
     if row.get("sym_null_mentions", 0):
         return Explanation(HallucinationType.UNSUPPORTED, symbolic_spans, "the sources leave this attribute unspecified")
-    contradiction, entailment, neutral = (row.get(f"nli_{k}", 0.0) for k in ("contradiction", "entailment", "neutral"))
+    if row.get("m_numbers_unmatched", 0):  # the multilingual check (multicheck.py)
+        spans = [tuple(span) for span in row.get("m_number_spans", [])] or [(start, end)]
+        return Explanation(HallucinationType.NUMERIC_ENTITY_MISMATCH, spans, "a number or date does not appear in the sources")
+    contradiction, entailment, neutral = (row.get(f"nli_{k}", row.get(f"m_nli_{k}", 0.0)) for k in ("contradiction", "entailment", "neutral"))
     if contradiction >= 0.5 and contradiction >= neutral:
         return Explanation(HallucinationType.CONTRADICTED, [(start, end)], "the closest source passage says otherwise")
     if row.get("dense_max", 1.0) < WEAK_EVIDENCE_SIMILARITY:

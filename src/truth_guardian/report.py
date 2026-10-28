@@ -173,6 +173,16 @@ class Card(_Strict):
     dimensions: list[Dimension]
 
 
+class LanguageReport(_Strict):
+    """Which check read the answer (language.py): the English engine or the multilingual check, and the languages told."""
+
+    check: Literal["english", "multilingual"]
+    answer: str | None
+    sources: list[str | None] = Field(default_factory=list)
+    guessed: bool = Field(default=False, description="too short to tell; taken as the checked language its script most likely is")
+    measured: bool = Field(default=True, description="False for a language the multilingual check has no labelled data in")
+
+
 class Report(_Strict):
     id: str
     verdict: Literal["grounded", "hallucinated", "uncertain"]
@@ -191,6 +201,7 @@ class Report(_Strict):
     cited_answer: str | None = None
     warnings: list[str] = Field(default_factory=list)
     model_version: str | None = None
+    language: LanguageReport | None = None
 
 
 _STATUS = {
@@ -256,6 +267,8 @@ def claim_report(
         evidence = Evidence(text=row["pol_evidence"])
     elif row.get("shift_overrides") and row.get("shift_evidence"):
         evidence = Evidence(text=row["shift_evidence"])
+    elif row.get("m_evidence"):  # the multilingual check's closest passage: word matching fails across languages
+        evidence = Evidence(text=row["m_evidence"])
     else:
         evidence = best_evidence(sample, sentence)
     if risk < threshold and not row.get("pol_confirmed"):

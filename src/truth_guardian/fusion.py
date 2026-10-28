@@ -34,6 +34,8 @@ SIGNAL_KEYS = {
     "nli_large": ["nlil_contradiction", "nlil_entailment", "nlil_neutral"],
     "hhem": ["hhem_consistency"],
     "lettuce": ["lettuce_cover", "lettuce_max"],
+    "multilingual": ["m_dense_max", "m_nli_contradiction", "m_nli_entailment", "m_nli_neutral", "m_lex_unsupported", "m_lex_cross",
+                     "m_numbers", "m_numbers_unmatched"],
 }
 POSITION_FEATURES = ["position", "is_first", "sentence_words"]
 STAGE1_SUMMARY = ["p_max", "p_mean", "p_top2", "p_std", "p_count", "p_fraction", "n_sentences"]

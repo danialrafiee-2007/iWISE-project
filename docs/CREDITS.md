@@ -10,6 +10,9 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | HaluEval | https://github.com/RUCAIBox/HaluEval | MIT | verified 2026-10-21 | Cross-dataset test |
 | LLM-AggreFact | https://huggingface.co/datasets/lytang/LLM-AggreFact | CC-BY-ND-4.0, gated | verified 2026-10-21 | Optional extra test only. "No derivatives": never redistribute converted copies; access requires accepting terms on Hugging Face (team decision) |
 | AgentHallu @ 9ffe8bc8 | https://github.com/liuxuannan/AgentHallu | CC BY 4.0 (repo LICENSE file) | verified 2026-10-21; downloaded with SHA-256 check | Agent-log provenance (Phase 3): one third dev, two thirds locked test; attribution required |
+| RAGTruth translated (es @ 39d88100, fr @ 95d0aa3e, zh @ 1f3db52b) | https://huggingface.co/datasets/KRLabsOrg/ragtruth-es-translated (and -fr-, -cn-) | MIT (dataset card) | verified 2026-10-28; train files only, downloaded with SHA-256 check | Multilingual check (D-137): RAGTruth's human labels carried over a machine translation (Gemma 3 27B). Their test files translate our locked RAGTruth test set and are never fetched |
+| PsiloQA @ 375c3321 | https://huggingface.co/datasets/s-nlp/PsiloQA | CC BY 4.0 | verified 2026-10-28; downloaded with SHA-256 check | Multilingual check (D-137), Arabic, Chinese, French and Spanish only (no Persian): Wikipedia contexts, answers of several LLMs, spans labelled by GPT-4o, not by people. Its test split becomes a locked test set |
+| XQuAD @ 7d30520c | https://github.com/google-deepmind/xquad | CC BY-SA 4.0 (repo license file) | verified 2026-10-28; downloaded with SHA-256 check | Multilingual check (D-137): the same 1,190 questions in English, Arabic, Spanish, Russian and Chinese, translated by professionals; tuned the language detection; Russian has no labelled hallucination set, so it is checked with controlled edits of these answers. Share-alike: derived copies keep the license |
 
 ## Models
 

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from truth_guardian import models
+from truth_guardian import models, multicheck
 from truth_guardian.baselines.lexical import sentence_score
 from truth_guardian.evidence import evidence_for
 from truth_guardian.retrieval import Bm25, retrieve
@@ -195,4 +195,5 @@ SIGNALS: dict[str, tuple[str, Callable]] = {
     "shifts": (_shift_version(), shifts),
     "flips": (_flip_version(), flips),
     "detector": (_detector_version(), detector),
+    "multilingual": (multicheck.version(), multicheck.signal),
 }

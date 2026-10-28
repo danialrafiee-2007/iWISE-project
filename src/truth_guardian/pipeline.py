@@ -13,7 +13,7 @@ so any question, sources and answer can be checked.
 
 from collections.abc import Callable
 
-from truth_guardian import citations, completeness, conflicts, diagnosis, models
+from truth_guardian import citations, completeness, conflicts, diagnosis, models, multicheck
 from truth_guardian.card import build_card
 from truth_guardian.claims import localize
 from truth_guardian.correct import suggest
@@ -26,7 +26,7 @@ from truth_guardian.heal import Healing
 from truth_guardian.heal import heal as heal_answer
 from truth_guardian.detector import shipped as shipped_detector
 from truth_guardian.overrides import apply_flips, apply_polarity, apply_shifts, with_words
-from truth_guardian.report import DomainReport, Report, agent_report, build_report, completeness_report, verdict, with_diagnosis, with_guarantee, with_triage
+from truth_guardian.report import DomainReport, LanguageReport, Report, agent_report, build_report, completeness_report, verdict, with_diagnosis, with_guarantee, with_triage
 from truth_guardian.triage import BLOCK_FALSE_ALARM
 from truth_guardian.triage import Policy as TriagePolicy
 from truth_guardian.schema import AgentStep, Document, Meta, Sample
@@ -171,6 +171,36 @@ def analyze(
             report = with_guarantee(report, calibration, alpha, sample.meta.task)
         if triage_policy is not None:
             report = _lane(report, triage_policy)
+    return report.model_copy(update={"card": build_card(report)})
+
+
+def analyze_multilingual(
+    sample: Sample,
+    model: FusionModel | EnsembleModel,
+    language: LanguageReport,
+    model_version: str | None = None,
+    progress: Callable[[str], None] | None = None,
+) -> Report:
+    """The multilingual check (D-138) of an answer in Arabic, Chinese, French, Russian or Spanish, or of one whose sources
+    are in another of these or in English: its signals (multicheck.py) scored by its own fusion model, each claim with
+    the closest source passage as evidence, and Fix-it for numbers. Left out, because they read English only: the
+    negation, role and quantifier rules, the word-level detector, atomic claims, the citation, omission, conflict and
+    blame checks, and the RAGTruth guarantee and triage, which were calibrated on English."""
+    progress = progress or (lambda stage: None)
+    sentences = split_sentences(sample.answer)
+    progress("multilingual")
+    rows = [{"start": s.start, "end": s.end, **row} for s, row in zip(sentences, multicheck.signal(sample, sentences))]
+    per_signal = {"multilingual": rows}
+    progress("score")
+    prediction = model.predictions([sample], build_table([sample], {"multilingual": {sample.id: rows}}, model.signals, model.structure))[0]
+    progress("claims")
+    merged = [{**row, **extra} for row, extra in zip(rows, multicheck.explain(sample, sentences))]
+    flagged = {(s.start, s.end) for s in prediction.sentences if s.score >= model.thresholds["sentence"]}
+    fixes = [multicheck.fixes(s, row) if (s.start, s.end) in flagged else [] for s, row in zip(sentences, merged)]
+    shares = contributions(sample, model, per_signal, prediction.score, False, False)
+    progress("verdict")
+    report = build_report(sample, sentences, prediction, merged, fixes, model.thresholds, model_version, contributions=shares)
+    report = report.model_copy(update={"language": language})
     return report.model_copy(update={"card": build_card(report)})
 
 

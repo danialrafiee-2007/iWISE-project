@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { formatNumber, t, useI18n, type MessageKey } from "../../i18n";
+import { formatNumber, languageName, t, useI18n, type MessageKey } from "../../i18n";
 import { BLAME, GRADE_COLOR, LANE, num, pct, STAGES, STATUS, VERDICT } from "../../lib/format";
 import type { Claim, Report } from "../../lib/types";
 
@@ -202,6 +202,32 @@ export function SharesPanel({ report }: { report: Report }) {
       </ul>
       <span className="text-xs text-fog-400">{t("panels.sharesNote")}</span>
     </Panel>
+  );
+}
+
+/** Which check read the answer, when it was not the English engine on English texts: the multilingual check (D-138),
+ *  a language without labelled answers, or a text too short to tell. */
+export function languageLines(report: Report): string[] {
+  const found = report.language;
+  if (!found || (found.check === "english" && !found.guessed)) return [];
+  const language = languageName(found.answer ?? "en");
+  return [
+    ...(found.guessed ? [t("check.guessed", { language })] : []),
+    ...(found.check === "multilingual" ? [t("check.multilingual", { language })] : []),
+    ...(found.measured ? [] : [t("check.unmeasured", { language })]),
+  ];
+}
+
+export function LanguageNote({ report }: { report: Report }) {
+  useI18n();
+  const lines = languageLines(report);
+  if (!lines.length) return null;
+  return (
+    <div className="flex flex-col gap-1 rounded-2xl border border-warn/25 bg-warn/8 px-4 py-3 text-sm leading-relaxed text-warn-ink" role="note">
+      {lines.map((line) => (
+        <span key={line}>{line}</span>
+      ))}
+    </div>
   );
 }
 

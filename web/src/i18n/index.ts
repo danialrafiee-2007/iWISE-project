@@ -107,6 +107,15 @@ export function formatNumber(x: number, digits = 0, minDigits = 1): string {
   return new Intl.NumberFormat(info().locale, { minimumFractionDigits: digits, maximumFractionDigits: digits, minimumIntegerDigits: minDigits, useGrouping: Math.abs(x) >= 10000 }).format(x);
 }
 
+/** A language's name in the interface's language ("persa" on a Spanish page), from its BCP 47 code. */
+export function languageName(code: string): string {
+  try {
+    return new Intl.DisplayNames([info().locale.split("-u-")[0]], { type: "language" }).of(code.split("-")[0]) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export function formatPercent(x: number, digits = 0): string {
   return new Intl.NumberFormat(info().locale, { style: "percent", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(x);
 }

@@ -39,7 +39,7 @@ from truth_guardian.media.evidence import evidence
 from truth_guardian.pipeline import make_sample
 from truth_guardian.schema import Sample
 from truth_guardian.web import contact
-from truth_guardian.web.engine import ROOT, Cancelled, Engine
+from truth_guardian.web.engine import ROOT, Cancelled, Engine, NotChecked
 from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
 from truth_guardian.web.metrics import model_card
@@ -85,6 +85,7 @@ class CheckIn(_Strict):
     answer: str | None = Field(default=None, max_length=MAX_ANSWER)
     task: Task = "other"
     profile: str | None = None
+    language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the language a media reader found in the sources, used when the texts are too short to tell")
 
 
 class StepIn(_Strict):
@@ -251,8 +252,16 @@ def create_app(
             raise HTTPException(404, f"no example {example_id!r}")
         return found
 
-    def check(sample: Sample, profile: str | None = None, policy: str = "strict", example_id: str | None = None) -> StreamingResponse:
+    def routed(sample: Sample, hint: str | None = None) -> None:
+        """Refuses, before any stream starts, an answer no check reads, so the page can say why in its own language."""
+        try:
+            engine.route(sample, hint)
+        except NotChecked as e:
+            raise HTTPException(422, {"code": e.reason, "language": e.route.answer, "sources": e.route.sources}) from None
+
+    def check(sample: Sample, profile: str | None = None, policy: str = "strict", example_id: str | None = None, hint: str | None = None) -> StreamingResponse:
         ready()
+        routed(sample, hint)
 
         def work(emit, cancelled) -> dict:
             started = time.perf_counter()
@@ -262,7 +271,7 @@ def create_app(
                 return {"report": cached.model_dump(mode="json"), "seconds": 0.0, "cached": True}
             if engine.busy():
                 emit({"type": "queued"})
-            report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled)
+            report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled, hint)
             if own and policy == "strict":
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}
@@ -297,12 +306,13 @@ def create_app(
     @app.post("/api/analyze")
     def analyze(body: CheckIn) -> StreamingResponse:
         sample, example_id = sample_from(body)
-        return check(sample, body.profile, example_id=example_id)
+        return check(sample, body.profile, example_id=example_id, hint=body.language)
 
     @app.post("/api/heal")
     def heal(body: CheckIn) -> StreamingResponse:
         sample, _ = sample_from(body)
         ready()
+        routed(sample, body.language)
 
         def work(emit, cancelled) -> dict:
             started = time.perf_counter()

@@ -6,19 +6,19 @@ and a check must not rest on a model agreeing with itself. Each piece goes on a 
 sources at line breaks before it splits sentences, so every source sentence it quotes as evidence falls inside one
 line, and `lines` names the segment, and so the place in the file (a box, a time range), that line came from.
 
-The check reads English only for now. A file read in another language, or in a language that could not be told, is
-marked as not checkable rather than checked as if it were English; the page may still run it at the person's request,
-saying so.
+The checks read English, Arabic, Chinese, French, Russian and Spanish (language.py, D-137). A file read in another
+language is marked as not checkable rather than checked as if it were one of these; one whose language could not be told
+may still be checked at the person's request, which the page then says.
 """
 
 import hashlib
 
 from pydantic import BaseModel, Field
 
+from truth_guardian.language import CHECKED
 from truth_guardian.media.contract import Reading
 
 EVIDENCE_ROLES = ("ocr", "transcript")
-CHECKED_LANGUAGE = "en"
 # The image model's answer is always flagged as an opinion; that reason says nothing about how well the words were read.
 OPINION = "opinion"
 
@@ -52,7 +52,7 @@ def evidence(reading: Reading, raw: bytes, max_chars: int, max_parts: int) -> Me
             index = index[: sum(p.count("\n") + 1 for p in parts)]
             break
     language = reading.language
-    why_not = "empty" if not parts else None if language == CHECKED_LANGUAGE else "unknown_language" if language is None else "language"
+    why_not = "empty" if not parts else "unknown_language" if language is None else None if language.split("-")[0] in CHECKED else "language"
     return MediaEvidence(
         parts=parts,
         lines=index,
