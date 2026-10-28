@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import io
 import wave
 
@@ -8,6 +9,7 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw, ImageFont
 
 from truth_guardian.media import contract, multilingual, ocr, status
+from truth_guardian.media.evidence import evidence
 from truth_guardian.web.app import create_app
 from truth_guardian.web.engine import ROOT
 from truth_guardian.web.examples import ExampleStore
@@ -91,6 +93,38 @@ def test_media_endpoints_report_status_and_refuse_what_they_cannot_read(client):
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "question": "x" * 501}).status_code == 422
 
 
+def test_evidence_keeps_the_words_read_one_per_line_with_their_segments():
+    reading = contract.Reading(kind="image", reader="t", language="en", segments=[
+        contract.Segment(text="The camp was  liberated\nin April 1945.", role="ocr", place=contract.Place(box=(1, 2, 3, 4))),
+        contract.Segment(text="A red circle on white.", role="description"),
+        contract.Segment(text="  ", role="ocr"),
+        contract.Segment(text="Anne Frank died in 1945.", role="ocr", place=contract.Place(box=(5, 6, 7, 8))),
+    ])
+    reading.review("an image description is the model's opinion, not proof on its own")
+    reading.review("the text is hard to read (mean confidence 0.45)")
+    found = evidence(reading, b"x", max_chars=1000, max_parts=10)
+    # The image model's description is not evidence, and a segment's own line breaks do not split it.
+    assert found.parts == ["The camp was liberated in April 1945.\nAnne Frank died in 1945."]
+    assert found.lines == [0, 3] and found.checkable and found.why_not is None
+    assert found.concerns == ["the text is hard to read (mean confidence 0.45)"]
+    assert found.sha256 == hashlib.sha256(b"x").hexdigest()
+
+
+def test_evidence_in_another_language_or_an_unknown_one_is_not_checked_as_english():
+    said = contract.Segment(text="جلسه ساعت ده است", role="transcript")
+    assert evidence(contract.Reading(kind="audio", reader="t", language="fa", segments=[said]), b"", 100, 10).why_not == "language"
+    assert evidence(contract.Reading(kind="audio", reader="t", segments=[said]), b"", 100, 10).why_not == "unknown_language"
+    assert evidence(contract.Reading(kind="audio", reader="t", language="en"), b"", 100, 10).why_not == "empty"
+
+
+def test_long_evidence_is_split_into_sources_the_check_accepts():
+    segments = [contract.Segment(text=f"line {i} " + "x" * 40, role="transcript") for i in range(10)]
+    found = evidence(contract.Reading(kind="audio", reader="t", language="en", segments=segments), b"", max_chars=100, max_parts=3)
+    assert len(found.parts) == 3 and all(len(p) <= 100 for p in found.parts)
+    assert len("\n".join(found.parts).split("\n")) == len(found.lines) == 6
+    assert found.lines == list(range(6))
+
+
 def test_the_script_of_the_letters_read_is_told_by_their_unicode_names():
     assert ocr.written_script("FIRST SLIDE ONE") == "Latin"
     assert ocr.written_script("שלום עולם") == "Hebrew"
@@ -146,6 +180,8 @@ def test_reading_an_image_through_the_api(client):
     assert response.status_code == 200
     body = response.json()
     assert body["kind"] == "image" and "library" in " ".join(s["text"] for s in body["reading"]["segments"]).lower()
+    # What the claim check gets from it: the words read, checkable since they are English.
+    assert body["evidence"]["checkable"] and "library" in body["evidence"]["parts"][0].lower()
 
 
 @needs("speech")

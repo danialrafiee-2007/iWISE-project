@@ -104,7 +104,10 @@ A click on the landing page's brain opens it into four parts, one per input, eac
 saying what the engine does with it; a click on a part opens that input's page, and scrolling closes it (D-128, D-129). On the landing page each of the four challenge inputs also opens a panel
 where it is given to the models (D-126): write or
 paste an answer with its sources, choose or paste an image, choose a video, or press the microphone and speak, in any
-language; what was read or found comes back in the same panel, with where it was found and how sure the reader is. The
+language; what was read or found comes back in the same panel, with where it was found and how sure the reader is.
+With an AI's answer about the file, the words read in it become the check's sources and every claim is shown with
+where its evidence is, a box in the picture or a moment in the recording (D-135). Only English is checked for now: a
+file in another language is read but given no verdict, unless asked. The
 browser asks for the microphone once; it allows it on `localhost` and `127.0.0.1`, not on a plain `http://` address of
 another computer.
 

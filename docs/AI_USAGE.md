@@ -5,6 +5,7 @@ Add a row every time an AI tool contributes to code, data, text or design. "Veri
 
 | Date | Tool / model | Used by | Purpose | Components affected | Verification by the team | Verified by |
 |---|---|---|---|---|---|---|
+| 2026-10-28 | Claude Code (Claude Opus 5.5) | | The media readers joined to the claim check: a file's evidence for the check, the answer box in the media panels, and each claim's place in the file (D-135) | `src/truth_guardian/media/evidence.py`, `src/truth_guardian/web/app.py`, `tests/test_media.py`, `web/src/components/InputPanels.tsx`, `web/src/i18n/` | Three new tests; an image, a recording and a Persian image checked in the browser; the engine's miss of a near number found and recorded, not changed; full suite and smoke test | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | A soft sheen passing over hovered boxes (D-134) | `web/src/styles.css` | Hover checked in the browser | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | Boxes that rise and grow softly under the pointer and press in on a click (D-133) | `web/src/styles.css` | Hover checked in the browser | |
 | 2026-10-27 | Claude Code (Claude Opus 5.5) | | The examples deck turning with the mouse wheel, and the jade light under hovered boxes (D-132) | `web/src/layers/SpectraDeck.tsx`, `web/src/styles.css` | Wheel and hover checked in the browser with synthetic and real pointer events | |

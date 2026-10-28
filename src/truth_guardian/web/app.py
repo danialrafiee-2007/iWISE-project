@@ -35,6 +35,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from truth_guardian import models
 from truth_guardian.audit import summarize
 from truth_guardian.heal import apply as apply_changes
+from truth_guardian.media.evidence import evidence
 from truth_guardian.pipeline import make_sample
 from truth_guardian.schema import Sample
 from truth_guardian.web import contact
@@ -485,7 +486,9 @@ def create_app(
             raise HTTPException(422, f"the file could not be read: {type(e).__name__}") from None
         finally:
             media_lock.release()
-        return {"name": body.name, "kind": kind, "reading": reading.model_dump(mode="json")}
+        # What the file gives a claim check as sources: the words read, one per line, with their places (D-135).
+        found = evidence(reading, raw, MAX_SOURCE, MAX_SOURCES)
+        return {"name": body.name, "kind": kind, "reading": reading.model_dump(mode="json"), "evidence": found.model_dump(mode="json")}
 
     @app.get("/api/contact")
     def contact_status() -> dict:
