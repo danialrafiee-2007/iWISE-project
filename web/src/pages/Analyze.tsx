@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { InputForm } from "../components/InputForm";
 import { AnswerView, StatusLegend } from "../components/report/AnswerView";
-import { ClaimDetail, ConflictsPanel, DiagnosisPanel, LanguageNote, OmissionsPanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
+import { ClaimDetail, ConflictsPanel, DiagnosisPanel, LanguageNote, OmissionsPanel, OnlinePanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
 import { Loupe } from "../layers/Gradients";
 import { useI18n } from "../i18n";
 import { Heading } from "../layers/Heading";
@@ -91,6 +91,7 @@ export function ReportView({ report, input, gold }: { report: Report; input: Che
         </Panel>
         {claim && !showGold && <ClaimDetail key={selected} claim={claim} sources={input.sources} />}
         <LanguageNote report={report} />
+        <OnlinePanel report={report} />
         <WarningsPanel report={report} />
         {report.cited_answer && (
           <Panel title={t("analyze.cited")}>

@@ -53,7 +53,7 @@ export const LANE = LANE_ROWS as Record<Lane, { label: string; color: string; hi
 
 export const BLAME: Record<Blame, string> = labels("blame", ["retrieval", "generation", "weak_sources", "conflicting_sources", "none", "unknown"] as const);
 
-export const STAGES: Record<string, string> = labels("stage", ["lexical", "symbolic", "dense", "hhem", "polarity", "shifts", "score", "claims", "checks", "verdict"] as const);
+export const STAGES: Record<string, string> = labels("stage", ["lexical", "symbolic", "dense", "hhem", "polarity", "shifts", "score", "claims", "checks", "verdict", "multilingual", "online"] as const);
 
 export const KIND_LABEL: Record<string, string> = labels("kind", ["number", "entity", "negation", "antonym", "addition", "role_swap", "quantifier", "certainty"] as const);
 

@@ -83,7 +83,17 @@ matter: Tesseract, built for documents, reads the answer's words in only 4 to 26
 evidence there and calls most answers unsupported; documents and screenshots read well.
 The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
 
-The Contact page is the one part that uses the internet: its server sends each message by SMTP to the team's mailbox
+An experimental online check (D-141, `online.py`) can give a second opinion when the local check is not sure: up to
+three doubtful claims go to Claude Opus 5.5, which reads the same sources and searches the web, and its answer is shown
+apart from the local verdict, never in its place. It is off until a key is set in `anthropic.local.env` (copy
+`anthropic.example.env`; git and Docker ignore the copy), spends at most `TG_ONLINE_DAILY_USD` a day (default $2), and
+never answers the same claims over the same sources twice. It uses Anthropic's official `anthropic` package (2.3.0, in
+the lock file). **Status: built and tested with a stand-in client, not yet switched on** (no API account is paid for
+yet, owner's decision of 2026-10-29). To switch it on: open an Individual account at console.anthropic.com, buy a little
+prepaid credit (5 to 10 dollars is enough to try it), set a monthly spend limit under Limits, make a key under
+Settings, API Keys, and put it after `ANTHROPIC_API_KEY=` in `anthropic.local.env`; the next check that is unsure uses it.
+
+The Contact page is the other part that uses the internet: its server sends each message by SMTP to the team's mailbox
 (majidrafiee1404@gmail.com, fixed in `contact.py`). Copy `smtp.example.env` to `smtp.local.env` (ignored by git and
 Docker) and fill in the sending account, for Gmail an app password; or set `TG_SMTP_USER` and `TG_SMTP_PASSWORD` in the
 environment. Without them the page says that sending is not set up, and everything else stays offline.

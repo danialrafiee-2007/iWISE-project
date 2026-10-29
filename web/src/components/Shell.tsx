@@ -26,7 +26,7 @@ function EngineStatus() {
     text = t("engine.unreachable");
   } else if (health?.state === "ready") {
     color = "var(--neon)";
-    text = t("engine.ready");
+    text = t(health.online?.configured ? "engine.readyOnline" : "engine.ready");
   } else if (health?.state === "failed") {
     color = "var(--color-bad)";
     text = t("engine.failed");

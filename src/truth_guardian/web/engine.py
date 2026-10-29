@@ -11,7 +11,7 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from truth_guardian import adapt, conformal, fusion, language, triage
+from truth_guardian import adapt, conformal, fusion, language, online, triage
 from truth_guardian.heal import Healing
 from truth_guardian.heal import heal as heal_answer
 from truth_guardian.media import models_dir, multilingual
@@ -97,7 +97,19 @@ class Engine:
             "tracer_version": self.tracer_manifest["version"] if ready else None,
             "multilingual_version": self.multilingual_manifest["version"] if ready and self.multilingual_manifest else None,
             "profiles": sorted(self.profiles) if ready else [],
+            "online": {"configured": online.configured(self.root), "model": online.MODEL, "spent_today": round(online.spent_today(), 4),
+                       "budget": online.budget(online.settings(self.root))},
         }
+
+    def consult(self, sample: Sample, report: Report, progress: Callable[[str], None] | None = None) -> Report:
+        """The experimental online check (online.py) of the report's doubtful claims, when a key is set. Outside the
+        lock: it waits on the network, not on the CPU, so other checks go on meanwhile."""
+        if not online.configured(self.root) or not online.doubtful(report):
+            return report
+        (progress or (lambda stage: None))("online")
+        sources = [d.text for d in sample.documents if d.source != "question"]
+        found = online.check(sample.question, sources, report, root=self.root)
+        return report.model_copy(update={"online": found}) if found else report
 
     def route(self, sample: Sample, hint: str | None = None) -> language.Route:
         """Which check reads this answer; NotChecked when none does (hint: the language a media reader found)."""

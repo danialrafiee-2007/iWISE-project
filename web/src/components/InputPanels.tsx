@@ -6,7 +6,7 @@ import { useRouter } from "../lib/router";
 import type { CheckInput, Claim, Report } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
-import { languageLines } from "./report/Panels";
+import { languageLines, OnlinePanel } from "./report/Panels";
 
 // The landing page's inputs, opened in place: a chat-like box to write or attach the input and send it, and the
 // guardian's answer above it. Text goes to the claim check (/api/analyze); an image or a recording goes
@@ -218,6 +218,7 @@ function ReportSummary({ report, seconds, place, onClaim, children }: {
           </ul>
         </>
       )}
+      <OnlinePanel report={report} />
       {children}
     </>
   );

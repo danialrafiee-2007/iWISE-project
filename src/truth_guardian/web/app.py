@@ -271,7 +271,9 @@ def create_app(
                 return {"report": cached.model_dump(mode="json"), "seconds": 0.0, "cached": True}
             if engine.busy():
                 emit({"type": "queued"})
-            report = engine.analyze(sample, profile, policy, lambda stage: emit({"type": "stage", "stage": stage, "t": round(time.perf_counter() - started, 2)}), cancelled, hint)
+            stage = lambda name: emit({"type": "stage", "stage": name, "t": round(time.perf_counter() - started, 2)})
+            report = engine.analyze(sample, profile, policy, stage, cancelled, hint)
+            report = engine.consult(sample, report, stage)  # the experimental online check, when set up (D-141)
             if own and policy == "strict":
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}

@@ -31,6 +31,9 @@ class FakeEngine:
     route = Engine.route  # the real language routing, with the multilingual check counted as installed
     multilingual = object()
 
+    def consult(self, sample, report, progress=None):
+        return report
+
     def analyze(self, sample, profile=None, policy="strict", progress=None, cancelled=None, hint=None):
         self.calls.append((sample, profile, policy))
         for stage in ("lexical", "score", "verdict"):

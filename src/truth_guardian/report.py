@@ -183,6 +183,35 @@ class LanguageReport(_Strict):
     measured: bool = Field(default=True, description="False for a language the multilingual check has no labelled data in")
 
 
+class OnlineSource(_Strict):
+    url: str
+    title: str | None = None
+
+
+class OnlineClaim(_Strict):
+    """Claude's reading of one doubtful claim (online.py): against the person's sources, and against the web, apart."""
+
+    start: int
+    end: int
+    text: str
+    in_sources: Literal["supported", "contradicted", "not_found"]
+    on_web: Literal["true", "false", "unclear", "not_searched"]
+    explanation: str
+    correction: str | None = None
+    sources: list[OnlineSource] = Field(default_factory=list)
+
+
+class OnlineReport(_Strict):
+    """The experimental online check (D-141): beside the local verdict, never in place of it."""
+
+    status: Literal["checked", "budget", "error", "refused"]
+    model: str | None = None
+    claims: list[OnlineClaim] = Field(default_factory=list)
+    cost_usd: float = 0.0
+    cached: bool = False
+    message: str | None = None
+
+
 class Report(_Strict):
     id: str
     verdict: Literal["grounded", "hallucinated", "uncertain"]
@@ -202,6 +231,7 @@ class Report(_Strict):
     warnings: list[str] = Field(default_factory=list)
     model_version: str | None = None
     language: LanguageReport | None = None
+    online: OnlineReport | None = None
 
 
 _STATUS = {

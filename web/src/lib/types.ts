@@ -67,6 +67,17 @@ export interface Report {
   model_version: string | null;
   /** Which check read the answer, and the languages told (language.py); absent in reports cached before D-138. */
   language?: { check: "english" | "multilingual"; answer: string | null; sources: (string | null)[]; guessed: boolean; measured: boolean } | null;
+  /** The experimental online check (D-141): Claude's second opinion on the doubtful claims, beside the local verdict. */
+  online?: Online | null;
+}
+
+export interface Online {
+  status: "checked" | "budget" | "error" | "refused";
+  model: string | null;
+  claims: { start: number; end: number; text: string; in_sources: "supported" | "contradicted" | "not_found"; on_web: "true" | "false" | "unclear" | "not_searched"; explanation: string; correction: string | null; sources: { url: string; title: string | null }[] }[];
+  cost_usd: number;
+  cached: boolean;
+  message: string | null;
 }
 
 export interface Step {
@@ -102,6 +113,7 @@ export interface Health {
   model_version: string | null;
   tracer_version: string | null;
   profiles: string[];
+  online?: { configured: boolean; model: string; spent_today: number; budget: number };
   examples: number;
   agent_examples: number;
   fool_answers: number;

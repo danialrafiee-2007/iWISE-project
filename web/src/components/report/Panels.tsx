@@ -231,6 +231,60 @@ export function LanguageNote({ report }: { report: Report }) {
   );
 }
 
+const IN_SOURCES = { supported: ["online.inSources.supported", "var(--color-ok)"], contradicted: ["online.inSources.contradicted", "var(--color-bad)"], not_found: ["online.inSources.not_found", "var(--color-warn)"] } as const;
+const ON_WEB = { true: "online.onWeb.true", false: "online.onWeb.false", unclear: "online.onWeb.unclear", not_searched: "online.onWeb.not_searched" } as const;
+
+/** The experimental online check (D-141): Claude's second opinion on the doubtful claims, set apart from the local
+ *  verdict above it, with what it found in the person's sources, what it found on the web, and the pages it used. */
+export function OnlinePanel({ report }: { report: Report }) {
+  useI18n();
+  const found = report.online;
+  if (!found) return null;
+  const cost = found.cached ? t("online.cached") : t("online.cost", { usd: formatNumber(found.cost_usd, 3) });
+  return (
+    <section className="flex flex-col gap-3 rounded-2xl border border-beam-400/30 p-4" aria-label={t("online.title")}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="m-0 font-sans text-sm font-semibold text-beam-300">{t("online.title")}</h3>
+        {found.status === "checked" && <span className="font-mono text-xs text-fog-400">{found.model} · {cost}</span>}
+      </div>
+      {found.status === "checked" ? (
+        <>
+          <p className="m-0 text-sm leading-relaxed text-fog-300">{t("online.note")}</p>
+          <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+            {found.claims.map((c) => {
+              const [label, color] = IN_SOURCES[c.in_sources];
+              return (
+                <li key={`${c.start}-${c.end}`} className="rounded-xl border border-white/10 p-3">
+                  <p className="m-0 text-[15px] leading-relaxed text-fog-100" dir="auto">{c.text}</p>
+                  <p className="m-0 mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-sans text-xs font-semibold">
+                    <span style={{ color }}>{t(label)}</span>
+                    <span className="text-fog-300">{t(ON_WEB[c.on_web])}</span>
+                  </p>
+                  <p className="m-0 mt-1 text-sm leading-relaxed text-fog-300" dir="auto">{c.explanation}</p>
+                  {c.correction && <p className="m-0 mt-1 text-sm text-fog-200" dir="auto">{t("online.correction")}: <span className="text-[#86efac]">{c.correction}</span></p>}
+                  {c.sources.length > 0 && (
+                    <ul className="m-0 mt-1.5 flex list-none flex-col gap-0.5 p-0 text-xs">
+                      {c.sources.map((s) => (
+                        <li key={s.url}>
+                          <a href={s.url} target="_blank" rel="noopener noreferrer" className="break-all text-beam-300" dir="auto">{s.title || s.url}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : (
+        <p className="m-0 text-sm text-fog-300" role="note">
+          {found.status === "budget" ? t("online.budget") : found.status === "refused" ? t("online.refused") : t("online.error", { message: found.message ?? "" })}
+        </p>
+      )}
+    </section>
+  );
+}
+
 export function WarningsPanel({ report }: { report: Report }) {
   if (!report.warnings.length) return null;
   return (
