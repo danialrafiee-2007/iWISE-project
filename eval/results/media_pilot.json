@@ -383,48 +383,6 @@
       "passed": true,
       "wall_seconds": 13.3
     },
-    "video": {
-      "reader": "PyAV frames and sound; Tesseract 5.5.3 (tesserocr 2.12.0), tessdata_fast; faster-whisper 1.2.1, Whisper Small (CTranslate2 int8)",
-      "results": [
-        {
-          "sample": "video",
-          "language": "en",
-          "quality": 0.964,
-          "seconds": 9.36,
-          "needs_review": false,
-          "reasons": [],
-          "notes": [
-            "only 6 frames at most are read; something absent from them may still be in the video"
-          ],
-          "text": "The capital of France is Paris, and the meeting starts at 10 o'clock.\nTRUTH GUARDIAN VIDEO TEST\nTRUTH GUARDIAN VIDEO TEST\nTRUTH GUARDIAN VIDEO TEST"
-        }
-      ],
-      "checks": 3,
-      "seconds": {
-        "video": 9.36
-      },
-      "peak_mb": 709.4,
-      "passed_checks": 3,
-      "check_list": [
-        {
-          "check": "video: soundtrack heard",
-          "passed": true,
-          "detail": ""
-        },
-        {
-          "check": "video: text on frames read",
-          "passed": true,
-          "detail": ""
-        },
-        {
-          "check": "video: every segment has a time",
-          "passed": true,
-          "detail": ""
-        }
-      ],
-      "passed": true,
-      "wall_seconds": 9.7
-    },
     "retrieval": {
       "reader": "intfloat/multilingual-e5-small",
       "results": [

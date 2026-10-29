@@ -7,7 +7,7 @@ import { Heading } from "../layers/Heading";
 import { useWorkspace } from "../lib/workspace";
 
 // The challenge inputs in the order the rows show them; each row opens its own input panel.
-const KINDS: InputKind[] = ["text", "audio", "image", "video"];
+const KINDS: InputKind[] = ["text", "audio", "image"];
 const INPUT_COUNT = KINDS.length;
 
 // The brain is drawn only where the screen leaves room for it beside the words (.hero-words in styles.css keeps the

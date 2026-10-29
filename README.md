@@ -63,10 +63,11 @@ uv run --offline python -m truth_guardian.web
 
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
 been downloaded once) and only answers on localhost. The top bar has Home, **AI engine**, About, Team and Contact us.
-Resting the pointer on AI engine lists the challenge's four inputs, and on each the parts behind it (D-127): under
-Text the tools (Analyze, Heal, Fool the Guardian, Agent guardian, Audit, Model card) and Examples, six written answers
-each showing one check; under Audio, Image and Video a page that reads a file and one that names the models doing it
-and what they have been shown to do. **Tour** lists one tour per input: the text tour walks through every tool in about
+Resting the pointer on AI engine lists its three inputs, text first (the challenge's own), then audio and images (the
+project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text the tools (Analyze,
+Heal, Fool the Guardian, Agent guardian, Audit, Model card) and Examples, six written answers each showing one check;
+under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
+do. **Tour** lists one tour per input: the text tour walks through every tool in about
 three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
 from PDF, Word, HTML, Markdown or text files.
 The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe at the end of the top bar,
@@ -75,6 +76,11 @@ engine; Arabic, Chinese, French, Russian and Spanish (also across languages, suc
 go to a separate, experimental multilingual check (multilingual E5 and mDeBERTa NLI, D-137, D-138), which on its dev set
 ranks answers at 0.77 to 0.85 AUROC by language but sees fewer kinds of error than the English engine; Persian and other
 languages are not checked, and the page says so. The language comes from the texts, never from the interface.
+On real media (D-139, `scripts/evaluate_media.py`): Whisper hears read speech with 5.5 to 13% word errors in Spanish,
+English, Russian and French (33% Arabic, 22% of Chinese characters) and names the language every time, and the chain
+then tells a transcript from one with a changed fact at 0.74 to 0.78 AUROC (0.65 Chinese). Photos of scenes are another
+matter: Tesseract, built for documents, reads the answer's words in only 4 to 26% of them, so the check finds little
+evidence there and calls most answers unsupported; documents and screenshots read well.
 The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
 
 The Contact page is the one part that uses the internet: its server sends each message by SMTP to the team's mailbox
@@ -82,9 +88,10 @@ The Contact page is the one part that uses the internet: its server sends each m
 Docker) and fill in the sending account, for Gmail an app password; or set `TG_SMTP_USER` and `TG_SMTP_PASSWORD` in the
 environment. Without them the page says that sending is not set up, and everything else stays offline.
 
-### Images, sound and video (media readers, D-125)
+### Sound and images (media readers, D-125)
 
-The challenge's other inputs have local readers in `src/truth_guardian/media`, offline like the rest. Each turns a file
+The challenge announced text only; sound and images are the project's own additions, with local readers in
+`src/truth_guardian/media`, offline like the rest. Video was dropped (D-140). Each turns a file
 into text segments that say where they came from (a box in the image, a time range in the sound), which language and
 script, and how sure the reader is; an unknown or uncertain language, silence or a weak reading goes to review instead
 of being guessed.
@@ -94,8 +101,7 @@ of being guessed.
 | Sound | `speech.py` | Whisper Small through faster-whisper (CTranslate2 int8), language per segment |
 | Text in images | `ocr.py` | Tesseract 5.5 (inside the `tesserocr` package) with tessdata_fast: the script first, then a few likely languages |
 | What an image shows | `vision.py` | Qwen3-VL-2B (GGUF) through llama.cpp's `llama-server` in `runtime/tools`, an opinion, never proof |
-| Video | `video.py` | PyAV: the soundtrack to Whisper, a few timed frames to Tesseract |
-| Other languages' text | `multilingual.py` | multilingual E5 (retrieval) and mDeBERTa NLI, not yet part of the fusion model |
+| Other languages' text | `multilingual.py` | multilingual E5 (retrieval) and mDeBERTa NLI, read by the multilingual check (D-138) |
 
 They come with the default `media` dependency group (`uv sync`), not with the Docker image. `GET /api/media/status`
 shows, per reader, whether its files are present, its runtime is installed, it has run on known samples and its quality
@@ -104,14 +110,14 @@ draws samples with known content, runs every reader on them with the network cut
 and its peak memory in `eval/results/media_pilot.json`. Those samples are synthetic: they show the readers work, not how
 well they do on real media, which still needs labelled data.
 
-A click on the landing page's brain opens it into four parts, one per input, each naming itself under the pointer and
-saying what the engine does with it; a click on a part opens that input's page, and scrolling closes it (D-128, D-129). On the landing page each of the four challenge inputs also opens a panel
-where it is given to the models (D-126): write or
-paste an answer with its sources, choose or paste an image, choose a video, or press the microphone and speak, in any
-language; what was read or found comes back in the same panel, with where it was found and how sure the reader is.
+A click on the landing page's brain opens it into three parts, one per input (upper left text, upper right sound, the
+lower half images), each naming itself under the pointer and saying what the engine does with it; a click on a part
+opens that input's page, and scrolling closes it (D-128, D-129, D-140). On the landing page each of the three inputs also
+opens a panel where it is given to the models (D-126): write or paste an answer with its sources, choose or paste an
+image, or press the microphone and speak, in any language; what was read or found comes back in the same panel, with where it was found and how sure the reader is.
 With an AI's answer about the file, the words read in it become the check's sources and every claim is shown with
-where its evidence is, a box in the picture or a moment in the recording (D-135). Only English is checked for now: a
-file in another language is read but given no verdict, unless asked. The
+where its evidence is, a box in the picture or a moment in the recording (D-135). A file in a language the checks do
+not read is read but given no verdict (D-138). The
 browser asks for the microphone once; it allows it on `localhost` and `127.0.0.1`, not on a plain `http://` address of
 another computer.
 

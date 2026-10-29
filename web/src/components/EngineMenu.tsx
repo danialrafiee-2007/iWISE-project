@@ -3,11 +3,12 @@ import { useI18n, type MessageKey } from "../i18n";
 import { Link, useRouter } from "../lib/router";
 import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
 
-// "AI engine" in the top bar: the challenge's four inputs, and beside the one the pointer rests on (or that a tap
-// chose), the parts of the engine behind it. Text holds the claim-checking tools and the examples; sound, images and
-// video each hold a page that reads a file and one that says which models do it and what they have been shown to do.
+// "AI engine" in the top bar: its three inputs, text first (the challenge's own), then sound and images (the project's
+// additions), and beside the one the pointer rests on (or that a tap chose), the parts of the engine behind it. Text
+// holds the claim-checking tools and the examples; sound and images each hold a page that reads a file and one that
+// says which models do it and what they have been shown to do.
 
-export type Medium = "text" | "audio" | "image" | "video";
+export type Medium = "text" | "audio" | "image";
 type Item = { to: string; label: MessageKey };
 
 export const TOOLS: Item[] = [
@@ -24,14 +25,12 @@ const ICONS: Record<Medium, ReactNode> = {
   text: <path d="M5 6h14M5 10h14M5 14h9M5 18h6" />,
   audio: <path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3" />,
   image: <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2zM4 16l5-5 4 4 2-2 5 5M15 9h.01" />,
-  video: <path d="M4 7a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2zM16 10l4-2.5v9L16 14" />,
 };
 
 export const SECTIONS: { medium: Medium; label: MessageKey; items: Item[] }[] = [
   { medium: "text", label: "nav.text", items: TOOLS },
   { medium: "audio", label: "nav.audio", items: [{ to: "/audio", label: "nav.audioRead" }, { to: "/audio/models", label: "nav.models" }] },
   { medium: "image", label: "nav.image", items: [{ to: "/image", label: "nav.imageRead" }, { to: "/image/models", label: "nav.models" }] },
-  { medium: "video", label: "nav.video", items: [{ to: "/video", label: "nav.videoRead" }, { to: "/video/models", label: "nav.models" }] },
 ];
 
 /** On a phone a top-bar menu opens across the screen just under the bar (the header's blur makes it the frame that a

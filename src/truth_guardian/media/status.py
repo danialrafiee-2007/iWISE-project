@@ -1,7 +1,8 @@
 """What each media reader can do on this computer, in four separate states, as the handover asks: its files are present
 (checked against runtime/multimodal/MODEL_MANIFEST.json by size), its runtime is installed, it has run on known samples
 (eval/results/media_pilot.json, written by scripts/media_pilot.py), and its quality has been evaluated on labelled data
-(eval/results/media_eval.json; nothing yet). A model's name or the languages it lists never stand in for the last two.
+(eval/results/media_eval.json, written by scripts/evaluate_media.py, D-139). A model's name or the languages it lists
+never stand in for the last two.
 """
 
 import importlib.util
@@ -19,7 +20,6 @@ COMPONENTS = [
     ("speech", "speech to text", "Whisper Small (Systran/faster-whisper-small)", ["whisper-small-ct2"], ["faster_whisper", "ctranslate2", "av"], False),
     ("ocr", "text in images", "Tesseract 5 with tessdata_fast", ["tessdata_fast"], ["tesserocr"], False),
     ("vision", "what an image shows", "Qwen3-VL-2B-Instruct (GGUF)", ["qwen3-vl-2b-gguf"], [], True),
-    ("video", "video: sound and sampled frames", "PyAV with the speech and OCR readers", ["whisper-small-ct2", "tessdata_fast"], ["av", "faster_whisper", "tesserocr"], False),
     ("retrieval", "multilingual retrieval", "intfloat/multilingual-e5-small", ["multilingual-e5-small"], ["sentence_transformers"], False),
     ("nli", "multilingual entailment", "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", ["mdeberta-v3-base-mnli-xnli"], ["transformers"], False),
 ]

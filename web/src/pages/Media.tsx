@@ -7,11 +7,11 @@ import { getJson } from "../lib/api";
 import { num } from "../lib/format";
 import { Link, useRouter } from "../lib/router";
 
-// The AI engine's pages for sound, images and video: /audio, /image and /video read a file (the landing page's input
-// panel, full size), and /audio/models, /image/models and /video/models say which local models do it and what each
+// The AI engine's pages for sound and images: /audio and /image read a file (the landing page's input panel, full
+// size), and /audio/models and /image/models say which local models do it and what each
 // has been shown to do on this computer, in the four states /api/media/status keeps apart.
 
-type Kind = "audio" | "image" | "video";
+type Kind = "audio" | "image";
 interface Component {
   name: string;
   model: string;
@@ -23,10 +23,10 @@ interface Component {
   pilot: { seconds?: Record<string, number>; peak_mb?: number; server_peak_mb?: number; checks?: number; passed_checks?: number } | null;
 }
 
-// Which readers stand behind each input (a video goes through the others).
-const READERS: Record<Kind, string[]> = { audio: ["speech"], image: ["ocr", "vision"], video: ["video", "speech", "ocr", "vision"] };
-// The landing page's row for the input: its title and what the challenge asks of it.
-const ROW: Record<Kind, number> = { audio: 2, image: 3, video: 4 };
+// Which readers stand behind each input.
+const READERS: Record<Kind, string[]> = { audio: ["speech"], image: ["ocr", "vision"] };
+// The landing page's row for the input: its title and what it is checked for.
+const ROW: Record<Kind, number> = { audio: 2, image: 3 };
 const STATES = [
   ["files_present", "models.files"],
   ["runtime_ready", "models.runtime"],

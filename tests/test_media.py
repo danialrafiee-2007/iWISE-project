@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import io
+import json
 import wave
 
 import numpy as np
@@ -76,14 +77,16 @@ def test_a_long_premise_is_read_in_overlapping_windows():
 
 def test_status_keeps_installed_run_and_evaluated_apart():
     rows = status.status()
-    assert [r["name"] for r in rows] == ["speech", "ocr", "vision", "video", "retrieval", "nli"]
+    assert [r["name"] for r in rows] == ["speech", "ocr", "vision", "retrieval", "nli"]
+    evaluated = set(json.loads(status.EVALUATION.read_text(encoding="utf-8")).get("components", {})) if status.EVALUATION.is_file() else set()
     for row in rows:
         assert {"files_present", "runtime_ready", "run_tested", "quality_evaluated"} <= row.keys()
-        assert row["quality_evaluated"] is False  # no labelled evaluation yet
+        # Only what evaluate_media.py measured on labelled real media counts (D-139); the multilingual models are not there.
+        assert row["quality_evaluated"] is (row["name"] in evaluated and row["name"] in ("speech", "ocr", "vision"))
 
 
 def test_media_endpoints_report_status_and_refuse_what_they_cannot_read(client):
-    assert len(client.get("/api/media/status").json()["components"]) == 6
+    assert len(client.get("/api/media/status").json()["components"]) == 5
     data = base64.b64encode(b"hello").decode()
     assert client.post("/api/media/read", json={"name": "notes.txt", "data": data}).status_code == 422
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "languages": ["fa; rm -rf"]}).status_code == 422
@@ -91,6 +94,7 @@ def test_media_endpoints_report_status_and_refuse_what_they_cannot_read(client):
     # The type can be overridden (a browser's sound recording comes as .webm), but only for a file type that is read.
     assert client.post("/api/media/read", json={"name": "notes.txt", "data": data, "kind": "audio"}).status_code == 422
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "question": "x" * 501}).status_code == 422
+    assert client.post("/api/media/read", json={"name": "clip.mp4", "data": data}).status_code == 422  # video is not read (D-140)
 
 
 def test_evidence_keeps_the_words_read_one_per_line_with_their_segments():
@@ -141,28 +145,6 @@ def test_capital_latin_on_a_frame_is_not_read_as_another_script():
     image = Image.new("RGB", (960, 540), "white")
     ImageDraw.Draw(image).text((120, 230), "FIRST SLIDE ONE", fill="black", font=ImageFont.truetype("arial.ttf", 64))
     assert ocr.read_text(image).text == "FIRST SLIDE ONE"
-
-
-@needs("video")
-def test_frames_are_spread_over_a_video_whose_frame_times_are_broken(tmp_path):
-    import av
-    from truth_guardian.media import video
-
-    path = tmp_path / "broken.webm"
-    with av.open(str(path), "w", format="webm") as out:
-        stream = out.add_stream("libvpx", rate=10)
-        stream.width, stream.height, stream.pix_fmt = 320, 240, "yuv420p"
-        for i in range(80):  # 8 s, growing lighter; no frame times given, as some recorders write them
-            frame = av.VideoFrame.from_image(Image.new("RGB", (320, 240), (3 * i, 3 * i, 3 * i)))
-            frame.pts = None
-            out.mux(stream.encode(frame))
-        out.mux(stream.encode())
-    picked = video.frames(path)
-    assert len(picked) == 3
-    times = [at for at, _ in picked]
-    shades = [np.asarray(image.convert("L")).mean() for _, image in picked]
-    assert times == sorted(times) and times[-1] - times[0] > 4
-    assert shades == sorted(shades) and shades[-1] - shades[0] > 60
 
 
 @needs("ocr")

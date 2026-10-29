@@ -6,7 +6,7 @@ The tools are under **AI engine** in the top bar (rest the pointer on it, then o
 
 | Time | Page | What to do | What to say |
 |---|---|---|---|
-| 0:00 | Landing | Scroll once through the challenge inputs | AI answers sound right even when they are not. The challenge covers text, images, sound and video; what we show today is text, checked claim by claim against the sources, on this laptop, offline: evidence for every sentence, four signals, a calibrated fusion model, rules for what models miss, and a report. |
+| 0:00 | Landing | Scroll once through the challenge inputs | AI answers sound right even when they are not. The challenge is about text, and that is what we show first: checked claim by claim against the sources, on this laptop, offline: evidence for every sentence, four signals, a calibrated fusion model, rules for what models miss, and a report. |
 | 1:00 | Analyze | "A wrong year and a wrong citation" | The year is marked on the exact word, with the source sentence and the fix 2022 → 1945. The citation [2] is flagged: source 1 is the one that supports the claim. Blame goes to the language model, because the sources do answer the question. The grade, the risk and the conformal guarantee sit on the right. |
 | 2:30 | Analyze | "Sources that disagree", then "The retriever fetched the wrong page" | When the sources contradict each other the answer is marked contested, not hallucinated. When the sources miss the question, the fault is retrieval, not the model. |
 | 3:30 | Heal | "Heal this answer" from the first example | Round by round: the wrong year is replaced from the source, then the answer is checked again; the risk falls and every change says why. |
@@ -23,7 +23,7 @@ the final model, every run logged in eval/locked_runs.log), what happens on a ne
 ## Tour and the demo video
 
 - **Tour** in the top bar (rest the pointer on it), then **Text tour**: eleven steps through every tool on ready-made
-  examples. Hand it to a judge who wants to explore alone; arrow keys move, Esc leaves. The audio, image and video
+  examples. Hand it to a judge who wants to explore alone; arrow keys move, Esc leaves. The audio and image
   tours are listed as coming.
 - **On a projector**: enlarge with the browser's own zoom (Ctrl and +); the app's size button was removed (D-127).
 - **Demo video**: open `http://127.0.0.1:8765/?tour=play` (or press Autoplay in the tour) and record the screen, for

@@ -48,7 +48,7 @@ study = [
 testpaths = ["tests"]
 
 [tool.uv]
-# The media group (speech to text, text in images, audio and video decoding) is part of the local app and the
+# The media group (speech to text, text in images, audio decoding) is part of the local app and the
 # launcher; the Docker image leaves it out (Dockerfile: --no-group media), as media there is a separate optional service.
 default-groups = ["dev", "media"]
 

@@ -14,7 +14,6 @@ const COLUMNS: { title: MessageKey; links: { to: string; label: MessageKey }[] }
       { to: "/analyze", label: "nav.text" },
       { to: "/audio", label: "nav.audio" },
       { to: "/image", label: "nav.image" },
-      { to: "/video", label: "nav.video" },
     ],
   },
   { title: "footer.tools", links: TOOLS.filter((tool) => tool.to !== "/analyze") },

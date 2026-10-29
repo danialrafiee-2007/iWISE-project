@@ -79,7 +79,7 @@ export const makeBrainUniforms = (): Uniforms => ({
   uCursorRadius: { value: BRAIN_CONFIG.cursorRadius },
   uCursorColor: { value: hexToVec3(BRAIN_CONFIG.cursorColor) },
   uCursorStrength: { value: BRAIN_CONFIG.cursorStrength },
-  // Truth Guardian: the brain opened into four parts (driven by the scene worker, see SPLIT there).
+  // Truth Guardian: the brain opened into three parts (driven by the scene worker, see SPLIT there).
   uSplit: { value: 0 },
   uSplitY: { value: 0 },
   uSplitDist: { value: 0.2 },

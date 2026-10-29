@@ -67,10 +67,10 @@ export const BRAIN_VERTEX = /* glsl */ `
   uniform float uAspect;      // viewport width / height (circular halo)
   uniform float uCursorRadius;// NDC halo radius (shrinks as the brain gets far)
   uniform float uCursorStrength; // overall halo intensity multiplier
-  uniform float uSplit;       // Truth Guardian: 0 whole .. 1 opened into four parts
-  uniform float uSplitY;      // the height the upper and lower parts are cut at
+  uniform float uSplit;       // Truth Guardian: 0 whole .. 1 opened into three parts
+  uniform float uSplitY;      // the height the upper parts and the lower one are cut at
   uniform float uSplitDist;   // how far each part moves out
-  uniform float uPiece;       // the part under the pointer (0..3), kept while its light fades
+  uniform float uPiece;       // the part under the pointer (0..2), kept while its light fades
   uniform float uPieceLift;   // 0..1, eased: how lit that part is
   varying float vSeed;
   varying float vSynapse;
@@ -114,14 +114,14 @@ export const BRAIN_VERTEX = /* glsl */ `
     // Finale: blow the particles outward along a seeded radial direction.
     vec3 exDir = normalize(rad + vec3(sin(aSeed * 41.0), cos(aSeed * 57.0), sin(aSeed * 73.0)) * 0.45);
     p += exDir * uExplode * uExplodeDist;
-    // Truth Guardian: opened, the brain parts into four, left or right and upper or lower (0 upper left, 1 upper
-    // right, 2 lower left, 3 lower right), each moving out from the centre and a little toward the viewer; the part
-    // under the pointer moves further and lights up, the others dim.
+    // Truth Guardian: opened, the brain parts into three, the upper half into left and right and the lower half
+    // whole (0 upper left, 1 upper right, 2 lower), each moving out from the centre and a little toward the viewer;
+    // the part under the pointer moves further and lights up, the others dim.
     float right = step(0.0, position.x);
     float upper = step(uSplitY, position.y);
-    float piece = (1.0 - upper) * 2.0 + right;
+    float piece = upper * right + (1.0 - upper) * 2.0;
     float mine = 1.0 - step(0.5, abs(piece - uPiece));
-    vec3 apart = normalize(vec3(right * 2.0 - 1.0, (upper * 2.0 - 1.0) * 0.85, 0.3));
+    vec3 apart = normalize(vec3(upper * (right * 2.0 - 1.0), (upper * 2.0 - 1.0) * 0.85, 0.3));
     p += apart * uSplit * uSplitDist * (1.0 + mine * uPieceLift * 0.6);
     vHot = mine * uPieceLift * uSplit;
     vCold = (1.0 - mine) * uPieceLift * uSplit;

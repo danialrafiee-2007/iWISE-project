@@ -51,8 +51,8 @@ MAX_AUDIT_ANSWERS, MAX_AUDIT_CHARS = 100, 2_000_000
 MAX_MEDIA_BYTES = 25_000_000
 MEDIA_KINDS = {
     "image": {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif"},
-    "audio": {".wav", ".mp3", ".m4a", ".ogg", ".opus", ".flac", ".aac", ".wma", ".weba"},
-    "video": {".mp4", ".mkv", ".mov", ".avi", ".webm", ".m4v"},
+    # .webm is what the browser's recorder makes; it is read for its sound only.
+    "audio": {".wav", ".mp3", ".m4a", ".ogg", ".opus", ".flac", ".aac", ".wma", ".weba", ".webm"},
 }
 HOSTS = ["127.0.0.1", "localhost", "testserver"]
 ACCESS_PROMPT = 'Basic realm="Truth Guardian", charset="UTF-8"'
@@ -128,9 +128,9 @@ class MediaIn(_Strict):
     name: str = Field(min_length=1, max_length=255)
     data: str = Field(max_length=(MAX_MEDIA_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
     languages: Annotated[list[Annotated[str, Field(pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$")]], Field(max_length=3)] = []
-    describe: bool = Field(default=False, description="also ask the image model what the image (or the video's middle frame) shows")
-    question: str | None = Field(default=None, max_length=500, description="what the person asks about the image or video; implies describe")
-    kind: Literal["image", "audio", "video"] | None = Field(default=None, description="overrides the type the file name suggests (a recording in .webm is sound)")
+    describe: bool = Field(default=False, description="also ask the image model what the image shows")
+    question: str | None = Field(default=None, max_length=500, description="what the person asks about the image; implies describe")
+    kind: Literal["image", "audio"] | None = Field(default=None, description="overrides the type the file name suggests")
 
 
 class ContactIn(_Strict):
@@ -444,13 +444,13 @@ def create_app(
 
     @app.post("/api/media/read")
     def media_read(body: MediaIn) -> dict:
-        """The text in an image, a recording or a video, with where each piece came from (truth_guardian.media). One
-        media job runs at a time: the readers are large and the image model alone takes about 2 GB."""
+        """The text in an image or a recording, with where each piece came from (truth_guardian.media). One media job
+        runs at a time: the readers are large and the image model alone takes about 2 GB."""
         suffix = Path(body.name).suffix.lower()
         known = suffix in set().union(*MEDIA_KINDS.values())
         kind = body.kind if body.kind and known else next((k for k, suffixes in MEDIA_KINDS.items() if suffix in suffixes), None)
         if kind is None:
-            raise HTTPException(422, f"unsupported file type {suffix or '(none)'}; images, sound and video are read")
+            raise HTTPException(422, f"unsupported file type {suffix or '(none)'}; images and sound are read")
         question = (body.question or "").strip() or None
         describe = body.describe or question is not None
         try:
@@ -460,7 +460,7 @@ def create_app(
         if len(raw) > MAX_MEDIA_BYTES:
             raise HTTPException(413, f"the file is larger than {MAX_MEDIA_BYTES // 1_000_000} MB")
         try:
-            from truth_guardian.media import ocr, speech, video, vision
+            from truth_guardian.media import ocr, speech, vision
         except ImportError:
             raise HTTPException(503, "the media readers are not installed on this computer") from None
         if not media_lock.acquire(timeout=1):
@@ -477,21 +477,9 @@ def create_app(
                         reading.seconds = round(reading.seconds + seen.seconds, 2)
                         for reason in seen.reasons:
                             reading.review(reason)
-                elif kind == "audio":
+                else:
                     hint = body.languages[0].replace("_", "-").split("-")[0].lower() if body.languages else None
                     reading = speech.transcribe(path, language=hint)
-                else:
-                    reading = video.read_video(path, body.languages)
-                    middle = video.frames(path, 1) if describe else []
-                    if middle:  # one frame, the middle one: the image model takes about 15 s a frame on the CPU
-                        at, image = middle[0]
-                        seen = vision.describe(image, question)
-                        for segment in seen.segments:
-                            segment.place.start = segment.place.end = at
-                        reading.segments += seen.segments
-                        reading.seconds = round(reading.seconds + seen.seconds, 2)
-                        for reason in seen.reasons:
-                            reading.review(reason)
         except (OSError, RuntimeError, ValueError) as e:
             raise HTTPException(422, f"the file could not be read: {type(e).__name__}") from None
         finally:

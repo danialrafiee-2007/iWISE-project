@@ -9,7 +9,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Kind = Literal["audio", "image", "video"]
+Kind = Literal["audio", "image"]
 Role = Literal["transcript", "ocr", "description"]
 
 # Below these a reading goes to review.

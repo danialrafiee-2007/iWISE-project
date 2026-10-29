@@ -8,14 +8,14 @@ import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
 import { languageLines } from "./report/Panels";
 
-// The landing page's challenge inputs, opened in place: a chat-like box to write or attach the input and send it, and
-// the guardian's answer above it. Text goes to the claim check (/api/analyze); an image, a recording or a video goes
+// The landing page's inputs, opened in place: a chat-like box to write or attach the input and send it, and the
+// guardian's answer above it. Text goes to the claim check (/api/analyze); an image or a recording goes
 // to the local media readers (/api/media/read), whose reading is shown as read: where each piece was found, its
 // language and how sure the reader is, and what needs review. With an AI's answer about the file, the words read in
 // it become the check's sources (D-135), and each claim is shown with where its evidence is in the file: a box in
-// the picture, a moment in the recording or the video.
+// the picture, a moment in the recording.
 
-export type InputKind = "text" | "audio" | "image" | "video";
+export type InputKind = "text" | "audio" | "image";
 type MediaKind = Exclude<InputKind, "text">;
 
 interface Place {
@@ -33,7 +33,7 @@ interface Segment {
   place: Place;
 }
 interface Reading {
-  kind: "audio" | "image" | "video";
+  kind: "audio" | "image";
   segments: Segment[];
   language: string | null;
   language_confidence: number | null;
@@ -346,7 +346,7 @@ function ReadingView({ reading, onSeek, onHover }: { reading: Reading; onSeek?: 
   const { t } = useI18n();
   const read = reading.segments.map((s, i) => [s, i] as const).filter(([s]) => s.role !== "description");
   const answers = reading.segments.filter((s) => s.role === "description");
-  const title = reading.kind === "audio" ? "inputs.heard" : reading.kind === "video" ? "inputs.heardSeen" : "inputs.read";
+  const title = reading.kind === "audio" ? "inputs.heard" : "inputs.read";
   const language = (code: string | null) => (code ? NAME[code] ?? code : t("inputs.unknownLanguage"));
   return (
     <div className="flex flex-col gap-3">
@@ -604,7 +604,7 @@ function QuestionToggle({ open, onToggle }: { open: boolean; onToggle: () => voi
   );
 }
 
-function VisualPanel({ kind }: { kind: "image" | "video" }) {
+function ImagePanel() {
   const { t } = useI18n();
   const [file, setFile] = useState<File | null>(null);
   const [answer, setAnswer] = useState("");
@@ -614,19 +614,17 @@ function VisualPanel({ kind }: { kind: "image" | "video" }) {
   const [lit, setLit] = useState<number[]>([]);
   const [size, setSize] = useState<[number, number] | null>(null);
   const url = useObjectUrl(file);
-  const player = useRef<HTMLVideoElement>(null);
   const media = useMediaCheck();
   const reader = media.reader;
 
   useEffect(() => {
-    if (kind !== "image") return;
     const onPaste = (e: ClipboardEvent) => {
       const pasted = [...(e.clipboardData?.files ?? [])].find((f) => f.type.startsWith("image/"));
       if (pasted) choose(pasted);
     };
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
-  }, [kind]);
+  }, []);
 
   const choose = (f: File) => {
     setFile(f);
@@ -634,8 +632,7 @@ function VisualPanel({ kind }: { kind: "image" | "video" }) {
     setLit([]);
     media.clear();
   };
-  const send = () => file && media.run({ file, name: file.name, kind, language }, question, answer);
-  const seek = (s: number) => player.current && ((player.current.currentTime = s), player.current.play());
+  const send = () => file && media.run({ file, name: file.name, kind: "image", language }, question, answer);
   const boxes = reader.reading?.segments.map((s, i) => [s, i] as const).filter(([s]) => s.role === "ocr" && s.place.box) ?? [];
 
   return (
@@ -657,7 +654,7 @@ function VisualPanel({ kind }: { kind: "image" | "video" }) {
                 {file && (
                   <label className={SMALL}>
                     {t("inputs.change")}
-                    <input type="file" accept={kind === "image" ? "image/*" : "video/*"} className="sr-only" onChange={(e) => e.target.files?.[0] && choose(e.target.files[0])} />
+                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && choose(e.target.files[0])} />
                   </label>
                 )}
               </>
@@ -668,8 +665,8 @@ function VisualPanel({ kind }: { kind: "image" | "video" }) {
     >
       <div className="flex flex-col gap-4">
         {!file || !url ? (
-          <Picker accept={kind === "image" ? "image/*" : "video/*"} label={t(kind === "image" ? "inputs.chooseImage" : "inputs.chooseVideo")} onFile={choose} />
-        ) : kind === "image" ? (
+          <Picker accept="image/*" label={t("inputs.chooseImage")} onFile={choose} />
+        ) : (
           <div className="relative self-center">
             <img src={url} alt={file.name} className="block max-h-[28vh] max-w-full rounded-xl" onLoad={(e) => setSize([e.currentTarget.naturalWidth, e.currentTarget.naturalHeight])} />
             {size && boxes.map(([s, i]) => {
@@ -680,13 +677,11 @@ function VisualPanel({ kind }: { kind: "image" | "video" }) {
               );
             })}
           </div>
-        ) : (
-          <video ref={player} src={url} controls className="block max-h-[28vh] w-full rounded-xl bg-black" />
         )}
         {reader.running && <Working text={t(question.trim() ? "inputs.readingAsk" : "inputs.reading")} />}
         {reader.error && <Problem text={reader.error} />}
-        <MediaVerdict media={media} onSeek={kind === "video" ? seek : undefined} onLight={setLit} />
-        {reader.reading && <ReadingView reading={reader.reading} onHover={(i) => setLit(i == null ? [] : [i])} onSeek={kind === "video" ? seek : undefined} />}
+        <MediaVerdict media={media} onLight={setLit} />
+        {reader.reading && <ReadingView reading={reader.reading} onHover={(i) => setLit(i == null ? [] : [i])} />}
       </div>
     </Frame>
   );
@@ -827,5 +822,5 @@ function AudioPanel() {
 export default function InputPanel({ kind }: { kind: InputKind }) {
   if (kind === "text") return <TextPanel />;
   if (kind === "audio") return <AudioPanel />;
-  return <VisualPanel key={kind} kind={kind} />;
+  return <ImagePanel />;
 }

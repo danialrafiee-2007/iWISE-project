@@ -32,8 +32,6 @@ const ROUTES: Record<string, ComponentType> = {
   "/audio/models": Media,
   "/image": Media,
   "/image/models": Media,
-  "/video": Media,
-  "/video/models": Media,
   "/about": About,
   "/team": Team,
   "/contact": Contact,

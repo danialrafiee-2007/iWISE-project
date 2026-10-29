@@ -289,13 +289,12 @@ export function TourProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// The tours, one per challenge input. Only the text tour is written so far; the others are listed, switched off and
+// The tours, one per input. Only the text tour is written so far; the others are listed, switched off and
 // marked as coming, until their pages are settled.
 const TOURS: { medium: Medium; label: MessageKey; ready: boolean }[] = [
   { medium: "text", label: "tour.text", ready: true },
   { medium: "audio", label: "tour.audio", ready: false },
   { medium: "image", label: "tour.image", ready: false },
-  { medium: "video", label: "tour.video", ready: false },
 ];
 
 /** "Tour" in the top bar: the list of tours opens while the pointer rests on it, or on a click or tap. */

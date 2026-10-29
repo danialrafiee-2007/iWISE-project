@@ -1,0 +1,206 @@
+{
+  "speech": {
+    "en": {
+      "recordings": 100,
+      "error_rate": 0.08,
+      "unit": "words",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 199,
+        "checked": 199,
+        "hallucinated": 99,
+        "auroc": 0.774,
+        "flagged_grounded": 0.21,
+        "caught_hallucinated": 0.485,
+        "not_checked": {}
+      }
+    },
+    "ar": {
+      "recordings": 100,
+      "error_rate": 0.327,
+      "unit": "words",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 200,
+        "checked": 200,
+        "hallucinated": 100,
+        "auroc": 0.75,
+        "flagged_grounded": 0.42,
+        "caught_hallucinated": 0.8,
+        "not_checked": {}
+      }
+    },
+    "es": {
+      "recordings": 100,
+      "error_rate": 0.055,
+      "unit": "words",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 200,
+        "checked": 200,
+        "hallucinated": 100,
+        "auroc": 0.77,
+        "flagged_grounded": 0.23,
+        "caught_hallucinated": 0.61,
+        "not_checked": {}
+      }
+    },
+    "fr": {
+      "recordings": 100,
+      "error_rate": 0.133,
+      "unit": "words",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 200,
+        "checked": 200,
+        "hallucinated": 100,
+        "auroc": 0.737,
+        "flagged_grounded": 0.34,
+        "caught_hallucinated": 0.74,
+        "not_checked": {}
+      }
+    },
+    "ru": {
+      "recordings": 100,
+      "error_rate": 0.104,
+      "unit": "words",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 199,
+        "checked": 199,
+        "hallucinated": 99,
+        "auroc": 0.776,
+        "flagged_grounded": 0.15,
+        "caught_hallucinated": 0.556,
+        "not_checked": {}
+      }
+    },
+    "zh": {
+      "recordings": 100,
+      "error_rate": 0.218,
+      "unit": "characters",
+      "language_right": 1.0,
+      "chain": {
+        "answers": 200,
+        "checked": 200,
+        "hallucinated": 100,
+        "auroc": 0.648,
+        "flagged_grounded": 0.45,
+        "caught_hallucinated": 0.7,
+        "not_checked": {}
+      }
+    }
+  },
+  "images": {
+    "textvqa_en": {
+      "questions": 150,
+      "text_found": 0.927,
+      "answer_read": 0.087,
+      "language_right": 0.133,
+      "chain": {
+        "answers": 278,
+        "checked": 177,
+        "hallucinated": 88,
+        "auroc": 0.576,
+        "flagged_grounded": 0.854,
+        "caught_hallucinated": 0.966,
+        "not_checked": {
+          "language": 101
+        }
+      }
+    },
+    "mtvqa_ar": {
+      "questions": 100,
+      "text_found": 1.0,
+      "answer_read": 0.04,
+      "language_right": 0.19,
+      "chain": {
+        "answers": 200,
+        "checked": 138,
+        "hallucinated": 69,
+        "auroc": 0.652,
+        "flagged_grounded": 0.928,
+        "caught_hallucinated": 1.0,
+        "not_checked": {
+          "language": 60,
+          "unknown_language": 2
+        }
+      }
+    },
+    "mtvqa_fr": {
+      "questions": 100,
+      "text_found": 0.98,
+      "answer_read": 0.26,
+      "language_right": 0.34,
+      "chain": {
+        "answers": 196,
+        "checked": 150,
+        "hallucinated": 74,
+        "auroc": 0.808,
+        "flagged_grounded": 0.763,
+        "caught_hallucinated": 1.0,
+        "not_checked": {
+          "language": 46
+        }
+      }
+    },
+    "mtvqa_ru": {
+      "questions": 100,
+      "text_found": 1.0,
+      "answer_read": 0.2,
+      "language_right": 0.99,
+      "chain": {
+        "answers": 200,
+        "checked": 198,
+        "hallucinated": 99,
+        "auroc": 0.676,
+        "flagged_grounded": 0.929,
+        "caught_hallucinated": 1.0,
+        "not_checked": {
+          "language": 2
+        }
+      }
+    }
+  },
+  "qwen": {
+    "answers": 60,
+    "right": 0.883,
+    "chain": {
+      "answers": 57,
+      "checked": 42,
+      "hallucinated": 7,
+      "auroc": 0.478,
+      "flagged_grounded": 0.943,
+      "caught_hallucinated": 1.0,
+      "not_checked": {
+        "language": 15
+      }
+    }
+  },
+  "components": {
+    "speech": {
+      "data": "FLEURS dev",
+      "error_rate": {
+        "en": 0.08,
+        "ar": 0.327,
+        "es": 0.055,
+        "fr": 0.133,
+        "ru": 0.104,
+        "zh": 0.218
+      }
+    },
+    "ocr": {
+      "data": "TextVQA, MTVQA",
+      "answer_read": {
+        "textvqa_en": 0.087,
+        "mtvqa_ar": 0.04,
+        "mtvqa_fr": 0.26,
+        "mtvqa_ru": 0.2
+      }
+    },
+    "vision": {
+      "data": "TextVQA",
+      "right": 0.883
+    }
+  }
+}

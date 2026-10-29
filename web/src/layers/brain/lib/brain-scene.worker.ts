@@ -82,8 +82,8 @@ export type ToSceneWorker =
   | { type: "split"; open: boolean }
   | { type: "piece"; index: number };
 
-/** Where the brain stands on the canvas, in NDC (x right, y up): its centre and the centre of each of its four parts
- *  (0 upper left, 1 upper right, 2 lower left, 3 lower right, before any mirroring). */
+/** Where the brain stands on the canvas, in NDC (x right, y up): its centre and the centre of each of its three parts
+ *  (0 upper left, 1 upper right, 2 lower, before any mirroring). */
 export interface BrainLayout {
   centre: [number, number];
   pieces: [number, number][];
@@ -123,11 +123,11 @@ interface Stage {
   open: Opening;
 }
 
-// ─── Opening into four (Truth Guardian) ─────────────────────────────────────
+// ─── Opening into three (Truth Guardian) ────────────────────────────────────
 
 /**
- * A click on the brain opens it: it comes a little toward the viewer and parts into four, one per challenge input
- * (the page names them). The page says which part the pointer is on; this side eases the motion and reports where
+ * A click on the brain opens it: it comes a little toward the viewer and parts into three, one per input (text, sound,
+ * images; the page names them). The page says which part the pointer is on; this side eases the motion and reports where
  * the brain and its parts stand on the canvas, so the page can place their names and its pointer tests.
  */
 // It closes faster than it opens, so the brain is whole again by the time the scroll it gave way to gets going.
@@ -155,10 +155,10 @@ const measureParts = (s: Stage, positions: Float32Array) => {
   const n = positions.length / 3;
   for (let i = 0; i < positions.length; i += 3) sumY += positions[i + 1];
   const cut = sumY / Math.max(1, n);
-  const sums = [0, 1, 2, 3].map(() => [0, 0, 0, 0]);
+  const sums = [0, 1, 2].map(() => [0, 0, 0, 0]);
   for (let i = 0; i < positions.length; i += 3) {
     if (positions[i + 2] < 0) continue;
-    const piece = (positions[i + 1] >= cut ? 0 : 2) + (positions[i] >= 0 ? 1 : 0);
+    const piece = positions[i + 1] >= cut ? (positions[i] >= 0 ? 1 : 0) : 2;
     const sum = sums[piece];
     sum[0] += positions[i];
     sum[1] += positions[i + 1];
@@ -200,8 +200,8 @@ const stepOpening = (s: Stage, delta: number) => {
   const spread = u.uSplitDist.value as number;
   const centre = project(_point.set(0, 0, 0).applyMatrix4(s.group.matrixWorld));
   const pieces = o.centres.map((c, i) => {
-    const right = i % 2 === 1 ? 1 : -1;
     const upper = i < 2 ? 1 : -1;
+    const right = i === 2 ? 0 : i === 1 ? 1 : -1;
     const lift = i === u.uPiece.value ? o.lift : 0;
     _side.set(right, upper * 0.85, 0.3).normalize().multiplyScalar(o.amount * spread * (1 + lift * 0.6));
     return project(_point.copy(c).add(_side).applyMatrix4(s.group.matrixWorld));

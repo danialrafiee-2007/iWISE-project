@@ -49,7 +49,7 @@ def reader_name() -> str:
 
 
 def decode(source: str | Path | BinaryIO):
-    """The first sound track of a file (audio or video, any format FFmpeg reads) as 16 kHz mono float32 samples. This is
+    """The first sound track of a file (any format FFmpeg reads) as 16 kHz mono float32 samples. This is
     faster-whisper's decode_audio, done here because 1.2.1 passes PyAV a `metadata_errors` option that PyAV 19 removed."""
     import av
     import numpy as np

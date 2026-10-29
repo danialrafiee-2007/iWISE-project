@@ -4,9 +4,8 @@ import { useI18n, type MessageKey } from "../i18n";
 import { NeuralBrain, type BrainSpot } from "../layers/brain/NeuralBrain";
 import { useRouter } from "../lib/router";
 
-// The landing page's brain, made to answer: a click on it brings it forward and parts it into four, one part per
-// challenge input (upper left text, upper right sound, lower left images, lower right video, mirrored on right-to-left
-// pages). Under the pointer a part lights up and shows its name; held there, a small card says what the engine does
+// The landing page's brain, made to answer: a click on it brings it forward and parts it into three, one part per
+// input (upper left text, upper right sound, the lower half images, mirrored on right-to-left pages). Under the pointer a part lights up and shows its name; held there, a small card says what the engine does
 // with that input, joined to the part by a line, after iridology.app's iris chart; a click on a part opens that
 // input's page. A click outside, Escape or the first scroll closes it, and the page scrolls on as usual. The names
 // and cards sit above the page; the brain itself stays in its background layer.
@@ -15,7 +14,6 @@ const PARTS: { name: MessageKey; about: MessageKey; to: string }[] = [
   { name: "nav.text", about: "brain.text", to: "/analyze" },
   { name: "nav.audio", about: "brain.audio", to: "/audio" },
   { name: "nav.image", about: "brain.image", to: "/image" },
-  { name: "nav.video", about: "brain.video", to: "/video" },
 ];
 const DWELL = 450; // ms the pointer rests on a part before its card opens
 const CARD = 260;

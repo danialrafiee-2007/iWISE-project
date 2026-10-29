@@ -2,11 +2,11 @@
 in its own process, and records what it read, how long it took and the process's peak memory, in
 eval/results/media_pilot.json (a copy goes to --report-dir when given).
 
-    uv run python scripts/media_pilot.py [--only ocr,speech,video,vision,retrieval,nli] [--report-dir D:\\IWISE\\REPORT]
+    uv run python scripts/media_pilot.py [--only ocr,speech,vision,retrieval,nli] [--report-dir D:\\IWISE\\REPORT]
 
 Samples go to runtime/media-smoke. Images are drawn by the local Edge browser from HTML, so Arabic-script and Ethiopic
-text is shaped as a reader would see it; speech comes from Windows' own voices (System.Speech); silence and a short video
-are made here with PyAV. They are synthetic and few: they show that each reader loads offline, runs and reads what it
+text is shaped as a reader would see it; speech comes from Windows' own voices (System.Speech); silence is
+made here. They are synthetic and few: they show that each reader loads offline, runs and reads what it
 should, not how well it does on real recordings and photos, which needs labelled data (eval/results/media_eval.json).
 The checks were written by the AI assistant from the samples' known content.
 """
@@ -31,7 +31,7 @@ RESULT = ROOT / "eval" / "results" / "media_pilot.json"
 DEAD_PROXY = "http://127.0.0.1:9"
 EDGE = [Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"), Path(r"C:\Program Files\Microsoft\Edge\Application\msedge.exe")]
 EDGE_PROFILE = Path(os.environ.get("TG_EDGE_PROFILE", r"D:\cache\edge-headless"))
-COMPONENTS = ["ocr", "speech", "video", "vision", "retrieval", "nli"]
+COMPONENTS = ["ocr", "speech", "vision", "retrieval", "nli"]
 
 IMAGES = {
     "ocr-ja": ("Yu Gothic", "会議は午前十時に始まります。<br>資料は受付で配ります。", "ltr"),
@@ -186,35 +186,6 @@ def silence(seconds: float, noise: int = 6) -> bytes:
     return b"".join(struct.pack("<h", rng.randint(-noise, noise)) for _ in range(int(seconds * 16_000)))
 
 
-def make_video(path: Path, speech: Path, seconds: float = 8.0) -> None:
-    import av
-    import numpy as np
-    from PIL import Image, ImageDraw, ImageFont
-
-    font = ImageFont.truetype(r"C:\Windows\Fonts\segoeui.ttf", 54)
-    audio = np.frombuffer(read_wav(speech), dtype=np.int16)
-    audio = np.concatenate([audio, np.zeros(max(0, int(seconds * 16_000) - len(audio)), dtype=np.int16)])[: int(seconds * 16_000)]
-    with av.open(str(path), "w") as out:
-        video = out.add_stream("mpeg4", rate=10)
-        video.width, video.height, video.pix_fmt = 960, 540, "yuv420p"
-        sound = out.add_stream("pcm_s16le", rate=16_000)
-        sound.layout = "mono"
-        for i in range(int(seconds * 10)):
-            image = Image.new("RGB", (960, 540), "white")
-            ImageDraw.Draw(image).text((60, 220), "TRUTH GUARDIAN VIDEO TEST", fill="black", font=font)
-            for packet in video.encode(av.VideoFrame.from_image(image)):
-                out.mux(packet)
-        for start in range(0, len(audio), 1600):
-            chunk = audio[start : start + 1600].reshape(1, -1)
-            frame = av.AudioFrame.from_ndarray(chunk, format="s16", layout="mono")
-            frame.sample_rate = 16_000
-            for packet in sound.encode(frame):
-                out.mux(packet)
-        for stream in (video, sound):
-            for packet in stream.encode(None):
-                out.mux(packet)
-
-
 def make_samples() -> dict:
     from PIL import Image, ImageDraw, ImageFont
 
@@ -241,8 +212,6 @@ def make_samples() -> dict:
     if english:
         speak(english, ENGLISH_SPEECH, SAMPLES / "speech-en.wav")
         made["speech-en"] = str(SAMPLES / "speech-en.wav")
-        make_video(SAMPLES / "video.mkv", SAMPLES / "speech-en.wav")
-        made["video"] = str(SAMPLES / "video.mkv")
     write_wav(SAMPLES / "silence.wav", silence(5.0))
     made["silence"] = str(SAMPLES / "silence.wav")
     if english and other:
@@ -314,18 +283,6 @@ def run_speech(samples: dict) -> dict:
     return {"reader": speech.reader_name(), "results": results, "checks": checks, "seconds": seconds}
 
 
-def run_video(samples: dict) -> dict:
-    from truth_guardian.media import video
-
-    if "video" not in samples:
-        return {"results": [], "checks": [check("video sample made", False, "no English voice to make the soundtrack")], "seconds": {}}
-    r = video.read_video(Path(samples["video"]))
-    text = r.text.lower()
-    checks = [check("video: soundtrack heard", "paris" in text), check("video: text on frames read", "guardian" in text),
-              check("video: every segment has a time", all(s.place.start is not None for s in r.segments))]
-    return {"reader": r.reader, "results": [{"sample": "video", **r.model_dump(include={"language", "quality", "needs_review", "reasons", "notes", "seconds"}), "text": r.text}], "checks": checks, "seconds": {"video": r.seconds}}
-
-
 def run_vision(samples: dict) -> dict:
     from truth_guardian.media import vision
 
@@ -379,7 +336,7 @@ def run_nli(_: dict) -> dict:
     return {"reader": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", "results": results, "checks": checks, "seconds": {"load": load, "pairs": round(time.perf_counter() - started, 2)}}
 
 
-RUNNERS = {"ocr": run_ocr, "speech": run_speech, "video": run_video, "vision": run_vision, "retrieval": run_retrieval, "nli": run_nli}
+RUNNERS = {"ocr": run_ocr, "speech": run_speech, "vision": run_vision, "retrieval": run_retrieval, "nli": run_nli}
 
 
 def child(name: str) -> None:
