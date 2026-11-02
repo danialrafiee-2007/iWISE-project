@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ShieldMark } from "../components/ShieldMark";
 import { useI18n, type MessageKey } from "../i18n";
 import { Heading } from "../layers/Heading";
 
@@ -7,14 +8,14 @@ import { Heading } from "../layers/Heading";
 // one shows the same ground with an icon until it is added. Names stay in Latin in every language, as the team writes
 // them. What is said about each person is only what the team gave: the role, and what that part of the project covers.
 
-type Person = { name: string; photo?: string; rank: MessageKey; tag: MessageKey; role: MessageKey; bio: MessageKey };
+type Person = { name: string; photo?: string; rank: MessageKey; role: MessageKey; bio: MessageKey };
 
-const TEACHER: Person = { name: "Hamed Khalilavi", photo: "/people/hamed-khalilavi.jpg", rank: "team.supervisor", tag: "team.tag.ai", role: "team.role.hamed", bio: "team.bio.hamed" };
+const TEACHER: Person = { name: "Hamed Khalilavi", photo: "/people/hamed-khalilavi.jpg", rank: "team.supervisor", role: "team.role.hamed", bio: "team.bio.hamed" };
 const MEMBERS: Person[] = [
-  { name: "Danial Rafiee", photo: "/people/danial-rafiee.jpg", rank: "team.member", tag: "team.tag.models", role: "team.role.models", bio: "team.bio.models" },
-  { name: "Mojdeh Ghazvinian", rank: "team.member", tag: "team.tag.models", role: "team.role.models", bio: "team.bio.models" },
-  { name: "Sepehr Kakoli", rank: "team.member", tag: "team.tag.coordination", role: "team.role.sepehr", bio: "team.bio.sepehr" },
-  { name: "Majid Rafiee", rank: "team.member", tag: "team.tag.sync", role: "team.role.majid", bio: "team.bio.majid" },
+  { name: "Danial Rafiee", photo: "/people/danial-rafiee.jpg", rank: "team.member", role: "team.role.models", bio: "team.bio.models" },
+  { name: "Mojdeh Ghazvinian", rank: "team.member", role: "team.role.models", bio: "team.bio.models" },
+  { name: "Sepehr Kakoli", rank: "team.member", role: "team.role.sepehr", bio: "team.bio.sepehr" },
+  { name: "Majid Rafiee", rank: "team.member", role: "team.role.majid", bio: "team.bio.majid" },
 ];
 
 function Photo({ person, className }: { person: Person; className: string }) {
@@ -29,21 +30,20 @@ function Photo({ person, className }: { person: Person; className: string }) {
   );
 }
 
-const Tag = ({ label }: { label: string }) => <span className="rounded-full border border-white/30 bg-beam-400 px-3 py-1 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-white">{label}</span>;
+/** The project's shield in the corner of a photo; it turns only while its card is under the pointer. */
+const Logo = () => (
+  <span className="person-logo absolute start-3 top-3">
+    <ShieldMark size={40} />
+  </span>
+);
 
 function Card({ person, onOpen }: { person: Person; onOpen: () => void }) {
   const { t } = useI18n();
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-[22px] border border-line bg-ink-950 p-0 text-start shadow-[0_16px_34px_-22px_rgba(44,58,52,.45)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-beam-400 hover:shadow-[0_22px_40px_-22px_rgba(44,58,52,.6)]"
-    >
+    <button type="button" onClick={onOpen} className="card person-card group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-[22px] p-0 text-start">
       <span className="relative block aspect-[5/4] w-full overflow-hidden">
-        <Photo person={person} className="block h-full w-full transition-transform duration-500 group-hover:scale-[1.03]" />
-        <span className="absolute start-3 top-3">
-          <Tag label={t(person.tag)} />
-        </span>
+        <Photo person={person} className="block h-full w-full" />
+        <Logo />
       </span>
       <span className="flex flex-1 flex-col gap-2 px-5 pb-4 pt-4">
         <span className="font-sans text-xs text-fog-400">{t(person.rank)}</span>
@@ -74,7 +74,10 @@ export default function Team() {
     page.classList.remove("person-open");
     page.style.paddingRight = "";
   };
-  useEffect(() => release, []);
+  useEffect(() => {
+    new Image().src = "/textures/parchment.jpg"; // ready before the first introduction opens on it
+    return release;
+  }, []);
   const open = (next: Person) => {
     const page = document.documentElement;
     setPerson(next);
@@ -103,7 +106,7 @@ export default function Team() {
 
       <dialog
         ref={dialog}
-        className="person-dialog m-auto w-[min(780px,calc(100vw-32px))] max-w-none overflow-hidden rounded-[24px] border border-line bg-ink-950 p-0 text-fog-100"
+        className="person-dialog m-auto w-[min(1080px,calc(100vw-32px))] max-w-none overflow-hidden rounded-[26px] border border-line bg-ink-950 p-0 text-fog-100"
         aria-labelledby="person-name"
         onClick={(e) => {
           if (e.target === dialog.current) dialog.current.close();
@@ -117,17 +120,17 @@ export default function Team() {
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </button>
-            <Photo person={person} className="h-64 w-full sm:h-full sm:min-h-[420px]" />
-            <div className="flex flex-col justify-center gap-3 p-7 sm:p-9">
-              <span className="self-start">
-                <Tag label={t(person.tag)} />
-              </span>
-              <span className="font-sans text-xs text-fog-400">{t(person.rank)}</span>
-              <h2 id="person-name" className="m-0 font-display text-[30px] font-medium leading-tight" lang="en">
+            <div className="relative">
+              <Photo person={person} className="h-72 w-full sm:h-full sm:min-h-[600px]" />
+              <Logo />
+            </div>
+            <div className="paper flex flex-col justify-center gap-4 p-7 sm:p-12">
+              <span className="font-sans text-sm text-fog-100">{t(person.rank)}</span>
+              <h2 id="person-name" className="m-0 font-display text-[32px] font-medium leading-tight sm:text-[42px]" lang="en">
                 {person.name}
               </h2>
-              <p className="m-0 font-sans text-sm font-medium text-beam-300">{t(person.role)}</p>
-              <p className="m-0 border-t border-line pt-4 text-[17px] leading-relaxed text-fog-200">{t(person.bio)}</p>
+              <p className="m-0 font-sans text-base font-medium text-[#264a38]">{t(person.role)}</p>
+              <p className="m-0 border-t border-[#a98a58] pt-5 text-[18px] leading-relaxed text-fog-100 sm:text-[20px]">{t(person.bio)}</p>
             </div>
           </div>
         )}

@@ -504,6 +504,52 @@
   animation: page-in 0.32s ease-out both;
 }
 
+/* The team's cards shine like every other box (.card), with the band of light passing over the photo, not behind it,
+   and their logo turning only while the card is under the pointer. */
+.person-card {
+  position: relative;
+}
+.person-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.5) 50%, transparent 60%) 100% 0 / 250% 100% no-repeat;
+}
+.person-card:hover {
+  animation: none;
+}
+.person-card:hover::after {
+  animation: person-sheen 3.6s ease-in-out infinite;
+}
+@keyframes person-sheen {
+  0% {
+    background-position: 100% 0;
+  }
+  40%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+.person-logo .shield-3d {
+  animation: none;
+}
+.group:hover .person-logo .shield-3d {
+  animation: shield-turn 3s cubic-bezier(0.55, 0.05, 0.3, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .person-card:hover::after,
+  .group:hover .person-logo .shield-3d {
+    animation: none;
+  }
+}
+
+/* The ground of an introduction's text: the old straw paper the team chose. The colour shows until the picture has
+   loaded, though the Team page fetches it ahead. */
+.paper {
+  background: #e4c797 url("/textures/parchment.jpg") center / cover no-repeat;
+}
+
 /* A person's introduction on the Team page: it and the shade behind it come and go softly. */
 html.person-open {
   overflow: hidden;
@@ -523,7 +569,7 @@ html.person-open {
   transition: background 0.24s ease, overlay 0.24s allow-discrete, display 0.24s allow-discrete;
 }
 .person-dialog[open]::backdrop {
-  background: rgb(44 58 52 / 0.45);
+  background: rgb(24 30 27 / 0.68);
 }
 @starting-style {
   .person-dialog[open] {
