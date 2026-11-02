@@ -18,12 +18,19 @@ computer and runs there offline, with nothing to install**. On the first start i
 the Docker image below. Code run directly (tests, scripts, `uv run`) keeps the language models in `runtime/hf` too
 unless `HF_HOME` says otherwise, so nothing is downloaded into the user profile.
 
-The exact-word detector is the one model setup does not make (training takes about 7 hours). Download
-`truth-guardian-word-detector.zip` (79 MB) from the repository's
-[Releases](https://github.com/danialrafiee-2007/iWISE-project/releases) and unzip it into this folder, so that
-`models/detector/full/model.safetensors` exists. Its SHA-256 is
-`58989703e2480b12fc981687f57b4ec31698df422faff612a11aea8ebf3c5206`. Without it the app still runs, and flagged claims
-mark the whole sentence.
+Four zips in the repository's [Releases](https://github.com/danialrafiee-2007/iWISE-project/releases) hold what the text
+section needs and setup does not get. Unzip them all into this folder before setup, keeping their paths, so that
+`models/detector/full/model.safetensors` exists:
+
+| File | What it holds | Without it | SHA-256 |
+|---|---|---|---|
+| `truth-guardian-word-detector.zip` (79 MB) | The exact-word detector, which takes about 7 hours to train | Flagged claims mark the whole sentence | `58989703e2480b12fc981687f57b4ec31698df422faff612a11aea8ebf3c5206` |
+| `truth-guardian-hhem-fast.zip` (389 MB) | The fast HHEM behind the published numbers | Setup downloads HHEM's models and rebuilds it | `fc632fe4bbbc7bf80970a9969df87bcce31ada52e791141d378c6ffb656e043c` |
+| `truth-guardian-reader-e5.zip` (271 MB) | The retrieval model of the check of other languages | Answers in other languages are not checked | `903ac3f0791e8aa4e4627095ecf7bc25b774b4524726230ce9e530ee3dde861f` |
+| `truth-guardian-reader-nli.zip` (497 MB) | The entailment model of the check of other languages | Answers in other languages are not checked | `f512ff609ab956e9c66f310ba1b1751f032e810c87d39ff132597287bd1785f7` |
+
+The models for sound and images are not published yet and nothing downloads them, so a copy from GitHub runs without
+those two inputs.
 
 | Command | What it does |
 |---|---|
@@ -120,7 +127,8 @@ of being guessed.
 | What an image shows | `vision.py` | Qwen3-VL-2B (GGUF) through llama.cpp's `llama-server` in `runtime/tools`, an opinion, never proof |
 | Other languages' text | `multilingual.py` | multilingual E5 (retrieval) and mDeBERTa NLI, read by the multilingual check (D-138) |
 
-They come with the default `media` dependency group (`uv sync`), not with the Docker image. `GET /api/media/status`
+Their Python packages come with the default `media` dependency group (`uv sync`), not with the Docker image; the model
+files are not in the repository (see Quick start). `GET /api/media/status`
 shows, per reader, whether its files are present, its runtime is installed, it has run on known samples and its quality
 has been evaluated, four separate things; `POST /api/media/read` reads one file. `uv run python scripts/media_pilot.py`
 draws samples with known content, runs every reader on them with the network cut off and records what it read, its time

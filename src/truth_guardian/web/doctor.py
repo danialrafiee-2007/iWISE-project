@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from truth_guardian import models
+from truth_guardian.media import models_dir, multilingual
 from truth_guardian.polarity import NLTK_DATA
 from truth_guardian.web.app import STATIC
 
@@ -58,6 +59,7 @@ def readiness(root: Path) -> list[Item]:
     processed = root / "data" / "processed"
     onnx = models.HHEM_ONNX.exists() and models.HHEM_ONNX.with_suffix(".json").exists() and models.HHEM_TOKENIZER.exists()
     hhem = onnx or (_cached(models.HHEM_MODEL, models.HHEM_REVISION) and _cached("google/flan-t5-base"))
+    readers = all((models_dir() / name).is_dir() for name in (multilingual.E5, multilingual.NLI))
     return [
         Item("built web front end", (STATIC / "index.html").exists(), True, "cd web && npm install && npm run build"),
         Item("trained fusion model and tracer", _trained(root, "fusion") and _trained(root, "tracer"), True, "restore models/fusion and models/tracer from the repository"),
@@ -71,6 +73,7 @@ def readiness(root: Path) -> list[Item]:
         Item("Fool-the-Guardian answers", (processed / "perturb_dev.jsonl").exists(), False, f"{SETUP} (the game needs them)"),
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "unzip truth-guardian-word-detector.zip from the repository's Releases into this folder, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
+        Item("check of other languages", readers, False, "unzip truth-guardian-reader-e5.zip and truth-guardian-reader-nli.zip from the repository's Releases into this folder (without them answers in other languages are not checked)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
     ] + ([Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer")] if sys.platform == "win32" else [])
 
