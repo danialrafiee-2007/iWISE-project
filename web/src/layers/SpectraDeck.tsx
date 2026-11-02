@@ -5,6 +5,8 @@ import { formatNumber, t } from "../i18n";
 // autoplay that pauses on hover and when hidden) and the halo that takes the centre card's colour; the cards hold
 // our examples instead of product photos. The mouse wheel over the deck turns it a card per notch, once the whole
 // deck is on screen (before that the wheel scrolls the page to it, so scrolling past never sticks on the deck).
+// It sits beside a form and above a report on a page that checks answers on this computer's processor, so it draws
+// only while a card moves, and autoplay also waits while `paused` or while someone is typing.
 
 const C = { gap: 164, rotate: 38, depth: 150, drop: 24, shrink: 0.14, fade: 0.26, dim: 0.2, visible: 3, persp: 1680, autoplayMs: 3200, ease: 0.14, sensitivity: 0.0072 };
 // Wheel: how much scrolling makes one card (a mouse notch is about 100 px), and the pause before the next card, so a
@@ -20,13 +22,16 @@ export interface SpectraCard {
   content: ReactNode;
 }
 
-export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCard[]; onOpen: (i: number) => void; caption: (i: number) => ReactNode; cta: string }) {
+export function SpectraDeck({ cards, onOpen, caption, cta, paused = false }: { cards: SpectraCard[]; onOpen: (i: number) => void; caption: (i: number) => ReactNode; cta: string; paused?: boolean }) {
   const N = cards.length;
   const deck = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const halo = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const state = useRef({ pos: 0, target: 0, dragging: false, moved: false, lastX: 0, startX: 0, vel: 0, hover: false, scale: 1 });
+  const wake = useRef(() => {});
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -62,6 +67,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
     };
     let raf = 0, last = -1;
     const frame = () => {
+      raf = 0;
       if (!s.dragging) {
         s.pos = reduce ? s.target : s.pos + (s.target - s.pos) * C.ease;
         if (Math.abs(s.target - s.pos) < 0.001) s.pos = s.target;
@@ -71,15 +77,25 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
         last = a;
         setActive(a);
       }
-      raf = requestAnimationFrame(frame);
+      if (s.dragging || s.pos !== s.target) raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
+    wake.current = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    wake.current();
     const timer = window.setInterval(() => {
-      if (!reduce && !s.hover && !s.dragging && !document.hidden) s.target += 1;
+      const typing = document.activeElement?.matches("input, textarea, select");
+      if (reduce || s.hover || s.dragging || document.hidden || pausedRef.current || typing) return;
+      s.target += 1;
+      wake.current();
     }, C.autoplayMs);
+    const resized = new ResizeObserver(() => wake.current());
+    if (stage.current) resized.observe(stage.current);
     return () => {
       cancelAnimationFrame(raf);
       window.clearInterval(timer);
+      resized.disconnect();
+      wake.current = () => {};
     };
   }, [N, cards]);
 
@@ -99,6 +115,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
       const now = performance.now();
       if (Math.abs(sum) < WHEEL.step || now - lastTurn < WHEEL.pause) return;
       state.current.target += Math.sign(sum);
+      wake.current();
       sum = 0;
       lastTurn = now;
     };
@@ -112,6 +129,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
     let o = (((i - cur) % N) + N) % N;
     if (o > N / 2) o -= N;
     s.target = cur + o;
+    wake.current();
   };
 
   return (
@@ -127,6 +145,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
         else if (e.key === "ArrowLeft") state.current.target -= 1;
         else return;
         e.preventDefault();
+        wake.current();
       }}
     >
       <div ref={halo} aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[40%] h-[420px] w-[620px] -translate-x-1/2 -translate-y-1/2 opacity-55 blur-2xl transition-[background] duration-700" style={{ background: "radial-gradient(closest-side, var(--halo, #2dd4bf), transparent 72%)" }} />
@@ -143,6 +162,7 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
           s.lastX = s.startX = e.clientX;
           s.vel = 0;
           e.currentTarget.setPointerCapture(e.pointerId);
+          wake.current();
         }}
         onPointerMove={(e) => {
           const s = state.current;
@@ -160,8 +180,12 @@ export function SpectraDeck({ cards, onOpen, caption, cta }: { cards: SpectraCar
           s.dragging = false;
           s.target = Math.round(s.pos + s.vel * 8);
           s.vel = 0;
+          wake.current();
         }}
-        onPointerCancel={() => (state.current.dragging = false)}
+        onPointerCancel={() => {
+          state.current.dragging = false;
+          wake.current();
+        }}
       >
         <div className="absolute left-1/2 top-1/2 h-0 w-0" style={{ transformStyle: "preserve-3d" }}>
           {cards.map((c, i) => (

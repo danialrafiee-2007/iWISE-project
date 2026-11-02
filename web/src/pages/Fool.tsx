@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { BackToCheck } from "../components/CheckLinks";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Panel, StageProgress } from "../components/report/Panels";
 import { CardsCascade, type CascadeCard } from "../layers/CardsCascade";
 import { formatNumber, useI18n, type MessageKey } from "../i18n";
@@ -7,6 +6,7 @@ import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
 import { api, ApiError, type ModelCard } from "../lib/api";
 import { KIND_LABEL, num, pct } from "../lib/format";
+import { glide } from "../lib/glide";
 import type { FoolAnswer, FoolResult } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
@@ -48,6 +48,7 @@ export default function Fool() {
   const [notice, setNotice] = useState<string | null>(null);
   const [card, setCard] = useState<ModelCard | null>(null);
   const [score, setScore] = useState(readScore);
+  const results = useRef<HTMLDivElement>(null);
   const check = useStream<FoolResult>();
   const ready = health?.state === "ready";
   const current = answers[index];
@@ -105,6 +106,10 @@ export default function Fool() {
     }
   };
 
+  useEffect(() => {
+    if (check.running) glide(results.current);
+  }, [check.running]);
+
   const run = async () => {
     if (!current) return;
     const result = await check.run("/api/fool/check", { answer_id: current.id, answer: text });
@@ -133,8 +138,7 @@ export default function Fool() {
             : { signal: "red" as const, title: t("fool.fooledTitle"), text: t("fool.fooledText") };
 
   return (
-    <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
-      <BackToCheck />
+    <div className="page-in mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex max-w-2xl flex-col gap-2">
           <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("fool.title")}</Heading>
@@ -218,6 +222,7 @@ export default function Fool() {
         </Panel>
       </div>
 
+      <div ref={results} className="flex flex-col gap-6">
       {check.running && (
         <Panel title={t("fool.checkingEdit")}>
           <StageProgress stages={check.events.flatMap((e) => (e.type === "stage" ? [{ stage: e.stage, t: e.t }] : []))} queued={check.queued} />
@@ -231,10 +236,10 @@ export default function Fool() {
       )}
 
       {result && outcome && current && (
-        <div key={`${current.id}:${text}:${result.report.risk}`} className="flex flex-col gap-6">
+        <div key={`${current.id}:${text}:${result.report.risk}`} className="page-in flex flex-col gap-6">
           <div className="card grid overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="relative h-[300px] md:h-auto md:min-h-[320px]">
-              <SceneFrame name="signal-array" signal={outcome.signal} config={STUDIO} paused={false} interactive={false} />
+              <SceneFrame name="signal-array" signal={outcome.signal} config={STUDIO} paused={false} interactive={false} delay={450} />
             </div>
             <div className="flex flex-col justify-center gap-3 p-7" aria-live="polite">
               <span className="font-mono text-xs uppercase tracking-[0.18em]" style={{ color: outcome.signal === "green" ? "var(--color-ok)" : outcome.signal === "red" ? "var(--color-bad)" : "var(--color-warn)" }}>
@@ -251,6 +256,7 @@ export default function Fool() {
           <ReportView report={result.report} input={{ question: current.question ?? "", sources: current.sources, answer: text, task: "other" }} />
         </div>
       )}
+      </div>
     </div>
   );
 }

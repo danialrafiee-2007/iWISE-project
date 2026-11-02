@@ -5,29 +5,24 @@ import { TourProvider } from "./components/Tour";
 import { LoadError, lazyPage } from "./lib/lazyPage";
 import { Router, useRouter } from "./lib/router";
 import { WorkspaceProvider } from "./lib/workspace";
+// The text pages load with the app, so moving between them never passes through the loading line.
+import Agent from "./pages/Agent";
 import { Analyze } from "./pages/Analyze";
+import Fool from "./pages/Fool";
+import ModelCard from "./pages/ModelCard";
 
 const Landing = lazyPage(() => import("./pages/Landing"));
-const Heal = lazyPage(() => import("./pages/Heal"));
-const Fool = lazyPage(() => import("./pages/Fool"));
-const Agent = lazyPage(() => import("./pages/Agent"));
-const Audit = lazyPage(() => import("./pages/Audit"));
-const ModelCard = lazyPage(() => import("./pages/ModelCard"));
 const About = lazyPage(() => import("./pages/About"));
 const Team = lazyPage(() => import("./pages/Team"));
 const Contact = lazyPage(() => import("./pages/Contact"));
-const Examples = lazyPage(() => import("./pages/Examples"));
 const Media = lazyPage(() => import("./pages/Media"));
 
 const ROUTES: Record<string, ComponentType> = {
   "/": Landing,
   "/analyze": Analyze,
-  "/heal": Heal,
-  "/fool": Fool,
   "/agent": Agent,
-  "/audit": Audit,
+  "/fool": Fool,
   "/model": ModelCard,
-  "/examples": Examples,
   "/audio": Media,
   "/audio/models": Media,
   "/image": Media,

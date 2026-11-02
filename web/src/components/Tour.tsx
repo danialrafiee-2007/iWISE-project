@@ -54,7 +54,7 @@ const STEPS: Step[] = [
     body: "tour.s6.body",
   },
   {
-    url: "/heal?example=anne-frank",
+    url: "/analyze?example=anne-frank&heal=1",
     target: "heal-rounds",
     title: "tour.s7.title",
     body: "tour.s7.body",

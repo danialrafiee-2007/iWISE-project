@@ -151,32 +151,6 @@ export interface FoolResult {
   seconds: number;
 }
 
-export interface AuditRow {
-  id: string;
-  verdict: Verdict;
-  risk: number;
-  grade: Grade | null;
-  lane: Lane | null;
-  blame: Blame | null;
-  flagged: number;
-  answer: string;
-}
-
-export interface AuditSummary {
-  answers: number;
-  estimated_hallucination_rate: number;
-  estimate_interval: [number, number];
-  true_hallucination_rate: number | null;
-  verdicts: Record<string, number>;
-  grades: Record<string, number>;
-  lanes: Record<string, number>;
-  blame: Record<string, number>;
-  error_types: Record<string, number>;
-  cautions: Record<string, number>;
-  flagged_documents: Record<string, number>;
-  worst: { id: string; risk: number; grade: string; claim: string; explanation: string }[];
-}
-
 export interface CheckInput {
   question: string;
   sources: string[];

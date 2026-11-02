@@ -11,7 +11,6 @@ export class ApiError extends Error {
 export type StreamEvent =
   | { type: "stage"; stage: string; t: number }
   | { type: "check"; round: number; t: number }
-  | { type: "progress"; done: number; total: number; t: number }
   | { type: "queued" }
   | { type: "error"; message: string }
   | ({ type: "result" } & Record<string, unknown>);
@@ -94,7 +93,6 @@ export const api = {
   foolAnswers: () => getJson<FoolAnswer[]>("/api/fool/answers"),
   foolEdit: (answerId: string, kind: string, seed: number) =>
     postJson<{ answer: string; edit: { start: number; end: number; new: string; original: string } }>("/api/fool/edit", { answer_id: answerId, kind, seed }),
-  auditSample: () => getJson<{ jsonl: string; answers: number }>("/api/audit/sample"),
   modelCard: () => getJson<ModelCard>("/api/model-card"),
 };
 

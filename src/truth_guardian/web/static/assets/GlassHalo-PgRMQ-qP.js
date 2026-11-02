@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-C0YIBMOB.js";import{A as t}from"./index-A91LolXJ.js";import{t as n}from"./SceneFrame-CVDdmVG7.js";var r=e();function i({active:e}){let{reducedMotion:i}=t();return(0,r.jsx)(`div`,{className:`absolute inset-0`,children:(0,r.jsx)(n,{name:`glass-halo`,paused:!e||i,eager:!0})})}export{i as default};

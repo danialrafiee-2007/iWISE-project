@@ -136,16 +136,6 @@ def test_agent_needs_steps_and_an_answer(client):
     assert client.engine.calls[-1][0].documents[0].text == "It opened in 1932."
 
 
-def test_audit_parses_plain_logs_and_reports_line_errors(client):
-    log = "\n".join(json.dumps({"id": i, "question": "q", "sources": ["She died in 1945."], "answer": a}) for i, a in enumerate(["She died in 2022.", "She died in 1945."]))
-    found = events(client.post("/api/audit", json={"jsonl": log}))
-    result = found[-1]
-    assert [e["done"] for e in found if e["type"] == "progress"] == [0, 1]
-    assert result["summary"]["answers"] == 2 and [a["verdict"] for a in result["answers"]] == ["hallucinated", "grounded"]
-    bad = client.post("/api/audit", json={"jsonl": log + "\n{not json"})
-    assert bad.status_code == 422 and "line 3" in bad.json()["detail"]
-
-
 def test_fool_edit_errors_are_explained(client):
     answers = client.get("/api/fool/answers").json()
     if not answers:
@@ -170,9 +160,9 @@ def test_unknown_api_paths_are_not_served_the_app(client):
 
 
 def test_missing_asset_files_get_a_404_while_page_routes_get_the_app(client):
-    assert client.get("/assets/Heal-old.js").status_code == 404
+    assert client.get("/assets/Fool-old.js").status_code == 404
     assert client.get("/layers/missing.html").status_code == 404
-    page = client.get("/heal")
+    page = client.get("/fool")
     assert page.status_code == 200 and "text/html" in page.headers["content-type"]
 
 

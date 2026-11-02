@@ -53,7 +53,7 @@ def main() -> None:
         check("models load and warm up", health["state"] == "ready", f"{time.perf_counter() - started:.0f} s")
         if health["state"] != "ready":
             sys.exit(1)
-        for page in ["/", "/analyze", "/heal", "/fool", "/agent", "/audit", "/model", "/examples", "/audio", "/image/models", "/layers/glass-halo.html", "/layers/signal-array.html"]:
+        for page in ["/", "/analyze", "/agent", "/fool", "/model", "/audio", "/image/models", "/layers/glass-halo.html", "/layers/signal-array.html"]:
             check(f"GET {page}", client.get(page).status_code == 200)
 
         t = time.perf_counter()
@@ -90,10 +90,6 @@ def main() -> None:
         if edited:
             r = result(client.post("/api/fool/check", json={"answer_id": edited[0], "answer": edited[1]}))
             check("Fool the Guardian scores the edit", r["type"] == "result" and r["edit"] is not None, f"caught={r.get('caught')} located={r.get('located')}")
-
-        log = "\n".join(json.dumps({"id": i, "question": "When did Anne Frank die?", "sources": ["Anne Frank died of typhus in February 1945."], "answer": a}) for i, a in enumerate(["She died in 1945.", "She died in 1952."]))
-        r = result(client.post("/api/audit", json={"jsonl": log}))
-        check("audit summarises a log", r["type"] == "result" and r["summary"]["answers"] == 2)
 
         card = client.get("/api/model-card").json()
         check("model card reads the results", "ragtruth_dev" in card and "fool_the_guardian" in card)

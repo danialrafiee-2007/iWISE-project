@@ -28,7 +28,7 @@ export function useStream<T extends object>() {
       setBusy(true);
       setMood("thinking");
       try {
-        const result = await stream<T>(path, body, (event) => setState((s) => ({ ...s, events: [...s.events, event], queued: event.type === "queued" ? true : event.type === "stage" || event.type === "check" || event.type === "progress" ? false : s.queued })), controller.signal);
+        const result = await stream<T>(path, body, (event) => setState((s) => ({ ...s, events: [...s.events, event], queued: event.type === "queued" ? true : event.type === "stage" || event.type === "check" ? false : s.queued })), controller.signal);
         setState((s) => ({ ...s, result, running: false, queued: false }));
         setMood(mood(result));
         return result;

@@ -43,13 +43,11 @@ export const GRADE_COLOR: Record<Grade, string> = {
   F: "var(--color-bad)",
 };
 
-const LANE_ROWS = withLabels<Lane, { color: string }>("lane", {
+export const LANE = withLabels<Lane, { color: string }>("lane", {
   pass: { color: "var(--color-ok)" },
   review: { color: "var(--color-warn)" },
   block: { color: "var(--color-bad)" },
 });
-for (const key of Object.keys(LANE_ROWS) as Lane[]) Object.defineProperty(LANE_ROWS[key], "hint", { get: () => t(`laneHint.${key}`), enumerable: true });
-export const LANE = LANE_ROWS as Record<Lane, { label: string; color: string; hint: string }>;
 
 export const BLAME: Record<Blame, string> = labels("blame", ["retrieval", "generation", "weak_sources", "conflicting_sources", "none", "unknown"] as const);
 

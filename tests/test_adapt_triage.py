@@ -1,9 +1,6 @@
 import numpy as np
 
 from truth_guardian import adapt, triage
-from truth_guardian.audit import summarize
-from truth_guardian.report import Card, ClaimReport, Evidence, Report, TriageReport
-from truth_guardian.schema import Sample
 
 
 def synthetic(n: int = 600, seed: int = 0):
@@ -54,23 +51,3 @@ def test_triage_lanes_keep_their_targets_on_new_answers():
     assert load["pass"] > 0 and load["hallucinated_among_passed"] <= triage.PASS_ERROR + 0.03
     assert load["grounded_blocked"] <= triage.BLOCK_FALSE_ALARM + 0.03
     assert policy.lane(0.0) == "pass" and policy.lane(1.0) == "block"
-
-
-def report(i: str, risk: float, status: str, document: str | None = None) -> Report:
-    claim = ClaimReport(start=0, end=5, text="claim", status=status, risk=risk, explanation="why", action="keep",
-                        evidence=Evidence(text="e", document_id=document) if document else None)
-    return Report(id=i, verdict="hallucinated" if risk > 0.5 else "grounded", risk=risk, response_threshold=0.4, sentence_threshold=0.3,
-                  claims=[claim], card=Card(grade="F" if risk > 0.7 else "A", risk=risk, dimensions=[]), triage=TriageReport(lane="review", reason="r"))
-
-
-def sample(i: str, hallucinated: bool) -> Sample:
-    return Sample.model_validate({"id": i, "answer": "x", "documents": [{"id": "d", "text": "x"}], "labels": {"response": "hallucinated" if hallucinated else "grounded"},
-                                  "meta": {"dataset": "unit", "task": "qa", "split": "dev", "group_id": i}})
-
-
-def test_audit_summary_estimates_rate_and_ranks_worst_answers():
-    reports = [report("a", 0.9, "contradicted", "doc1"), report("b", 0.1, "supported"), report("c", 0.6, "unsupported", "doc1"), report("d", 0.2, "supported")]
-    summary = summarize([sample("a", True), sample("b", False), sample("c", True), sample("d", False)], reports)
-    assert summary.estimated_hallucination_rate == 0.45 and summary.true_hallucination_rate == 0.5
-    assert summary.worst[0].id == "a" and summary.flagged_documents == {"doc1": 2}
-    assert summary.lanes == {"review": 4} and summary.verdicts == {"hallucinated": 2, "grounded": 2}

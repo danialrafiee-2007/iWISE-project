@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useI18n, type MessageKey } from "../i18n";
-import { EngineMenu } from "./EngineMenu";
+import { EngineMenu, TOOLS } from "./EngineMenu";
 import { Footer } from "./Footer";
 import { LanguageMenu } from "./LanguageMenu";
 import { ShieldMark } from "./ShieldMark";
@@ -81,7 +81,8 @@ export function Shell({ children }: { children: ReactNode }) {
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-beam-400 focus:px-4 focus:py-2 focus:text-beam-900">
         {t("shell.skip")}
       </a>
-      <header className="sticky top-0 z-40 border-b border-hair bg-ink-950/95 backdrop-blur-md">
+      {/* On a phone the bar wraps to about a quarter of the screen; the text pages, which are for reading, let it scroll away. */}
+      <header className={`sticky top-0 z-40 border-b border-hair bg-ink-950/95 backdrop-blur-md ${TOOLS.some((tool) => tool.to === path) ? "max-sm:relative" : ""}`}>
         {/* One row when it fits: name at the start, the tools in the middle, the controls at the end (mirrored right to left). */}
         <div ref={bar} className={`mx-auto flex max-w-[1320px] items-center justify-between gap-x-3 gap-y-2 px-4 py-2.5 sm:px-8 ${inline ? "flex-nowrap" : "flex-wrap"}`}>
           <Link to="/" className="brand relative isolate flex shrink-0 items-center gap-2.5 text-fog-100 no-underline">

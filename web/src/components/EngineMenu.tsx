@@ -4,18 +4,18 @@ import { Link, useRouter } from "../lib/router";
 import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
 
 // "AI engine" in the top bar: its three inputs, text first (the challenge's own), then sound and images (the project's
-// additions), and beside the one the pointer rests on (or that a tap chose), the parts of the engine behind it. Text
-// holds what Challenge 4 asks for and nothing else: checking an answer against its documents, checking an agent's logs,
-// and how reliable the result is (D-143); sound and images each hold a page that reads a file and one that says which
-// models do it and what they have been shown to do.
+// additions), and beside the one the pointer rests on (or that a tap chose), the parts of the engine behind it. Text is
+// one flat list and nothing branches further (D-144): checking an answer (its examples and healing are on that page),
+// checking an agent's logs, trying to fool the check, and how reliable it is. Sound and images each hold a page that
+// reads a file and one that says which models do it and what they have been shown to do.
 
 export type Medium = "text" | "audio" | "image";
-type Item = { to: string; label: MessageKey; within?: string[] };
+type Item = { to: string; label: MessageKey };
 
 export const TOOLS: Item[] = [
-  // The same check used another way lives inside this one (CheckLinks), so those pages count as being here.
-  { to: "/analyze", label: "nav.analyze", within: ["/heal", "/fool", "/audit", "/examples"] },
+  { to: "/analyze", label: "nav.analyze" },
   { to: "/agent", label: "nav.agent" },
+  { to: "/fool", label: "nav.fool" },
   { to: "/model", label: "nav.model" },
 ];
 
@@ -48,8 +48,7 @@ export function EngineMenu({ className }: { className: string }) {
   const { path } = useRouter();
   const menu = useHoverMenu();
   const listId = useId();
-  const isHere = (item: Item) => item.to === path || !!item.within?.includes(path);
-  const here = SECTIONS.find((s) => s.items.some(isHere));
+  const here = SECTIONS.find((s) => s.items.some((item) => item.to === path));
   const [chosen, setChosen] = useState<Medium | null>(null);
   // Each opening starts on the input of the page shown, or on text.
   useEffect(() => {
@@ -114,14 +113,14 @@ export function EngineMenu({ className }: { className: string }) {
             </div>
             <div role="group" aria-label={t(shown.label)} className="flex min-w-0 flex-1 flex-col gap-0.5 ps-1.5">
               {shown.items.map((item) => {
-                const active = isHere(item);
+                const active = path === item.to;
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
                     role="menuitem"
                     aria-current={active ? "page" : undefined}
-                    className={`nav-glow flex min-h-10 items-center rounded-xl px-3 text-sm no-underline ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-200"}`}
+                    className={`nav-glow flex min-h-10 items-center rounded-xl px-3 text-sm no-underline max-sm:min-h-11 ${active ? "bg-beam-400/12 text-beam-300" : "text-fog-200"}`}
                     onClick={menu.close}
                   >
                     {t(item.label)}

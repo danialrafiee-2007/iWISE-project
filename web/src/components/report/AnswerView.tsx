@@ -69,11 +69,11 @@ export function AnswerView({
       textDecorationColor: flagged ? s.color : "color-mix(in oklab, var(--color-ok) 45%, transparent)",
       textDecorationThickness: flagged ? 3 : 1.5,
       textUnderlineOffset: 6,
-      background: isSelected ? "rgb(255 255 255 / 0.06)" : "transparent",
-      color: isSelected ? "#fff" : "var(--color-fog-200)",
+      background: isSelected ? "color-mix(in oklab, var(--color-fog-100) 8%, transparent)" : "transparent",
+      color: isSelected ? "var(--color-fog-100)" : "var(--color-fog-200)",
     };
     const words = claimWords(claim);
-    const content = showGold && gold ? marked(answer, 0, claim.start, claim.end, gold, "gold") : marked(answer, 0, claim.start, claim.end, words, "rounded-[4px] px-0.5 text-white", { background: `color-mix(in oklab, ${s.color} 26%, transparent)` });
+    const content = showGold && gold ? marked(answer, 0, claim.start, claim.end, gold, "gold") : marked(answer, 0, claim.start, claim.end, words, "rounded-[4px] px-0.5 text-fog-100", { background: `color-mix(in oklab, ${s.color} 26%, transparent)` });
     parts.push(
       onSelect ? (
         <button

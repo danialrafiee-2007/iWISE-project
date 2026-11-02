@@ -1,6 +1,6 @@
 """HTTP API and static file server for the Truth Guardian web app (FastAPI).
 
-Long checks stream newline-delimited JSON events ({"type": "stage" | "check" | "progress" | "queued" | "result" |
+Long checks stream newline-delimited JSON events ({"type": "stage" | "check" | "queued" | "result" |
 "error", ...}) so the page shows live progress instead of a blank wait. Every answer goes through the same report
 contract as the Python API (report.py). Inputs are capped, nothing is fetched from the internet, no path is taken
 from the user, and only localhost host names are accepted (against DNS rebinding). The one exception to staying offline
@@ -30,10 +30,9 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse, Response, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field
 
 from truth_guardian import models
-from truth_guardian.audit import summarize
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.media.evidence import evidence
 from truth_guardian.pipeline import make_sample
@@ -47,7 +46,6 @@ from truth_guardian.web.metrics import model_card
 STATIC = Path(__file__).with_name("static")
 MAX_QUESTION, MAX_ANSWER, MAX_SOURCE, MAX_SOURCES = 1_000, 5_000, 20_000, 10
 MAX_STEPS, MAX_STEP = 30, 5_000
-MAX_AUDIT_ANSWERS, MAX_AUDIT_CHARS = 100, 2_000_000
 MAX_MEDIA_BYTES = 25_000_000
 MEDIA_KINDS = {
     "image": {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif"},
@@ -119,11 +117,6 @@ class FileIn(_Strict):
     data: str = Field(max_length=(MAX_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
 
 
-class AuditIn(_Strict):
-    jsonl: str = Field(max_length=MAX_AUDIT_CHARS)
-    profile: str | None = None
-
-
 class MediaIn(_Strict):
     name: str = Field(min_length=1, max_length=255)
     data: str = Field(max_length=(MAX_MEDIA_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
@@ -180,24 +173,6 @@ def _changed_range(before: str, after: str) -> tuple[int, int] | None:
     while end_before > start and end_after > start and before[end_before - 1] == after[end_after - 1]:
         end_before, end_after = end_before - 1, end_after - 1
     return start, max(end_after, start + 1)
-
-
-def _parse_log(text: str) -> list[Sample]:
-    samples = []
-    for i, line in enumerate(line for line in text.splitlines() if line.strip()):
-        if len(samples) == MAX_AUDIT_ANSWERS:
-            raise ValueError(f"at most {MAX_AUDIT_ANSWERS} answers per audit")
-        try:
-            row = json.loads(line)
-            if "documents" in row:
-                samples.append(Sample.model_validate(row))
-            else:
-                samples.append(make_sample(str(row["answer"]), [str(s) for s in row.get("sources", [])], row.get("question"), sample_id=str(row.get("id", i + 1))))
-        except (json.JSONDecodeError, KeyError, TypeError, ValidationError) as e:
-            raise ValueError(f"line {i + 1} is not a valid answer: {type(e).__name__}") from None
-    if not samples:
-        raise ValueError("the log is empty")
-    return samples
 
 
 def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
@@ -384,35 +359,6 @@ def create_app(
                 "report": report.model_dump(mode="json"), "edit": changed, "caught": report.risk >= report.response_threshold,
                 "located": located, "cautioned": cautioned, "seconds": round(time.perf_counter() - started, 2),
             }
-
-        return _stream(work)
-
-    @app.get("/api/audit/sample")
-    def audit_sample() -> dict:
-        lines = [json.dumps({"id": e.id, "question": e.question, "sources": e.sources, "answer": e.answer}) for e in store.examples.values()]
-        return {"jsonl": "\n".join(lines), "answers": len(lines)}
-
-    @app.post("/api/audit")
-    def audit(body: AuditIn) -> StreamingResponse:
-        ready()
-        try:
-            samples = _parse_log(body.jsonl)
-        except ValueError as e:
-            raise HTTPException(422, str(e)) from None
-
-        def work(emit, cancelled) -> dict:
-            started, reports = time.perf_counter(), []
-            for i, s in enumerate(samples):
-                emit({"type": "progress", "done": i, "total": len(samples), "t": round(time.perf_counter() - started, 2)})
-                reports.append(engine.analyze(s, body.profile, cancelled=cancelled))
-            summary = summarize(samples, reports)
-            rows = [
-                {"id": r.id, "verdict": r.verdict, "risk": r.domain.calibrated_risk if r.domain else r.risk, "grade": r.card.grade if r.card else None,
-                 "lane": r.triage.lane if r.triage else None, "blame": r.diagnosis.blame if r.diagnosis else None,
-                 "flagged": sum(c.status != "supported" for c in r.claims), "answer": s.answer[:200]}
-                for s, r in zip(samples, reports)
-            ]
-            return {"summary": summary.model_dump(mode="json"), "answers": rows, "seconds": round(time.perf_counter() - started, 2)}
 
         return _stream(work)
 

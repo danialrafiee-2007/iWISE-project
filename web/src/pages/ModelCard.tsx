@@ -130,9 +130,9 @@ export default function ModelCard() {
   return (
     <div className="relative isolate">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] opacity-70 [mask:linear-gradient(180deg,#000_55%,transparent)]">
-        <SceneFrame name="lumen-grid" interactive={false} className="ink-invert" />
+        <SceneFrame name="lumen-grid" interactive={false} className="ink-invert" delay={450} />
       </div>
-      <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-10 sm:px-8">
+      <div className="page-in mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-10 sm:px-8">
         <div className="flex max-w-3xl flex-col gap-2">
           <Heading className="m-0 text-[40px] font-normal leading-tight tracking-tight">{t("card.title")}</Heading>
           <p className="m-0 text-[15px] leading-relaxed text-fog-300">

@@ -64,10 +64,9 @@ uv run --offline python -m truth_guardian.web
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
 been downloaded once) and only answers on localhost. The top bar has Home, **AI engine**, About, Team and Contact us.
 Resting the pointer on AI engine lists its three inputs, text first (the challenge's own), then audio and images (the
-project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text what Challenge 4
-asks for (D-143), namely Check an answer, Check an agent and Reliability. Inside Check an answer are the report's Heal
-step and the same check used other ways: Fool the Guardian, Audit a whole log and Examples, six written answers each
-showing one check. Under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
+project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text one flat list
+(D-144): Check an answer, whose page holds the examples as a card deck and heals a flagged answer in place, Check an
+agent, Fool the Guardian and Reliability. Under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
 do. **Tour** lists one tour per input: the text tour walks through every tool in about
 three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
 from PDF, Word, HTML, Markdown or text files.
@@ -223,17 +222,6 @@ uv run python scripts/deploy_space.py --space your-name/truth-guardian --access-
 
 A public Space shows its files, including the built front end with the GetLayers layers, and lets anyone pull the
 image; settle those licences first (`docs/CREDITS.md`) or pass `--private`.
-
-## Audit a RAG system
-
-Run every answer in a log through the guardian and get the system's health summary (one JSON line per answer,
-`{"id", "question", "sources", "answer"}` or the project's Sample format):
-
-```bash
-HF_HUB_OFFLINE=1 uv run --offline python scripts/audit.py --input answers.jsonl --out audit_out
-```
-
-`--profile` uses a domain profile fitted on a few dozen labelled answers of that domain (`truth_guardian.adapt`).
 
 ## Benchmark
 

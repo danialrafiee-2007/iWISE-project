@@ -7,7 +7,7 @@ export default function GlassHalo({ active }: { active: boolean }) {
   const { reducedMotion } = useWorkspace();
   return (
     <div className="absolute inset-0">
-      <SceneFrame name="glass-halo" paused={!active || reducedMotion} eager />
+      <SceneFrame name="glass-halo" paused={!active || reducedMotion} eager delay={700} />
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { AnswerView } from "../components/report/AnswerView";
 import { Panel, VerdictCard } from "../components/report/Panels";
+import { useTour } from "../components/Tour";
 import { Ascent, type AscentRow } from "../layers/Ascent";
-import { formatNumber, useI18n, type MessageKey } from "../i18n";
+import { exampleText, formatNumber, useI18n, type MessageKey } from "../i18n";
 import { Heading } from "../layers/Heading";
 import { SceneFrame } from "../layers/SceneFrame";
 import { api, type ModelCard } from "../lib/api";
 import { num, pct } from "../lib/format";
+import { glide } from "../lib/glide";
 import type { Example, ExampleBrief, Report, Step } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useRouter } from "../lib/router";
@@ -45,6 +47,7 @@ export default function Agent() {
   const [card, setCard] = useState<ModelCard | null>(null);
   const run = useStream<Result>();
   const timer = useRef<number | undefined>(undefined);
+  const results = useRef<HTMLDivElement>(null);
   const ready = health?.state === "ready";
   const report = run.result?.report;
   const agent = report?.agent;
@@ -53,6 +56,7 @@ export default function Agent() {
   const halted = stopIndex >= 0 && shown > stopIndex;
   const finished = shown >= steps.length;
   const { t } = useI18n();
+  const { active: touring } = useTour();
   const kindName = (kind: string) => ((["thought", "action", "observation", "answer"] as const).includes(kind as never) ? t(`agent.kind.${kind}` as MessageKey) : kind);
 
   useEffect(() => {
@@ -70,6 +74,10 @@ export default function Agent() {
     timer.current = window.setTimeout(() => setShown((n) => n + 1), shown === 0 ? 300 : STEP_MS);
     return () => window.clearTimeout(timer.current);
   }, [playing, shown, agent, steps.length, stopIndex]);
+
+  useEffect(() => {
+    if (run.running && !touring) glide(results.current);
+  }, [run.running]);
 
   const start = async (body: object, trajectory: Step[], q: string, answer: string) => {
     setSteps(trajectory);
@@ -128,7 +136,7 @@ export default function Agent() {
   const tg = card?.guardian;
 
   return (
-    <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
+    <div className="page-in mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
       <div className="flex max-w-3xl flex-col gap-2">
         <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("agent.title")}</Heading>
         <p className="m-0 text-[15px] leading-relaxed text-fog-300">
@@ -136,35 +144,38 @@ export default function Agent() {
         </p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <Panel title={t("agent.pick")}>
-          <ExamplePicker examples={examples} current={example?.id} onPick={pick} disabled={!ready || run.running} />
-          {example && <p className="m-0 text-sm leading-relaxed text-fog-300" dir="auto">{example.about}</p>}
-          <div className="flex flex-wrap items-center gap-2 border-t border-hair pt-3" role="radiogroup" aria-label={t("agent.policyLabel")}>
-            <span className="label me-1">{t("agent.policy")}</span>
-            {(["strict", "lenient"] as Policy[]).map((p) => (
-              <button key={p} type="button" role="radio" aria-checked={policy === p} className="chip" aria-pressed={policy === p} onClick={() => setPolicy(p)}>
-                {p === "strict" ? t("agent.strict") : t("agent.lenient")}
-              </button>
-            ))}
+      <Panel title={t("agent.pick")}>
+        <ExamplePicker examples={examples} current={example?.id} onPick={pick} disabled={!ready || run.running} />
+        {example && <p className="m-0 text-sm leading-relaxed text-fog-300" dir="auto">{exampleText(example.id, "about", example.about)}</p>}
+        <div className="flex flex-wrap items-center gap-2 border-t border-hair pt-3" role="radiogroup" aria-label={t("agent.policyLabel")}>
+          <span className="label me-1">{t("agent.policy")}</span>
+          {(["strict", "lenient"] as Policy[]).map((p) => (
+            <button key={p} type="button" role="radio" aria-checked={policy === p} className="chip" aria-pressed={policy === p} onClick={() => setPolicy(p)}>
+              {p === "strict" ? t("agent.strict") : t("agent.lenient")}
+            </button>
+          ))}
+        </div>
+        {/* A pasted log stays folded away until it is wanted: most visits start from one of the examples above. */}
+        <details className="border-t border-hair pt-3">
+          <summary className="cursor-pointer text-sm text-fog-200">{t("agent.own")}</summary>
+          <div className="mt-3 flex flex-col gap-3">
+            <label htmlFor="agent-json" className="sr-only">
+              {t("agent.json")}
+            </label>
+            <textarea id="agent-json" className="field min-h-[220px] resize-y font-mono text-[12.5px]" dir="ltr" value={custom} onChange={(e) => setCustom(e.target.value)} spellCheck={false} />
+            {customError && (
+              <p role="alert" className="m-0 text-sm text-warn-ink">
+                {customError}
+              </p>
+            )}
+            <button type="button" className="btn btn-primary self-start" onClick={runCustom} disabled={!ready || run.running}>
+              {t("agent.run")}
+            </button>
           </div>
-        </Panel>
-        <Panel title={t("agent.own")}>
-          <label htmlFor="agent-json" className="sr-only">
-            {t("agent.json")}
-          </label>
-          <textarea id="agent-json" className="field min-h-[220px] resize-y font-mono text-[12.5px]" dir="ltr" value={custom} onChange={(e) => setCustom(e.target.value)} spellCheck={false} />
-          {customError && (
-            <p role="alert" className="m-0 text-sm text-warn-ink">
-              {customError}
-            </p>
-          )}
-          <button type="button" className="btn btn-primary self-start" onClick={runCustom} disabled={!ready || run.running}>
-            {t("agent.run")}
-          </button>
-        </Panel>
-      </div>
+        </details>
+      </Panel>
 
+      <div ref={results} className="flex flex-col gap-6">
       {run.running && (
         <Panel title={t("agent.preparing")}>
           <p className="m-0 text-sm text-fog-300">{t("agent.preparingText")}</p>
@@ -177,7 +188,7 @@ export default function Agent() {
       )}
 
       {agent && steps.length > 0 && (
-        <div key={`${report?.id}:${question}:${steps.length}:${policy}`} className="flex flex-col gap-6">
+        <div key={`${report?.id}:${question}:${steps.length}:${policy}`} className="page-in flex flex-col gap-6">
           {question && (
             <p className="m-0 text-[15px] text-fog-200">
               <span className="text-fog-400">{t("agent.task")}</span>
@@ -189,7 +200,7 @@ export default function Agent() {
               <Ascent rows={rows} value={Math.max(0, Math.min(steps.length - 1, shown - 1))} tone={tone} height={440} compact />
             </div>
             <div className="card relative min-h-[300px] overflow-hidden">
-              <SceneFrame name="halftone-iris" config={halted ? ALERT : CALM} className="ink-invert" />
+              <SceneFrame name="halftone-iris" config={halted ? ALERT : CALM} className="ink-invert" delay={900} />
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 bg-gradient-to-t from-ink-950/95 to-transparent p-5" aria-live="polite">
                 <span className="font-mono text-xs uppercase tracking-[0.18em]" style={{ color: halted ? "var(--color-bad)" : "var(--color-beam-400)" }}>
                   {halted ? t("agent.stopped") : finished ? t("agent.finished") : t("agent.watching")}
@@ -292,6 +303,7 @@ export default function Agent() {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -95,6 +95,12 @@ export function t(key: MessageKey, vars?: Vars): string {
   return fill(typeof value === "string" ? value : value.other, vars);
 }
 
+/** A ready-made example's title or note in the current language; the server sends English, used for any example not listed. */
+export function exampleText(id: string, part: "title" | "about", english: string): string {
+  const key = `example.${id}.${part}`;
+  return key in en ? t(key as MessageKey) : english;
+}
+
 /** A message with plural forms, chosen for `n` by the language's own plural rules; {n} is the formatted number. */
 export function tp(key: MessageKey, n: number, vars?: Vars): string {
   const value = message(key);

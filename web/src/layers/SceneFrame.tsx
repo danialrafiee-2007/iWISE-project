@@ -14,6 +14,7 @@ export function SceneFrame({
   config,
   interactive = true,
   eager = false,
+  delay = 0,
   className = "",
 }: {
   name: SceneName;
@@ -22,12 +23,21 @@ export function SceneFrame({
   config?: Record<string, string | number>;
   interactive?: boolean;
   eager?: boolean;
+  /** Milliseconds to wait before loading: starting a scene holds the page for a moment, so let what is moving finish. */
+  delay?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
+  const [waited, setWaited] = useState(delay === 0);
   const { busy, reducedMotion } = useWorkspace();
   const stopped = paused ?? (busy || reducedMotion);
+
+  useEffect(() => {
+    if (waited) return;
+    const timer = window.setTimeout(() => setWaited(true), delay);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
@@ -46,7 +56,7 @@ export function SceneFrame({
   return (
     <iframe
       ref={ref}
-      src={`/layers/${name}.html`}
+      src={waited ? `/layers/${name}.html` : undefined}
       title=""
       aria-hidden="true"
       tabIndex={-1}
