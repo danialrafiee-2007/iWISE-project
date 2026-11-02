@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
+import { CheckMore } from "../components/CheckLinks";
 import { InputForm } from "../components/InputForm";
 import { AnswerView, StatusLegend } from "../components/report/AnswerView";
 import { ClaimDetail, ConflictsPanel, DiagnosisPanel, LanguageNote, OmissionsPanel, OnlinePanel, Panel, ReliabilityCard, SharesPanel, StageProgress, VerdictCard, WarningsPanel } from "../components/report/Panels";
@@ -194,6 +195,7 @@ export function Analyze() {
           />
         </Panel>
       </div>
+      <CheckMore />
 
       <div className={check.running ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]" : "hidden"} aria-hidden={!check.running}>
         <div className="card relative grid min-h-[320px] place-items-center overflow-hidden">

@@ -67,11 +67,12 @@ export const BRAIN_VERTEX = /* glsl */ `
   uniform float uAspect;      // viewport width / height (circular halo)
   uniform float uCursorRadius;// NDC halo radius (shrinks as the brain gets far)
   uniform float uCursorStrength; // overall halo intensity multiplier
-  uniform float uSplit;       // Truth Guardian: 0 whole .. 1 opened into three parts
-  uniform float uSplitY;      // the height the upper parts and the lower one are cut at
+  uniform float uSplit;       // Truth Guardian: 0 whole .. 1 cracked open into three parts
   uniform float uSplitDist;   // how far each part moves out
   uniform float uPiece;       // the part under the pointer (0..2), kept while its light fades
   uniform float uPieceLift;   // 0..1, eased: how lit that part is
+  uniform float uRiftScale, uRiftDepth, uRiftWidth, uRiftGapWidth, uRiftGapGlow, uRiftFine, uRiftPulse, uRiftCore, uRiftSpread;
+  uniform vec3 uRiftSeeds[3];  // each part's seed (x, y): 0 text, 1 sound, 2 images (rift.ts)
   varying float vSeed;
   varying float vSynapse;
   varying float vHemi;
@@ -84,7 +85,38 @@ export const BRAIN_VERTEX = /* glsl */ `
   varying float vCursor;
   varying float vHot;
   varying float vCold;
+  varying float vRift;        // how much crack light this particle gives (0 whole .. bright on a seam)
+  varying float vRiftBleed;   // the softer glow around the seams
   varying vec3 vWorldPos;
+  // Rift Stone's 3D Voronoi: the two nearest feature distances, and the two nearest cells' centres (scaled space). The
+  // hash uses no sin(), which differs between graphics cards: the same cracks on every screen, and rift.ts can follow them.
+  vec3 riftHash(vec3 p) {
+    p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+    p += dot(p, p.yxz + 33.33);
+    return fract((p.xxy + p.yxx) * p.zyx);
+  }
+  vec2 riftCells(vec3 p, out vec3 cell, out vec3 next) {
+    vec3 n = floor(p);
+    vec3 f = fract(p);
+    float f1 = 9.0, f2 = 9.0;
+    cell = n;
+    next = n;
+    for (int k = -1; k <= 1; k++)
+    for (int j = -1; j <= 1; j++)
+    for (int i = -1; i <= 1; i++) {
+      vec3 g = vec3(float(i), float(j), float(k));
+      vec3 o = 0.28 + 0.44 * riftHash(n + g);  // seeds kept near their cell's centre, so no seam blows up
+      vec3 r = g + o - f;
+      float d = dot(r, r);
+      if (d < f1) { f2 = f1; f1 = d; next = cell; cell = n + g + o; } else if (d < f2) { f2 = d; next = n + g + o; }
+    }
+    return vec2(sqrt(f1), sqrt(f2));
+  }
+  // The part a cell belongs to, whole: the nearest of the three seeds to its centre (model space).
+  float riftPiece(vec3 c) {
+    float d0 = distance(c.xy, uRiftSeeds[0].xy), d1 = distance(c.xy, uRiftSeeds[1].xy), d2 = distance(c.xy, uRiftSeeds[2].xy);
+    return d0 < d1 ? (d0 < d2 ? 0.0 : 2.0) : (d1 < d2 ? 1.0 : 2.0);
+  }
   void main() {
     vSeed = aSeed;
     vOcclusion = aOcclusion;
@@ -114,15 +146,48 @@ export const BRAIN_VERTEX = /* glsl */ `
     // Finale: blow the particles outward along a seeded radial direction.
     vec3 exDir = normalize(rad + vec3(sin(aSeed * 41.0), cos(aSeed * 57.0), sin(aSeed * 73.0)) * 0.45);
     p += exDir * uExplode * uExplodeDist;
-    // Truth Guardian: opened, the brain parts into three, the upper half into left and right and the lower half
-    // whole (0 upper left, 1 upper right, 2 lower), each moving out from the centre and a little toward the viewer;
-    // the part under the pointer moves further and lights up, the others dim.
-    float right = step(0.0, position.x);
-    float upper = step(uSplitY, position.y);
-    float piece = upper * right + (1.0 - upper) * 2.0;
+    // Truth Guardian: opened, the brain cracks like GetLayers' Rift Stone into three unequal parts (0 text, 1 sound,
+    // 2 images): every Voronoi cell goes whole to its nearest seed, so the parts break apart along the cells' jagged
+    // edges. The cells are long in depth (RIFT_DEPTH in rift.ts), so from the front a crack runs on unbroken over the
+    // brain's folds. Particles along an edge between parts stay behind in the gap as the light of a main crack; the
+    // cells' other edges are thin cracks inside a part, and the cells drift a little apart as shards (a slight per-shard
+    // stagger). Each part moves out toward its seed and a little toward the viewer; the part under the pointer moves
+    // further and lights up, the others dim. Only while open.
+    float piece = 0.0;
+    float gap = 0.0;
+    vRift = 0.0;
+    vRiftBleed = 0.0;
+    if (uSplit > 0.001) {
+      vec3 cell, next;
+      vec3 depth = vec3(1.0, 1.0, uRiftDepth);
+      vec2 v = riftCells(position * uRiftScale * depth, cell, next);
+      piece = riftPiece(cell / uRiftScale);
+      float between = step(0.5, abs(riftPiece(next / uRiftScale) - piece));  // the nearest edge parts two of them
+      float seam = v.y - v.x;
+      float rnd = fract(sin(dot(cell, vec3(12.9898, 78.233, 37.719))) * 43758.5453);
+      float k = clamp(uSplit * (0.6 + 0.7 * rnd), 0.0, 1.0);
+      vec3 outward = normalize(vec3(cell.x, cell.y * 0.7, cell.z / uRiftDepth) / uRiftScale + 1e-4);
+      // A wall makes a thin line only where it cuts through a surface turned to the viewer; where the surface runs along
+      // it, or edge-on down a fold, a whole stretch would pile up as one white patch, so it stays dark.
+      float turned = smoothstep(0.03, 0.25, abs(normalize(normalMatrix * nrm).z));
+      float cut = turned * smoothstep(0.1, 0.4, 1.0 - abs(dot(nrm, normalize((next - cell) * depth))));
+      // Most of those along an edge gather on the line itself: a thread of light down a gap's middle.
+      float near = 1.0 - clamp(seam / uRiftGapWidth, 0.0, 1.0);
+      float line = cut * (1.0 - pow(1.0 - near, 3.0));
+      gap = between * line;
+      p += outward * k * uRiftSpread * (0.55 + 0.9 * rnd) * (1.0 - line);
+      float cracks = (1.0 - smoothstep(0.0, uRiftWidth * uRiftScale, seam)) * mix(uRiftFine, 1.0, between) * cut;
+      float bleed = (1.0 - smoothstep(0.0, uRiftWidth * uRiftScale * 2.0, seam)) * mix(uRiftFine * 0.4, 1.0, between) * cut;
+      float coreMask = mix(1.0, 1.0 - smoothstep(0.0, 1.6, length(position)), uRiftCore);
+      float pulse = 1.0 + uRiftPulse * sin(iTime * 1.6 + v.x * 8.0);
+      float open = uSplit * (1.0 + uSplit * 0.9);  // the light flares as the parts pull apart
+      vRift = max(cracks, gap * gap * uRiftGapGlow) * pulse * coreMask * open;  // hottest on the line itself
+      vRiftBleed = bleed * coreMask * open;
+    }
     float mine = 1.0 - step(0.5, abs(piece - uPiece));
-    vec3 apart = normalize(vec3(upper * (right * 2.0 - 1.0), (upper * 2.0 - 1.0) * 0.85, 0.3));
-    p += apart * uSplit * uSplitDist * (1.0 + mine * uPieceLift * 0.6);
+    vec2 seed = uRiftSeeds[int(piece + 0.5)].xy;
+    vec3 apart = normalize(vec3(seed, 0.3 * length(seed)));
+    p += apart * (1.0 - gap) * uSplit * uSplitDist * (1.0 + mine * uPieceLift * 0.6);
     vHot = mine * uPieceLift * uSplit;
     vCold = (1.0 - mine) * uPieceLift * uSplit;
     float period = mix(3.0, 9.0, aSeed);
@@ -135,6 +200,10 @@ export const BRAIN_VERTEX = /* glsl */ `
     vec4 centerMv = modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
     float rel = centerMv.z - mv.z;
     vFrontness = clamp(rel * 0.6 + 0.5, 0.0, 1.0);
+    // The cracks of the far side would show through as a second network; only the side facing the viewer gives light.
+    float facing = smoothstep(0.3, 0.6, vFrontness);
+    vRift *= facing;
+    vRiftBleed *= facing;
     gl_Position = projectionMatrix * mv;
     vec4 centerClip = projectionMatrix * centerMv;
     vec2 centerNDC = centerClip.xy / max(0.0001, centerClip.w);
@@ -148,7 +217,7 @@ export const BRAIN_VERTEX = /* glsl */ `
     dMouse.x *= uAspect;
     vCursor = (1.0 - smoothstep(0.0, uCursorRadius, length(dMouse))) * uCursor;
     float baseSize = uSize * (iResolutionY / 720.0) * (200.0 / -mv.z);
-    gl_PointSize = baseSize * (1.0 + fire * 2.5 + vHighlight * 1.8 + vCursor * 1.3 * uCursorStrength + vHot * 0.5);
+    gl_PointSize = baseSize * (1.0 + fire * 2.5 + vHighlight * 1.8 + vCursor * 1.3 * uCursorStrength + vHot * 0.25 + vRift * 0.4);
     vDepth = -mv.z;
   }
 `;
@@ -172,6 +241,10 @@ export const BRAIN_FRAGMENT = /* glsl */ `
   uniform float uExplode;
   uniform vec3 uCursorColor;
   uniform float uCursorStrength;
+  uniform vec3 uRiftColor;
+  uniform float uRiftGlow, uRiftBleed, uRiftDim, uSplit;
+  varying float vRift;
+  varying float vRiftBleed;
   varying float vSeed;
   varying float vSynapse;
   varying float vHemi;
@@ -220,11 +293,19 @@ export const BRAIN_FRAGMENT = /* glsl */ `
     alphaOut += vCursor * core * 0.32 * uCursorStrength;
     // Finale: the brain blows up and thins out as it disperses.
     alphaOut *= 1.0 - smoothstep(0.0, 1.0, uExplode) * 0.8;
-    // Truth Guardian: the part under the pointer brightens, the other three dim.
-    col += uHighlightColor * vHot * 0.9;
+    // Truth Guardian: the part under the pointer brightens, the other two dim.
+    col += uHighlightColor * vHot * 0.4;
     col *= 1.0 - vCold * 0.55;
-    alphaOut *= 1.0 + vHot * 0.6 - vCold * 0.45;
-    gl_FragColor = vec4(col * uGlow, alphaOut);
+    alphaOut *= 1.0 + vHot * 0.25 - vCold * 0.45;
+    // Truth Guardian: the Rift Stone's light out of the cracks, with a soft bleed into the parts around them; the
+    // stone between the cracks darkens as it opens, so the light stands out.
+    float stone = 1.0 - uRiftDim * uSplit * (1.0 - clamp(vRift, 0.0, 1.0));
+    col *= stone;
+    alphaOut *= stone;
+    col = mix(col, uRiftColor, clamp(vRift, 0.0, 1.0) * 0.75);
+    col += uRiftColor * (vRift * uRiftGlow + vRiftBleed * uRiftBleed);
+    alphaOut += core * (vRift * 0.6 + vRiftBleed * 0.25);
+    gl_FragColor = vec4(clamp(col, 0.0, 1000.0) * uGlow, alphaOut);
   }
 `;
 

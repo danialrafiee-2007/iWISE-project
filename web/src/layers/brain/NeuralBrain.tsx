@@ -2,26 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { BRAIN_CONFIG } from "./config";
 import type { BrainLayout, FromSceneWorker, SceneSize, ToSceneWorker } from "./lib/brain-scene.worker";
 
-/** Where the brain stands on the screen, in CSS pixels from the window's top left: its centre and the centre of each
- *  of its four parts (indexed as in the worker: 0 upper left, 1 upper right, 2 lower left, 3 lower right of the
- *  unmirrored brain). */
+/** Where the brain stands on the screen, in CSS pixels from the window's top left: its centre, the centre of each of
+ *  its three parts (indexed as in the worker: 0 upper left, 1 upper right, 2 below on the unmirrored brain), where a
+ *  part's name goes, and the crack cells on its front, the nearest of which tells which part a point is on. */
 export interface BrainSpot {
   x: number;
   y: number;
   pieces: { x: number; y: number }[];
+  cells: { x: number; y: number; piece: number }[];
 }
 
 const toScreen = (layout: BrainLayout, canvas: HTMLCanvasElement, mirror: boolean): BrainSpot => {
   const box = canvas.getBoundingClientRect();
   const at = ([x, y]: [number, number]) => ({ x: box.left + (((mirror ? -x : x) + 1) / 2) * box.width, y: box.top + ((1 - y) / 2) * box.height });
-  return { ...at(layout.centre), pieces: layout.pieces.map(at) };
+  return { ...at(layout.centre), pieces: layout.pieces.map(at), cells: layout.cells.map(([x, y, piece]) => ({ ...at([x, y]), piece })) };
 };
 
 // GetLayers "Neural Monitor" particle brain, from the template's worker path (BrainStage): the page keeps only a
 // <canvas>, whose control goes to brain-scene.worker.ts as an OffscreenCanvas; three.js, the model and the frame loop
 // live in the worker. Where a worker cannot draw, the template's still image is shown instead. `progress` (0..1) flies
 // the camera along the story keyframes; `paused` stops drawing; `mirror` says the page shows the canvas mirrored.
-// `open` parts the brain into four and `piece` lights one of them; `onSpot` hears where the brain and its parts stand.
+// `open` cracks the brain into three and `piece` lights one of them; `onSpot` hears where the brain and its parts stand.
 
 const sizeOf = (canvas: HTMLCanvasElement): SceneSize => ({
   width: Math.max(1, canvas.clientWidth),

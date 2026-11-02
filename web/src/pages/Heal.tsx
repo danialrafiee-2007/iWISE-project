@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BackToCheck } from "../components/CheckLinks";
 import { InputForm } from "../components/InputForm";
 import { AnswerView } from "../components/report/AnswerView";
 import { Panel, RiskGauge, WarnIcon } from "../components/report/Panels";
@@ -106,6 +107,7 @@ export default function Heal() {
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
+      <BackToCheck />
       <div className="relative isolate overflow-hidden rounded-[28px] border border-hair">
         <div className="absolute inset-0 -z-10 opacity-80">
           <Riffle paused={busy} />

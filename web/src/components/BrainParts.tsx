@@ -4,9 +4,10 @@ import { useI18n, type MessageKey } from "../i18n";
 import { NeuralBrain, type BrainSpot } from "../layers/brain/NeuralBrain";
 import { useRouter } from "../lib/router";
 
-// The landing page's brain, made to answer: a click on it brings it forward and parts it into three, one part per
-// input (upper left text, upper right sound, the lower half images, mirrored on right-to-left pages). Under the pointer a part lights up and shows its name; held there, a small card says what the engine does
-// with that input, joined to the part by a line, after iridology.app's iris chart; a click on a part opens that
+// The landing page's brain, made to answer: a click on it brings it forward and cracks it, like GetLayers' Rift Stone,
+// into three unequal parts, one per input (text upper left, sound upper right, images below, mirrored on right-to-left
+// pages; layers/brain/lib/rift.ts). Under the pointer a part lights up and shows its name; held there, a small card says
+// what the engine does with that input, joined to the part by a line, after iridology.app's iris chart; a click on a part opens that
 // input's page. A click outside, Escape or the first scroll closes it, and the page scrolls on as usual. The names
 // and cards sit above the page; the brain itself stays in its background layer.
 
@@ -63,9 +64,9 @@ export function BrainParts({ progress, paused, mirror }: { progress: number; pau
     const nearest = (s: BrainSpot, x: number, y: number) => {
       let best = -1;
       let distance = Infinity;
-      s.pieces.forEach((p, i) => {
-        const d = Math.hypot(x - p.x, y - p.y);
-        if (d < distance) [best, distance] = [i, d];
+      s.cells.forEach((c) => {
+        const d = Math.hypot(x - c.x, y - c.y);
+        if (d < distance) [best, distance] = [c.piece, d];
       });
       return best;
     };

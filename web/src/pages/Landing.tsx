@@ -149,7 +149,7 @@ export default function Landing() {
         {roomForBrain && (
           <div className="absolute inset-y-0" style={stage}>
             {/* The camera holds still while the opening words are on screen, and flies through its story as the inputs scroll. */}
-            {/* A click on it opens it into four parts, one per challenge input (BrainParts). */}
+            {/* A click on it cracks it into three parts, one per input (BrainParts). */}
             <BrainParts progress={howProgress} paused={busy} mirror={dir === "rtl"} />
           </div>
         )}

@@ -38,6 +38,7 @@ import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectio
 
 import { BRAIN_CONFIG, type BrainConfig } from "../config";
 import { makeStorySample, sampleStory, type StorySample } from "../story/story-keyframes";
+import { RIFT_DEPTH, RIFT_SCALE, RIFT_SEEDS } from "./rift";
 import { hexToVec3 } from "./sampling";
 import { BRAIN_FRAGMENT, BRAIN_VERTEX, FINAL_FRAGMENT, FINAL_VERTEX } from "./shaders";
 
@@ -81,10 +82,26 @@ export const makeBrainUniforms = (): Uniforms => ({
   uCursorStrength: { value: BRAIN_CONFIG.cursorStrength },
   // Truth Guardian: the brain opened into three parts (driven by the scene worker, see SPLIT there).
   uSplit: { value: 0 },
-  uSplitY: { value: 0 },
   uSplitDist: { value: 0.2 },
   uPiece: { value: -1 },
   uPieceLift: { value: 0 },
+  // Truth Guardian: while it opens, the brain cracks like GetLayers' Rift Stone into three unequal parts along jagged
+  // cracks (rift.ts), with icy light out of the cracks between the parts and, finer, out of the network inside each,
+  // whose cells drift a little apart as shards (shaders.ts).
+  uRiftSeeds: { value: RIFT_SEEDS.map(([x, y]) => new Vector3(x, y, 0)) },
+  uRiftColor: { value: hexToVec3("#e6f4ff") }, // the stone's crack light
+  uRiftScale: { value: RIFT_SCALE }, // Voronoi cells per unit (the brain's radius is 1.4)
+  uRiftDepth: { value: RIFT_DEPTH }, // how squeezed the cells are in depth, so they run long front to back
+  uRiftWidth: { value: 0.035 }, // thickness of a crack along the cells' edges
+  uRiftGapWidth: { value: 0.2 }, // how far from an edge between parts particles stay behind in the gap
+  uRiftGapGlow: { value: 2 }, // how bright they are, beside the cracks on a part
+  uRiftDim: { value: 0.35 }, // how much the stone between the cracks darkens as it opens
+  uRiftGlow: { value: 1.35 },
+  uRiftBleed: { value: 0.16 }, // soft light spilling around the cracks
+  uRiftFine: { value: 0.75 }, // how bright the thin cracks inside a part are, beside the cracks between parts
+  uRiftPulse: { value: 0.44 }, // how much the seams breathe
+  uRiftCore: { value: 0.52 }, // concentrate the light toward the core
+  uRiftSpread: { value: 0.06 }, // how far the shards drift apart
 });
 
 export const makeAmbientUniforms = (): Uniforms => ({

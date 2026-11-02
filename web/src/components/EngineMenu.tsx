@@ -5,20 +5,18 @@ import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
 
 // "AI engine" in the top bar: its three inputs, text first (the challenge's own), then sound and images (the project's
 // additions), and beside the one the pointer rests on (or that a tap chose), the parts of the engine behind it. Text
-// holds the claim-checking tools and the examples; sound and images each hold a page that reads a file and one that
-// says which models do it and what they have been shown to do.
+// holds what Challenge 4 asks for and nothing else: checking an answer against its documents, checking an agent's logs,
+// and how reliable the result is (D-143); sound and images each hold a page that reads a file and one that says which
+// models do it and what they have been shown to do.
 
 export type Medium = "text" | "audio" | "image";
-type Item = { to: string; label: MessageKey };
+type Item = { to: string; label: MessageKey; within?: string[] };
 
 export const TOOLS: Item[] = [
-  { to: "/analyze", label: "nav.analyze" },
-  { to: "/heal", label: "nav.heal" },
-  { to: "/fool", label: "nav.fool" },
+  // The same check used another way lives inside this one (CheckLinks), so those pages count as being here.
+  { to: "/analyze", label: "nav.analyze", within: ["/heal", "/fool", "/audit", "/examples"] },
   { to: "/agent", label: "nav.agent" },
-  { to: "/audit", label: "nav.audit" },
   { to: "/model", label: "nav.model" },
-  { to: "/examples", label: "nav.examples" },
 ];
 
 const ICONS: Record<Medium, ReactNode> = {
@@ -50,7 +48,8 @@ export function EngineMenu({ className }: { className: string }) {
   const { path } = useRouter();
   const menu = useHoverMenu();
   const listId = useId();
-  const here = SECTIONS.find((s) => s.items.some((item) => item.to === path));
+  const isHere = (item: Item) => item.to === path || !!item.within?.includes(path);
+  const here = SECTIONS.find((s) => s.items.some(isHere));
   const [chosen, setChosen] = useState<Medium | null>(null);
   // Each opening starts on the input of the page shown, or on text.
   useEffect(() => {
@@ -115,7 +114,7 @@ export function EngineMenu({ className }: { className: string }) {
             </div>
             <div role="group" aria-label={t(shown.label)} className="flex min-w-0 flex-1 flex-col gap-0.5 ps-1.5">
               {shown.items.map((item) => {
-                const active = path === item.to;
+                const active = isHere(item);
                 return (
                   <Link
                     key={item.to}

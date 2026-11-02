@@ -64,9 +64,10 @@ uv run --offline python -m truth_guardian.web
 It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
 been downloaded once) and only answers on localhost. The top bar has Home, **AI engine**, About, Team and Contact us.
 Resting the pointer on AI engine lists its three inputs, text first (the challenge's own), then audio and images (the
-project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text the tools (Analyze,
-Heal, Fool the Guardian, Agent guardian, Audit, Model card) and Examples, six written answers each showing one check;
-under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
+project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text what Challenge 4
+asks for (D-143), namely Check an answer, Check an agent and Reliability. Inside Check an answer are the report's Heal
+step and the same check used other ways: Fool the Guardian, Audit a whole log and Examples, six written answers each
+showing one check. Under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
 do. **Tour** lists one tour per input: the text tour walks through every tool in about
 three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
 from PDF, Word, HTML, Markdown or text files.
@@ -120,9 +121,9 @@ draws samples with known content, runs every reader on them with the network cut
 and its peak memory in `eval/results/media_pilot.json`. Those samples are synthetic: they show the readers work, not how
 well they do on real media, which still needs labelled data.
 
-A click on the landing page's brain opens it into three parts, one per input (upper left text, upper right sound, the
-lower half images), each naming itself under the pointer and saying what the engine does with it; a click on a part
-opens that input's page, and scrolling closes it (D-128, D-129, D-140). On the landing page each of the three inputs also
+A click on the landing page's brain cracks it, like a stone along glowing jagged cracks, into three unequal parts, one
+per input (text upper left, sound upper right, images below), each naming itself under the pointer and saying what the
+engine does with it; a click on a part opens that input's page, and scrolling closes it (D-128, D-129, D-140, D-142). On the landing page each of the three inputs also
 opens a panel where it is given to the models (D-126): write or paste an answer with its sources, choose or paste an
 image, or press the microphone and speak, in any language; what was read or found comes back in the same panel, with where it was found and how sure the reader is.
 With an AI's answer about the file, the words read in it become the check's sources and every claim is shown with
@@ -144,7 +145,7 @@ npm run build    # writes src/truth_guardian/web/static
 ## Results
 
 The final model was evaluated once on each locked test set, with the thresholds chosen on RAGTruth dev; every run is
-logged in `eval/locked_runs.log` and the reports are in `eval/results`. The web app's Model card reads them directly.
+logged in `eval/locked_runs.log` and the reports are in `eval/results`. The web app's Reliability page reads them directly.
 
 | Locked test set | Answers | Truth Guardian AUROC | Best baseline AUROC |
 |---|---|---|---|
@@ -163,7 +164,7 @@ finds the wrong words better (span F1 0.395 against 0.302); on HaluEval it score
 dialogue / summary against our 0.933 / 0.670 / 0.694. See D-109
 
 Calibration: a risk reads as a probability on RAGTruth (calibration error 0.034 on dev, 0.061 on the locked test;
-the Model card shows the reliability diagram). On HaluEval, a domain the model never saw, it is 0.188 until a domain
+the Reliability page shows the reliability diagram). On HaluEval, a domain the model never saw, it is 0.188 until a domain
 profile recalibrates it (D-111).
 
 The five harder cases the challenge description names were measured on 100 answers and agent runs written for them,

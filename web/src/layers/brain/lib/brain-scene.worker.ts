@@ -53,6 +53,7 @@ import {
   type PipelineSync,
 } from "./brain-core";
 import type { BrainGeometryRequest, BrainGeometryResult } from "./brain-geometry.worker";
+import { riftApart, riftCell, riftPiece } from "./rift";
 import { AMBIENT_FRAGMENT, AMBIENT_VERTEX, BRAIN_FRAGMENT, BRAIN_VERTEX } from "./shaders";
 import { centerAndScale, computeOcclusion, gatherTriangles, makeAmbientBuffers, makeSeeds, sampleSurface } from "./sampling";
 
@@ -83,10 +84,12 @@ export type ToSceneWorker =
   | { type: "piece"; index: number };
 
 /** Where the brain stands on the canvas, in NDC (x right, y up): its centre and the centre of each of its three parts
- *  (0 upper left, 1 upper right, 2 lower, before any mirroring). */
+ *  (0 text, upper left; 1 sound, upper right; 2 images, below; before any mirroring; rift.ts), and each crack cell on
+ *  its front as x, y and its part: the cell nearest to a point tells which part it is on, jagged edges and all. */
 export interface BrainLayout {
   centre: [number, number];
   pieces: [number, number][];
+  cells: [number, number, number][];
 }
 
 export type FromSceneWorker =
@@ -126,8 +129,8 @@ interface Stage {
 // ─── Opening into three (Truth Guardian) ────────────────────────────────────
 
 /**
- * A click on the brain opens it: it comes a little toward the viewer and parts into three, one per input (text, sound,
- * images; the page names them). The page says which part the pointer is on; this side eases the motion and reports where
+ * A click on the brain opens it: it comes a little toward the viewer and cracks into three unequal parts along a
+ * stone's jagged cracks, one per input (text, sound, images; the page names them; rift.ts). The page says which part the pointer is on; this side eases the motion and reports where
  * the brain and its parts stand on the canvas, so the page can place their names and its pointer tests.
  */
 // It closes faster than it opens, so the brain is whole again by the time the scroll it gave way to gets going.
@@ -140,33 +143,38 @@ interface Opening {
   lift: number;
   /** Each part's centre on the brain's front face, in model space (from the sampled surface). */
   centres: Vector3[];
+  /** The crack cells on that face, each at its centre, at the depth of the surface there. */
+  cells: { at: Vector3; piece: number }[];
   lastKey: string;
 }
 
-const makeOpening = (): Opening => ({ target: 0, amount: 0, piece: -1, lift: 0, centres: [], lastKey: "" });
+const makeOpening = (): Opening => ({ target: 0, amount: 0, piece: -1, lift: 0, centres: [], cells: [], lastKey: "" });
 
 const _point = new Vector3();
 const _side = new Vector3();
 
-/** The parts' centres and the cut height, from the surface points: the cut is at their mean height, each centre the
- *  mean of the part's points that face the viewer. */
+/** The parts' centres (the mean of each part's surface points that face the viewer) and their cells, assigned as the
+ *  shader assigns them (rift.ts). */
 const measureParts = (s: Stage, positions: Float32Array) => {
-  let sumY = 0;
-  const n = positions.length / 3;
-  for (let i = 0; i < positions.length; i += 3) sumY += positions[i + 1];
-  const cut = sumY / Math.max(1, n);
   const sums = [0, 1, 2].map(() => [0, 0, 0, 0]);
+  const cells = new Map<string, { x: number; y: number; piece: number; depth: number; count: number }>();
   for (let i = 0; i < positions.length; i += 3) {
     if (positions[i + 2] < 0) continue;
-    const piece = positions[i + 1] >= cut ? (positions[i] >= 0 ? 1 : 0) : 2;
+    const [cx, cy, cz] = riftCell(positions[i], positions[i + 1], positions[i + 2]);
+    const piece = riftPiece(cx, cy);
     const sum = sums[piece];
     sum[0] += positions[i];
     sum[1] += positions[i + 1];
     sum[2] += positions[i + 2];
     sum[3] += 1;
+    const key = `${cx},${cy},${cz}`;
+    const cell = cells.get(key) ?? { x: cx, y: cy, piece, depth: 0, count: 0 };
+    cell.depth += positions[i + 2];
+    cell.count += 1;
+    cells.set(key, cell);
   }
   s.open.centres = sums.map(([x, y, z, count]) => new Vector3(x, y, z).divideScalar(Math.max(1, count)));
-  s.brainUniforms.uSplitY.value = cut;
+  s.open.cells = [...cells.values()].map((c) => ({ at: new Vector3(c.x, c.y, c.depth / c.count), piece: c.piece }));
 };
 
 /** Eases the opening, moves the brain, and posts where it stands (only when that changed). */
@@ -198,18 +206,18 @@ const stepOpening = (s: Stage, delta: number) => {
     return [Math.round(point.x * 1000) / 1000, Math.round(point.y * 1000) / 1000];
   };
   const spread = u.uSplitDist.value as number;
-  const centre = project(_point.set(0, 0, 0).applyMatrix4(s.group.matrixWorld));
-  const pieces = o.centres.map((c, i) => {
-    const upper = i < 2 ? 1 : -1;
-    const right = i === 2 ? 0 : i === 1 ? 1 : -1;
+  const onPart = (point: Vector3, i: number) => {
     const lift = i === u.uPiece.value ? o.lift : 0;
-    _side.set(right, upper * 0.85, 0.3).normalize().multiplyScalar(o.amount * spread * (1 + lift * 0.6));
-    return project(_point.copy(c).add(_side).applyMatrix4(s.group.matrixWorld));
-  });
+    _side.set(...riftApart(i)).multiplyScalar(o.amount * spread * (1 + lift * 0.6));
+    return project(_point.copy(point).add(_side).applyMatrix4(s.group.matrixWorld));
+  };
+  const centre = project(_point.set(0, 0, 0).applyMatrix4(s.group.matrixWorld));
+  const pieces = o.centres.map(onPart);
   const key = `${centre}|${pieces.join("|")}`;
   if (key !== o.lastKey) {
     o.lastKey = key;
-    post({ type: "layout", layout: { centre, pieces } });
+    const cells = o.cells.map(({ at, piece }): [number, number, number] => [...onPart(at, piece), piece]);
+    post({ type: "layout", layout: { centre, pieces, cells } });
   }
 };
 

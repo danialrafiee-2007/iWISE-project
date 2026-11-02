@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { BackToCheck } from "../components/CheckLinks";
 import { Panel } from "../components/report/Panels";
 import { formatNumber, t, useI18n } from "../i18n";
 import { Heading } from "../layers/Heading";
@@ -72,6 +73,7 @@ export default function Audit() {
 
   return (
     <div className="mx-auto flex max-w-[1320px] flex-col gap-6 px-4 py-8 sm:px-8">
+      <BackToCheck />
       <div className="flex max-w-3xl flex-col gap-2">
         <Heading className="m-0 text-[34px] font-normal leading-tight tracking-tight">{t("audit.title")}</Heading>
         <p className="m-0 text-[15px] leading-relaxed text-fog-300">
