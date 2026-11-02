@@ -504,6 +504,37 @@
   animation: page-in 0.32s ease-out both;
 }
 
+/* A person's introduction on the Team page: it and the shade behind it come and go softly. */
+html.person-open {
+  overflow: hidden;
+}
+.person-dialog {
+  opacity: 0;
+  transform: translateY(10px);
+  box-shadow: 0 30px 70px -28px rgba(44, 58, 52, 0.6);
+  transition: opacity 0.24s ease, transform 0.24s ease, overlay 0.24s allow-discrete, display 0.24s allow-discrete;
+}
+.person-dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+.person-dialog::backdrop {
+  background: rgb(44 58 52 / 0);
+  transition: background 0.24s ease, overlay 0.24s allow-discrete, display 0.24s allow-discrete;
+}
+.person-dialog[open]::backdrop {
+  background: rgb(44 58 52 / 0.45);
+}
+@starting-style {
+  .person-dialog[open] {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  .person-dialog[open]::backdrop {
+    background: rgb(44 58 52 / 0);
+  }
+}
+
 @keyframes bob {
   0%,
   100% {
