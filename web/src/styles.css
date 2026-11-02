@@ -22,7 +22,6 @@
 @import "@fontsource/vazirmatn/arabic-400.css";
 @import "@fontsource/vazirmatn/arabic-500.css";
 @import "@fontsource/vazirmatn/arabic-600.css";
-@import "orbloom/styles.css";
 
 /* Colours, after iridology.app: cream paper, deep green ink, forest-green actions, iris blue and gold accents.
    The token names come from the earlier dark design and keep their roles: ink-* are the surfaces (now cream, from
@@ -502,6 +501,12 @@
 }
 .page-in {
   animation: page-in 0.32s ease-out both;
+}
+
+/* The Team page fills the screen under the top bar (--bar, measured there), so the whole team is seen on arrival; on a
+   very short window it stops shrinking and scrolls, and on a very tall one its cards stop growing. */
+.team-fit {
+  height: min(max(calc(100dvh - var(--bar, 64px)), 460px), 1080px);
 }
 
 /* The team's cards shine like every other box (.card), with the band of light passing over the photo, not behind it,

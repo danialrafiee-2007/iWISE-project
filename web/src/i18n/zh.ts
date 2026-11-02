@@ -108,11 +108,6 @@ export const zh: Messages = {
   "engine.failed": "模型加载失败",
   "engine.warming": "正在预热模型",
   "engine.loading": "正在加载模型",
-  "orb.idle": "守护者空闲",
-  "orb.thinking": "守护者正在核查",
-  "orb.grounded": "上一个回答：有依据",
-  "orb.uncertain": "上一个回答：不确定",
-  "orb.hallucinated": "上一个回答：发现幻觉",
 
   "app.notFound": "页面不存在",
   "app.notFoundBody": "请使用上方菜单打开某个工具。",

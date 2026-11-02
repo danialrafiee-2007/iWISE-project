@@ -87,7 +87,6 @@ Read from the installed package metadata on 2026-10-23.
 | three (Halftone Iris, Lumen Grid, as shipped) | 0.143.0 | MIT |
 | @react-spring/web | 10.1.2 | MIT |
 | spring-text-engine | 0.1.5 | MIT |
-| orbloom | 0.1.0 | MIT |
 | tailwindcss, @tailwindcss/vite | 4.3.3 | MIT |
 | vite | 8.3.5 | MIT |
 | @vitejs/plugin-react | 6.1.2 | MIT |
@@ -101,6 +100,5 @@ Read from the installed package metadata on 2026-10-23.
 
 | Resource | Source | License | Status | Use |
 |---|---|---|---|---|
-| GetLayers layers: Neural Monitor (template), Roadmap Ascent, Slider Spectra, Cards Cascade (sections), Glass Halo, Halftone Iris, Lumen Grid, Signal Array, Rift Stone (scenes; of Rift Stone only the way it cracks, rewritten in the landing brain's shader, D-142), Pharos, Loupe, Riffle (gradients), Orb Studio, Text Animations (tools) | https://www.getlayers.ai | GetLayers licence, purchased by the team | team to confirm the licence terms, including whether the sources may sit in a public repository | Visual layers of the web app; changes listed in web/scripts/vendor-layers.mjs and in each adapted component |
-| General Sans (woff2 files shipped in the Neural Monitor template) | Fontshare (Indian Type Foundry) | ITF Free Font License, as published by Fontshare | not verified | No longer used: the interface moved to Jost with the iridology.app look, and the build ships no General Sans file (the three files still sit unused in web/src/assets/fonts) |
+| GetLayers layers: Neural Monitor (template), Roadmap Ascent, Slider Spectra, Cards Cascade (sections), Glass Halo, Halftone Iris, Lumen Grid, Signal Array, Rift Stone (scenes; of Rift Stone only the way it cracks, rewritten in the landing brain's shader, D-142), Pharos, Loupe, Riffle (gradients), Text Animations (tool) | https://www.getlayers.ai | GetLayers licence, purchased by the team | team to confirm the licence terms, including whether the sources may sit in a public repository | Visual layers of the web app; changes listed in web/scripts/vendor-layers.mjs and in each adapted component |
 | Brain model rotten-brain.glb (in the Neural Monitor template) | GetLayers template | as the template | team to confirm | Particle brain on the landing page |

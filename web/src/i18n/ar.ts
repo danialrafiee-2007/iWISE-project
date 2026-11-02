@@ -108,11 +108,6 @@ export const ar: Messages = {
   "engine.failed": "تعذّر تحميل النماذج",
   "engine.warming": "جارٍ تهيئة النماذج",
   "engine.loading": "جارٍ تحميل النماذج",
-  "orb.idle": "الحارس في وضع الانتظار",
-  "orb.thinking": "الحارس يفحص",
-  "orb.grounded": "آخر إجابة: موثّقة",
-  "orb.uncertain": "آخر إجابة: غير مؤكدة",
-  "orb.hallucinated": "آخر إجابة: عُثر على هلوسة",
 
   "app.notFound": "الصفحة غير موجودة",
   "app.notFoundBody": "استخدم القائمة في الأعلى لفتح إحدى الأدوات.",

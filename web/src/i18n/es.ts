@@ -108,11 +108,6 @@ export const es: Messages = {
   "engine.failed": "no se pudieron cargar los modelos",
   "engine.warming": "preparando los modelos",
   "engine.loading": "cargando los modelos",
-  "orb.idle": "El guardián está en reposo",
-  "orb.thinking": "El guardián está verificando",
-  "orb.grounded": "Última respuesta: fundamentada",
-  "orb.uncertain": "Última respuesta: incierta",
-  "orb.hallucinated": "Última respuesta: alucinación encontrada",
 
   "app.notFound": "Página no encontrada",
   "app.notFoundBody": "Usa el menú de arriba para abrir una de las herramientas.",

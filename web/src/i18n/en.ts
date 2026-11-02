@@ -107,11 +107,6 @@ export const en = {
   "engine.failed": "models failed to load",
   "engine.warming": "warming up the models",
   "engine.loading": "loading the models",
-  "orb.idle": "Guardian is idle",
-  "orb.thinking": "Guardian is checking",
-  "orb.grounded": "Last answer: grounded",
-  "orb.uncertain": "Last answer: uncertain",
-  "orb.hallucinated": "Last answer: hallucination found",
 
   "app.notFound": "Page not found",
   "app.notFoundBody": "Use the menu above to open one of the tools.",

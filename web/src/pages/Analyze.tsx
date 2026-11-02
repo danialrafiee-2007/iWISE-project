@@ -157,7 +157,7 @@ export function Analyze() {
     if (result) setView({ ...result, input: value, gold });
   };
 
-  const startHeal = (value: CheckInput) => heal.run("/api/heal", checkBody(value), (r) => r.rounds[r.rounds.length - 1].report.verdict);
+  const startHeal = (value: CheckInput) => heal.run("/api/heal", checkBody(value));
 
   // Only the latest click counts: an earlier example that answers late is ignored, and a check still running for it
   // is cancelled (the server then skips it), so quick clicks never pile up work or show the wrong report.

@@ -2,13 +2,13 @@
 in its own process, and records what it read, how long it took and the process's peak memory, in
 eval/results/media_pilot.json (a copy goes to --report-dir when given).
 
-    uv run python scripts/media_pilot.py [--only ocr,speech,vision,retrieval,nli] [--report-dir D:\\IWISE\\REPORT]
+    uv run python scripts/media_pilot.py [--only ocr,speech,vision,retrieval,nli] [--report-dir DIR]
 
 Samples go to runtime/media-smoke. Images are drawn by the local Edge browser from HTML, so Arabic-script and Ethiopic
 text is shaped as a reader would see it; speech comes from Windows' own voices (System.Speech); silence is
 made here. They are synthetic and few: they show that each reader loads offline, runs and reads what it
 should, not how well it does on real recordings and photos, which needs labelled data (eval/results/media_eval.json).
-The checks were written by the AI assistant from the samples' known content.
+The checks follow from the samples' known content.
 """
 
 import argparse
@@ -30,7 +30,7 @@ SAMPLES = ROOT / "runtime" / "media-smoke"
 RESULT = ROOT / "eval" / "results" / "media_pilot.json"
 DEAD_PROXY = "http://127.0.0.1:9"
 EDGE = [Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"), Path(r"C:\Program Files\Microsoft\Edge\Application\msedge.exe")]
-EDGE_PROFILE = Path(os.environ.get("TG_EDGE_PROFILE", r"D:\cache\edge-headless"))
+EDGE_PROFILE = Path(os.environ.get("TG_EDGE_PROFILE", ROOT / "runtime" / "edge-headless"))
 COMPONENTS = ["ocr", "speech", "vision", "retrieval", "nli"]
 
 IMAGES = {
@@ -63,7 +63,7 @@ RETRIEVAL = [
     ("Where does the train leave from?", ["El tren sale del andén cuatro.", "پایتخت ایران تهران است.", "東京は日本の首都です。"], 0),
     ("¿Cuándo cierra la biblioteca?", ["La biblioteca cierra a las seis.", "The meeting is on Monday.", "Москва — столица России."], 0),
 ]
-# premise, hypothesis, expected label; written by the AI assistant with labels that follow from the words.
+# premise, hypothesis, expected label; the labels follow from the words.
 NLI_PAIRS = [
     ("会議は午前十時に始まります。", "会議は朝に始まります。", "entailment"),
     ("会議は午前十時に始まります。", "会議は正午に始まります。", "contradiction"),
@@ -390,7 +390,7 @@ def main() -> None:
         "created": datetime.now(timezone.utc).isoformat(timespec="seconds"), "network": "cut off (dead proxy; models from local files only)",
         "machine": {"system": platform.platform(), "processor": platform.processor(), "ram_gb": ram_gb(), "python": platform.python_version()},
         "samples": {k: (Path(v).name if isinstance(v, str) and os.sep in v else v) for k, v in samples.items()},
-        "note": "Synthetic samples with known content and checks written by the AI assistant: they show each reader runs offline and reads what it should, not its accuracy on real media.",
+        "note": "Synthetic samples with known content and checks written for them: they show each reader runs offline and reads what it should, not its accuracy on real media.",
         "components": components,
     }
     RESULT.parent.mkdir(parents=True, exist_ok=True)

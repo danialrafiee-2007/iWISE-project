@@ -1,16 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api } from "./api";
-import type { CheckInput, Health, Verdict } from "./types";
-
-export type Mood = "idle" | "thinking" | Verdict;
+import type { CheckInput, Health } from "./types";
 
 interface Workspace {
   health: Health | null;
   offline: boolean;
   busy: boolean;
   setBusy: (busy: boolean) => void;
-  mood: Mood;
-  setMood: (mood: Mood) => void;
   input: CheckInput;
   setInput: (input: CheckInput) => void;
   reducedMotion: boolean;
@@ -36,7 +32,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [health, setHealth] = useState<Health | null>(null);
   const [offline, setOffline] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [mood, setMood] = useState<Mood>("idle");
   const [input, setInput] = useState<CheckInput>(EMPTY_INPUT);
   const reducedMotion = usePrefersReducedMotion();
 
@@ -64,8 +59,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ health, offline, busy, setBusy, mood, setMood, input, setInput, reducedMotion }),
-    [health, offline, busy, mood, input, reducedMotion],
+    () => ({ health, offline, busy, setBusy, input, setInput, reducedMotion }),
+    [health, offline, busy, input, reducedMotion],
   );
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

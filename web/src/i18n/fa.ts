@@ -108,11 +108,6 @@ export const fa: Messages = {
   "engine.failed": "بارگذاری مدل‌ها ناموفق بود",
   "engine.warming": "در حال آماده‌سازی مدل‌ها",
   "engine.loading": "در حال بارگذاری مدل‌ها",
-  "orb.idle": "نگهبان بیکار است",
-  "orb.thinking": "نگهبان در حال بررسی است",
-  "orb.grounded": "آخرین پاسخ: مستند",
-  "orb.uncertain": "آخرین پاسخ: نامطمئن",
-  "orb.hallucinated": "آخرین پاسخ: توهم پیدا شد",
 
   "app.notFound": "صفحه پیدا نشد",
   "app.notFoundBody": "از منوی بالا یکی از ابزارها را باز کنید.",

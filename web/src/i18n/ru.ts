@@ -108,11 +108,6 @@ export const ru: Messages = {
   "engine.failed": "не удалось загрузить модели",
   "engine.warming": "прогрев моделей",
   "engine.loading": "загрузка моделей",
-  "orb.idle": "Страж в ожидании",
-  "orb.thinking": "Страж проверяет",
-  "orb.grounded": "Последний ответ: обоснован",
-  "orb.uncertain": "Последний ответ: неопределённо",
-  "orb.hallucinated": "Последний ответ: найдена галлюцинация",
 
   "app.notFound": "Страница не найдена",
   "app.notFoundBody": "Откройте один из инструментов через меню выше.",

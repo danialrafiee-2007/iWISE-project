@@ -1,7 +1,6 @@
 .git
 .venv
 runtime
-.claude
 .env
 *.env
 **/__pycache__
