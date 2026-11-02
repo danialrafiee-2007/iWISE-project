@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWorkspace } from "../lib/workspace";
 
-// A GetLayers three.js scene (public/layers/<name>.html, made offline by scripts/vendor-layers.mjs) in a same-origin
+// A purchased three.js scene (public/layers/<name>.html, made offline by scripts/vendor-layers.mjs) in a same-origin
 // frame. The frame isolates the scene's globals and render loop; messages pause it while the models run, update its
 // CONFIG, or pick Signal Array's lamp. Decorative: hidden from assistive technology and from the tab order.
 

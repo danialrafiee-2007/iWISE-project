@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { paintShield, ShieldMark } from "../components/ShieldMark";
 import { useI18n } from "../i18n";
 
-// The opening of the site, after GetLayers' "Jade Cipher" scene: a wall of code and the columns of rain falling down
+// The opening of the site, after the "Jade Cipher" scene (docs/CREDITS.md): a wall of code and the columns of rain falling down
 // three depth layers (the rain and the pointer's spotlight are the scene's, rewritten as one fragment shader without
 // three.js, and its glyphs are fine zeros and ones here). Added here: the rain starts from the top of a dark screen, the
 // name and shield of the project build themselves out of still finer digits as their columns reach them and then settle
@@ -139,7 +139,9 @@ void main() {
 
 const NAME = "Truth Guardian";
 const EXIT_SECONDS = 1.25;
-const STOP_KEYS = new Set(["Enter", "Escape", " ", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"]);
+const STOP_KEYS = new Set(["Enter", "Escape", " ", "Tab", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End"]);
+// The page beneath listens on the window, so covering it is not enough: the click that enters would also open the brain.
+const HELD_BACK = ["pointerdown", "pointermove", "pointerup", "mousedown", "mousemove", "mouseup", "click", "dblclick", "wheel", "keydown", "keyup", "touchstart", "touchmove", "touchend"];
 
 function paintAtlas() {
   const atlas = document.createElement("canvas");
@@ -202,9 +204,11 @@ export function JadeIntro({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false);
 
   // Any of these enters the site. Meanwhile the page beneath stays where it is, without hiding its scrollbar and so
-  // shifting sideways at the end.
+  // shifting sideways at the end, and hears nothing until the opening has gone.
   useEffect(() => {
     const go = () => leave.current();
+    const hold = (e: Event) => e.stopPropagation();
+    HELD_BACK.forEach((type) => window.addEventListener(type, hold, { passive: true, capture: true }));
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       go();
@@ -228,6 +232,7 @@ export function JadeIntro({ onDone }: { onDone: () => void }) {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
+      HELD_BACK.forEach((type) => window.removeEventListener(type, hold, true));
       window.removeEventListener("wheel", onWheel, true);
       window.removeEventListener("touchmove", onTouchMove, true);
       window.removeEventListener("pointerdown", onPointer, true);
@@ -282,7 +287,7 @@ export function JadeIntro({ onDone }: { onDone: () => void }) {
       mouse[0] = e.clientX / window.innerWidth;
       mouse[1] = e.clientY / window.innerHeight;
     };
-    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointermove", onMove, { passive: true, capture: true });
 
     const resize = () => {
       const width = window.innerWidth;
@@ -337,7 +342,7 @@ export function JadeIntro({ onDone }: { onDone: () => void }) {
     return () => {
       stopped = true;
       cancelAnimationFrame(raf);
-      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onMove, true);
       window.removeEventListener("resize", resize);
     };
   }, []);

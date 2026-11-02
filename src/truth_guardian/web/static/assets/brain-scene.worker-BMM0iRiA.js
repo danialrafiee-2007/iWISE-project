@@ -4053,7 +4053,7 @@ void main() {
     // Finale: blow the particles outward along a seeded radial direction.
     vec3 exDir = normalize(rad + vec3(sin(aSeed * 41.0), cos(aSeed * 57.0), sin(aSeed * 73.0)) * 0.45);
     p += exDir * uExplode * uExplodeDist;
-    // Truth Guardian: opened, the brain cracks like GetLayers' Rift Stone into three unequal parts (0 text, 1 sound,
+    // Truth Guardian: opened, the brain cracks like the Rift Stone scene into three unequal parts (0 text, 1 sound,
     // 2 images): every Voronoi cell goes whole to its nearest seed, so the parts break apart along the cells' jagged
     // edges. The cells are long in depth (RIFT_DEPTH in rift.ts), so from the front a crack runs on unbroken over the
     // brain's folds. Particles along an edge between parts stay behind in the gap as the light of a main crack; the

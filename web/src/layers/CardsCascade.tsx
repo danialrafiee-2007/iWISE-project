@@ -2,7 +2,7 @@ import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { formatNumber, t } from "../i18n";
 import { useWheelTurn } from "./useWheelTurn";
 
-// GetLayers "Cards Cascade", adapted: the same fold geometry (a back stack that lies away from the crest, dismissed
+// The "Cards Cascade" section (docs/CREDITS.md), adapted: the same fold geometry (a back stack that lies away from the crest, dismissed
 // cards folding forward over the lip into the pit), driven by the chosen card instead of page scroll, so it fits a
 // tool page. The mouse wheel over it turns the cards, round and round (useWheelTurn), and it draws only while they
 // move. Cards carry our content; their faces are gradients instead of the bundle's photos.

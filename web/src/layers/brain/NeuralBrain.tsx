@@ -18,7 +18,7 @@ const toScreen = (layout: BrainLayout, canvas: HTMLCanvasElement, mirror: boolea
   return { ...at(layout.centre), pieces: layout.pieces.map(at), cells: layout.cells.map(([x, y, piece]) => ({ ...at([x, y]), piece })) };
 };
 
-// GetLayers "Neural Monitor" particle brain, from the template's worker path (BrainStage): the page keeps only a
+// The "Neural Monitor" particle brain (docs/CREDITS.md), from the template's worker path (BrainStage): the page keeps only a
 // <canvas>, whose control goes to brain-scene.worker.ts as an OffscreenCanvas; three.js, the model and the frame loop
 // live in the worker. Where a worker cannot draw, the template's still image is shown instead. `progress` (0..1) flies
 // the camera along the story keyframes; `paused` stops drawing; `mirror` says the page shows the canvas mirrored.

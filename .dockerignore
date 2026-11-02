@@ -20,5 +20,5 @@ models/detector/*/train_examples.jsonl
 models/detector/*/checkpoint.pt
 tests
 web
-GetLayers
+layers-originals
 deploy

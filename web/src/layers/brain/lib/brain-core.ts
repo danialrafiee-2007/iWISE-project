@@ -85,7 +85,7 @@ export const makeBrainUniforms = (): Uniforms => ({
   uSplitDist: { value: 0.2 },
   uPiece: { value: -1 },
   uPieceLift: { value: 0 },
-  // Truth Guardian: while it opens, the brain cracks like GetLayers' Rift Stone into three unequal parts along jagged
+  // Truth Guardian: while it opens, the brain cracks like the Rift Stone scene into three unequal parts along jagged
   // cracks (rift.ts), with icy light out of the cracks between the parts and, finer, out of the network inside each,
   // whose cells drift a little apart as shards (shaders.ts).
   uRiftSeeds: { value: RIFT_SEEDS.map(([x, y]) => new Vector3(x, y, 0)) },

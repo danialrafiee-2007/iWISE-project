@@ -2,7 +2,7 @@ import TextEngine from "spring-text-engine";
 import type { ReactNode } from "react";
 import { useI18n } from "../i18n";
 
-// GetLayers Text Animations, "Rise & Settle": letters lift and spring into place one after another. Persian and Arabic
+// "Rise & Settle" from the Text Animations tool (docs/CREDITS.md): letters lift and spring into place one after another. Persian and Arabic
 // letters join one another, so animating them one by one would break the words apart: there the heading fades in whole.
 // A "\n" in the text starts a new line (the landing slogan puts each sentence on its own line).
 export function Heading({ as = "h1", className, children }: { as?: "h1" | "h2" | "h3"; className?: string; children: ReactNode }) {

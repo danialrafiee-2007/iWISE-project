@@ -1,5 +1,5 @@
 /**
- * How the landing brain cracks open (Truth Guardian, after GetLayers' Rift Stone): not three equal parts cut along
+ * How the landing brain cracks open (Truth Guardian, after the Rift Stone scene): not three equal parts cut along
  * straight lines, but three unequal ones broken along a stone's crack. The brain is covered by Voronoi cells
  * (RIFT_SCALE cells per unit, the brain's radius being 1.4); each cell goes whole to the nearest of three seeds, so
  * the edges between the parts follow the cells' jagged edges, and the cells' other edges are the fine cracks inside a

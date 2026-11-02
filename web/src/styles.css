@@ -468,7 +468,7 @@
   .hero-title {
     font-size: clamp(36px, calc(var(--words) / 11.8), 66px);
   }
-  /* The GetLayers scenes glow on black. Inverting their lightness while keeping their hue turns them into
+  /* The purchased scenes glow on black. Inverting their lightness while keeping their hue turns them into
      green-ink lines on cream, so they sit in the light theme without touching the shipped scenes. */
   .ink-invert {
     filter: invert(1) hue-rotate(180deg) sepia(0.18) saturate(0.8);

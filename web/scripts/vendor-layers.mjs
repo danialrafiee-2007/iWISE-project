@@ -1,9 +1,9 @@
-// Turns the GetLayers scene bundles in layers-src/ into offline pages under public/layers/, and copies the exact
+// Turns the purchased scene bundles in layers-src/ into offline pages under public/layers/, and copies the exact
 // three.js builds they were made with (plus only the add-ons they import) under public/vendor/.
 //
 // Changes to each scene, nothing else: CDN URLs point to the local copies; the authoring panel is hidden and the
 // saved-tweaks lookup in localStorage is skipped; palette keys in CONFIG are recoloured to the app's palette (the way
-// GetLayers says to tint them); the render loop skips frames while the app pauses it; a small postMessage bridge
+// their makers say to tint them); the render loop skips frames while the app pauses it; a small postMessage bridge
 // (same origin only) lets the app pause it, update CONFIG and, for Signal Array, choose the lit lamp.
 //
 // Run: npm run layers   (after npm install)

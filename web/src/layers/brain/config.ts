@@ -1,5 +1,5 @@
 /**
- * GetLayers "Neural Monitor" particle brain (src/components/brain of the template), recoloured from blue to the app's
+ * The "Neural Monitor" particle brain (src/components/brain of the template), recoloured from blue to the app's
  * teal through these colour keys only; everything else is as shipped.
  *
  * Tunable parameters for the particle-brain scene. These are scene *content*

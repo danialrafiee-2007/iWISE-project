@@ -136,7 +136,7 @@ To change the front end (Node 20 or later):
 ```bash
 cd web
 npm install
-npm run layers   # only when the GetLayers scenes in web/layers-src change
+npm run layers   # only when the scenes in web/layers-src change
 npm run dev      # http://localhost:5173, API proxied to the Python server on port 8765
 npm run build    # writes src/truth_guardian/web/static
 ```
@@ -220,7 +220,7 @@ hf auth login
 uv run python scripts/deploy_space.py --space your-name/truth-guardian --access-code choose-a-code
 ```
 
-A public Space shows its files, including the built front end with the GetLayers layers, and lets anyone pull the
+A public Space shows its files, including the built front end with the purchased layers, and lets anyone pull the
 image; settle those licences first (`docs/CREDITS.md`) or pass `--private`.
 
 ## Benchmark

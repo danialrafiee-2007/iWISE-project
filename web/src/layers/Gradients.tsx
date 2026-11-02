@@ -4,7 +4,7 @@ import * as pharos from "./gradients/pharos";
 import * as riffle from "./gradients/riffle";
 
 // Each gradient keeps its shipped settings; only the palette keys are recoloured to the app's cream-and-sage
-// palette, which is how GetLayers says to tint them (CONFIG colours, never the shader). The edge vignette is off:
+// palette, which is how their makers say to tint them (CONFIG colours, never the shader). The edge vignette is off:
 // it darkens toward black, which on a wide cream banner reads as a dirty smudge.
 
 const PHAROS = { ...pharos.CONFIG, bgColor: "#f6f1e4", colorA: "#e7d8bd", colorB: "#d8e4d9", colorC: "#7fa88a", colorD: "#fdfcfa", vignette: 0 };

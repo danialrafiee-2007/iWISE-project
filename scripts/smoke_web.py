@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 from truth_guardian.web.app import STATIC, create_app
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED = re.compile(r"https?://(www\.w3\.org|localhost|127\.0\.0\.1|threejs\.org|github\.com|mrdoob\.com|reactjs\.org|react\.dev|fb\.me|tailwindcss\.com|fontshare\.com|getlayers\.ai|textura\.agency|github\.io)")
+ALLOWED = re.compile(r"https?://(www\.w3\.org|localhost|127\.0\.0\.1|threejs\.org|github\.com|mrdoob\.com|reactjs\.org|react\.dev|fb\.me|tailwindcss\.com|fontshare\.com|textura\.agency|github\.io)")
 failures = []
 
 

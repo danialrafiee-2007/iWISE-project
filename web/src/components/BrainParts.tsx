@@ -4,7 +4,7 @@ import { useI18n, type MessageKey } from "../i18n";
 import { NeuralBrain, type BrainSpot } from "../layers/brain/NeuralBrain";
 import { useRouter } from "../lib/router";
 
-// The landing page's brain, made to answer: a click on it brings it forward and cracks it, like GetLayers' Rift Stone,
+// The landing page's brain, made to answer: a click on it brings it forward and cracks it, like the Rift Stone scene,
 // into three unequal parts, one per input (text upper left, sound upper right, images below, mirrored on right-to-left
 // pages; layers/brain/lib/rift.ts). Under the pointer a part lights up and shows its name; held there, a small card says
 // what the engine does with that input, joined to the part by a line, after iridology.app's iris chart; a click on a part opens that

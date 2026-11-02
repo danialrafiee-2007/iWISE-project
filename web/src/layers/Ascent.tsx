@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from "react";
 
-// GetLayers "Roadmap Ascent", adapted to a component: a spine with rows sliding past a fixed glowing node whose ring
+// The "Roadmap Ascent" section (docs/CREDITS.md), adapted to a component: a spine with rows sliding past a fixed glowing node whose ring
 // fills with progress, a readout that rises in when the active row changes, and the pixel-cube field. Driven by a
 // value (row index as a float) instead of page scroll; recoloured through --tone. With onToggle, each row's label and
 // the node open that row: the row holds still, the node's arrow turns to point right and `panel` takes the place of
@@ -13,7 +13,7 @@ export interface AscentRow {
   sub: ReactNode;
 }
 
-// Two looks: the app's light one, and GetLayers' original night (the landing page, on its dark ground).
+// Two looks: the app's light one, and the section's original night (the landing page, on its dark ground).
 const LOOKS = {
   light: { ground: "#f6f1e4", frame: "border-hair", spine: "rgba(44,58,52,.16)", tick: "bg-fog-400/40", track: "rgba(44,58,52,.1)", disc: "border-hair bg-[radial-gradient(120%_120%_at_50%_18%,#fdfcfa,#ece4d2_82%)] shadow-[0_14px_40px_-10px_rgba(44,58,52,.35)]" },
   night: { ground: "#05070b", frame: "border-white/8", spine: "rgba(233,240,233,.16)", tick: "bg-white/30", track: "rgba(255,255,255,.09)", disc: "border-white/10 bg-[radial-gradient(120%_120%_at_50%_18%,#1a1f27,#0a0d12_82%)] shadow-[0_14px_40px_-10px_rgba(0,0,0,.75)]" },

@@ -5,7 +5,7 @@ uploads only what the image needs (Dockerfile, package, scripts, final models, r
 as the Space card, and can set the access code as a Space secret. The Space then builds the image (packages,
 datasets, models; about half an hour) and serves the app.
 
-A public Space shows its files, including the built front end with the GetLayers layers, and lets anyone pull the
+A public Space shows its files, including the built front end with the purchased layers, and lets anyone pull the
 built image: check those licences first (docs/CREDITS.md). --private keeps it to your account and organisation.
 """
 

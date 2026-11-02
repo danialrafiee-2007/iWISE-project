@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-// The GetLayers gradient engine (Pharos, Loupe, Riffle): one fullscreen triangle, one fragment shader, every CONFIG
+// The gradient engine of Pharos, Loupe and Riffle (docs/CREDITS.md): one fullscreen triangle, one fragment shader, every CONFIG
 // key uploaded as u + Key, a clamped accumulating clock and the pointer rig the gradient ships with. Sized to its
 // container instead of the window; it stops drawing when paused, hidden, off screen or under reduced motion.
 

@@ -40,5 +40,5 @@ models/tracer/*/model.joblib
 models/onnx/*/
 models/detector/
 data/web/
-GetLayers/
+layers-originals/
 *.tsbuildinfo

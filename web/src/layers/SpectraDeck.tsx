@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatNumber, t } from "../i18n";
 import { useWheelTurn } from "./useWheelTurn";
 
-// GetLayers "Slider Spectra", adapted: the same ring coverflow (fan geometry, glide, drag with momentum, arrow keys,
+// The "Slider Spectra" section (docs/CREDITS.md), adapted: the same ring coverflow (fan geometry, glide, drag with momentum, arrow keys,
 // autoplay that pauses on hover and when hidden) and the halo that takes the centre card's colour; the cards hold
 // our examples instead of product photos. The mouse wheel over the deck turns it a card per notch (useWheelTurn).
 // It sits beside a form and above a report on a page that checks answers on this computer's processor, so it draws
