@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { formatNumber, t } from "../i18n";
+import { useWheelTurn } from "./useWheelTurn";
 
 // GetLayers "Slider Spectra", adapted: the same ring coverflow (fan geometry, glide, drag with momentum, arrow keys,
 // autoplay that pauses on hover and when hidden) and the halo that takes the centre card's colour; the cards hold
-// our examples instead of product photos. The mouse wheel over the deck turns it a card per notch, once the whole
-// deck is on screen (before that the wheel scrolls the page to it, so scrolling past never sticks on the deck).
+// our examples instead of product photos. The mouse wheel over the deck turns it a card per notch (useWheelTurn).
 // It sits beside a form and above a report on a page that checks answers on this computer's processor, so it draws
 // only while a card moves, and autoplay also waits while `paused` or while someone is typing.
 
 const C = { gap: 164, rotate: 38, depth: 150, drop: 24, shrink: 0.14, fade: 0.26, dim: 0.2, visible: 3, persp: 1680, autoplayMs: 3200, ease: 0.14, sensitivity: 0.0072 };
-// Wheel: how much scrolling makes one card (a mouse notch is about 100 px), and the pause before the next card, so a
-// trackpad's long glide turns a few cards rather than dozens.
-const WHEEL = { step: 60, pause: 260 };
 
 export interface SpectraCard {
   key: string;
@@ -99,31 +96,12 @@ export function SpectraDeck({ cards, onOpen, caption, cta, paused = false }: { c
     };
   }, [N, cards]);
 
-  // A native listener, since React's wheel handler cannot stop the page from scrolling.
-  useEffect(() => {
-    const el = deck.current;
-    if (!el || !N) return;
-    let sum = 0;
-    let lastTurn = 0;
-    const onWheel = (e: WheelEvent) => {
-      const box = el.getBoundingClientRect();
-      const bar = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-      if (box.top < bar || box.bottom > window.innerHeight) return; // not all in view: let the page scroll to it
-      e.preventDefault();
-      const unit = e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? window.innerHeight : 1;
-      sum += (Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * unit;
-      const now = performance.now();
-      if (Math.abs(sum) < WHEEL.step || now - lastTurn < WHEEL.pause) return;
-      state.current.target += Math.sign(sum);
-      wake.current();
-      sum = 0;
-      lastTurn = now;
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [N]);
+  useWheelTurn(deck, (direction) => {
+    state.current.target += direction;
+    wake.current();
+  });
 
-  const go = (i: number) => {
+  const go =(i: number) => {
     const s = state.current;
     const cur = Math.round(s.target);
     let o = (((i - cur) % N) + N) % N;

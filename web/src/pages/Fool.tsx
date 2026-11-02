@@ -84,7 +84,7 @@ export default function Fool() {
             </div>
             <div>
               <p className="m-0 mb-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">{t("fool.trick", { i: formatNumber(i + 1, 0, 2) })}</p>
-              <h3 className="m-0 text-[28px] font-semibold leading-[1.05] tracking-tight">{KIND_LABEL[kind]}</h3>
+              <h3 className="m-0 text-[28px] font-semibold leading-[1.05] tracking-tight text-white">{KIND_LABEL[kind]}</h3>
               <p className="m-0 mt-2 max-w-[30ch] text-[13px] text-white/75">{t(`fool.hint.${kind}` as MessageKey)}</p>
             </div>
           </>

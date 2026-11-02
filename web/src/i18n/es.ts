@@ -683,7 +683,6 @@ export const es: Messages = {
   "card.notOpened": "Aún no se ha abierto. Se evalúa una sola vez, con el modelo final, y se informa aquí tal cual salga.",
   "card.dataTitle": "Datos, modelos y uso de IA",
   "card.data": "Los conjuntos de datos, modelos y bibliotecas, con sus licencias, están en docs/CREDITS.md; cada uso de herramientas de IA en la construcción del proyecto, y quién lo verificó, en docs/AI_USAGE.md; y cada decisión de diseño con su evidencia, en docs/DECISIONS.md.",
-  "card.sources": "De dónde salen estos números",
 
   "calib.legend": "Leyenda",
   "calib.ece": "{label} · ECE {v}",

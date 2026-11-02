@@ -683,7 +683,6 @@ export const zh: Messages = {
   "card.notOpened": "尚未打开。它只用最终模型评估一次，并按结果原样在此报告。",
   "card.dataTitle": "数据、模型与 AI 使用",
   "card.data": "数据集、模型和库及其许可证列于 docs/CREDITS.md；构建本项目时对 AI 工具的每一次使用及其核查人记录在 docs/AI_USAGE.md；每项设计决策及其证据记录在 docs/DECISIONS.md。",
-  "card.sources": "这些数字的来源",
 
   "calib.legend": "图例",
   "calib.ece": "{label} · ECE {v}",

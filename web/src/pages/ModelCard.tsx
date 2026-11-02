@@ -369,17 +369,6 @@ export default function ModelCard() {
             </p>
           </Panel>
         </div>}
-
-        {card && (
-          <details className="text-xs text-fog-400">
-            <summary className="cursor-pointer">{t("card.sources")}</summary>
-            <ul className="mt-2 flex list-none flex-col gap-1 p-0 font-mono" dir="ltr">
-              {Object.values(card.sources).map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-          </details>
-        )}
       </div>
     </div>
   );

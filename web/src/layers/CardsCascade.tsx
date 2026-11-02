@@ -1,9 +1,11 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { formatNumber, t } from "../i18n";
+import { useWheelTurn } from "./useWheelTurn";
 
 // GetLayers "Cards Cascade", adapted: the same fold geometry (a back stack that lies away from the crest, dismissed
 // cards folding forward over the lip into the pit), driven by the chosen card instead of page scroll, so it fits a
-// tool page. Cards carry our content; their faces are gradients instead of the bundle's photos.
+// tool page. The mouse wheel over it turns the cards, round and round (useWheelTurn), and it draws only while they
+// move. Cards carry our content; their faces are gradients instead of the bundle's photos.
 
 const G = { crestTilt: -18, crestY: 0.2, crestZ: 0.02, backDecay: 0.8, backTilt: 50, backRise: 1.02, backDepth: 1.05, backShrink: 0.16, frontDrop: 0.86, frontFold: 120, frontFwd: 0.3, fadeStart: 1.3, fadeEnd: 2.2, backFade: 9 };
 const EASE = 0.14;
@@ -46,10 +48,9 @@ export interface CascadeCard {
 }
 
 export function CardsCascade({ cards, active, onActive, height = 420 }: { cards: CascadeCard[]; active: number; onActive: (i: number) => void; height?: number }) {
+  const root = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLElement | null)[]>([]);
   const progress = useRef(active);
-  const target = useRef(active);
-  target.current = active;
   const cardH = Math.round(height * 0.6);
   const cardW = Math.round(cardH / 1.16);
 
@@ -57,14 +58,16 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
     const render = () => {
-      progress.current += (target.current - progress.current) * (reduce ? 1 : EASE);
-      if (Math.abs(target.current - progress.current) < 0.0005) progress.current = target.current;
+      progress.current += (active - progress.current) * (reduce ? 1 : EASE);
+      if (Math.abs(active - progress.current) < 0.0005) progress.current = active;
       refs.current.forEach((el, i) => el && place(el, i - progress.current, cardH));
-      raf = requestAnimationFrame(render);
+      if (progress.current !== active) raf = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(raf);
-  }, [cardH]);
+  }, [cardH, active]);
+
+  useWheelTurn(root, (direction) => onActive((active + direction + cards.length) % cards.length));
 
   const onKey = (e: KeyboardEvent) => {
     if (e.key === "ArrowRight" || e.key === "ArrowDown") onActive(Math.min(cards.length - 1, active + 1));
@@ -74,7 +77,7 @@ export function CardsCascade({ cards, active, onActive, height = 420 }: { cards:
   };
 
   return (
-    <div className="relative flex items-stretch gap-4" style={{ height }}>
+    <div ref={root} className="relative flex items-stretch gap-4" style={{ height }}>
       <div className="relative min-w-0 flex-1 overflow-hidden rounded-[24px] bg-[radial-gradient(130%_100%_at_50%_10%,#e4ece1_0%,#efe6d3_78%)]" style={{ perspective: Math.max(1200, height * 2.8), perspectiveOrigin: "50% 38%" }} tabIndex={0} onKeyDown={onKey} aria-roledescription="carousel" aria-label={t("fool.tricks")}>
         <div className="absolute left-1/2 top-[44%] h-0 w-0" style={{ transformStyle: "preserve-3d" }}>
           {cards.map((c, i) => (

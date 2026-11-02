@@ -144,7 +144,6 @@ export interface ChallengeCases {
 }
 
 export interface ModelCard {
-  sources: Record<string, string>;
   ragtruth_dev?: Summary & { fusion_only_auroc?: number | null };
   baselines: Record<string, { auroc: number; span_f1: number }>;
   halueval?: { qa: number; dialogue: number; summary: number; answers_per_task: number };

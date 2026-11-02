@@ -682,7 +682,6 @@ export const en = {
   "card.notOpened": "Not opened yet. It is evaluated once, with the final model, and reported here as it comes out.",
   "card.dataTitle": "Data, models and AI use",
   "card.data": "Datasets, models and libraries with their licences are listed in docs/CREDITS.md; every use of AI tools in building this project, and who verified it, is in docs/AI_USAGE.md; every design decision with its evidence is in docs/DECISIONS.md.",
-  "card.sources": "Where these numbers come from",
 
   "calib.legend": "Legend",
   "calib.ece": "{label} · ECE {v}",
