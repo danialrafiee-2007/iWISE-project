@@ -27,7 +27,7 @@ Licenses marked "verified" were read on the official page on the given date. Re-
 | Claude Opus 5.5 through the Anthropic API (official `anthropic` Python SDK, MIT) | https://docs.anthropic.com | Anthropic's commercial terms; paid per use | 2026-10-29; experimental, off until the team sets a key | The online check (D-141): a disclosed second opinion on doubtful claims, with web search; never the local verdict. Sends the question, the doubtful claims and the sources to Anthropic |
 | MiniCheck | https://github.com/Liyan06/MiniCheck | Apache-2.0 | verified 2026-10-21 | Fact-check signal and baseline |
 | LettuceDetect | https://github.com/KRLabsOrg/LettuceDetect | MIT | verified 2026-10-21 | Span-level baseline |
-| all-MiniLM-L6-v2 | https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2 | Apache-2.0 | verified 2026-10-21 | B2 embedding baseline, evidence retrieval |
+| all-MiniLM-L6-v2 | https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2 | Apache-2.0 | verified 2026-10-21 | B2 embedding baseline, evidence retrieval; the backbone of the exact-word detector, whose fine-tuned weights are in the repository's Releases |
 | en_core_web_sm 3.8.0 | https://github.com/explosion/spacy-models | MIT | verified 2026-10-21 | Named entities for symbolic checks |
 | LettuceDetect base (lettucedect-base-modernbert-en-v1) | https://huggingface.co/KRLabsOrg/lettucedect-base-modernbert-en-v1 | MIT | verified 2026-10-21 | Signal study only (trained on RAGTruth) |
 | HHEM-2.1-Open @ de9a5e6 | https://huggingface.co/vectara/hallucination_evaluation_model | Apache-2.0 | verified 2026-10-21; remote code reviewed | Consistency signal; downloads the google/flan-t5-base tokenizer |

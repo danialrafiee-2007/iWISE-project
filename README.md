@@ -18,6 +18,13 @@ computer and runs there offline, with nothing to install**. On the first start i
 the Docker image below. Code run directly (tests, scripts, `uv run`) keeps the language models in `runtime/hf` too
 unless `HF_HOME` says otherwise, so nothing is downloaded into the user profile.
 
+The exact-word detector is the one model setup does not make (training takes about 7 hours). Download
+`truth-guardian-word-detector.zip` (79 MB) from the repository's
+[Releases](https://github.com/danialrafiee-2007/iWISE-project/releases) and unzip it into this folder, so that
+`models/detector/full/model.safetensors` exists. Its SHA-256 is
+`58989703e2480b12fc981687f57b4ec31698df422faff612a11aea8ebf3c5206`. Without it the app still runs, and flagged claims
+mark the whole sentence.
+
 | Command | What it does |
 |---|---|
 | `TruthGuardian.bat` | start the web app (port 8765) and open the browser; if it is already running, just open it |
