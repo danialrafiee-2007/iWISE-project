@@ -503,6 +503,19 @@
   animation: page-in 0.32s ease-out both;
 }
 
+/* The site's opening (layers/JadeIntro.tsx): the way in is offered once the logo stands. */
+@keyframes intro-hint {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.8;
+  }
+}
+.intro-hint {
+  animation: intro-hint 0.7s ease-out 2.9s both;
+}
+
 /* The Team page fills the screen under the top bar (--bar, measured there), so the whole team is seen on arrival; on a
    very short window it stops shrinking and scrolls, and on a very tall one its cards stop growing. */
 .team-fit {

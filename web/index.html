@@ -7,6 +7,15 @@
     <meta name="description" content="Truth Guardian checks AI answers against their sources, claim by claim, and watches agents while they run." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Truth Guardian</title>
+    <style>
+      html.intro, html.intro body { background: #030b08; }
+    </style>
+    <script>
+      // The opening is dark: keep the page dark until the app has started it, so a first paint never flashes light.
+      if (location.pathname === "/" || performance.getEntriesByType("navigation")[0]?.type === "reload") {
+        if (!location.search.includes("tour=")) document.documentElement.classList.add("intro");
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -297,6 +297,7 @@ export const en = {
   "inputs.questionMedia": "The question the answer replies to (optional); the image model is asked it too",
   "inputs.answerMedia": "Paste the AI's answer about this file to check it, or send to just read the file",
   "inputs.answerAudio": "Paste the AI's answer about this recording to check it against what was said",
+  "splash.enter": "Click, scroll or touch to enter",
   "landing.badge": "iWISE 2026 · AI Challenge 4 · hallucination detection",
   "examples.button": "Examples",
   "examples.cta": "Check this example",

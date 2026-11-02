@@ -298,6 +298,7 @@ export const fr: Messages = {
   "inputs.questionMedia": "La question à laquelle répond la réponse (facultatif) ; elle est aussi posée au modèle d’image",
   "inputs.answerMedia": "Collez la réponse de l’IA sur ce fichier pour la vérifier, ou envoyez pour simplement lire le fichier",
   "inputs.answerAudio": "Collez la réponse de l’IA sur cet enregistrement pour la vérifier d’après ce qui a été dit",
+  "splash.enter": "Cliquez, défilez ou touchez pour entrer",
   "landing.badge": "iWISE 2026 · défi IA n° 4 · détection des hallucinations",
   "examples.button": "Exemples",
   "examples.cta": "Vérifier cet exemple",

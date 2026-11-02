@@ -298,6 +298,7 @@ export const zh: Messages = {
   "inputs.questionMedia": "该回答所针对的问题（可选）；也会拿去问图像模型",
   "inputs.answerMedia": "粘贴 AI 关于这个文件的回答以进行检查，或直接发送只读取文件",
   "inputs.answerAudio": "粘贴 AI 关于这段录音的回答，对照所说内容进行检查",
+  "splash.enter": "点击、滚动或触摸即可进入",
   "landing.badge": "iWISE 2026 · 人工智能挑战赛 4 · 幻觉检测",
   "examples.button": "示例",
   "examples.cta": "核查这个示例",
