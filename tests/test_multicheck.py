@@ -11,6 +11,14 @@ def test_chinese_sentences_are_split_at_their_full_stops_and_english_lines_as_be
     assert all(text[s.start : s.end] == s.text for s in split_sentences(text))
 
 
+def test_a_citation_is_not_a_number_of_the_claim():
+    assert multicheck.numbers("El museo se abrió en 1950 [1].") == [{"1950"}]
+    assert multicheck.numbers("Abierto en 1950 [1, 2] y cerrado en 1960 [۳].") == [{"1950"}, {"1960"}]
+    text = "El museo se abrió en 1950 [1]."
+    (start, end, forms), = multicheck.number_spans(text)
+    assert text[start:end] == "1950" and forms == {"1950"}
+
+
 def test_numbers_are_read_alike_in_every_script_and_separator():
     forms = lambda text: [sorted(f) for f in multicheck.numbers(text)]
     assert forms("توفيت في عام ١٩٤٥") == [["1945"]]

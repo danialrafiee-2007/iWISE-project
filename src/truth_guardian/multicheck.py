@@ -38,6 +38,7 @@ _DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹０１２３４
 # Digits with decimal or thousands marks between them; a space joins only a group of exactly three ("68 511", not "1945 3").
 _NUMBER = re.compile(r"\d+(?:(?:[.,]|[   ](?=\d{3}(?!\d)))\d+)*")
 _LIST_MARKER = re.compile(r"^\s*\d{1,2}[.)]\s")
+_CITATION = re.compile(r"\[\d{1,3}(?:\s*,\s*\d{1,3})*\]")
 _HAN_NUMBER = re.compile("[零〇一二两三四五六七八九十百千万亿]{2,}")
 _HAN_SCALED = re.compile(r"(\d+(?:\.\d+)?)\s*(万|亿)")
 _HAN_DIGIT = {c: i for i, c in enumerate("零一二三四五六七八九")} | {"〇": 0, "两": 2}
@@ -108,8 +109,8 @@ def _forms(raw: str) -> set[str]:
 
 
 def numbers(text: str) -> list[set[str]]:
-    """Each number in the text as the set of forms it may stand for."""
-    text = unicodedata.normalize("NFKC", text).translate(_DIGITS)
+    """Each number in the text as the set of forms it may stand for; a citation such as [1] is not a number of the claim."""
+    text = _CITATION.sub(" ", unicodedata.normalize("NFKC", text).translate(_DIGITS))
     found = []
     for line in text.split("\n"):
         line = _LIST_MARKER.sub(" ", line)
@@ -125,7 +126,7 @@ def number_spans(text: str) -> list[tuple[int, int, set[str]]]:
     """Where the numbers are, for showing them: the same reading as `numbers` but on the text as written (no NFKC, so
     offsets hold), which differs from it only on superscript, circled and fraction characters."""
     blank = lambda m: " " * len(m.group())
-    text = re.sub(r"(?m)" + _LIST_MARKER.pattern, blank, text.translate(_DIGITS))
+    text = re.sub(r"(?m)" + _LIST_MARKER.pattern, blank, _CITATION.sub(blank, text.translate(_DIGITS)))
     found = [(m.start(), m.end(), {str(round(float(m.group(1)) * _HAN_BIG[m.group(2)]))}) for m in _HAN_SCALED.finditer(text)]
     text = _HAN_SCALED.sub(blank, text)
     found += [(m.start(), m.end(), _forms(m.group())) for m in _NUMBER.finditer(text)]

@@ -19,6 +19,11 @@ GHEE = (
 SIGNAL_FNS = {"lexical": lexical, "symbolic": symbolic}
 
 
+def test_a_citation_after_the_full_stop_is_not_a_claim_of_its_own():
+    report = run(make_sample("Anne Frank died in 1945 in Bergen-Belsen. [1]", [SOURCE]))
+    assert [c.text for c in report.claims] == ["Anne Frank died in 1945 in Bergen-Belsen. [1]"]
+
+
 @pytest.mark.parametrize("answer", ["...", "!!!", "؟؟؟"])
 def test_an_answer_without_words_is_refused_before_any_model_runs(answer):
     with pytest.raises(ValueError, match="no words"):

@@ -12,6 +12,20 @@ def test_split_sentences_keeps_offsets_across_lines():
     assert all(text[s.start : s.end] == s.text for s in sentences)
 
 
+@pytest.mark.parametrize("mark", ["[1]", "[1].", "[1, 2]", "[1][2]", "[1] [2]"])
+def test_a_citation_after_the_full_stop_stays_with_its_sentence(mark):
+    text = f"She died in 1945. {mark} The camp was freed."
+    sentences = split_sentences(text)
+    assert [s.text for s in sentences] == [f"She died in 1945. {mark}", "The camp was freed."]
+    assert all(text[s.start : s.end] == s.text for s in sentences)
+
+
+def test_a_number_alone_or_a_citation_first_on_its_line_stays_a_sentence_of_its_own():
+    assert [s.text for s in split_sentences("1945")] == ["1945"]
+    assert [s.text for s in split_sentences("It opened.\n[1]")] == ["It opened.", "[1]"]
+    assert [s.text for s in split_sentences("It opened in 2. 1945 was the year.")] == ["It opened in 2.", "1945 was the year."]
+
+
 def test_content_words_drop_stop_words():
     assert content_words("The cafe is in Paris") == {"cafe", "paris"}
 
