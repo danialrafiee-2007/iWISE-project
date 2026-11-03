@@ -2,6 +2,8 @@
 __pycache__/
 *.py[oc]
 build/
+# ...but three.js's own build folder is part of the site: the 3D scenes load it, offline
+!**/vendor/three@*/build/
 dist/
 wheels/
 *.egg-info
