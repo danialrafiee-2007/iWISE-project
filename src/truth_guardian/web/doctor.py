@@ -73,7 +73,7 @@ def readiness(root: Path) -> list[Item]:
         Item("Fool-the-Guardian answers", (processed / "perturb_dev.jsonl").exists(), False, f"{SETUP} (the game needs them)"),
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "unzip truth-guardian-word-detector.zip from the repository's Releases into this folder, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
-        Item("check of other languages", readers, False, "unzip truth-guardian-reader-e5.zip and truth-guardian-reader-nli.zip from the repository's Releases into this folder (without them answers in other languages are not checked)"),
+        Item("check of other languages", readers, False, f"{SETUP} (without them answers in other languages are not checked)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
     ] + ([Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer")] if sys.platform == "win32" else [])
 

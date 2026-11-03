@@ -134,7 +134,8 @@ if exist "data\processed\ragtruth_dev.jsonl" (call :skip 3 "Processed datasets")
 if exist "data\processed\perturb_dev.jsonl" (call :skip 4 "Fool-the-Guardian suite") else (call :step 4 "Fool-the-Guardian suite" "uv run python scripts\build_perturbations.py" || goto fail)
 if exist "data\processed\tg_agent_dev.jsonl" (call :skip 5 "TG-Agent trajectories") else (call :step 5 "TG-Agent trajectories" "uv run python scripts\build_tg_agent.py" || goto fail)
 if exist "models\onnx\hhem-de9a5e6b.onnx" (call :skip 6 "Fast HHEM (ONNX export)") else (call :step 6 "Fast HHEM (ONNX export, a few minutes)" "uv run python scripts\export_onnx.py" || echo   %WARN%ONNX export failed; the app still runs, about a third slower.%R%)
-call :step 7 "Language models, warm-up and example cache" "uv run python -m truth_guardian.web --prepare" || goto fail
+call :step 7 "Models for sound, images and other languages (3.7 GB, checksums verified)" "uv run python scripts\fetch_media_models.py" || echo   %WARN%Some of these models could not be downloaded; run setup again to continue. English text checks work without them.%R%
+call :step 8 "Language models, warm-up and example cache" "uv run python -m truth_guardian.web --prepare" || goto fail
 echo.
 echo   %B%Final check (offline)%R%
 uv run --offline --quiet python -m truth_guardian.web --check || goto fail
@@ -227,17 +228,18 @@ for /f "delims=" %%u in ('where uv 2^>nul') do (
 exit /b 1
 
 :step
-echo   %TEAL%[%~1/7]%R% %~2
+echo   %TEAL%[%~1/8]%R% %~2
 %~3
-if errorlevel 1 (
-  echo   %ERR%Step %~1 failed:%R% %~2
-  exit /b 1
-)
+rem No block here: a bracket in a step's name would end it early and every step would look failed.
+if not errorlevel 1 goto step_ok
+echo   %ERR%Step %~1 failed:%R% %~2
+exit /b 1
+:step_ok
 echo   %OK%done%R%
 exit /b 0
 
 :skip
-echo   %TEAL%[%~1/7]%R% %~2 %DIM%(already there)%R%
+echo   %TEAL%[%~1/8]%R% %~2 %DIM%(already there)%R%
 exit /b 0
 
 :fail
