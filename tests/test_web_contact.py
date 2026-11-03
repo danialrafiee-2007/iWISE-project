@@ -46,7 +46,7 @@ def test_a_message_goes_to_the_fixed_mailbox_with_the_visitor_as_reply_to(sent):
     assert "Hello team." in mail.get_content() and "Page language: fa" in mail.get_content()
 
 
-@pytest.mark.parametrize("change", [{"email": "not an address"}, {"email": "a@b"}, {"name": "   "}, {"message": ""}, {"to": "other@example.org"}])
+@pytest.mark.parametrize("change", [{"email": "not an address"}, {"email": "a@b"}, {"email": "سلام@example.org"}, {"email": "a@مثال.org"}, {"name": "   "}, {"message": ""}, {"to": "other@example.org"}])
 def test_bad_messages_are_refused(sent, change):
     assert sent.post("/api/contact", json={**MESSAGE, **change}).status_code == 422
     assert sent.outbox == []

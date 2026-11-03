@@ -23,7 +23,7 @@ def test_examples_carry_spans_relative_to_their_sentence():
 
 
 def test_only_sentence_tokens_inside_the_span_are_labelled_positive():
-    tokenizer = AutoTokenizer.from_pretrained(detector.BACKBONE)
+    tokenizer = AutoTokenizer.from_pretrained(detector.BACKBONE, revision=detector.BACKBONE_REVISION)
     example = detector.Example("It opened in 1985.", "It opened in 1990.", [(13, 17)], "unit")
     batch = detector._batch(tokenizer, [example])
     labelled = [(tokenizer.convert_ids_to_tokens(int(i)), int(y)) for i, y in zip(batch["input_ids"][0], batch["labels"][0]) if y != -100]

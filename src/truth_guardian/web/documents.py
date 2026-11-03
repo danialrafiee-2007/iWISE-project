@@ -13,6 +13,7 @@ from xml.etree import ElementTree
 
 MAX_BYTES = 10_000_000
 MAX_PAGES = 300
+MAX_WORD_XML_BYTES = 50_000_000
 TEXT_TYPES = {".txt", ".md", ".markdown", ".csv", ".json", ".log"}
 HTML_TYPES = {".html", ".htm"}
 SUPPORTED = sorted({".pdf", ".docx", *TEXT_TYPES, *HTML_TYPES})
@@ -79,6 +80,8 @@ def _pdf(data: bytes) -> Extracted:
 def _docx(data: bytes) -> Extracted:
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as z:
+            if z.getinfo("word/document.xml").file_size > MAX_WORD_XML_BYTES:
+                raise ValueError(f"the Word document unpacks to more than {MAX_WORD_XML_BYTES // 1_000_000} MB of text and markup")
             root = ElementTree.fromstring(z.read("word/document.xml"))
     except (zipfile.BadZipFile, KeyError, ElementTree.ParseError):
         raise ValueError("the file is not a valid Word document (.docx)") from None

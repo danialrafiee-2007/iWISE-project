@@ -5,13 +5,14 @@ Bump a signal's version whenever its output could change, so cached features are
 
 import hashlib
 from collections.abc import Callable
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
 
 from truth_guardian import models, multicheck
 from truth_guardian.baselines.lexical import sentence_score
-from truth_guardian.evidence import evidence_for
+from truth_guardian.evidence import CACHED_SETS, evidence_for
 from truth_guardian.retrieval import Bm25, retrieve
 from truth_guardian.schema import Sample
 from truth_guardian.symbolic import check_sample
@@ -19,7 +20,10 @@ from truth_guardian.text import Sentence, content_words
 
 PREMISE_SENTENCES = 5
 
-_bm25_cache: dict[tuple, Bm25] = {}
+
+@lru_cache(maxsize=CACHED_SETS)
+def _bm25(sentences: tuple[str, ...]) -> Bm25:
+    return Bm25(list(sentences))
 
 
 def premises(sample: Sample, sentences: list[Sentence]) -> list[str]:
@@ -27,8 +31,7 @@ def premises(sample: Sample, sentences: list[Sentence]) -> list[str]:
     evidence = evidence_for(sample, models.encode)
     if not evidence.sentences:
         return ["" for _ in sentences]
-    key = tuple(evidence.sentences)
-    bm25 = _bm25_cache.setdefault(key, Bm25(evidence.sentences))
+    bm25 = _bm25(tuple(evidence.sentences))
     embeddings = models.encode([s.text for s in sentences])
     return [
         " ".join(evidence.sentences[i] for i in retrieve(s.text, e, evidence, bm25, PREMISE_SENTENCES))

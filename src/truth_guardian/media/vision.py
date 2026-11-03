@@ -1,7 +1,8 @@
 """What an image shows, from Qwen3-VL-2B (GGUF, Q4_K_M with its Q8_0 vision part) run by llama.cpp's llama-server.
 
 The server is started on demand on 127.0.0.1 only, with the model files from runtime/multimodal and no GPU layers, and is
-stopped by stop() (the web app calls it when it shuts down). Images go in the request itself as base64, never as a
+stopped by stop() (the web app calls it when it shuts down); on Windows it also ends with this process, however that
+ends, such as when its window is closed. Images go in the request itself as base64, never as a
 public URL. The model is asked to state only what is visible, to keep any text in the image in its own language and to
 call unreadable details unclear; its description is an opinion, so a reading from here always goes to review and is
 never treated as proof of a claim on its own.
@@ -11,6 +12,7 @@ import base64
 import io
 import json
 import subprocess
+import sys
 import threading
 import time
 import urllib.error
@@ -31,6 +33,48 @@ PROMPT = (
     "Copy written text exactly, in its original language and script; do not translate it. "
     "If a detail cannot be read or seen clearly, say it is unclear instead of guessing. Do not add anything that is not shown."
 )
+
+
+KILL_ON_JOB_CLOSE = 0x2000
+EXTENDED_LIMIT_INFORMATION = 9
+_job = None
+
+
+def tie_to_this_process(process: subprocess.Popen) -> None:
+    """On Windows, puts the process in a job object that ends it when the last handle closes, which is when this process
+    ends. Without this, closing the app's window leaves the server running, the model in memory and its port taken."""
+    global _job
+    if sys.platform != "win32":
+        return
+    import ctypes
+    from ctypes import wintypes
+
+    class Limits(ctypes.Structure):
+        _fields_ = [
+            ("PerProcessUserTimeLimit", ctypes.c_int64), ("PerJobUserTimeLimit", ctypes.c_int64), ("LimitFlags", wintypes.DWORD),
+            ("MinimumWorkingSetSize", ctypes.c_size_t), ("MaximumWorkingSetSize", ctypes.c_size_t), ("ActiveProcessLimit", wintypes.DWORD),
+            ("Affinity", ctypes.c_size_t), ("PriorityClass", wintypes.DWORD), ("SchedulingClass", wintypes.DWORD),
+        ]
+
+    class ExtendedLimits(ctypes.Structure):
+        _fields_ = [
+            ("BasicLimitInformation", Limits), ("IoInfo", ctypes.c_uint64 * 6), ("ProcessMemoryLimit", ctypes.c_size_t),
+            ("JobMemoryLimit", ctypes.c_size_t), ("PeakProcessMemoryUsed", ctypes.c_size_t), ("PeakJobMemoryUsed", ctypes.c_size_t),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+    kernel32.CreateJobObjectW.argtypes = (ctypes.c_void_p, wintypes.LPCWSTR)
+    kernel32.SetInformationJobObject.argtypes = (wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD)
+    kernel32.AssignProcessToJobObject.argtypes = (wintypes.HANDLE, wintypes.HANDLE)
+    if _job is None:
+        job = kernel32.CreateJobObjectW(None, None)
+        limits = ExtendedLimits()
+        limits.BasicLimitInformation.LimitFlags = KILL_ON_JOB_CLOSE
+        if job and kernel32.SetInformationJobObject(job, EXTENDED_LIMIT_INFORMATION, ctypes.byref(limits), ctypes.sizeof(limits)):
+            _job = job
+    if _job:
+        kernel32.AssignProcessToJobObject(_job, int(process._handle))
 
 
 class VisionServer:
@@ -63,10 +107,12 @@ class VisionServer:
         with self.lock:
             if self.process and self.process.poll() is None and self.healthy():
                 return
+            self.stop()
             self.log.parent.mkdir(parents=True, exist_ok=True)
             flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
             self.output = open(self.log, "ab")
             self.process = subprocess.Popen(self.command(), stdout=self.output, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=flags)
+            tie_to_this_process(self.process)
             deadline = time.monotonic() + START_TIMEOUT
             while time.monotonic() < deadline:
                 if self.process.poll() is not None:

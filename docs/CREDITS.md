@@ -97,6 +97,7 @@ Read from the installed package metadata on 2026-10-23.
 | @fontsource/newsreader (Newsreader by Production Type: reading text) | 5.3.0 | OFL-1.1 |
 | @fontsource/jost (Jost by indestructible type*: menus, buttons, labels, numbers) | 5.3.0 | OFL-1.1 |
 | @fontsource/literata (Literata by TypeTogether, Cyrillic subset: Russian headings and text) | 5.3.0 | OFL-1.1 |
+| Microsoft Visual C++ Runtime (ready-made package only, `scripts/build_portable.py`, beside Python) | 14.51 | Microsoft Visual Studio redistributable; check its terms before publishing the package |
 
 | Resource | Source | License | Status | Use |
 |---|---|---|---|---|

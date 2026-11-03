@@ -2,6 +2,9 @@ import base64
 import hashlib
 import io
 import json
+import subprocess
+import sys
+import time
 import wave
 
 import numpy as np
@@ -9,7 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw, ImageFont
 
-from truth_guardian.media import contract, multilingual, ocr, status
+from truth_guardian.media import contract, multilingual, ocr, speech, status, vision
 from truth_guardian.media.evidence import evidence
 from truth_guardian.web.app import create_app
 from truth_guardian.web.engine import ROOT
@@ -95,6 +98,72 @@ def test_media_endpoints_report_status_and_refuse_what_they_cannot_read(client):
     assert client.post("/api/media/read", json={"name": "notes.txt", "data": data, "kind": "audio"}).status_code == 422
     assert client.post("/api/media/read", json={"name": "a.png", "data": data, "question": "x" * 501}).status_code == 422
     assert client.post("/api/media/read", json={"name": "clip.mp4", "data": data}).status_code == 422  # video is not read (D-140)
+
+
+def test_a_missing_model_is_named_instead_of_blaming_the_file(client, monkeypatch):
+    def fails(*args, **kwargs):
+        raise RuntimeError("Unable to open file 'model.bin'")
+
+    data = base64.b64encode(b"bytes").decode()
+    monkeypatch.setattr(speech, "transcribe", fails)
+    monkeypatch.setattr(ocr, "read_text", fails)
+    monkeypatch.setattr(speech, "files_present", lambda: False)
+    missing = client.post("/api/media/read", json={"name": "a.wav", "data": data})
+    assert missing.status_code == 503 and "speech model" in missing.json()["detail"]
+    monkeypatch.setattr(speech, "files_present", lambda: True)
+    assert client.post("/api/media/read", json={"name": "a.wav", "data": data}).status_code == 422
+    monkeypatch.setattr(ocr, "files_present", lambda: False)
+    missing = client.post("/api/media/read", json={"name": "a.png", "data": data})
+    assert missing.status_code == 503 and "text reader" in missing.json()["detail"]
+    monkeypatch.setattr(ocr, "files_present", lambda: True)
+    monkeypatch.setattr(vision, "files_present", lambda: False)
+    assert client.post("/api/media/read", json={"name": "a.png", "data": data}).status_code == 422
+    missing = client.post("/api/media/read", json={"name": "a.png", "data": data, "describe": True})
+    assert missing.status_code == 503 and "image model" in missing.json()["detail"]
+
+
+def test_a_server_that_stopped_answering_is_replaced_not_left_running(tmp_path, monkeypatch):
+    class Running:
+        returncode, stopped = None, False
+
+        def poll(self):
+            return 1 if self.stopped else None
+
+        def terminate(self):
+            self.stopped = True
+
+        def wait(self, timeout=None):
+            return 0
+
+    server, old, new = vision.VisionServer(), Running(), Running()
+    server.log, server.process = tmp_path / "server.log", old
+    answers = iter([False, True])
+    monkeypatch.setattr(server, "healthy", lambda: next(answers))
+    monkeypatch.setattr(vision.subprocess, "Popen", lambda *args, **kwargs: new)
+    monkeypatch.setattr(vision, "tie_to_this_process", lambda process: None)
+    server.start()
+    assert old.stopped and server.process is new
+    server.stop()
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="job objects are Windows only")
+def test_the_image_server_ends_with_the_process_that_started_it():
+    parent = (
+        "import subprocess\nfrom truth_guardian.media import vision\n"
+        "process = subprocess.Popen(['ping', '-n', '120', '127.0.0.1'], stdout=subprocess.DEVNULL)\n"
+        "vision.tie_to_this_process(process)\nprint(process.pid, flush=True)\n"
+    )
+    pid = subprocess.run([sys.executable, "-c", parent], capture_output=True, text=True, timeout=120).stdout.split()[-1]
+    try:
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            running = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True).stdout
+            if pid not in running:
+                return
+            time.sleep(0.5)
+        pytest.fail(f"process {pid} outlived the process that started it")
+    finally:
+        subprocess.run(["taskkill", "/F", "/PID", pid], capture_output=True)
 
 
 def test_evidence_keeps_the_words_read_one_per_line_with_their_segments():

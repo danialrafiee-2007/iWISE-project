@@ -1,9 +1,10 @@
 import hashlib
 
 import numpy as np
+import pytest
 
 from truth_guardian import fusion
-from truth_guardian.pipeline import analyze, make_sample
+from truth_guardian.pipeline import analyze, analyze_multilingual, make_sample
 from truth_guardian.report import ClaimReport, verdict
 from truth_guardian.schema import Sample
 from truth_guardian.signals import lexical, symbolic
@@ -16,6 +17,14 @@ GHEE = (
     "Ghee keeps for months without refrigeration."
 )
 SIGNAL_FNS = {"lexical": lexical, "symbolic": symbolic}
+
+
+@pytest.mark.parametrize("answer", ["...", "!!!", "؟؟؟"])
+def test_an_answer_without_words_is_refused_before_any_model_runs(answer):
+    with pytest.raises(ValueError, match="no words"):
+        analyze(make_sample(answer, [SOURCE]), None)
+    with pytest.raises(ValueError, match="no words"):
+        analyze_multilingual(make_sample(answer, [SOURCE]), None, None)
 
 
 def fake_encode(texts: list[str]) -> np.ndarray:

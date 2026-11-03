@@ -221,14 +221,22 @@ class ExampleStore:
         return self.folder / f"{hashlib.sha256(example_id.encode()).hexdigest()[:16]}.json"
 
     def cached(self, example_id: str, model_version: str) -> Report | None:
+        """The kept report; a damaged file counts as absent, so the example is checked again and the file replaced."""
         path = self._path(example_id)
         if not path.exists():
             return None
-        stored = json.loads(path.read_text(encoding="utf-8"))
-        fresh = stored.get("model_version") == model_version and stored.get("code") == self.code
-        return Report.model_validate(stored["report"]) if fresh else None
+        try:
+            stored = json.loads(path.read_text(encoding="utf-8"))
+            fresh = stored.get("model_version") == model_version and stored.get("code") == self.code
+            return Report.model_validate(stored["report"]) if fresh else None
+        except (OSError, ValueError, KeyError, AttributeError):
+            return None
 
     def store(self, example_id: str, model_version: str, report: Report) -> None:
+        """Through a temporary file, so a run stopped midway never leaves a half-written report."""
         self.folder.mkdir(parents=True, exist_ok=True)
         payload = {"model_version": model_version, "code": self.code, "report": report.model_dump(mode="json")}
-        self._path(example_id).write_text(json.dumps(payload), encoding="utf-8", newline="\n")
+        path = self._path(example_id)
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(payload), encoding="utf-8", newline="\n")
+        temporary.replace(path)

@@ -1353,6 +1353,20 @@
    "license": "Apache-2.0"
   }
  ],
+ "language_models": [
+  {
+   "relative_path": "models--sentence-transformers--all-MiniLM-L6-v2/snapshots/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/model.safetensors",
+   "url": "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/1110a243fdf4706b3f48f1d95db1a4f5529b4d41/model.safetensors",
+   "actual_size": 90868376,
+   "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+  },
+  {
+   "relative_path": "models--cross-encoder--nli-deberta-v3-base/snapshots/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/model.safetensors",
+   "url": "https://huggingface.co/cross-encoder/nli-deberta-v3-base/resolve/6c749ce3425cd33b46d187e45b92bbf96ee12ec7/model.safetensors",
+   "actual_size": 737726552,
+   "sha256": "d8148c6d49e0a7925134294c56326c71fe0ab1dc390e37355e00c7efbb488afa"
+  }
+ ],
  "llama_cpp": {
   "version": "b11923",
   "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11923/llama-b11923-bin-win-cpu-x64.zip",

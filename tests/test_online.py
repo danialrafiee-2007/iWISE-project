@@ -1,7 +1,9 @@
 from types import SimpleNamespace as NS
 
 from truth_guardian import online
+from truth_guardian.pipeline import make_sample
 from truth_guardian.report import ClaimReport, LanguageReport, Report
+from truth_guardian.web.engine import Engine
 
 
 def claim(text, status, risk, start=0):
@@ -92,3 +94,28 @@ def test_a_paused_search_is_resumed_and_a_failure_never_breaks_the_check(tmp_pat
     assert len(client.asked) == 2 and client.asked[1]["messages"][-1]["role"] == "assistant"
     broken = online.check("When?", ["y"], report(), client=FakeClient(RuntimeError("network down")), root=tmp_path, store=tmp_path / "b")
     assert broken.status == "error" and "network down" in broken.message
+
+
+def test_turns_already_paid_for_count_against_the_budget_when_a_later_one_fails(tmp_path):
+    paused = NS(content=[NS(type="server_tool_use", name="web_search")], stop_reason="pause_turn", usage=usage(0))
+    found = online.check("When?", ["x"], report(), client=FakeClient(paused, RuntimeError("down")), root=tmp_path, store=tmp_path / "s")
+    assert found.status == "error" and "down" in found.message
+    assert found.cost_usd > 0 and online.spent_today(tmp_path / "s") == found.cost_usd
+
+
+def test_a_damaged_cache_line_costs_one_question_not_the_check(tmp_path):
+    store = tmp_path / "s"
+    store.mkdir()
+    (store / "cache.jsonl").write_text('not json\n[1]\n{"key": "other"\n', encoding="utf-8")
+    assert online.check("When?", ["x"], report(), client=FakeClient(verdict_reply()), root=tmp_path, store=store).status == "checked"
+
+
+def test_a_failing_online_check_keeps_the_local_report(monkeypatch):
+    def broken(*args, **kwargs):
+        raise OSError("read-only folder")
+
+    monkeypatch.setattr(online, "configured", lambda root: True)
+    monkeypatch.setattr(online, "check", broken)
+    local = report()
+    result = Engine().consult(make_sample("Anne Frank died in 1944.", ["She died in 1945."]), local)
+    assert result.verdict == local.verdict and result.online.status == "error" and "read-only" in result.online.message

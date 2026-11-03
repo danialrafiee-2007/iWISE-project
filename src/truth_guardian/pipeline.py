@@ -35,6 +35,7 @@ from truth_guardian.text import Sentence, split_sentences
 from truth_guardian.tracer import LearnedTracer
 
 SignalFn = Callable[[Sample, list], list[dict]]
+NO_WORDS = "the answer has no words to check"
 
 
 def make_sample(
@@ -115,6 +116,9 @@ def analyze(
     omission, blame and conflict checks (tests); calibration adds the conformal guarantee at error rate alpha and
     triage_policy the triage lane, both from RAGTruth; a domain profile replaces them with its own calibration.
     progress is told the name of each stage as it starts (each signal, then "score", "claims", "checks", "verdict")."""
+    sentences = split_sentences(sample.answer)
+    if not sentences:
+        raise ValueError(NO_WORDS)
     consistency = consistency or models.hhem_consistency
     encode = encode or models.encode
     classify = classify or models.nli_probabilities
@@ -122,7 +126,6 @@ def analyze(
     overrides = [*(["polarity"] if use_polarity else []), *(["shifts"] if use_shifts else []), *(["flips"] if use_flips else [])]
     overrides += ["detector"] if use_detector and shipped_detector() is not None else []
     signal_fns = signal_fns or {name: SIGNALS[name][1] for name in [*model.signals, *overrides]}
-    sentences = split_sentences(sample.answer)
     per_signal = {}
     for name in signal_fns:
         progress(name)
@@ -188,6 +191,8 @@ def analyze_multilingual(
     blame checks, and the RAGTruth guarantee and triage, which were calibrated on English."""
     progress = progress or (lambda stage: None)
     sentences = split_sentences(sample.answer)
+    if not sentences:
+        raise ValueError(NO_WORDS)
     progress("multilingual")
     rows = [{"start": s.start, "end": s.end, **row} for s, row in zip(sentences, multicheck.signal(sample, sentences))]
     per_signal = {"multilingual": rows}

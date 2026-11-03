@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from truth_guardian import models
-from truth_guardian.media import models_dir, multilingual
+from truth_guardian.media import multilingual, status
 from truth_guardian.polarity import NLTK_DATA
 from truth_guardian.web.app import STATIC
 
@@ -28,13 +28,18 @@ class Item(NamedTuple):
 
 
 def _cached(repo: str, revision: str | None = None) -> bool:
+    """A snapshot folder appears with its first file, so an interrupted download only counts once it has its config and weights."""
     from huggingface_hub import snapshot_download
 
     try:
-        snapshot_download(repo, revision=revision, local_files_only=True)
-        return True
+        folder = Path(snapshot_download(repo, revision=revision, local_files_only=True))
     except Exception:
         return False
+    return (folder / "config.json").exists() and (any(folder.glob("*.safetensors")) or any(folder.glob("*.bin")))
+
+
+def _reader(row: dict) -> bool:
+    return row["files_present"] and row["runtime_ready"]
 
 
 def _trained(root: Path, kind: str) -> bool:
@@ -59,7 +64,8 @@ def readiness(root: Path) -> list[Item]:
     processed = root / "data" / "processed"
     onnx = models.HHEM_ONNX.exists() and models.HHEM_ONNX.with_suffix(".json").exists() and models.HHEM_TOKENIZER.exists()
     hhem = onnx or (_cached(models.HHEM_MODEL, models.HHEM_REVISION) and _cached("google/flan-t5-base"))
-    readers = all((models_dir() / name).is_dir() for name in (multilingual.E5, multilingual.NLI))
+    readers = status.files_present([multilingual.E5, multilingual.NLI])
+    media = {row["name"]: _reader(row) for row in status.status()}
     return [
         Item("built web front end", (STATIC / "index.html").exists(), True, "cd web && npm install && npm run build"),
         Item("trained fusion model and tracer", _trained(root, "fusion") and _trained(root, "tracer"), True, "restore models/fusion and models/tracer from the repository"),
@@ -75,7 +81,12 @@ def readiness(root: Path) -> list[Item]:
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "unzip truth-guardian-word-detector.zip from the repository's Releases into this folder, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
         Item("check of other languages", readers, False, f"{SETUP} (without them answers in other languages are not checked)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
-    ] + ([Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer")] if sys.platform == "win32" else [])
+    ] + ([
+        Item("sound reader (Whisper)", media["speech"], False, f"{SETUP} (without it sound files cannot be read)"),
+        Item("text in images (Tesseract)", media["ocr"], False, f"{SETUP} (without it images cannot be read)"),
+        Item("image model (Qwen3-VL and llama.cpp)", media["vision"], False, f"{SETUP} (without it the app cannot say what an image shows)"),
+        Item("portable folder (runtime)", _portable(root), False, f"{SETUP}; afterwards the whole folder runs offline on another Windows computer"),
+    ] if sys.platform == "win32" else [])
 
 
 def report(root: Path) -> bool:

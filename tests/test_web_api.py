@@ -7,9 +7,10 @@ from fastapi.testclient import TestClient
 
 from truth_guardian import models
 from truth_guardian.heal import Change, Healing
+from truth_guardian.pipeline import make_sample
 from truth_guardian.report import ClaimReport, Report
 from truth_guardian.web.app import _changed_range, create_app, prepare
-from truth_guardian.web.engine import ROOT, Cancelled, Engine
+from truth_guardian.web.engine import ROOT, Cancelled, Engine, NotChecked
 from truth_guardian.web.examples import ExampleStore
 
 
@@ -42,7 +43,8 @@ class FakeEngine:
         claim = ClaimReport(start=0, end=len(sample.answer), text=sample.answer, status="contradicted" if risky else "supported", risk=0.9 if risky else 0.1, explanation="x", action="verify" if risky else "keep")
         return Report(id=sample.id, verdict="hallucinated" if risky else "grounded", risk=claim.risk, response_threshold=0.4, sentence_threshold=0.3, claims=[claim])
 
-    def heal(self, sample, profile=None, on_check=None, cancelled=None):
+    def heal(self, sample, profile=None, on_check=None, cancelled=None, hint=None):
+        self.heal_hint = hint
         first = self.analyze(sample)
         on_check and on_check(0)
         fixed = sample.answer.replace("2022", "1945")
@@ -99,6 +101,31 @@ def test_inputs_are_validated(client):
     assert client.post("/api/analyze", json={"sources": ["x"], "answer": "a" * 5_001}).status_code == 422
     assert client.post("/api/analyze", json={"sources": ["x"], "answer": "y", "extra": 1}).status_code == 422
     assert client.post("/api/analyze", json={"example_id": "nope"}).status_code == 404
+
+
+@pytest.mark.parametrize("answer", ["...", "!!!", "؟؟؟"])
+def test_an_answer_without_words_is_refused_with_a_plain_reason(client, answer):
+    for path in ("/api/analyze", "/api/heal"):
+        refused = client.post(path, json={"sources": ["She died in 1945."], "answer": answer})
+        assert refused.status_code == 422 and "no words" in refused.json()["detail"]
+    assert client.post("/api/agent", json={"steps": [{"step": 1, "kind": "answer", "content": answer}]}).status_code == 422
+
+
+def test_heal_passes_on_the_language_a_media_reader_found(client):
+    body = {"sources": ["Madrid 1945"], "answer": "Sí, 1945", "language": "es"}
+    assert events(client.post("/api/heal", json=body))[-1]["type"] == "result"
+    assert client.engine.heal_hint == "es"
+
+
+def test_the_engine_heals_with_the_language_it_was_routed_with(monkeypatch):
+    monkeypatch.setattr("truth_guardian.web.engine.heal_answer", lambda sample, check: "healed")
+    engine = Engine()
+    engine.multilingual = object()
+    engine.version, engine.tracer, engine.calibration, engine.triage = "v", None, None, None
+    short = make_sample("نعم", ["الف باء"])
+    assert engine.heal(short, hint="ar") == "healed"
+    with pytest.raises(NotChecked):
+        engine.heal(short)
 
 
 def test_only_localhost_host_names_are_served(client):
@@ -175,6 +202,18 @@ def test_cached_reports_expire_with_the_model_or_the_brain_source(tmp_path):
     assert store.cached("anne-frank", "m2") is None
     store.code = "changed"
     assert store.cached("anne-frank", "m1") is None
+
+
+def test_a_damaged_cached_report_counts_as_absent_and_is_replaced(tmp_path):
+    store = ExampleStore(ROOT)
+    store.folder = tmp_path
+    report = Report(id="x", verdict="grounded", risk=0.1, response_threshold=0.4, sentence_threshold=0.3, claims=[])
+    for damaged in ('{"model_version": "m1", "code"', "[]"):
+        store._path("anne-frank").write_text(damaged, encoding="utf-8")
+        assert store.cached("anne-frank", "m1") is None
+    store.store("anne-frank", "m1", report)
+    assert store.cached("anne-frank", "m1") == report
+    assert [p.suffix for p in tmp_path.iterdir()] == [".json"]
 
 
 def test_a_check_whose_client_left_is_dropped_before_it_runs():

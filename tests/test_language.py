@@ -75,3 +75,8 @@ def test_short_arabic_script_is_never_guessed_since_it_may_be_persian():
 def test_a_media_reader_language_decides_when_the_texts_cannot():
     assert route("1950", ["1950"], hint="zh-Hans")[:2] == ("multilingual", "zh")
     assert route("1950", ["1950"], hint="fa").why_not == "language"
+
+
+@pytest.mark.parametrize("hint", ["es", "ES", "es-ES", "es_ES"])
+def test_a_language_hint_is_read_in_any_form_the_api_accepts(hint):
+    assert route("1950", ["1950"], hint=hint)[:2] == ("multilingual", "es")

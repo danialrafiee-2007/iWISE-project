@@ -11,6 +11,22 @@ models, installs everything into a `TruthGuardian` folder next to it and starts 
 a long time; if it stops, run it again and it continues. If Windows says it protected your PC, choose More info, then
 Run anyway. Afterwards `TruthGuardian.bat` in that folder starts the app, with no internet.
 
+## For judges: the ready-made package
+
+`scripts/build_portable.py` turns a finished install into one folder with everything the setup steps produce, so whoever
+receives it has nothing to download or wait for beyond the first unpacking: they copy the folder, double-click
+`Start-Truth-Guardian.bat`, and the app opens in the browser, offline. `README-FIRST.txt` in the folder says this in
+English and Persian. To make it, after `TruthGuardian.bat setup`:
+
+```bash
+.venv/Scripts/python.exe scripts/build_portable.py --out D:/dist/TruthGuardian-Portable
+```
+
+The app is split into zip parts under 2 GB, for GitHub Releases and FAT32 drives. It carries the Visual C++ runtime beside
+Python for a clean Windows, and the same data as the Docker image: no raw datasets, training data or locked test sets, so
+`scripts/build_data.py` and the evaluation scripts need `TruthGuardian.bat setup` first. No key file or log goes in. Delivered
+through a public link, it exposes the purchased layers like a public Space does (`docs/CREDITS.md`), so keep the link private.
+
 ## Quick start (Windows)
 
 Double-click `TruthGuardian.bat`. It checks that everything is in place, starts the web app offline and opens it in
@@ -26,8 +42,10 @@ computer and runs there offline, with nothing to install**. On the first start i
 the Docker image below. Code run directly (tests, scripts, `uv run`) keeps the language models in `runtime/hf` too
 unless `HF_HOME` says otherwise, so nothing is downloaded into the user profile.
 
-Setup also fetches the models for sound, images and other languages from their official sources, checking each against
-`scripts/media_models.json`. The one-file installer above unzips these from the repository's
+Setup also fetches the models for sound, images and other languages, and the large weights of the language models, from
+their official sources, checking each against `scripts/media_models.json`; a download that breaks resumes where it
+stopped. If some could not be fetched, setup says so instead of reporting success, `TruthGuardian.bat check` lists them,
+and running setup again fetches only what is missing. The one-file installer above unzips these from the repository's
 [Releases](https://github.com/danialrafiee-2007/iWISE-project/releases) first; by hand, unzip them into this folder before
 setup, keeping their paths, so that `models/detector/full/model.safetensors` exists:
 

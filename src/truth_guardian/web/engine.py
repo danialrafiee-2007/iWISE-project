@@ -18,7 +18,7 @@ from truth_guardian.media import models_dir, multilingual
 from truth_guardian.multicheck import MEASURED
 from truth_guardian.perturb import KINDS, entity_pool, perturb
 from truth_guardian.pipeline import analyze, analyze_multilingual, make_sample
-from truth_guardian.report import LanguageReport, Report
+from truth_guardian.report import LanguageReport, OnlineReport, Report
 from truth_guardian.schema import Sample, read_jsonl
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -103,12 +103,16 @@ class Engine:
 
     def consult(self, sample: Sample, report: Report, progress: Callable[[str], None] | None = None) -> Report:
         """The experimental online check (online.py) of the report's doubtful claims, when a key is set. Outside the
-        lock: it waits on the network, not on the CPU, so other checks go on meanwhile."""
+        lock: it waits on the network, not on the CPU, so other checks go on meanwhile. Its failure never costs the
+        person the local report."""
         if not online.configured(self.root) or not online.doubtful(report):
             return report
         (progress or (lambda stage: None))("online")
         sources = [d.text for d in sample.documents if d.source != "question"]
-        found = online.check(sample.question, sources, report, root=self.root)
+        try:
+            found = online.check(sample.question, sources, report, root=self.root)
+        except Exception as e:
+            found = OnlineReport(status="error", model=online.MODEL, message=f"{type(e).__name__}: {str(e)[:200]}")
         return report.model_copy(update={"online": found}) if found else report
 
     def route(self, sample: Sample, hint: str | None = None) -> language.Route:
@@ -145,8 +149,9 @@ class Engine:
 
     def heal(
         self, sample: Sample, profile: str | None = None, on_check: Callable[[int], None] | None = None, cancelled: threading.Event | None = None,
+        hint: str | None = None,
     ) -> Healing:
-        """on_check(i) is called before the i-th check (0 = the original answer)."""
+        """on_check(i) is called before the i-th check (0 = the original answer); hint: as in analyze."""
         checks = iter(range(1_000))
 
         def check(s: Sample) -> Report:
@@ -159,7 +164,7 @@ class Engine:
 
         with self._lock:
             _proceed(cancelled)
-            found = self.route(sample)
+            found = self.route(sample, hint)
             report = LanguageReport(check=found.check, answer=found.answer, sources=found.sources, guessed=found.guessed, measured=found.answer in MEASURED)
             options = self._options(profile, "strict")
             return heal_answer(sample, check)

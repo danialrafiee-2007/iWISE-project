@@ -118,6 +118,10 @@ def available(code: str) -> bool:
     return (tessdata() / f"{code}.traineddata").is_file()
 
 
+def files_present() -> bool:
+    return available("osd") and available("eng")
+
+
 def tesseract_codes(languages: list[str]) -> list[str]:
     """BCP 47 codes (fa, ja, zh-Hans) to the Tesseract models that read them; Tesseract codes pass through."""
     from truth_guardian.media.contract import BCP47

@@ -5,6 +5,7 @@ import zipfile
 import pytest
 from fastapi.testclient import TestClient
 
+from truth_guardian.web import documents
 from truth_guardian.web.app import create_app
 from truth_guardian.web.documents import extract, split
 from truth_guardian.web.engine import ROOT
@@ -60,6 +61,12 @@ def test_unusable_files_are_explained():
         extract("fake.docx", b"not a zip")
     with pytest.raises(ValueError, match="no text"):
         extract("empty.txt", b"   \n ")
+
+
+def test_a_word_file_that_unpacks_too_far_is_refused(monkeypatch):
+    monkeypatch.setattr(documents, "MAX_WORD_XML_BYTES", 100)
+    with pytest.raises(ValueError, match="unpacks"):
+        extract("big.docx", docx_with(["x" * 1000]))
 
 
 def test_long_text_is_split_at_paragraphs_then_sentences():

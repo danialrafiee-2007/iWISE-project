@@ -1,12 +1,17 @@
 """Download raw datasets from pinned commits of their official repositories and verify SHA-256 checksums."""
 
 import hashlib
+import http.client
+import socket
+import time
 import urllib.request
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
+TIMEOUT = 60
+ATTEMPTS = 6
 
 RAGTRUTH = "https://raw.githubusercontent.com/ParticleMedia/RAGTruth/c103204b9ce28d6bbad859304bf30de72b8ed8fe/dataset"
 HALUEVAL = "https://raw.githubusercontent.com/RUCAIBox/HaluEval/b7253db3cdaa0ab2c382f92b26b390109174f77e/data"
@@ -65,12 +70,25 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def retrieve(url: str, partial: Path, wait: float = 5.0) -> None:
+    """A dropped or stalled connection (main sets the socket timeout) is tried again with growing waits."""
+    for attempt in range(1, ATTEMPTS + 1):
+        try:
+            urllib.request.urlretrieve(url, partial)
+            return
+        except (OSError, http.client.HTTPException) as e:
+            if attempt == ATTEMPTS:
+                raise
+            print(f"  {partial.name}: {e} (try {attempt}/{ATTEMPTS})", flush=True)
+            time.sleep(min(wait * 2 ** (attempt - 1), 60.0))
+
+
 def fetch(dataset: str, url: str, expected: str | None) -> None:
     target = RAW_DIR / dataset / url.rsplit("/", 1)[1]
     if not (target.exists() and sha256(target) == expected):
         target.parent.mkdir(parents=True, exist_ok=True)
         partial = target.with_name(target.name + ".part")
-        urllib.request.urlretrieve(url, partial)
+        retrieve(url, partial)
         partial.replace(target)
     actual = sha256(target)
     if expected and actual != expected:
@@ -85,7 +103,7 @@ def fetch_archive(dataset: str, url: str, expected: str | None, keep: tuple[str,
     if not (archive.exists() and sha256(archive) == expected):
         target_dir.mkdir(parents=True, exist_ok=True)
         partial = archive.with_name(archive.name + ".part")
-        urllib.request.urlretrieve(url, partial)
+        retrieve(url, partial)
         partial.replace(archive)
     actual = sha256(archive)
     if expected and actual != expected:
@@ -106,6 +124,7 @@ def fetch_archive(dataset: str, url: str, expected: str | None, keep: tuple[str,
 
 
 def main() -> None:
+    socket.setdefaulttimeout(TIMEOUT)
     for dataset, url, expected in FILES:
         fetch(dataset, url, expected)
     for a in ARCHIVES:

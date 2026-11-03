@@ -27,6 +27,9 @@ echo.
 
 if not exist "%CURL%" goto old_windows
 if not exist "%TAR%" goto old_windows
+set "NON_LATIN=0"
+for /f %%n in ('powershell -NoProfile -Command "[int]($env:TARGET -match '[^\x00-\x7F]')"') do set "NON_LATIN=%%n"
+if "%NON_LATIN%"=="1" goto non_latin_path
 
 if exist "%TARGET%\.venv" goto space_ok
 set "FREE_GB="
@@ -68,14 +71,25 @@ echo         done
 if /i "%~1"=="--no-setup" goto finished_downloads
 
 echo   [4/5] Python, packages, data and the other models
-call "%TARGET%\TruthGuardian.bat" setup || goto fail
+call "%TARGET%\TruthGuardian.bat" setup
+set "SETUP_RC=%errorlevel%"
+if not "%SETUP_RC%"=="0" if not "%SETUP_RC%"=="2" goto fail
 
 echo   [5/5] Starting the app
 start "Truth Guardian" "%TARGET%\TruthGuardian.bat"
 echo.
+if "%SETUP_RC%"=="2" goto partly_done
 echo   Done. The app opens in its own window and in your browser, about a minute from now.
 echo   Next time just double-click TruthGuardian.bat in the folder above; it needs no internet.
 timeout /t 15 >nul 2>&1
+endlocal
+exit /b 0
+
+:partly_done
+echo   The app opens in its own window, but some models for sound, images or other languages are still missing.
+echo   Run this file again with a steady connection: only what is missing is downloaded.
+echo.
+pause
 endlocal
 exit /b 0
 
@@ -101,15 +115,19 @@ del "%TARGET%\%~1"
 exit /b 1
 
 :fetch
-rem %~1 address, %~2 file, %~3 its SHA-256, or empty when it has none. Resumes a part already there.
+rem %~1 address, %~2 file, %~3 its SHA-256, or empty when it has none. Resumes a part already there. A try that brought
+rem more bytes does not count, and a stalled connection is dropped after a minute, so a shaky link still finishes.
 set "TRIES=0"
 if "%~3"=="" goto fetch_try
 call :hash_ok "%~2" "%~3" && exit /b 0
 :fetch_try
 set /a TRIES+=1
-"%CURL%" -L --fail --progress-bar -C - -o "%~2" "%~1"
+set "HAD="
+if exist "%~2" for %%f in ("%~2") do set "HAD=%%~zf"
+"%CURL%" -L --fail --progress-bar --connect-timeout 30 --speed-limit 1024 --speed-time 60 -C - -o "%~2" "%~1"
 set "RC=%errorlevel%"
 if "%RC%"=="22" goto fetch_refused
+if "%RC%"=="33" goto fetch_refused
 if not "%RC%"=="0" goto fetch_retry
 if "%~3"=="" exit /b 0
 call :hash_ok "%~2" "%~3" && exit /b 0
@@ -121,9 +139,11 @@ rem A part that cannot be resumed is refused too, so one clean try before giving
 if not exist "%~2" goto fetch_not_found
 del "%~2"
 :fetch_retry
-if %TRIES% GEQ 3 if exist "%~2" del "%~2"
-if %TRIES% GEQ 6 goto fetch_gave_up
-timeout /t 5 >nul 2>&1
+set "HAS="
+if exist "%~2" for %%f in ("%~2") do set "HAS=%%~zf"
+if defined HAS if not "%HAS%"=="%HAD%" set "TRIES=0"
+if %TRIES% GEQ 10 goto fetch_gave_up
+timeout /t 30 >nul 2>&1
 goto fetch_try
 :fetch_not_found
 echo.
@@ -152,6 +172,11 @@ goto fail
 
 :old_windows
 echo   This needs Windows 10 version 1803 or newer, which include curl and tar.
+goto fail
+
+:non_latin_path
+echo   This folder's path has non-Latin letters, which tar and the models' libraries cannot read.
+echo   Move this file to a folder such as D:\TG and run it again.
 goto fail
 
 :fail

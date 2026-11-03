@@ -30,13 +30,14 @@ from typing import Annotated, Literal
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse, Response, StreamingResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from truth_guardian import models
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.media.evidence import evidence
-from truth_guardian.pipeline import make_sample
+from truth_guardian.pipeline import NO_WORDS, make_sample
 from truth_guardian.schema import Sample
+from truth_guardian.text import split_sentences
 from truth_guardian.web import contact
 from truth_guardian.web.engine import ROOT, Cancelled, Engine, NotChecked
 from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
@@ -133,6 +134,14 @@ class ContactIn(_Strict):
     message: str = Field(min_length=1, max_length=5_000)
     lang: str = Field(default="en", max_length=10)
 
+    @field_validator("email")
+    @classmethod
+    def _ascii_address(cls, value: str) -> str:
+        """A Reply-To header cannot carry a non-ASCII address without SMTPUTF8, which not every mail server takes."""
+        if not value.isascii():
+            raise ValueError("the email address can only use Latin letters, digits and punctuation")
+        return value
+
 
 def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
     """Run work in a thread; it reports events through its first argument and returns the final result. The second
@@ -173,6 +182,17 @@ def _changed_range(before: str, after: str) -> tuple[int, int] | None:
     while end_before > start and end_after > start and before[end_before - 1] == after[end_after - 1]:
         end_before, end_after = end_before - 1, end_after - 1
     return start, max(end_after, start + 1)
+
+
+def _absent_reader(kind: str, describe: bool) -> str | None:
+    """The reader whose model files are not on this computer, so a failed reading is not blamed on the person's file."""
+    from truth_guardian.media import ocr, speech, vision
+
+    if kind == "audio":
+        return None if speech.files_present() else "the speech model"
+    if not ocr.files_present():
+        return "the text reader's models"
+    return "the image model" if describe and not vision.files_present() else None
 
 
 def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
@@ -258,8 +278,8 @@ def create_app(
     def sample_from(body: CheckIn) -> tuple[Sample, str | None]:
         if body.example_id:
             return example(body.example_id).sample(), body.example_id
-        if not body.answer or not body.answer.strip():
-            raise HTTPException(422, "the answer is empty")
+        if not body.answer or not split_sentences(body.answer):
+            raise HTTPException(422, NO_WORDS)
         if not any(s.strip() for s in body.sources) and not (body.question or "").strip():
             raise HTTPException(422, "give at least one source (or a question) to check the answer against")
         sample = make_sample(body.answer, body.sources, body.question or None, origins=body.source_names)
@@ -295,7 +315,7 @@ def create_app(
             started = time.perf_counter()
             if engine.busy():
                 emit({"type": "queued"})
-            healing = engine.heal(sample, body.profile, lambda i: emit({"type": "check", "round": i, "t": round(time.perf_counter() - started, 2)}), cancelled)
+            healing = engine.heal(sample, body.profile, lambda i: emit({"type": "check", "round": i, "t": round(time.perf_counter() - started, 2)}), cancelled, body.language)
             answers = [sample.answer]
             for changes in healing.changes:
                 answers.append(apply_changes(answers[-1], changes))
@@ -315,7 +335,7 @@ def create_app(
         if not body.steps:
             raise HTTPException(422, "the trajectory has no steps")
         answer = body.answer or next((s.content for s in reversed(body.steps) if s.kind == "answer"), "")
-        if not answer.strip():
+        if not split_sentences(answer):
             raise HTTPException(422, "the trajectory has no final answer")
         steps = [s.model_dump(exclude_none=True) for s in body.steps]
         return check(make_sample(answer, [], body.question or None, steps, sample_id="agent-input"), policy=body.policy)
@@ -343,6 +363,8 @@ def create_app(
         ready()
         if body.answer_id not in fool:
             raise HTTPException(404, f"no answer {body.answer_id!r}")
+        if not split_sentences(body.answer):
+            raise HTTPException(422, NO_WORDS)
         original = fool[body.answer_id]
         edited = original.model_copy(update={"id": "fool-input", "answer": body.answer, "labels": None})
         changed = _changed_range(original.answer, body.answer)
@@ -429,6 +451,8 @@ def create_app(
                     hint = body.languages[0].replace("_", "-").split("-")[0].lower() if body.languages else None
                     reading = speech.transcribe(path, language=hint)
         except (OSError, RuntimeError, ValueError) as e:
+            if absent := _absent_reader(kind, describe):
+                raise HTTPException(503, f"{absent} is not on this computer yet; run TruthGuardian.bat setup once with internet") from None
             raise HTTPException(422, f"the file could not be read: {type(e).__name__}") from None
         finally:
             media_lock.release()

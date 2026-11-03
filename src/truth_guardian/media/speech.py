@@ -42,6 +42,10 @@ def unload() -> None:
         _model = None
 
 
+def files_present() -> bool:
+    return (models_dir() / MODEL / "model.bin").is_file()
+
+
 def reader_name() -> str:
     import faster_whisper
 

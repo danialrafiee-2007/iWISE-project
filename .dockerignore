@@ -1,6 +1,8 @@
 .git
 .venv
 runtime
+TruthGuardian
+dist
 .env
 *.env
 **/__pycache__

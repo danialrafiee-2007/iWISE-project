@@ -18,12 +18,14 @@ from typing import NamedTuple
 import numpy as np
 import torch
 
+from truth_guardian.models import REVISIONS
 from truth_guardian.schema import Sample
 from truth_guardian.signals import premises
 from truth_guardian.text import split_sentences
 
 SHIPPED = Path(__file__).resolve().parents[2] / "models" / "detector" / "full"
 BACKBONE = "sentence-transformers/all-MiniLM-L6-v2"
+BACKBONE_REVISION = REVISIONS[BACKBONE]
 MAX_LENGTH = 256
 ATTACK_KINDS = ("number", "entity", "negation", "role_swap", "addition")
 POSITIVE_WEIGHT = 3.0
@@ -71,8 +73,8 @@ def train(data: list[Example], out_dir: Path, epochs: int = 2, batch_size: int =
 
     out_dir.mkdir(parents=True, exist_ok=True)
     torch.manual_seed(seed)
-    tokenizer = AutoTokenizer.from_pretrained(BACKBONE)
-    model = AutoModelForTokenClassification.from_pretrained(BACKBONE, num_labels=2)
+    tokenizer = AutoTokenizer.from_pretrained(BACKBONE, revision=BACKBONE_REVISION)
+    model = AutoModelForTokenClassification.from_pretrained(BACKBONE, revision=BACKBONE_REVISION, num_labels=2)
     steps_per_epoch = math.ceil(len(data) / batch_size)
     total = epochs * steps_per_epoch
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)

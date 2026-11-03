@@ -1,7 +1,8 @@
 import numpy as np
 
-from truth_guardian.evidence import Evidence
+from truth_guardian.evidence import CACHED_SETS, Evidence, _evidence
 from truth_guardian.retrieval import Bm25, retrieve, rrf_scores
+from truth_guardian.signals import _bm25
 
 SENTENCES = ["The cafe opened in 1945.", "It serves Italian food.", "Parking is free on weekends."]
 
@@ -29,3 +30,12 @@ def test_retrieve_returns_top_k_in_source_order():
 
 def test_retrieve_without_evidence():
     assert retrieve("q", np.zeros(3), Evidence([], np.zeros((0, 0))), Bm25([]), k=3) == []
+
+
+def test_the_evidence_and_bm25_caches_are_bounded_and_reused():
+    encode = lambda texts: np.zeros((len(texts), 2))
+    for i in range(CACHED_SETS + 5):
+        _evidence(encode, (f"Source number {i}.",))
+    assert _evidence.cache_info().currsize <= CACHED_SETS
+    assert _bm25(("One sentence.",)) is _bm25(("One sentence.",))
+    assert _bm25.cache_info().maxsize == CACHED_SETS

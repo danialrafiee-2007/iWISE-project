@@ -135,8 +135,9 @@ def number_forms(text: str, m: re.Match) -> set[str]:
     """Forms of the number matched in `text`, plus its value when a scale word follows ("1.5 million")."""
     forms = normalize_number(m.group())
     scale = _SCALE.match(text, m.end())
-    if scale and ":" not in m.group():
-        forms.add(_scaled(float(m.group().replace(",", "")), scale.group(1)))
+    digits = m.group().replace(",", "")
+    if scale and ":" not in digits and digits.count(".") <= 1:
+        forms.add(_scaled(float(digits), scale.group(1)))
     return forms
 
 

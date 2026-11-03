@@ -170,27 +170,31 @@ def _client(key: str):
 
 
 def ask(question: str | None, sources: list[str], claims: list[str], client) -> tuple[dict | None, list[dict], float, str | None]:
-    """(the report tool's input or None, the web pages found, the cost in dollars, why it failed or None)."""
+    """(the report tool's input or None, the web pages found, the cost in dollars, why it failed or None). A failure
+    is returned, not raised, so the cost of the turns already paid for still reaches the budget."""
     messages = [{"role": "user", "content": _prompt(question, sources, claims)}]
     pages: dict[str, dict] = {}
     cost = 0.0
-    for _ in range(TURNS):
-        response = client.beta.messages.create(
-            model=MODEL, max_tokens=MAX_TOKENS, system=SYSTEM, messages=messages, tools=[WEB_SEARCH, REPORT_TOOL],
-            output_config={"effort": EFFORT}, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
-        )
-        cost += _cost(response.usage)
-        for block in response.content:
-            if block.type == "web_search_tool_result" and isinstance(block.content, list):
-                for page in block.content:
-                    pages.setdefault(page.url, {"url": page.url, "title": getattr(page, "title", None)})
-            if block.type == "tool_use" and block.name == "report_verdict":
-                return block.input, list(pages.values()), cost, None
-        if response.stop_reason == "refusal":
-            return None, list(pages.values()), cost, "refused"
-        messages.append({"role": "assistant", "content": response.content})
-        if response.stop_reason != "pause_turn":
-            messages.append({"role": "user", "content": "Report your verdict now through the report_verdict tool."})
+    try:
+        for _ in range(TURNS):
+            response = client.beta.messages.create(
+                model=MODEL, max_tokens=MAX_TOKENS, system=SYSTEM, messages=messages, tools=[WEB_SEARCH, REPORT_TOOL],
+                output_config={"effort": EFFORT}, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+            )
+            cost += _cost(response.usage)
+            for block in response.content:
+                if block.type == "web_search_tool_result" and isinstance(block.content, list):
+                    for page in block.content:
+                        pages.setdefault(page.url, {"url": page.url, "title": getattr(page, "title", None)})
+                if block.type == "tool_use" and block.name == "report_verdict":
+                    return block.input, list(pages.values()), cost, None
+            if response.stop_reason == "refusal":
+                return None, list(pages.values()), cost, "refused"
+            messages.append({"role": "assistant", "content": response.content})
+            if response.stop_reason != "pause_turn":
+                messages.append({"role": "user", "content": "Report your verdict now through the report_verdict tool."})
+    except Exception as e:
+        return None, list(pages.values()), cost, f"{type(e).__name__}: {str(e)[:200]}"
     return None, list(pages.values()), cost, "no report"
 
 
@@ -243,13 +247,17 @@ def _claims(found: dict, picked: list[int], report: Report, pages: list[dict]) -
 
 
 def _cached(key: str, store: Path) -> OnlineReport | None:
+    """The report kept for this key. A half-written line is skipped: it costs one repeated question, not the check."""
     path = store / "cache.jsonl"
     if not path.is_file():
         return None
     for line in path.read_text(encoding="utf-8").splitlines():
-        row = json.loads(line) if line.strip() else {}
-        if row.get("key") == key:
-            return OnlineReport.model_validate(row["report"])
+        try:
+            row = json.loads(line) if line.strip() else {}
+            if row.get("key") == key:
+                return OnlineReport.model_validate(row["report"])
+        except (ValueError, KeyError, AttributeError):
+            continue
     return None
 
 

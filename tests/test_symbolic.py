@@ -1,5 +1,5 @@
 from truth_guardian.schema import Sample
-from truth_guardian.symbolic import check_sample, normalize_number
+from truth_guardian.symbolic import EvidenceIndex, check_sample, normalize_number, unmatched_atoms
 from truth_guardian.text import split_sentences
 
 
@@ -22,6 +22,11 @@ def test_normalize_number_forms():
     assert normalize_number("4.50") == {"4.5"}
     assert normalize_number("21:0") == {"21:00", "21", "9:00", "9"}
     assert normalize_number("16:30") == {"16:30", "4:30"}
+
+
+def test_a_number_with_several_dots_before_a_scale_word_does_not_stop_the_check():
+    assert EvidenceIndex("Population was 8.419.000 thousand. Revenue rose to 1.2.3 million.").numbers
+    assert unmatched_atoms("It rose to 1.5 million.", "It rose to 1,500,000.") == []
 
 
 def test_changed_year_is_flagged_with_exact_span():

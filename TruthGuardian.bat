@@ -129,20 +129,29 @@ set "HF_HUB_OFFLINE="
 call :step 1 "Python and packages, kept in runtime" "call :env_setup" || goto fail
 set "HAVE_RAW=0"
 if exist "data\raw\nltk_data\corpora\wordnet" if exist "data\raw\ragtruth\response.jsonl" set "HAVE_RAW=1"
-if "%HAVE_RAW%"=="1" (call :skip 2 "Datasets and WordNet") else (call :step 2 "Datasets and WordNet (checksums verified)" "uv run python scripts\download_data.py" || goto fail)
-if exist "data\processed\ragtruth_dev.jsonl" (call :skip 3 "Processed datasets") else (call :step 3 "Processed datasets" "uv run python scripts\build_data.py" || goto fail)
-if exist "data\processed\perturb_dev.jsonl" (call :skip 4 "Fool-the-Guardian suite") else (call :step 4 "Fool-the-Guardian suite" "uv run python scripts\build_perturbations.py" || goto fail)
-if exist "data\processed\tg_agent_dev.jsonl" (call :skip 5 "TG-Agent trajectories") else (call :step 5 "TG-Agent trajectories" "uv run python scripts\build_tg_agent.py" || goto fail)
-if exist "models\onnx\hhem-de9a5e6b.onnx" (call :skip 6 "Fast HHEM (ONNX export)") else (call :step 6 "Fast HHEM (ONNX export, a few minutes)" "uv run python scripts\export_onnx.py" || echo   %WARN%ONNX export failed; the app still runs, about a third slower.%R%)
-call :step 7 "Models for sound, images and other languages (3.7 GB, checksums verified)" "uv run python scripts\fetch_media_models.py" || echo   %WARN%Some of these models could not be downloaded; run setup again to continue. English text checks work without them.%R%
-call :step 8 "Language models, warm-up and example cache" "uv run python -m truth_guardian.web --prepare" || goto fail
+if "%HAVE_RAW%"=="1" (call :skip 2 "Datasets and WordNet") else (call :step 2 "Datasets and WordNet (checksums verified)" "uv run --offline python scripts\download_data.py" || goto fail)
+if exist "data\processed\ragtruth_dev.jsonl" (call :skip 3 "Processed datasets") else (call :step 3 "Processed datasets" "uv run --offline python scripts\build_data.py" || goto fail)
+if exist "data\processed\perturb_dev.jsonl" (call :skip 4 "Fool-the-Guardian suite") else (call :step 4 "Fool-the-Guardian suite" "uv run --offline python scripts\build_perturbations.py" || goto fail)
+if exist "data\processed\tg_agent_dev.jsonl" (call :skip 5 "TG-Agent trajectories") else (call :step 5 "TG-Agent trajectories" "uv run --offline python scripts\build_tg_agent.py" || goto fail)
+if exist "models\onnx\hhem-de9a5e6b.onnx" (call :skip 6 "Fast HHEM (ONNX export)") else (call :step 6 "Fast HHEM (ONNX export, a few minutes)" "uv run --offline python scripts\export_onnx.py" || echo   %WARN%ONNX export failed; the app still runs, about a third slower.%R%)
+set "MODELS_MISSING=0"
+call :step 7 "Models for sound, images and languages (4.5 GB, checksums verified)" "uv run --offline python scripts\fetch_media_models.py" || (set "MODELS_MISSING=1" & echo   %WARN%Some of these models could not be downloaded; run setup again to continue.%R%)
+call :step 8 "Language models, warm-up and example cache" "uv run --offline python -m truth_guardian.web --prepare" || goto fail
 echo.
 echo   %B%Final check (offline)%R%
 uv run --offline --quiet python -m truth_guardian.web --check || goto fail
 echo.
+if "%MODELS_MISSING%"=="1" goto setup_partial
 echo   %OK%Setup complete.%R% From now on just double-click %B%TruthGuardian.bat%R%; no internet is needed.
 echo   %DIM%The whole folder, runtime included, can be copied to another Windows computer and runs there offline.%R%
 goto done
+
+:setup_partial
+echo   %WARN%Setup is not finished:%R% some models could not be downloaded, so the check above lists what will not work yet.
+echo   %DIM%Run setup again with internet; it fetches only what is missing.%R%
+if "%PAUSE_AT_END%"=="1" pause
+endlocal
+exit /b 2
 
 rem ---------------------------------------------------------------------------------------------------------------
 :check
@@ -216,7 +225,7 @@ exit /b 0
 
 :env_setup
 call :env_check || exit /b 1
-uv sync --inexact || exit /b 1
+uv sync --inexact --offline --quiet >nul 2>&1 || uv sync --inexact || exit /b 1
 >".venv\built-in.txt" echo %CD%
 if exist "%RUNTIME%\uv\uv.exe" exit /b 0
 rem keep the uv that built the package cache next to it, so another computer needs no uv of its own

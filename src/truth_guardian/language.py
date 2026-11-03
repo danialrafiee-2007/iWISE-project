@@ -143,7 +143,7 @@ def route(answer: str, sources: list[str], question: str | None = None, hint: st
     language = _sure(answer) or (_sure(f"{question}\n{answer}") if question else None)
     everything = "\n".join([question or "", answer, *sources])
     if language is None:
-        language = detect(everything).code or (hint.split("-")[0] if hint else None)
+        language = detect(everything).code or (hint.replace("_", "-").split("-")[0].lower() if hint else None)
     guessed = language is None
     if guessed:
         language = GUESS.get(script(everything)[0])
