@@ -36,7 +36,7 @@ LEFT_OUT = {
     ".git", ".pytest_cache", ".venv", "data/features", "dist", "eval/predictions", "layers-originals", "runtime/hf/hub/.locks",
     "runtime/hf/xet", "runtime/logs", "runtime/online", "runtime/python/.temp", "web/node_modules",
 }
-LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt", "Install-Truth-Guardian.bat")
+LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt")
 KEPT_DATA = (
     "data/web", "data/raw/nltk_data/corpora/wordnet", "data/processed/ragtruth_dev.jsonl", "data/processed/xdev_halueval_dialogue.jsonl",
     "data/processed/tg_agent_dev.jsonl", "data/processed/perturb_dev.jsonl",

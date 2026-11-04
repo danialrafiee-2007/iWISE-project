@@ -45,7 +45,7 @@ def test_keys_logs_caches_and_raw_data_stay_out(install):
         "smtp.local.env", "anthropic.local.env", ".env", ".venv/Scripts/python.exe", "src/__pycache__/app.cpython-313.pyc", "runtime/logs/llama-server.log",
         "runtime/online/usage.json", "runtime/hf/xet/logs/x.log", "runtime/hf/hub/.locks/m/a.lock", "runtime/hf/.agent_harnesses.json", "runtime/hf/hub/m/model.safetensors.part",
         "runtime/opened-truth-guardian-hhem-fast.zip.txt", "runtime/python/.temp/x", "data/raw/ragtruth/response.jsonl", "data/raw/nltk_data/corpora/source.zip",
-        "data/processed/ragtruth_train.jsonl", "data/processed/locked/ragtruth_test.jsonl", "data/features/nli/x.jsonl", "eval/predictions/x.jsonl", "Install-Truth-Guardian.bat",
+        "data/processed/ragtruth_train.jsonl", "data/processed/locked/ragtruth_test.jsonl", "data/features/nli/x.jsonl", "eval/predictions/x.jsonl",
     ]
     write(install, *left_out, "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json")
     chosen = builder.select(install)
