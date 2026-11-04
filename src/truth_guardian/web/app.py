@@ -143,6 +143,12 @@ class ContactIn(_Strict):
         return value
 
 
+class SearchIn(_Strict):
+    query: str = Field(min_length=1, max_length=MAX_QUESTION)
+    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    k: int = Field(default=5, ge=1, le=20)
+
+
 def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
     """Run work in a thread; it reports events through its first argument and returns the final result. The second
     argument is set when the client disconnects, so the checks it queued are dropped."""
@@ -211,7 +217,7 @@ def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
 
 
 def create_app(
-    engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True, mailer: Callable[[contact.Settings, EmailMessage], None] = contact.send
+    engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True, mailer: Callable[[contact.Settings, EmailMessage], None] = contact.send, library=None,
 ) -> FastAPI:
     engine = engine or Engine(root)
     limit = contact.RateLimit()
@@ -459,6 +465,49 @@ def create_app(
         # What the file gives a claim check as sources: the words read, one per line, with their places (D-135).
         found = evidence(reading, raw, MAX_SOURCE, MAX_SOURCES)
         return {"name": body.name, "kind": kind, "reading": reading.model_dump(mode="json"), "evidence": found.model_dump(mode="json")}
+
+    def shelf():
+        """The library opens on first use. It reads with multilingual E5, which the Docker image leaves out."""
+        nonlocal library
+        if library is None:
+            from truth_guardian.media import models_dir, multilingual
+            from truth_guardian.rag.library import open_library
+
+            if not (models_dir() / multilingual.E5).is_dir():
+                raise HTTPException(503, "the model the library reads with is not on this computer; run TruthGuardian.bat setup once with internet")
+            library = open_library(root)
+        return library
+
+    @app.get("/api/library")
+    def library_documents() -> dict:
+        return {"documents": [entry._asdict() for entry in shelf().documents()], "types": SUPPORTED, "max_bytes": MAX_BYTES}
+
+    @app.post("/api/library/documents")
+    def library_add(body: FileIn) -> StreamingResponse:
+        """Adds a file to the person's documents; embedding a long one takes a while, so its progress is streamed."""
+        try:
+            raw = base64.b64decode(body.data, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(422, "the file could not be read") from None
+        books = shelf()
+
+        def work(emit, cancelled) -> dict:
+            started = time.perf_counter()
+            progress = lambda done, total: emit({"type": "stage", "stage": "embedding", "t": round(time.perf_counter() - started, 2), "done": done, "total": total})
+            return {"document": books.add(body.name, raw, progress=progress)._asdict(), "seconds": round(time.perf_counter() - started, 2)}
+
+        return _stream(work)
+
+    @app.delete("/api/library/documents/{document_id}")
+    def library_remove(document_id: int) -> dict:
+        if not shelf().remove(document_id):
+            raise HTTPException(404, f"no document {document_id} among yours")
+        return {"removed": document_id}
+
+    @app.post("/api/library/search")
+    def library_search(body: SearchIn) -> dict:
+        found = shelf().search(body.query, tuple(body.collections), body.k)
+        return {"hits": [hit._asdict() for hit in found.hits], "similarity": found.similarity, "enough": found.enough}
 
     @app.get("/api/contact")
     def contact_status() -> dict:

@@ -196,11 +196,12 @@ def fool_answers(root: Path) -> list[Sample]:
 
 
 def brain_fingerprint() -> str:
-    """Hash of the brain's source (the package without the web app): a cached report is stale when it changes."""
+    """Hash of the brain's source (the package without the web app and the RAG on top of it): a cached report is stale when
+    it changes."""
     package = Path(__file__).resolve().parents[1]
     digest = hashlib.sha256()
     for path in sorted(package.rglob("*.py")):
-        if "web" not in path.relative_to(package).parts:
+        if not {"web", "rag"} & set(path.relative_to(package).parts):
             digest.update(path.read_bytes())
     return digest.hexdigest()[:16]
 

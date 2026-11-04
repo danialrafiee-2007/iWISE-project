@@ -136,6 +136,18 @@ The Contact page is the other part that uses the internet: its server sends each
 Docker) and fill in the sending account, for Gmail an app password; or set `TG_SMTP_USER` and `TG_SMTP_PASSWORD` in the
 environment. Without them the page says that sending is not set up, and everything else stays offline.
 
+### Document library (the RAG's first part, D-163)
+
+Files the person adds and the project's own documents are cut into passages of about 120 words that keep their page,
+embedded once with multilingual E5 and kept in `data/web/library/library.sqlite`, offline. Search fuses meaning with word
+search, in any checked language and across them. `GET /api/library` lists, `POST /api/library/documents` adds a file with its
+progress streamed, `DELETE /api/library/documents/{id}` removes one of the person's own, and `POST /api/library/search`
+returns the closest passages and `enough`, whether they are close enough to hold an answer. On XQuAD
+(`scripts/evaluate_retrieval.py`, half its articles held out) the right paragraph is in the top five 98.8 to 100% of the time in
+the same language and 89.2 to 99.0% over English; encyclopaedia paragraphs are an easy case, so real documents will do
+less well. `enough` is weaker: it refuses 57 to 90% of questions the library cannot answer in the same language, and across
+languages only the clearly unrelated. Answers written from the library and checked by the Guardian come next.
+
 ### Sound and images (media readers, D-125)
 
 The challenge announced text only; sound and images are the project's own additions, with local readers in

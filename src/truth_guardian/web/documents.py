@@ -24,6 +24,7 @@ class Extracted(NamedTuple):
     kind: str
     text: str
     pages: int | None
+    by_page: list[str] | None = None
 
 
 def _decode(data: bytes) -> str:
@@ -68,13 +69,13 @@ def _pdf(data: bytes) -> Extracted:
         reader = PdfReader(io.BytesIO(data))
         if reader.is_encrypted:
             raise ValueError("the PDF is password-protected")
-        pages = reader.pages[:MAX_PAGES]
-        text = "\n\n".join((page.extract_text() or "") for page in pages)
+        by_page = [page.extract_text() or "" for page in reader.pages[:MAX_PAGES]]
+        text = "\n\n".join(by_page)
     except PdfReadError as e:
         raise ValueError(f"the PDF could not be read ({e})") from None
     if not text.strip():
         raise ValueError("the PDF has no text layer (a scanned image); text recognition is not available offline")
-    return Extracted("pdf", text, len(reader.pages))
+    return Extracted("pdf", text, len(reader.pages), by_page)
 
 
 def _docx(data: bytes) -> Extracted:
@@ -126,7 +127,7 @@ def extract(name: str, data: bytes) -> Extracted:
     text = clean(found.text)
     if not text:
         raise ValueError("no text was found in the file")
-    return found._replace(text=text)
+    return found._replace(text=text, by_page=[clean(page) for page in found.by_page] if found.by_page else None)
 
 
 def split(text: str, limit: int) -> list[str]:

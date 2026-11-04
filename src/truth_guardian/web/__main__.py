@@ -34,12 +34,16 @@ def main() -> None:
         from truth_guardian.web.engine import Engine
         from truth_guardian.web.examples import ExampleStore
 
+        from truth_guardian.media import models_dir, multilingual
+        from truth_guardian.rag.library import open_library
+
         engine = Engine(ROOT)
         try:
             prepare(engine, ExampleStore(ROOT), every_model=True)
+            added = open_library(ROOT).ensure_project(ROOT) if (models_dir() / multilingual.E5).is_dir() else 0
         except Exception as e:
             sys.exit(f"preparation failed: {engine.error or f'{type(e).__name__}: {e}'}")
-        print(f"models ready (warm-up {engine.warm_seconds:.0f} s); examples cached in data/web/examples")
+        print(f"models ready (warm-up {engine.warm_seconds:.0f} s); examples cached in data/web/examples; {added} project documents added to the library")
         return
 
     import uvicorn

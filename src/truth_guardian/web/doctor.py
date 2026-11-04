@@ -11,6 +11,7 @@ from typing import NamedTuple
 from truth_guardian import models
 from truth_guardian.media import multilingual, status
 from truth_guardian.polarity import NLTK_DATA
+from truth_guardian.rag.library import FOLDER
 from truth_guardian.web.app import STATIC
 
 SETUP = (
@@ -80,6 +81,7 @@ def readiness(root: Path) -> list[Item]:
         Item("TG-Agent trajectories", (processed / "tg_agent_dev.jsonl").exists(), False, f"{SETUP} (without them only the written agent example appears)"),
         Item("exact-word detector", (root / "models" / "detector" / "full" / "model.safetensors").exists(), False, "unzip truth-guardian-word-detector.zip from the repository's Releases into this folder, or train it: uv run python scripts/train_detector.py --full (about 7 hours; without it flagged claims mark the whole sentence)"),
         Item("check of other languages", readers, False, f"{SETUP} (without them answers in other languages are not checked)"),
+        Item("document library with the project's documents", (root / FOLDER / "library.sqlite").exists(), False, f"{SETUP} (without it questions about the project find nothing)"),
         Item("domain profiles", any((root / "models" / "profiles").glob("*.json")), False, "restore models/profiles from the repository (without them the Domain profile menu is hidden)"),
     ] + ([
         Item("sound reader (Whisper)", media["speech"], False, f"{SETUP} (without it sound files cannot be read)"),
