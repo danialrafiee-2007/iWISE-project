@@ -1,0 +1,20 @@
+{
+ "about": "Questions whose answer needs more than one file, of different kinds, on one shelf (D-169). The files are made up by the team: the recordings with Windows' speech synthesis, the images drawn. Each entry in parts is one thing the answer must hold, in any of the forms given, and the file it comes from. Too few and too clean to be a measure of quality: they show whether a combined answer works at all.",
+ "combined": [
+  {"question": "How many books does the Riverside Museum hold, and on which day is the Riverside Library closed?", "parts": [{"gold": ["12,000", "12000", "twelve thousand"], "file": "museum_talk.wav"}, {"gold": ["Sunday"], "file": "library_sign.png"}]},
+  {"question": "How many people does the reading room seat, and at what time does the Riverside Library open?", "parts": [{"gold": ["sixty", "60"], "file": "reading_room.txt"}, {"gold": ["9"], "file": "library_sign.png"}]},
+  {"question": "When was the harbour of Port Alder built, and who is the mayor of Port Alder?", "parts": [{"gold": ["1890"], "file": "harbour_talk.wav"}, {"gold": ["Helena Voss"], "file": "port_alder.md"}]},
+  {"question": "At what time do the ferries leave for Brook Island, and how much is an adult ferry ticket?", "parts": [{"gold": ["seven", "7"], "file": "harbour_talk.wav"}, {"gold": ["12"], "file": "ferry_prices.png"}]},
+  {"question": "In what year did the Riverside Museum open, and how many people does the reading room seat?", "parts": [{"gold": ["1950"], "file": "museum_talk.wav"}, {"gold": ["sixty", "60"], "file": "reading_room.txt"}]},
+  {"question": "What is the population of Port Alder, and how much is a child ferry ticket?", "parts": [{"gold": ["48,000", "48000"], "file": "port_alder.md"}, {"gold": ["5"], "file": "ferry_prices.png"}]},
+  {"question": "How much does a bicycle ticket for the ferry cost, how many docks does the harbour have, and who is the mayor of Port Alder?", "parts": [{"gold": ["3"], "file": "ferry_prices.png"}, {"gold": ["four", "4"], "file": "harbour_talk.wav"}, {"gold": ["Helena Voss"], "file": "port_alder.md"}]},
+  {"question": "What colour is the circle in the picture, and on which day is the Riverside Library closed?", "parts": [{"gold": ["red"], "file": "red_circle.png"}, {"gold": ["Sunday"], "file": "library_sign.png"}]}
+ ],
+ "single": [
+  {"question": "How many paintings does the Riverside Museum have?", "parts": [{"gold": ["300", "three hundred"], "file": "museum_talk.wav"}]},
+  {"question": "How much is a bicycle ticket on the ferry?", "parts": [{"gold": ["3"], "file": "ferry_prices.png"}]},
+  {"question": "What colour is the circle in the picture?", "parts": [{"gold": ["red"], "file": "red_circle.png"}]},
+  {"question": "When was the mayor of Port Alder elected?", "parts": [{"gold": ["2019"], "file": "port_alder.md"}]}
+ ],
+ "unanswerable": ["How many ships sank near the harbour of Port Alder?", "How much does a ticket to the Riverside Museum cost?", "Who designed the old bridge?"]
+}

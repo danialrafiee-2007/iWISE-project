@@ -7,8 +7,11 @@ with itself. A reading is the reader's reading, so its own doubts are kept with 
 
 A person can read what was extracted before it goes in: correct it, remove parts of it, and say that a description is right.
 What they leave is marked as reviewed, and a description they confirmed then counts as words like any other (D-167).
+
+A reduced copy of an image is kept too, so the model can look at the picture itself when it writes an answer (D-169).
 """
 
+import io
 import tempfile
 from collections.abc import Sequence
 from pathlib import Path
@@ -25,9 +28,29 @@ MEDIA_KINDS = {
 }
 
 
+# The local model holds 4,096 tokens, and an image takes about one for each 28 pixels square: this keeps one under 600.
+MAX_PICTURE_SIDE = 672
+
+
 def kind_of(name: str) -> str | None:
     suffix = Path(name).suffix.lower()
     return next((kind for kind, suffixes in MEDIA_KINDS.items() if suffix in suffixes), None)
+
+
+def picture_of(name: str, data: bytes) -> bytes | None:
+    """The copy of an image the library keeps, as PNG; None for anything else, or when it cannot be opened."""
+    if kind_of(name) != "image":
+        return None
+    try:
+        from PIL import Image
+
+        image = Image.open(io.BytesIO(data)).convert("RGB")
+        image.thumbnail((MAX_PICTURE_SIDE, MAX_PICTURE_SIDE))
+        out = io.BytesIO()
+        image.save(out, format="PNG")
+        return out.getvalue()
+    except (ImportError, OSError):
+        return None
 
 
 def read_file(name: str, data: bytes, languages: Sequence[str] = (), describe: bool = True) -> Reading:
@@ -116,7 +139,7 @@ def shown(reading: Reading) -> list[dict]:
     place = lambda s: f"{clock(s.place.start)}-{clock(s.place.end)}" if s.place.start is not None and s.place.end is not None else None
     return [
         {
-            "index": i, "text": s.text, "role": s.role, "place": place(s), "box": s.place.box, "confidence": s.confidence,
+            "index": i, "text": s.text, "role": s.role, "place": place(s), "start": s.place.start, "box": s.place.box, "confidence": s.confidence,
             "doubtful": s.confidence is not None and s.confidence < LOW_TEXT, "opinion": s.role == "description",
         }
         for i, s in enumerate(reading.segments)

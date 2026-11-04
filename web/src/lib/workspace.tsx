@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api } from "./api";
-import type { CheckInput, Health } from "./types";
+import type { AskTurn, CheckInput, Health } from "./types";
 
 interface Workspace {
   health: Health | null;
@@ -9,6 +9,9 @@ interface Workspace {
   setBusy: (busy: boolean) => void;
   input: CheckInput;
   setInput: (input: CheckInput) => void;
+  /** The conversation with the documents, kept here so a visit to another page does not lose it. */
+  turns: AskTurn[];
+  setTurns: (update: (turns: AskTurn[]) => AskTurn[]) => void;
   reducedMotion: boolean;
 }
 
@@ -33,6 +36,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [offline, setOffline] = useState(false);
   const [busy, setBusy] = useState(false);
   const [input, setInput] = useState<CheckInput>(EMPTY_INPUT);
+  const [turns, setTurns] = useState<AskTurn[]>([]);
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
@@ -59,8 +63,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ health, offline, busy, setBusy, input, setInput, reducedMotion }),
-    [health, offline, busy, input, reducedMotion],
+    () => ({ health, offline, busy, setBusy, input, setInput, turns, setTurns, reducedMotion }),
+    [health, offline, busy, input, turns, reducedMotion],
   );
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

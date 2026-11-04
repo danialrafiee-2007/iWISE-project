@@ -151,6 +151,87 @@ export interface FoolResult {
   seconds: number;
 }
 
+export type AnswerStatus = "checked" | "healed" | "light" | "opinion" | "unchecked" | "not_in_documents";
+
+export interface Citation {
+  n: number;
+  document: string;
+  collection: string;
+  page: number | null;
+  text: string;
+  place: string | null;
+  role: string | null;
+  document_id: number | null;
+  reviewed: boolean;
+  inferred: boolean;
+}
+
+/** An answer written from the library (rag/answer.py). */
+export interface RagAnswer {
+  status: AnswerStatus;
+  question: string;
+  searched_for: string;
+  text: string;
+  generator: string | null;
+  citations: Citation[];
+  report: Report | null;
+  light: { start: number; end: number; text: string; status: "close" | "doubtful"; reasons: string[] }[];
+  looked_at: string[];
+  original: string | null;
+  similarity: number;
+  cost_usd: number;
+  seconds: number;
+  notes: string[];
+}
+
+export type AskTurn = { question: string; answer: RagAnswer };
+
+export interface ShelfEntry {
+  id: number;
+  collection: "mine" | "project";
+  name: string;
+  kind: string;
+  pages: number | null;
+  language: string | null;
+  added_at: string;
+  passages: number;
+  reader: string | null;
+  concerns: string | null;
+  reviewed_at: string | null;
+}
+
+export interface Shelf {
+  documents: ShelfEntry[];
+  types: string[];
+  max_bytes: number;
+  media_types: string[];
+  max_media_bytes: number;
+}
+
+export interface ReadPart {
+  index: number;
+  text: string;
+  role: "transcript" | "ocr" | "description" | "confirmed";
+  place: string | null;
+  start: number | null;
+  box: [number, number, number, number] | null;
+  confidence: number | null;
+  doubtful: boolean;
+  opinion: boolean;
+}
+
+/** What was read in a recording or an image, waiting for a person's review (D-167). */
+export interface Draft {
+  draft: string;
+  name: string;
+  kind: "audio" | "image";
+  reader: string;
+  language: string | null;
+  concerns: string[];
+  parts: ReadPart[];
+  seconds: number;
+}
+
 export interface CheckInput {
   question: string;
   sources: string[];

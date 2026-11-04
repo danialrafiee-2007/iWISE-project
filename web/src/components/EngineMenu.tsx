@@ -6,8 +6,8 @@ import { moveFocus, useHoverMenu } from "../lib/useHoverMenu";
 // "AI engine" in the top bar: its three inputs, text first (the challenge's own), then sound and images (the project's
 // additions), and beside the one the pointer rests on (or that a tap chose), the parts of the engine behind it. Text is
 // one flat list and nothing branches further (D-144): checking an answer (its examples and healing are on that page),
-// checking an agent's logs, trying to fool the check, and how reliable it is. Sound and images each hold a page that
-// reads a file and one that says which models do it and what they have been shown to do.
+// checking an agent's logs, trying to fool the check, asking the documents, and how reliable it is. Sound and images each
+// hold a page that reads a file and one that says which models do it and what they have been shown to do.
 
 export type Medium = "text" | "audio" | "image";
 type Item = { to: string; label: MessageKey };
@@ -16,6 +16,7 @@ export const TOOLS: Item[] = [
   { to: "/analyze", label: "nav.analyze" },
   { to: "/agent", label: "nav.agent" },
   { to: "/fool", label: "nav.fool" },
+  { to: "/ask", label: "nav.ask" },
   { to: "/model", label: "nav.model" },
 ];
 

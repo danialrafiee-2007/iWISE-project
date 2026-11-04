@@ -1,0 +1,355 @@
+{
+ "summary": {
+  "combined": {
+   "questions": 8,
+   "every_part_said": 8,
+   "parts": 17,
+   "parts_said": 17,
+   "parts_cited": 17
+  },
+  "single": {
+   "questions": 4,
+   "every_part_said": 4,
+   "parts": 4,
+   "parts_said": 4,
+   "parts_cited": 4
+  },
+  "unanswerable_said_none": 3
+ },
+ "combined": [
+  {
+   "question": "How many books does the Riverside Museum hold, and on which day is the Riverside Library closed?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The Riverside Museum holds 12,000 books, and the Riverside Library is closed on Sunday.",
+   "seconds": 34.64,
+   "similarity": 0.8717280626296997,
+   "cited": [
+    "library_sign.png",
+    "museum_talk.wav",
+    "reading_room.txt"
+   ],
+   "looked_at": [
+    "library_sign.png"
+   ],
+   "parts": [
+    {
+     "file": "museum_talk.wav",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "library_sign.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": false
+  },
+  {
+   "question": "How many people does the reading room seat, and at what time does the Riverside Library open?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The reading room seats sixty people, and the Riverside Library opens from 9 in the morning to 5 in the afternoon. [1] [2]",
+   "seconds": 9.02,
+   "similarity": 0.8900442719459534,
+   "cited": [
+    "library_sign.png",
+    "reading_room.txt"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "reading_room.txt",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "library_sign.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "When was the harbour of Port Alder built, and who is the mayor of Port Alder?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The harbour of Port Alder was built in 1890, and the mayor of Port Alder is Helena Voss. [1] [2]",
+   "seconds": 10.17,
+   "similarity": 0.8765528202056885,
+   "cited": [
+    "harbour_talk.wav",
+    "port_alder.md"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "harbour_talk.wav",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "port_alder.md",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "At what time do the ferries leave for Brook Island, and how much is an adult ferry ticket?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "[3] Ferries leave for Brook Island every morning at 7 o'clock. [1] Adult ticket: 12 euros",
+   "seconds": 18.46,
+   "similarity": 0.8735874891281128,
+   "cited": [
+    "ferry_prices.png",
+    "harbour_talk.wav"
+   ],
+   "looked_at": [
+    "ferry_prices.png"
+   ],
+   "parts": [
+    {
+     "file": "harbour_talk.wav",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "ferry_prices.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "In what year did the Riverside Museum open, and how many people does the reading room seat?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The Riverside Museum opened in the year 1950, and the reading room seats sixty people. [1] [2]",
+   "seconds": 7.4,
+   "similarity": 0.8699144124984741,
+   "cited": [
+    "museum_talk.wav",
+    "reading_room.txt"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "museum_talk.wav",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "reading_room.txt",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "What is the population of Port Alder, and how much is a child ferry ticket?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The population of Port Alder is 48,000, and the child ferry ticket is 5 euros. [2] [3]",
+   "seconds": 8.01,
+   "similarity": 0.84699946641922,
+   "cited": [
+    "ferry_prices.png",
+    "port_alder.md"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "port_alder.md",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "ferry_prices.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "How much does a bicycle ticket for the ferry cost, how many docks does the harbour have, and who is the mayor of Port Alder?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "A bicycle ticket for the ferry costs 3 euros. The harbour has four docks. The mayor of Port Alder is Helena Voss.",
+   "seconds": 4.53,
+   "similarity": 0.8699148893356323,
+   "cited": [
+    "ferry_prices.png",
+    "harbour_talk.wav",
+    "port_alder.md"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "ferry_prices.png",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "harbour_talk.wav",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "port_alder.md",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": false
+  },
+  {
+   "question": "What colour is the circle in the picture, and on which day is the Riverside Library closed?",
+   "status": "checked",
+   "verdict": "uncertain",
+   "text": "The circle in the picture is red. The Riverside Library is closed on Sunday.",
+   "seconds": 17.41,
+   "similarity": 0.8442440032958984,
+   "cited": [
+    "library_sign.png",
+    "reading_room.txt",
+    "red_circle.png"
+   ],
+   "looked_at": [
+    "library_sign.png"
+   ],
+   "parts": [
+    {
+     "file": "red_circle.png",
+     "said": true,
+     "cited": true
+    },
+    {
+     "file": "library_sign.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": false
+  }
+ ],
+ "single": [
+  {
+   "question": "How many paintings does the Riverside Museum have?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The Riverside Museum has about 300 paintings. [1]",
+   "seconds": 6.06,
+   "similarity": 0.8777256011962891,
+   "cited": [
+    "museum_talk.wav"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "museum_talk.wav",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "How much is a bicycle ticket on the ferry?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "3 euros",
+   "seconds": 14.73,
+   "similarity": 0.8504058122634888,
+   "cited": [
+    "ferry_prices.png"
+   ],
+   "looked_at": [
+    "ferry_prices.png"
+   ],
+   "parts": [
+    {
+     "file": "ferry_prices.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": false
+  },
+  {
+   "question": "What colour is the circle in the picture?",
+   "status": "opinion",
+   "verdict": null,
+   "text": "The circle in the picture is red. [1]",
+   "seconds": 18.16,
+   "similarity": 0.8590949773788452,
+   "cited": [
+    "red_circle.png"
+   ],
+   "looked_at": [
+    "red_circle.png"
+   ],
+   "parts": [
+    {
+     "file": "red_circle.png",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  },
+  {
+   "question": "When was the mayor of Port Alder elected?",
+   "status": "checked",
+   "verdict": "grounded",
+   "text": "The mayor of Port Alder was elected in 2019. [1]",
+   "seconds": 8.69,
+   "similarity": 0.8979765176773071,
+   "cited": [
+    "port_alder.md"
+   ],
+   "looked_at": [],
+   "parts": [
+    {
+     "file": "port_alder.md",
+     "said": true,
+     "cited": true
+    }
+   ],
+   "model_cited": true
+  }
+ ],
+ "unanswerable": [
+  {
+   "question": "How many ships sank near the harbour of Port Alder?",
+   "status": "not_in_documents",
+   "verdict": null,
+   "text": "The documents do not say.",
+   "similarity": 0.8752883672714233,
+   "seconds": 4.54
+  },
+  {
+   "question": "How much does a ticket to the Riverside Museum cost?",
+   "status": "not_in_documents",
+   "verdict": null,
+   "text": "The documents do not say.",
+   "similarity": 0.8514777421951294,
+   "seconds": 1.68
+  },
+  {
+   "question": "Who designed the old bridge?",
+   "status": "not_in_documents",
+   "verdict": null,
+   "text": "The documents do not say.",
+   "similarity": 0.7571122050285339,
+   "seconds": 0.03
+  }
+ ]
+}

@@ -150,10 +150,18 @@ languages only the clearly unrelated.
 
 A recording or an image goes in as text (D-165): what was said with its time, the words read in the image, and the image
 model's description, marked as its opinion. `POST /api/library/read` shows what was extracted without adding it, and
-`POST /api/library/reviewed` adds it as a person corrected it, marked as reviewed (D-167); this has no page yet.
+`POST /api/library/reviewed` adds it as a person corrected it, marked as reviewed (D-167).
 Readers make mistakes: speech has 5.5 to 32.7% word errors and text in photographs reads poorly, and Persian is unmeasured.
 
-### Asking the documents (the RAG, D-164)
+### Asking the documents (the RAG, D-164, D-168, D-169)
+
+The page `/ask` is where text, sound and images meet. A document, a recording or an image is added from the conversation or the
+library's tab; what was read in a recording or an image is shown for review first, beside the file. A question then searches all
+of it, the model writes from the closest passages and looks at their images, and every answer carries how it was checked and its
+sources. Its other tabs check an answer about a recording or an image (D-135). This is one system of several models, not one
+model: the readers turn files into text, which is what the Guardian can check. On made-up files, answers needing two or three
+files of different kinds had every part right in 8 of 8 questions (`scripts/evaluate_mixed.py`); real photographs and noisy
+recordings are untested.
 
 `POST /api/ask` answers a question from the library and streams its stages, its text and the result. The closest passages go
 to a model, the local Qwen by default or Claude if a key is set and the person chooses it, which cites them as [n]. When nothing

@@ -12,9 +12,9 @@ from truth_guardian import online
 from truth_guardian.heal import Change, Healing
 from truth_guardian.media import vision
 from truth_guardian.rag.answer import HISTORY_CHARS, HISTORY_TURNS, NOT_IN_DOCUMENTS, _HoldBack, _tidy_citations, answer, light_check
-from truth_guardian.rag.generators import ClaudeGenerator, LocalGenerator, NotAvailable, Written
+from truth_guardian.rag.generators import ClaudeGenerator, LocalGenerator, NotAvailable, Written, repeat_starts
 from truth_guardian.rag.library import MINE, Hit, Library
-from truth_guardian.report import ClaimReport, Report
+from truth_guardian.report import ClaimReport, Evidence, Report
 from truth_guardian.web.app import create_app
 from truth_guardian.web.engine import ROOT, Cancelled, NotChecked
 from truth_guardian.web.examples import ExampleStore
@@ -42,8 +42,9 @@ class Script:
     def available(self) -> bool:
         return True
 
-    def write(self, system, messages, on_text=None) -> Written:
+    def write(self, system, messages, on_text=None, images=()) -> Written:
         self.asked.append((system, messages))
+        self.images = list(images)
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
             raise reply
@@ -187,6 +188,17 @@ def test_the_prompt_ends_with_the_question_since_a_last_instruction_cost_the_cit
     assert "After each fact, cite its document" in writer.asked[0][0]
 
 
+def test_the_model_is_told_the_language_only_where_the_script_tells_it(shelf):
+    persian = "این موزه در چه سالی افتتاح شد و چند کتاب دارد و کجا قرار دارد؟"
+    writer = Script(RIGHT)
+    answer(persian, shelf, Checker(), writer)
+    assert writer.asked[0][0].endswith("write the whole answer in Persian.") and writer.asked[0][1][-1]["content"].endswith(f"Question: {persian}")
+    for question in (QUESTION, "¿Qué comprueba este documento sobre Anne Frank y el año de su muerte?", "1945"):
+        writer = Script(RIGHT)
+        answer(question, shelf, Checker(), writer)
+        assert "write the whole answer" not in writer.asked[0][0]
+
+
 @pytest.mark.parametrize(
     "healed, changes",
     [
@@ -200,6 +212,30 @@ def test_healing_that_leaves_no_answer_or_swaps_in_a_source_sentence_is_not_used
     guardian.heal = lambda sample, cancelled=None: Healing(healed, [guardian.first, report("grounded", 0.1, healed)], [changes])
     found = answer(QUESTION, shelf, guardian, Script(wrong))
     assert (found.status, found.text, found.original) == ("checked", wrong, None) and found.report.verdict == "hallucinated"
+
+
+def test_an_answer_citing_nothing_shows_the_passages_close_to_it_and_says_they_are_not_its_citations(shelf):
+    words = "Anne Frank died in February 1945."
+    checked = report("grounded", 0.04, words)
+    held = shelf.search(QUESTION, (MINE,)).hits[0]
+    checked.claims[0].evidence = Evidence(text=held.text.split(". ")[0])
+    found = answer(QUESTION, shelf, Checker(checked), Script(words))
+    assert [(c.document, c.inferred) for c in found.citations] == [("frank.txt", True)] and found.text == words
+    assert answer(QUESTION, shelf, Checker(checked), Script(RIGHT)).citations[0].inferred is False
+    assert answer(QUESTION, shelf, Checker(), Script("Nothing the passages say.")).citations == []
+
+
+def test_one_sentence_joining_facts_from_two_files_shows_both(tmp_path, monkeypatch):
+    monkeypatch.setattr("truth_guardian.rag.library.LINES", {"en": 0.1})
+    monkeypatch.setattr("truth_guardian.rag.library.LINE_OTHER_LANGUAGE", 0.1)
+    monkeypatch.setattr("truth_guardian.rag.library.LINE_ACROSS_LANGUAGES", 0.1)
+    books = Library(tmp_path / "library.sqlite", fake_encode)
+    books.add("museum.txt", b"The museum holds many old books.")
+    books.add("sign.txt", b"The library closes on Sunday every week.")
+    words = "The museum holds many books, and the library closes on Sunday."
+    found = answer("How many books does the museum hold and when does the library close?", books, Checker(report("grounded", 0.1, words)), Script(words), (MINE,))
+    assert [c.document for c in found.citations] == ["museum.txt", "sign.txt"] and all(c.inferred for c in found.citations)
+    books.close()
 
 
 def test_a_healing_that_still_fails_its_check_is_not_used(shelf):
@@ -245,7 +281,7 @@ def test_healing_keeps_its_own_words_so_its_report_still_lines_up(shelf):
     wrong = "Anne Frank died in 1950 [1]."
     healed = "Anne Frank died in February 1945 [12]."
     found = answer(QUESTION, shelf, Checker(report("hallucinated", 0.9, wrong), healed_to=healed), Script(wrong))
-    assert found.text == healed and found.status == "healed" and found.citations == []
+    assert found.text == healed and found.status == "healed" and all(c.inferred for c in found.citations)
 
 
 def test_holding_back_shows_nothing_of_the_no_answer_word_and_everything_else():
@@ -290,26 +326,67 @@ class LlamaLike(http.server.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
         self.end_headers()
-        for text in ("Hel", "lo ", "دنیا"):
-            self.wfile.write(f'data: {json.dumps({"choices": [{"delta": {"content": text}}]}, ensure_ascii=False)}\n\n'.encode())
-        self.wfile.write(b'data: {"choices": [{"delta": {}, "finish_reason": "stop"}]}\n\ndata: [DONE]\n\n')
+        try:
+            for text in self.server.pieces:
+                self.wfile.write(f'data: {json.dumps({"choices": [{"delta": {"content": text}}]}, ensure_ascii=False)}\n\n'.encode())
+                self.wfile.flush()
+                self.server.sent += 1
+            self.wfile.write(f'data: {json.dumps({"choices": [{"delta": {}, "finish_reason": self.server.finish}]})}\n\ndata: [DONE]\n\n'.encode())
+        except OSError:
+            pass
 
     def log_message(self, *args):
         pass
 
 
-def test_the_local_generator_reads_llama_servers_stream(monkeypatch):
+@pytest.fixture
+def llama(monkeypatch):
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), LlamaLike)
+    server.pieces, server.finish, server.sent, server.body = ["Hel", "lo ", "دنیا"], "stop", 0, None
     threading.Thread(target=server.serve_forever, daemon=True).start()
     fake = NS(url=f"http://127.0.0.1:{server.server_port}", start=lambda: None)
     monkeypatch.setattr(vision, "files_present", lambda: True)
     monkeypatch.setattr(vision, "server", lambda: fake)
-    pieces = []
-    written = LocalGenerator().write("Be brief.", [{"role": "user", "content": "Hi"}], pieces.append)
+    yield server
     server.shutdown()
     server.server_close()
+
+
+def test_the_local_generator_reads_llama_servers_stream(llama):
+    pieces = []
+    written = LocalGenerator().write("Be brief.", [{"role": "user", "content": "Hi"}], pieces.append)
     assert written.text == "Hello دنیا" and pieces == ["Hel", "lo ", "دنیا"] and written.cost_usd == 0
-    assert server.body["messages"][0] == {"role": "system", "content": "Be brief."} and server.body["stream"] is True
+    assert llama.body["messages"][0] == {"role": "system", "content": "Be brief."} and llama.body["stream"] is True
+
+
+def test_the_local_model_stops_at_the_first_sentence_it_says_twice(llama):
+    loop = "The check is done by the fusion model [1]. "
+    llama.pieces = ["It opened in 1950. ", loop, "It has many books. ", loop, *[loop] * 500]
+    pieces = []
+    written = LocalGenerator().write("s", [], pieces.append)
+    assert written.text == "It opened in 1950. The check is done by the fusion model [1]. It has many books."
+    assert len(pieces) == 4
+
+
+def test_a_reply_cut_off_by_its_token_limit_ends_at_its_last_whole_sentence(llama):
+    llama.pieces, llama.finish = ["It opened in 1950. It has many books, ", "which"], "length"
+    assert LocalGenerator().write("s", []).text == "It opened in 1950."
+    llama.pieces = ["It opened in 1950 and"]
+    assert LocalGenerator().write("s", []).text == "It opened in 1950 and"
+
+
+@pytest.mark.parametrize(
+    "text, at",
+    [
+        ("One long sentence here. Another long sentence. One long sentence here.", 47),
+        ("One long sentence here [1]. One LONG sentence here [2].", 28),
+        ("Yes. No. Yes.", None),
+        ("他死于一九四五年的二月份那个冬天。她出生于一九二九年的六月份。他死于一九四五年的二月份那个冬天。", 31),
+        ("Nothing is said twice in this reply. Not one sentence.", None),
+    ],
+)
+def test_a_repeat_is_found_whatever_its_citations_and_case(text, at):
+    assert repeat_starts(text) == at
 
 
 def test_the_local_generator_says_when_its_model_is_missing(monkeypatch):
@@ -360,6 +437,20 @@ class FakeClaude:
         usage = NS(input_tokens=1000, output_tokens=100, cache_creation_input_tokens=0, cache_read_input_tokens=0, server_tool_use=None)
         final = NS(content=[NS(type="thinking", thinking=""), NS(type="text", text="Hello [1].")], usage=usage, stop_reason=stop_reason)
         self.beta = NS(messages=NS(stream=lambda **request: self.asked.append(request) or FakeStream(final, ["Hello ", "[1]."])))
+
+
+def test_the_local_model_is_shown_the_pictures_with_the_last_message(llama):
+    LocalGenerator().write("s", [{"role": "user", "content": "Before"}, {"role": "user", "content": "Look"}], images=[b"png"])
+    assert llama.body["messages"][1] == {"role": "user", "content": "Before"}
+    text, picture = llama.body["messages"][2]["content"]
+    assert text == {"type": "text", "text": "Look"} and picture["image_url"]["url"] == "data:image/png;base64,cG5n"
+
+
+def test_claude_is_shown_the_pictures_the_way_its_api_asks(tmp_path):
+    client = FakeClaude()
+    ClaudeGenerator(tmp_path, client, tmp_path / "s").write("s", [{"role": "user", "content": "Look"}], images=[b"png"])
+    picture, text = client.asked[0]["messages"][-1]["content"]
+    assert picture == {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": "cG5n"}} and text == {"type": "text", "text": "Look"}
 
 
 def test_claude_writes_with_the_current_request_and_counts_its_cost(tmp_path):

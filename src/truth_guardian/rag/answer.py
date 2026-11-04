@@ -13,7 +13,7 @@ description is not checked at all and says so, since that description is an opin
 import re
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from typing import Literal
 
 import numpy as np
@@ -24,15 +24,22 @@ from truth_guardian.heal import Healing
 from truth_guardian.language import detect
 from truth_guardian.pipeline import make_sample
 from truth_guardian.rag.generators import Generator, OnText
-from truth_guardian.rag.library import MINE, PROJECT, Hit, Library
+from truth_guardian.rag.library import MINE, PROJECT, Found, Hit, Library
+from truth_guardian.rag.words import terms
 from truth_guardian.report import Report
 from truth_guardian.text import split_sentences
 from truth_guardian.web.engine import NotChecked, _proceed
 
 PASSAGES = 5
-# With the passages and the reply, this fits the 4,096 tokens the local model holds.
+# With the passages and the reply, this fits the 4,096 tokens the local model holds; pictures take the room of the older turns.
 HISTORY_TURNS = 6
+HISTORY_TURNS_WITH_PICTURES = 2
 HISTORY_CHARS = 600
+# The model looks at the picture of a passage about as close as the closest one, so an unrelated picture costs no time (D-169).
+MAX_PICTURES = 2
+PICTURE_MARGIN = 0.03
+SOURCE_ROLES = ("ocr", "description", "confirmed")
+SHARED_WORDS = 2
 # A written sentence under this is far from every passage (D-164).
 LIGHT_LINE = 0.82
 NO_ANSWER = "NOT_IN_DOCUMENTS"
@@ -42,6 +49,8 @@ SYSTEM = (
     f"document says it belongs to. Do not add anything you know from elsewhere. If the documents do not hold the answer, reply "
     f"with exactly {NO_ANSWER} and nothing else. Answer in the language of the question, in at most five sentences."
 )
+# Only where a script tells the language: function words alone took short French questions for Spanish (D-166).
+WRITE_IN = {"ar": "Arabic", "fa": "Persian", "ru": "Russian", "zh": "Chinese"}
 STANDALONE = (
     "Rewrite the person's last question so that it can be understood without the conversation, naming what it refers to. "
     "Keep its language. Reply with the question only."
@@ -65,7 +74,9 @@ class Citation(BaseModel):
     text: str
     place: str | None = None
     role: str | None = None
+    document_id: int | None = None
     reviewed: bool = Field(default=False, description="A person read and corrected what the reader extracted")
+    inferred: bool = Field(default=False, description="The model cited nothing; this is a passage close to what it wrote")
 
 
 class LightClaim(BaseModel):
@@ -85,6 +96,7 @@ class Answer(BaseModel):
     citations: list[Citation] = Field(default_factory=list)
     report: Report | None = None
     light: list[LightClaim] = Field(default_factory=list)
+    looked_at: list[str] = Field(default_factory=list, description="The images the model was shown as it wrote")
     original: str | None = Field(default=None, description="The model's words, when healing changed them")
     similarity: float = 0.0
     cost_usd: float = 0.0
@@ -97,13 +109,25 @@ def _where(hit: Hit) -> str:
     return ", ".join(part for part in parts if part)
 
 
-def _prompt(question: str, hits: list[Hit]) -> str:
+def _prompt(question: str, hits: list[Hit], pictures: Sequence[str] = ()) -> str:
     documents = [f"[{n}] ({_where(hit)})\n{hit.text}" for n, hit in enumerate(hits, 1)]
-    return "Documents:\n" + "\n\n".join(documents) + f"\n\nQuestion: {question}"
+    shown = f"\n\nAttached, in this order, are the images of these documents: {', '.join(pictures)}. Cite what you see in one by its document's number." if pictures else ""
+    return "Documents:\n" + "\n\n".join(documents) + f"{shown}\n\nQuestion: {question}"
 
 
-def _recent(history: list[dict]) -> list[dict]:
-    return [{**turn, "content": turn["content"][:HISTORY_CHARS]} for turn in history[-HISTORY_TURNS:]]
+def _pictures(found: Found, library: Library) -> dict[str, bytes]:
+    """The images of the passages as close as the closest, by name, in the order they were found."""
+    near: dict[str, bytes] = {}
+    for hit in found.hits:
+        if len(near) < MAX_PICTURES and hit.role in SOURCE_ROLES and hit.similarity >= found.similarity - PICTURE_MARGIN and hit.document not in near:
+            picture = library.picture(hit.document_id)
+            if picture:
+                near[hit.document] = picture
+    return near
+
+
+def _recent(history: list[dict], turns: int = HISTORY_TURNS) -> list[dict]:
+    return [{**turn, "content": turn["content"][:HISTORY_CHARS]} for turn in history[-turns:]]
 
 
 def _standalone(question: str, history: list[dict], generator: Generator) -> tuple[str, float]:
@@ -154,8 +178,20 @@ def _tidy_citations(text: str, hits: list[Hit]) -> tuple[str, list[Citation], li
         return f" [{', '.join(map(str, good))}]" if good else ""
 
     tidy = _LEADING_MARK.sub(r"\1 ", _MARK.sub(keep, text).strip())
-    fields = lambda hit: {name: getattr(hit, name) for name in ("document", "collection", "page", "text", "place", "role", "reviewed")}
-    return tidy, [Citation(n=n, **fields(hits[n - 1])) for n in sorted(used)], list(dict.fromkeys(notes))
+    return tidy, [_citation(n, hits[n - 1]) for n in sorted(used)], list(dict.fromkeys(notes))
+
+
+def _citation(n: int, hit: Hit, inferred: bool = False) -> Citation:
+    return Citation(n=n, inferred=inferred, **{name: getattr(hit, name) for name in ("document", "document_id", "collection", "page", "text", "place", "role", "reviewed")})
+
+
+def _closest(report: Report, hits: list[Hit], text: str) -> list[Citation]:
+    """When the model cited nothing: the passages holding the evidence the check found, and, as one sentence can join facts
+    from several files and a claim has one evidence, those sharing words with the answer. Marked as not the model's word."""
+    said = set(terms(text))
+    held = {n for claim in report.claims if claim.evidence for n, hit in enumerate(hits, 1) if claim.evidence.text in hit.text}
+    held |= {n for n, hit in enumerate(hits, 1) if len(said & set(terms(hit.text))) >= SHARED_WORDS}
+    return [_citation(n, hits[n - 1], inferred=True) for n in sorted(held)]
 
 
 def _healed_well(healing: Healing, before: str) -> bool:
@@ -220,9 +256,12 @@ def answer(
         return done(status="not_in_documents", searched_for=searched_for, text=fixed, similarity=found.similarity, cost_usd=round(spent, 4))
 
     stage("write")
-    messages = [*_recent(history), {"role": "user", "content": _prompt(question, found.hits)}]
-    written = generator.write(SYSTEM, messages, _HoldBack(tell))
-    base = dict(searched_for=searched_for, generator=generator.name, similarity=found.similarity, cost_usd=round(spent + written.cost_usd, 4))
+    pictures = _pictures(found, library)
+    turns = _recent(history, HISTORY_TURNS_WITH_PICTURES if pictures else HISTORY_TURNS)
+    messages = [*turns, {"role": "user", "content": _prompt(question, found.hits, list(pictures))}]
+    system = f"{SYSTEM} The question is in {WRITE_IN[code]}: write the whole answer in {WRITE_IN[code]}." if code in WRITE_IN and detect(question).code == code else SYSTEM
+    written = generator.write(system, messages, _HoldBack(tell), images=list(pictures.values()))
+    base = dict(searched_for=searched_for, generator=generator.name, similarity=found.similarity, cost_usd=round(spent + written.cost_usd, 4), looked_at=list(pictures))
     if not written.text or NO_ANSWER in written.text or written.refused:
         return done(status="not_in_documents", text=fixed, **base)
     text, citations, notes = _tidy_citations(written.text, found.hits)
@@ -240,12 +279,14 @@ def answer(
         if refused.reason != "language":
             return done(status="unchecked", text=text, citations=citations, notes=[*notes, str(refused)], **base)
         return done(status="light", text=text, citations=citations, light=light_check(text, read), notes=notes, **base)
-    if report.verdict == "grounded":
-        return done(status="checked", text=text, citations=citations, report=report, notes=notes, **base)
+    cited = citations or _closest(report, found.hits, text)
+    # Healing would remove what the model saw and the sources do not say, which may be right; the verdict and a note say so instead.
+    if report.verdict == "grounded" or pictures:
+        return done(status="checked", text=text, citations=cited, report=report, notes=notes, **base)
 
     stage("heal")
     healing = engine.heal(sample, cancelled=cancelled)
     if not _healed_well(healing, text):
-        return done(status="checked", text=text, citations=citations, report=report, notes=notes, **base)
+        return done(status="checked", text=text, citations=cited, report=report, notes=notes, **base)
     _, citations, _ = _tidy_citations(healing.answer, found.hits)
-    return done(status="healed", text=healing.answer, citations=citations, report=healing.reports[-1], original=text, notes=notes, **base)
+    return done(status="healed", text=healing.answer, citations=citations or _closest(healing.reports[-1], found.hits, healing.answer), report=healing.reports[-1], original=text, notes=notes, **base)

@@ -1,19 +1,21 @@
 import base64
+import io
 import sqlite3
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from truth_guardian.media.contract import Place, Reading, Segment
 from truth_guardian.rag.answer import OPINION_NOTE, answer
 from truth_guardian.rag.chunks import MAX_WEIGHT
 from truth_guardian.rag.library import MAX_DRAFTS, MINE, Library
-from truth_guardian.rag.media import Kept, clock, concerns, cut, kind_of, shown
+from truth_guardian.rag.media import MAX_PICTURE_SIDE, Kept, clock, concerns, cut, kind_of, picture_of, shown
 from truth_guardian.web.app import create_app
 from truth_guardian.web.engine import ROOT
 from truth_guardian.web.examples import ExampleStore
 
-from test_rag_answer import Checker, Script, not_checked
+from test_rag_answer import Checker, Script, not_checked, report
 from test_rag_library import fake_encode
 from test_web_api import FakeEngine, events
 
@@ -276,6 +278,73 @@ def test_only_the_latest_drafts_wait(tmp_path):
     books.close()
 
 
+def png(width: int = 900, height: int = 300) -> bytes:
+    out = io.BytesIO()
+    Image.new("RGB", (width, height), "red").save(out, format="PNG")
+    return out.getvalue()
+
+
+def test_a_reduced_copy_of_an_image_is_kept_and_a_recording_or_damaged_image_has_none(tmp_path):
+    kept = picture_of("sign.png", png())
+    assert Image.open(io.BytesIO(kept)).size == (MAX_PICTURE_SIDE, 224)
+    assert picture_of("talk.mp3", b"sound") is None and picture_of("sign.png", b"not an image") is None
+    books = shelf(tmp_path, picture("Fire exit"))
+    entry = books.add("sign.png", png())
+    assert books.picture(entry.id) == kept
+    books.remove(entry.id)
+    assert books.picture(entry.id) is None
+    books.close()
+
+
+def test_a_review_keeps_the_picture(tmp_path):
+    books = shelf(tmp_path, picture("Fire exit"))
+    made = books.draft("sign.png", png())
+    entry = books.add_reviewed(made.id, [Kept(0, "Fire exit, corrected")])
+    assert books.picture(entry.id) == made.picture is not None
+    books.close()
+
+
+def test_the_model_looks_at_the_picture_of_a_close_passage_and_the_answer_says_so(tmp_path, lenient):
+    books = shelf(tmp_path, picture("The fire exit sign is open from 9 to 5."))
+    entry = books.add("sign.png", png())
+    writer = Script("From 9 to 5 [1].")
+    found = answer("When is the fire exit sign open?", books, Checker(), writer, (MINE,))
+    assert writer.images == [books.picture(entry.id)] and found.looked_at == ["sign.png"]
+    assert "Attached, in this order, are the images of these documents: sign.png." in writer.asked[0][1][-1]["content"]
+    assert writer.asked[0][1][-1]["content"].endswith("Question: When is the fire exit sign open?")
+    books.close()
+
+
+def test_a_far_picture_is_not_shown_and_a_recording_has_none_to_show(tmp_path, lenient):
+    books = Library(tmp_path / "library.sqlite", fake_encode, Readers(picture("Quite other words about a harbour and some ships.")))
+    books.add("harbour.png", png())
+    books.add("frank.txt", "Anne Frank died of typhus in February 1945 at the Bergen-Belsen camp.".encode())
+    writer = Script("In 1945 [1].")
+    found = answer("When did Anne Frank die of typhus at Bergen-Belsen?", books, Checker(), writer, (MINE,))
+    assert writer.images == [] and found.looked_at == []
+    books.close()
+
+
+def test_a_flagged_answer_the_model_saw_is_shown_with_its_verdict_and_not_healed_away(tmp_path, lenient):
+    words = "The sign is green [1]."
+    books = shelf(tmp_path, picture("The fire exit sign is open from 9 to 5."))
+    books.add("sign.png", png())
+    guardian = Checker(report("hallucinated", 0.8, words), healed_to="Nothing left of it.")
+    found = answer("What colour is the fire exit sign that is open from 9 to 5?", books, guardian, Script(words), (MINE,))
+    assert (found.status, found.text, found.report.verdict, found.original) == ("checked", words, "hallucinated", None)
+    books.close()
+
+
+def test_with_a_picture_shown_only_the_last_turns_are_sent(tmp_path, lenient):
+    books = shelf(tmp_path, picture("The fire exit sign is open from 9 to 5."))
+    books.add("sign.png", png())
+    writer = Script("When is the sign open?", "From 9 to 5 [1].")
+    history = [{"role": "user", "content": f"turn {n}"} for n in range(6)]
+    answer("When is the fire exit sign open from 9 to 5?", books, Checker(), writer, (MINE,), history=history)
+    assert [turn["content"] for turn in writer.asked[1][1][:-1]] == ["turn 4", "turn 5"]
+    books.close()
+
+
 class AnsweringEngine(FakeEngine):
     pass
 
@@ -347,6 +416,14 @@ def test_the_api_refuses_what_it_cannot_review(tmp_path):
         assert events(c.post("/api/library/reviewed", json={"draft": draft, "parts": [{"index": 0, "text": "The museum."}]}))[-1]["type"] == "result"
         assert c.post("/api/library/reviewed", json={"draft": draft, "parts": []}).status_code == 404
         assert c.post("/api/library/reviewed", json={"draft": draft, "parts": [{"index": 0, "text": "x", "other": 1}]}).status_code == 422
+
+
+def test_the_api_serves_a_kept_picture_and_says_when_there_is_none(tmp_path):
+    with client_of(tmp_path, picture("Fire exit")) as c:
+        added = events(c.post("/api/library/documents", json=upload("sign.png", png())))[-1]["document"]
+        served = c.get(f"/api/library/documents/{added['id']}/picture")
+        assert served.status_code == 200 and served.headers["content-type"] == "image/png" and Image.open(io.BytesIO(served.content)).width == MAX_PICTURE_SIDE
+        assert c.get("/api/library/documents/99/picture").status_code == 404
 
 
 def test_the_api_says_a_damaged_image_could_not_be_read(tmp_path, monkeypatch):

@@ -27,8 +27,8 @@ import numpy as np
 from truth_guardian.language import detect
 from truth_guardian.media.contract import Reading
 from truth_guardian.rag.chunks import Passage, passages
-from truth_guardian.rag.media import Kept, concerns, cut, kind_of, read_file, reviewed
-from truth_guardian.rag.words import WordIndex
+from truth_guardian.rag.media import Kept, concerns, cut, kind_of, picture_of, read_file, reviewed
+from truth_guardian.rag.words import WordIndex, terms
 from truth_guardian.retrieval import RRF_K, _ranks
 from truth_guardian.web.documents import extract
 
@@ -43,6 +43,8 @@ LINES ={"en": 0.810, "ar": 0.806, "es": 0.824, "ru": 0.812, "zh": 0.858}
 LINE_OTHER_LANGUAGE = 0.810
 LINE_ACROSS_LANGUAGES = 0.747
 WORD_WEIGHT = 0.25
+# A passage just under the line still counts when it holds this share of the question's words (D-168).
+WORD_MARGIN, WORD_SHARE = 0.02, 0.5
 PROJECT_FILES = (
     "README.md", "docs/DEMO.md", "docs/DECISIONS.md", "docs/DATA_CARD.md", "docs/DATA_CARD_MULTILINGUAL.md", "docs/DOCKER.md", "docs/CREDITS.md",
     "docs/AI_USAGE.md", "benchmark/README.md",
@@ -56,6 +58,7 @@ CREATE TABLE IF NOT EXISTS passages (
     id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE, page INTEGER, text TEXT NOT NULL, vector BLOB NOT NULL,
     place TEXT, role TEXT
 );
+CREATE TABLE IF NOT EXISTS pictures (document_id INTEGER PRIMARY KEY REFERENCES documents (id) ON DELETE CASCADE, data BLOB NOT NULL);
 """
 ADDED_COLUMNS = {"documents": ("reader", "concerns", "reviewed_at"), "passages": ("place", "role")}
 Encode = Callable[[list[str], str], np.ndarray]
@@ -77,12 +80,13 @@ class Entry(NamedTuple):
 
 
 class Draft(NamedTuple):
-    """What was read in a file, waiting for a person to review it. It holds no copy of the file."""
+    """What was read in a file, waiting for a person to review it. Of the file it holds only the reduced copy of an image."""
 
     id: str
     name: str
     digest: str
     reading: Reading
+    picture: bytes | None = None
 
 
 class Hit(NamedTuple):
@@ -129,6 +133,13 @@ def enough_line(question: str | None, passage: str | None) -> float:
     return LINES.get(question, LINE_OTHER_LANGUAGE)
 
 
+def close_enough(similarity: float, line: float, question: str, passage: str) -> bool:
+    if similarity >= line:
+        return True
+    wanted = set(terms(question))
+    return similarity >= line - WORD_MARGIN and bool(wanted) and len(wanted & set(terms(passage))) / len(wanted) >= WORD_SHARE
+
+
 def _default_encode(texts: list[str], kind: str) -> np.ndarray:
     from truth_guardian.media import multilingual
 
@@ -171,14 +182,14 @@ class Library:
         if known is not None:
             return known
         if kind_of(name):
-            return self._store_reading(name, digest, self.read(name, data, languages, describe), collection, progress)
+            return self._store_reading(name, digest, self.read(name, data, languages, describe), collection, progress, picture=picture_of(name, data))
         found = extract(name, data)
         pieces = [p for page, text in enumerate(found.by_page, 1) for p in passages(text, page)] if found.by_page else passages(found.text)
         return self._store(name, digest, pieces, collection, progress, found.kind, found.pages, detect(found.text[:5000]).code)
 
     def draft(self, name: str, data: bytes, languages: Sequence[str] = (), describe: bool = True) -> Draft:
         """Reads a recording or an image without adding it; add_reviewed takes it from there. Only the latest MAX_DRAFTS wait."""
-        made = Draft(secrets.token_hex(8), name, hashlib.sha256(data).hexdigest(), self.read(name, data, languages, describe))
+        made = Draft(secrets.token_hex(8), name, hashlib.sha256(data).hexdigest(), self.read(name, data, languages, describe), picture_of(name, data))
         with self._lock:
             self._drafts[made.id] = made
             while len(self._drafts) > MAX_DRAFTS:
@@ -200,7 +211,7 @@ class Library:
         old = self._known(collection, made.digest)
         if old is not None:
             self.remove(old.id, collection)
-        entry = self._store_reading(made.name, made.digest, reading, collection, progress, time.strftime("%Y-%m-%dT%H:%M:%S"))
+        entry = self._store_reading(made.name, made.digest, reading, collection, progress, time.strftime("%Y-%m-%dT%H:%M:%S"), made.picture)
         with self._lock:
             self._drafts.pop(draft_id, None)
         return entry
@@ -210,14 +221,19 @@ class Library:
         with self._lock:
             return [Passage(*row) for row in self._db.execute("SELECT text, page, place, role FROM passages WHERE document_id = ? ORDER BY id", (document_id,))]
 
-    def _store_reading(self, name: str, digest: str, reading: Reading, collection: str, progress, reviewed_at: str | None = None) -> Entry:
+    def picture(self, document_id: int) -> bytes | None:
+        with self._lock:
+            row = self._db.execute("SELECT data FROM pictures WHERE document_id = ?", (document_id,)).fetchone()
+        return row[0] if row else None
+
+    def _store_reading(self, name: str, digest: str, reading: Reading, collection: str, progress, reviewed_at: str | None = None, picture: bytes | None = None) -> Entry:
         pieces = cut(reading)
         language = reading.language.split("-")[0] if reading.language else detect(" ".join(p.text for p in pieces)[:5000]).code
-        return self._store(name, digest, pieces, collection, progress, reading.kind, None, language, reading.reader, "\n".join(concerns(reading)) or None, reviewed_at)
+        return self._store(name, digest, pieces, collection, progress, reading.kind, None, language, reading.reader, "\n".join(concerns(reading)) or None, reviewed_at, picture)
 
     def _store(
         self, name: str, digest: str, pieces: list[Passage], collection: str, progress, kind: str, pages: int | None, language: str | None,
-        reader: str | None = None, doubts: str | None = None, reviewed_at: str | None = None,
+        reader: str | None = None, doubts: str | None = None, reviewed_at: str | None = None, picture: bytes | None = None,
     ) -> Entry:
         if not pieces:
             raise ValueError("no text was found in the file")
@@ -235,6 +251,8 @@ class Library:
                 "INSERT INTO passages (document_id, page, text, vector, place, role) VALUES (?, ?, ?, ?, ?, ?)",
                 [(row.lastrowid, p.page, p.text, vector.tobytes(), p.place, p.role) for p, vector in zip(pieces, vectors)],
             )
+            if picture:
+                self._db.execute("INSERT INTO pictures (document_id, data) VALUES (?, ?)", (row.lastrowid, picture))
             self._indexes.clear()
         return self._known(collection, digest)
 
@@ -254,7 +272,7 @@ class Library:
         hits = [Hit(*index.rows[i][:6], float(dense[i]), float(fused[i]), *index.rows[i][7:9], index.rows[i][9] is not None) for i in np.argsort(-fused, kind="stable")[:k]]
         closest = int(dense.argmax())
         best = float(dense[closest])
-        return Found(hits, best, best >= enough_line(detect(query).code, index.rows[closest][6]))
+        return Found(hits, best, close_enough(best, enough_line(detect(query).code, index.rows[closest][6]), query, index.rows[closest][5]))
 
     def ensure_project(self, root: Path) -> int:
         """Adds the project's own documents, replacing one whose text changed; returns how many were added."""

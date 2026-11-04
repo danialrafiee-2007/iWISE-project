@@ -590,6 +590,13 @@ def create_app(
 
         return _stream(work)
 
+    @app.get("/api/library/documents/{document_id}/picture")
+    def library_picture(document_id: int) -> Response:
+        picture = shelf().picture(document_id)
+        if picture is None:
+            raise HTTPException(404, f"document {document_id} has no picture")
+        return Response(picture, media_type="image/png")
+
     @app.get("/api/library/documents/{document_id}/passages")
     def library_passages(document_id: int) -> dict:
         """What the library holds of a document, such as what was extracted from a recording."""

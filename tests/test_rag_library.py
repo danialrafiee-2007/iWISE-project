@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from truth_guardian.rag import library as library_module
 from truth_guardian.rag.chunks import MAX_WEIGHT, passages, weight
-from truth_guardian.rag.library import MINE, PROJECT, Library, fuse, open_library
+from truth_guardian.rag.library import MINE, PROJECT, Library, close_enough, fuse, open_library
 from truth_guardian.rag.words import WordIndex, terms
 from truth_guardian.web import examples
 from truth_guardian.web.app import create_app
@@ -151,6 +151,20 @@ def test_word_search_finds_a_rare_word_and_common_words_find_nothing():
     assert index.scores("de la el en").max() == 0
     assert index.scores("1950")[1] > 0 and index.scores("unheard").max() == 0
     assert WordIndex([]).scores("anything").size == 0
+
+
+@pytest.mark.parametrize(
+    "similarity, question, passage, enough",
+    [
+        (0.81, "anything at all", "something else", True),
+        (0.80, "How many books does the museum hold?", "The museum holds many books.", True),
+        (0.80, "How many books does the museum hold?", "The bridge is old.", False),
+        (0.78, "How many books does the museum hold?", "The museum holds many books.", False),
+        (0.80, "the of and", "The museum holds many books.", False),
+    ],
+)
+def test_a_passage_just_under_the_line_counts_when_it_holds_the_questions_words(similarity, question, passage, enough):
+    assert close_enough(similarity, 0.81, question, passage) is enough
 
 
 def test_a_file_that_cannot_be_used_is_explained_and_leaves_nothing(shelf):

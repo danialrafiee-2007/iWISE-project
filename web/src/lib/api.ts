@@ -1,5 +1,5 @@
 import { languageName, t } from "../i18n";
-import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report } from "./types";
+import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report, Shelf } from "./types";
 
 export class ApiError extends Error {
   /** The HTTP status, when the server answered (0 otherwise). */
@@ -12,6 +12,7 @@ export type StreamEvent =
   | { type: "stage"; stage: string; t: number }
   | { type: "check"; round: number; t: number }
   | { type: "queued" }
+  | { type: "text"; text: string }
   | { type: "error"; message: string }
   | ({ type: "result" } & Record<string, unknown>);
 
@@ -94,6 +95,13 @@ export const api = {
   foolEdit: (answerId: string, kind: string, seed: number) =>
     postJson<{ answer: string; edit: { start: number; end: number; new: string; original: string } }>("/api/fool/edit", { answer_id: answerId, kind, seed }),
   modelCard: () => getJson<ModelCard>("/api/model-card"),
+  generators: () => getJson<{ local: boolean; online: boolean }>("/api/ask/generators"),
+  library: () => getJson<Shelf>("/api/library"),
+  passages: (id: number) => getJson<{ passages: { text: string; page: number | null; place: string | null; role: string | null }[] }>(`/api/library/documents/${id}/passages`),
+  removeDocument: async (id: number) => {
+    const response = await fetch(`/api/library/documents/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new ApiError(await detail(response), response.status);
+  },
 };
 
 export interface Summary {

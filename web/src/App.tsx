@@ -9,6 +9,7 @@ import { WorkspaceProvider } from "./lib/workspace";
 // The text pages load with the app, so moving between them never passes through the loading line.
 import Agent from "./pages/Agent";
 import { Analyze } from "./pages/Analyze";
+import Ask from "./pages/Ask";
 import Fool from "./pages/Fool";
 import ModelCard from "./pages/ModelCard";
 
@@ -23,10 +24,11 @@ const ROUTES: Record<string, ComponentType> = {
   "/analyze": Analyze,
   "/agent": Agent,
   "/fool": Fool,
+  "/ask": Ask,
   "/model": ModelCard,
-  "/audio": Media,
+  "/audio": Ask,
   "/audio/models": Media,
-  "/image": Media,
+  "/image": Ask,
   "/image/models": Media,
   "/about": About,
   "/team": Team,
