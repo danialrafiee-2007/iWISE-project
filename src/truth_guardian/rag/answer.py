@@ -27,6 +27,7 @@ from truth_guardian.rag.generators import Generator, OnText
 from truth_guardian.rag.library import MINE, PROJECT, Found, Hit, Library
 from truth_guardian.rag.words import terms
 from truth_guardian.report import Report
+from truth_guardian.schema import Sample
 from truth_guardian.text import split_sentences
 from truth_guardian.web.engine import NotChecked, _proceed
 
@@ -62,7 +63,7 @@ NOT_IN_DOCUMENTS = {
 _MARK = re.compile(r"\s*\[(\d{1,2}(?:\s*,\s*\d{1,2})*)\]")
 _LEADING_MARK = re.compile(r"^(\[[\d, ]+\])\s+")
 _WORDS = re.compile(r"\w")
-Status = Literal["checked", "healed", "light", "opinion", "unchecked", "not_in_documents"]
+Status = Literal["checked", "healed", "light", "opinion", "unchecked", "not_in_documents", "stopped"]
 OPINION_NOTE = "this answer rests on what an image model says it sees, which is its opinion, so it was not checked"
 
 
@@ -185,21 +186,24 @@ def _citation(n: int, hit: Hit, inferred: bool = False) -> Citation:
     return Citation(n=n, inferred=inferred, **{name: getattr(hit, name) for name in ("document", "document_id", "collection", "page", "text", "place", "role", "reviewed")})
 
 
-def _closest(report: Report, hits: list[Hit], text: str) -> list[Citation]:
+def _closest(report: Report | None, hits: list[Hit], text: str) -> list[Citation]:
     """When the model cited nothing: the passages holding the evidence the check found, and, as one sentence can join facts
-    from several files and a claim has one evidence, those sharing words with the answer. Marked as not the model's word."""
+    from several files and a claim has one evidence, those sharing words with the answer. Marked as not the model's word.
+    The light check has no report, so there only the shared words tell."""
     said = set(terms(text))
-    held = {n for claim in report.claims if claim.evidence for n, hit in enumerate(hits, 1) if claim.evidence.text in hit.text}
+    claims = report.claims if report else []
+    held = {n for claim in claims if claim.evidence for n, hit in enumerate(hits, 1) if claim.evidence.text in hit.text}
     held |= {n for n, hit in enumerate(hits, 1) if len(said & set(terms(hit.text))) >= SHARED_WORDS}
     return [_citation(n, hits[n - 1], inferred=True) for n in sorted(held)]
 
 
 def _healed_well(healing: Healing, before: str) -> bool:
-    """Healing was made for an answer someone brings. On the RAG's own answers two of its steps did harm: a sentence taken
-    whole from a source can be true and still not answer the question, and removing every claim leaves only a citation. A
-    healing that still fails its check only cut the answer short, so the person sees the model's own words and their verdict."""
-    whole = any("source sentence" in change.reason for changes in healing.changes for change in changes)
-    return healing.answer != before and not whole and healing.reports[-1].verdict == "grounded" and bool(_WORDS.search(_MARK.sub("", healing.answer)))
+    """Healing was made for an answer someone brings. On the RAG's own answers, whatever it put in did harm: a sentence taken
+    whole from a source can be true and still not answer the question, and a number from a source replaced the right sum "8
+    hours" with "9 hours". So here it may only take away. Removing every claim leaves only a citation, and a healing that still
+    fails its check only cut the answer short, so then the person sees the model's own words and their verdict."""
+    adds = any(change.new for changes in healing.changes for change in changes)
+    return healing.answer != before and not adds and healing.reports[-1].verdict == "grounded" and bool(_WORDS.search(_MARK.sub("", healing.answer)))
 
 
 def light_check(text: str, hits: list[Hit], encode: Callable[[list[str], str], np.ndarray] | None = None) -> list[LightClaim]:
@@ -273,20 +277,28 @@ def answer(
 
     stage("check")
     sample = make_sample(text, sources, question, sample_id="rag", origins=origins)
+    # Healing would remove what the model saw and the sources do not say, which may be right; the verdict and a note say so instead.
+    return done(**check_written(sample, citations, notes, read, found.hits, engine, stage, cancelled, may_heal=not pictures), **base)
+
+
+def check_written(
+    sample: Sample, citations: list[Citation], notes: list[str], read: list[Hit], hits: list[Hit], engine, stage: Callable[[str], None], cancelled: threading.Event | None, may_heal: bool = True,
+) -> dict:
+    """The fields of an answer once it has been checked against what was read: a verdict, a healing, or the light check."""
+    text = sample.answer
     try:
         report = engine.analyze(sample, cancelled=cancelled)
     except NotChecked as refused:
         if refused.reason != "language":
-            return done(status="unchecked", text=text, citations=citations, notes=[*notes, str(refused)], **base)
-        return done(status="light", text=text, citations=citations, light=light_check(text, read), notes=notes, **base)
-    cited = citations or _closest(report, found.hits, text)
-    # Healing would remove what the model saw and the sources do not say, which may be right; the verdict and a note say so instead.
-    if report.verdict == "grounded" or pictures:
-        return done(status="checked", text=text, citations=cited, report=report, notes=notes, **base)
+            return dict(status="unchecked", text=text, citations=citations, notes=[*notes, str(refused)])
+        return dict(status="light", text=text, citations=citations or _closest(None, hits, text), light=light_check(text, read), notes=notes)
+    cited = citations or _closest(report, hits, text)
+    if report.verdict == "grounded" or not may_heal:
+        return dict(status="checked", text=text, citations=cited, report=report, notes=notes)
 
     stage("heal")
     healing = engine.heal(sample, cancelled=cancelled)
     if not _healed_well(healing, text):
-        return done(status="checked", text=text, citations=cited, report=report, notes=notes, **base)
-    _, citations, _ = _tidy_citations(healing.answer, found.hits)
-    return done(status="healed", text=healing.answer, citations=citations or _closest(healing.reports[-1], found.hits, healing.answer), report=healing.reports[-1], original=text, notes=notes, **base)
+        return dict(status="checked", text=text, citations=cited, report=report, notes=notes)
+    _, citations, _ = _tidy_citations(healing.answer, hits)
+    return dict(status="healed", text=healing.answer, citations=citations or _closest(healing.reports[-1], hits, healing.answer), report=healing.reports[-1], original=text, notes=notes)

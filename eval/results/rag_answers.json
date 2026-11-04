@@ -37,7 +37,7 @@
     },
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 18.5
+   "median_seconds_when_written": 18.1
   },
   "ar": {
    "answerable": {
@@ -47,9 +47,9 @@
     "model_said_not_in_documents": 0.1,
     "holds_gold_words": 0.55,
     "holds_gold_words_of_answered": 0.647,
-    "cites_the_right_article": 0.941,
-    "a_cited_passage_holds_gold": 0.882,
-    "no_citation": 0.059,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
     "statuses": {
      "checked": 17,
      "not_in_documents": 3
@@ -60,13 +60,13 @@
      "grounded": 6
     },
     "verdict_of_right": {
-     "uncertain": 3,
+     "uncertain": 4,
      "hallucinated": 3,
-     "grounded": 5
+     "grounded": 4
     },
     "verdict_of_not_right": {
-     "uncertain": 4,
-     "grounded": 1,
+     "grounded": 2,
+     "uncertain": 3,
      "hallucinated": 1
     }
    },
@@ -76,11 +76,11 @@
     "stopped_before_model": 0.85,
     "answered_anyway": 1,
     "verdicts_of_answered_anyway": {
-     "uncertain": 1
+     "hallucinated": 1
     },
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 31.9
+   "median_seconds_when_written": 33.7
   },
   "es": {
    "answerable": {
@@ -120,7 +120,7 @@
     },
     "shown_as_grounded": 0.05
    },
-   "median_seconds_when_written": 28.6
+   "median_seconds_when_written": 23.6
   },
   "ru": {
    "answerable": {
@@ -128,27 +128,27 @@
     "answered": 0.85,
     "stopped_before_model": 0.15,
     "model_said_not_in_documents": 0.0,
-    "holds_gold_words": 0.75,
-    "holds_gold_words_of_answered": 0.882,
-    "cites_the_right_article": 0.941,
-    "a_cited_passage_holds_gold": 0.882,
-    "no_citation": 0.059,
+    "holds_gold_words": 0.65,
+    "holds_gold_words_of_answered": 0.765,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
     "statuses": {
      "checked": 17,
      "not_in_documents": 3
     },
     "verdicts": {
-     "grounded": 15,
+     "grounded": 14,
      "hallucinated": 1,
-     "uncertain": 1
+     "uncertain": 2
     },
     "verdict_of_right": {
-     "grounded": 14,
+     "grounded": 12,
      "hallucinated": 1
     },
     "verdict_of_not_right": {
-     "uncertain": 1,
-     "grounded": 1
+     "uncertain": 2,
+     "grounded": 2
     }
    },
    "unanswerable": {
@@ -162,30 +162,29 @@
     },
     "shown_as_grounded": 0.05
    },
-   "median_seconds_when_written": 34.8
+   "median_seconds_when_written": 40.3
   },
   "zh": {
    "answerable": {
     "questions": 20,
-    "answered": 0.95,
-    "stopped_before_model": 0.05,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
     "model_said_not_in_documents": 0.0,
-    "holds_gold_words": 0.8,
-    "holds_gold_words_of_answered": 0.842,
+    "holds_gold_words": 0.85,
+    "holds_gold_words_of_answered": 0.85,
     "cites_the_right_article": 1.0,
     "a_cited_passage_holds_gold": 1.0,
     "no_citation": 0.0,
     "statuses": {
-     "checked": 19,
-     "not_in_documents": 1
+     "checked": 20
     },
     "verdicts": {
-     "grounded": 13,
+     "grounded": 14,
      "uncertain": 4,
      "hallucinated": 2
     },
     "verdict_of_right": {
-     "grounded": 11,
+     "grounded": 12,
      "uncertain": 4,
      "hallucinated": 1
     },
@@ -205,7 +204,7 @@
     },
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 19.2
+   "median_seconds_when_written": 19.4
   }
  },
  "persian_handmade": {
@@ -372,8 +371,7 @@
     "a_cited_passage_holds_gold": 0.75,
     "no_citation": 0.0,
     "statuses": {
-     "checked": 7,
-     "healed": 1
+     "checked": 8
     },
     "verdicts": {
      "grounded": 7,
@@ -395,7 +393,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 20.0
+   "median_seconds_when_written": 20.1
   },
   "ar": {
    "answerable": {
@@ -403,27 +401,26 @@
     "answered": 1.0,
     "stopped_before_model": 0.0,
     "model_said_not_in_documents": 0.0,
-    "holds_gold_words": 0.75,
-    "holds_gold_words_of_answered": 0.75,
-    "cites_the_right_article": 0.875,
-    "a_cited_passage_holds_gold": 0.75,
-    "no_citation": 0.125,
+    "holds_gold_words": 0.875,
+    "holds_gold_words_of_answered": 0.875,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 0.875,
+    "no_citation": 0.0,
     "statuses": {
-     "checked": 7,
-     "healed": 1
+     "checked": 8
     },
     "verdicts": {
-     "uncertain": 3,
-     "hallucinated": 4,
-     "grounded": 1
+     "grounded": 4,
+     "hallucinated": 2,
+     "uncertain": 2
     },
     "verdict_of_right": {
-     "uncertain": 3,
-     "hallucinated": 2,
-     "grounded": 1
+     "grounded": 4,
+     "hallucinated": 1,
+     "uncertain": 2
     },
     "verdict_of_not_right": {
-     "hallucinated": 2
+     "hallucinated": 1
     }
    },
    "unanswerable": {
@@ -434,7 +431,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 29.5
+   "median_seconds_when_written": 29.6
   },
   "es": {
    "answerable": {
@@ -444,9 +441,9 @@
     "model_said_not_in_documents": 0.0,
     "holds_gold_words": 0.875,
     "holds_gold_words_of_answered": 0.875,
-    "cites_the_right_article": 0.875,
-    "a_cited_passage_holds_gold": 0.875,
-    "no_citation": 0.125,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
     "statuses": {
      "checked": 8
     },
@@ -472,7 +469,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 23.2
+   "median_seconds_when_written": 23.7
   },
   "fa": {
    "answerable": {
@@ -482,9 +479,9 @@
     "model_said_not_in_documents": 0.0,
     "holds_gold_words": 0.875,
     "holds_gold_words_of_answered": 0.875,
-    "cites_the_right_article": 0.875,
-    "a_cited_passage_holds_gold": 0.625,
-    "no_citation": 0.125,
+    "cites_the_right_article": 0.625,
+    "a_cited_passage_holds_gold": 0.5,
+    "no_citation": 0.375,
     "statuses": {
      "light": 8
     },
@@ -506,7 +503,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 39.4
+   "median_seconds_when_written": 39.1
   },
   "fr": {
    "answerable": {
@@ -520,15 +517,16 @@
     "a_cited_passage_holds_gold": 0.875,
     "no_citation": 0.0,
     "statuses": {
-     "checked": 7,
-     "healed": 1
+     "checked": 8
     },
     "verdicts": {
-     "uncertain": 5,
+     "uncertain": 4,
+     "hallucinated": 1,
      "grounded": 3
     },
     "verdict_of_right": {
-     "uncertain": 5,
+     "uncertain": 4,
+     "hallucinated": 1,
      "grounded": 3
     },
     "verdict_of_not_right": {}
@@ -541,7 +539,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 22.7
+   "median_seconds_when_written": 21.1
   },
   "ru": {
    "answerable": {
@@ -551,9 +549,9 @@
     "model_said_not_in_documents": 0.0,
     "holds_gold_words": 1.0,
     "holds_gold_words_of_answered": 1.0,
-    "cites_the_right_article": 0.875,
-    "a_cited_passage_holds_gold": 0.875,
-    "no_citation": 0.125,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
     "statuses": {
      "checked": 8
     },
@@ -577,7 +575,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 34.0
+   "median_seconds_when_written": 31.7
   },
   "zh": {
    "answerable": {
@@ -585,8 +583,8 @@
     "answered": 1.0,
     "stopped_before_model": 0.0,
     "model_said_not_in_documents": 0.0,
-    "holds_gold_words": 0.875,
-    "holds_gold_words_of_answered": 0.875,
+    "holds_gold_words": 1.0,
+    "holds_gold_words_of_answered": 1.0,
     "cites_the_right_article": 1.0,
     "a_cited_passage_holds_gold": 1.0,
     "no_citation": 0.0,
@@ -600,12 +598,10 @@
     },
     "verdict_of_right": {
      "uncertain": 3,
-     "grounded": 3,
+     "grounded": 4,
      "hallucinated": 1
     },
-    "verdict_of_not_right": {
-     "grounded": 1
-    }
+    "verdict_of_not_right": {}
    },
    "unanswerable": {
     "questions": 3,
@@ -615,7 +611,7 @@
     "verdicts_of_answered_anyway": {},
     "shown_as_grounded": 0.0
    },
-   "median_seconds_when_written": 22.5
+   "median_seconds_when_written": 21.7
   }
  }
 }

@@ -8,15 +8,16 @@ import { api } from "../lib/api";
 import { num, VERDICT } from "../lib/format";
 import { lazyPage } from "../lib/lazyPage";
 import { Link, useRouter } from "../lib/router";
-import type { AskTurn, Citation, RagAnswer, Task } from "../lib/types";
+import type { AskTurn, Citation, RagAnswer, RunStep, Task } from "../lib/types";
 import { useStream } from "../lib/useStream";
 import { useWorkspace } from "../lib/workspace";
 import { ReportView } from "./Analyze";
 
 // Text, sound and images in one place (D-169). Asking the documents (D-164): a question goes to the library, a model writes
 // from the closest passages, looking at their images, and the Guardian checks what it wrote, so the check stays what this page
-// is about: every answer carries how it was checked. A file of any kind can be added from the conversation; the library and
-// the review of what was read (D-167), and checking an answer about a recording or an image (D-135), are its other tabs.
+// is about: every answer carries how it was checked. The agent mode works in several steps, with the Guardian reading each as it
+// happens (D-170). A file of any kind can be added from the conversation; the library and the review of what was read (D-167),
+// and checking an answer about a recording or an image (D-135), are its other tabs.
 
 const FileCheck = lazyPage(() => import("../components/FileCheck"));
 type Tab = "ask" | "library" | "audio" | "image";
@@ -30,12 +31,12 @@ const MAX_TURN = 5000;
 const MAX_HISTORY = 20;
 const TRIES = ["ask.try1", "ask.try2", "ask.try3"] as const;
 // The server's own words for these; anything else it says is shown as it came.
-const NOTE: Record<string, MessageKey> = { "the model cited a document it was not given; that citation was removed": "ask.citedInvented" };
+const NOTE: Record<string, MessageKey> = { "the model cited a document it was not given; that citation was removed": "ask.citedInvented", "the agent could not finish by itself, so this is the answer without its steps": "run.fellBack" };
 const REASON: Record<string, MessageKey> = { "a number is not in the documents": "ask.reason.number", "no passage is close to this sentence": "ask.reason.far" };
 
 function statusOf(answer: RagAnswer, t: (key: MessageKey) => string): { label: string; color: string } {
   if (answer.status === "checked" && answer.report) return VERDICT[answer.report.verdict];
-  const color = { healed: "var(--color-ok)", light: "var(--color-warn)", opinion: "var(--color-weak)", unchecked: "var(--color-warn)", checked: "var(--color-weak)", not_in_documents: "var(--color-fog-400)" }[answer.status];
+  const color = { healed: "var(--color-ok)", light: "var(--color-warn)", opinion: "var(--color-weak)", unchecked: "var(--color-warn)", checked: "var(--color-weak)", not_in_documents: "var(--color-fog-400)", stopped: "var(--color-bad)" }[answer.status];
   return { label: t(`ask.status.${answer.status}` as MessageKey), color };
 }
 
@@ -117,6 +118,42 @@ function LightText({ answer }: { answer: RagAnswer }) {
   );
 }
 
+function StepRow({ step }: { step: RunStep }) {
+  const { t } = useI18n();
+  const tone = step.alert === "stop" ? "border-bad/40 bg-bad/8" : step.alert === "warning" || step.kind === "guardian" ? "border-warn/40 bg-warn/8" : "border-hair";
+  return (
+    <li className={`flex flex-col gap-1 rounded-xl border px-3 py-2 text-sm ${tone}`}>
+      <span className="text-xs text-fog-400">{t(`run.kind.${step.kind}`)}</span>
+      <span className="whitespace-pre-wrap leading-relaxed text-fog-200" dir="auto">
+        {step.content}
+      </span>
+      {step.observation && (
+        <details className="text-[13px] text-fog-300">
+          <summary className="cursor-pointer text-fog-400">{t("run.result")}</summary>
+          <p className="m-0 mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed" dir="auto">
+            {step.observation}
+          </p>
+        </details>
+      )}
+      {step.alert && (
+        <span className={`text-[13px] ${step.alert === "stop" ? "text-bad-ink" : "text-warn-ink"}`} dir="auto">
+          {t(`run.alert.${step.alert}`)}: {step.reason}
+        </span>
+      )}
+    </li>
+  );
+}
+
+function Steps({ steps }: { steps: RunStep[] }) {
+  return (
+    <ol className="m-0 flex list-none flex-col gap-2 p-0">
+      {steps.map((step) => (
+        <StepRow key={`${step.kind}-${step.step}`} step={step} />
+      ))}
+    </ol>
+  );
+}
+
 function AnswerCard({ turn }: { turn: AskTurn }) {
   const { t } = useI18n();
   const { answer, question } = turn;
@@ -133,7 +170,9 @@ function AnswerCard({ turn }: { turn: AskTurn }) {
         </span>
         <span className="font-mono text-xs text-fog-400">{facts}</span>
       </div>
-      {answer.status === "light" ? (
+      {answer.status === "stopped" ? (
+        <p className="m-0 text-[15px] leading-relaxed text-bad-ink">{t("run.stopped")}</p>
+      ) : answer.status === "light" ? (
         <LightText answer={answer} />
       ) : answer.report ? (
         <AnswerView answer={answer.text} claims={answer.report.claims} />
@@ -164,6 +203,12 @@ function AnswerCard({ turn }: { turn: AskTurn }) {
           ))}
         </div>
       )}
+      {answer.steps && answer.steps.length > 0 && (
+        <Fold summary={t("run.steps", { n: answer.steps.length })}>
+          <Steps steps={answer.steps} />
+        </Fold>
+      )}
+      {!!answer.corrections && <p className="m-0 text-[13px] text-fog-400">{t("run.corrected", { n: answer.corrections })}</p>}
       {answer.original && (
         <Fold summary={t("ask.original")}>
           <p className="m-0 whitespace-pre-wrap leading-relaxed text-fog-200" dir="auto">
@@ -198,6 +243,7 @@ function Conversation({ adder }: { adder: Adder }) {
   const [asked, setAsked] = useState<string | null>(null);
   const [collections, setCollections] = useState<Collection[]>(["mine", "project"]);
   const [generator, setGenerator] = useState<"local" | "online">("local");
+  const [mode, setMode] = useState<"answer" | "agent">("answer");
   const [available, setAvailable] = useState<{ local: boolean; online: boolean } | null>(null);
   const ask = useStream<{ answer: RagAnswer }>();
   const end = useRef<HTMLDivElement>(null);
@@ -214,10 +260,11 @@ function Conversation({ adder }: { adder: Adder }) {
   const written = ask.events.flatMap((e) => (e.type === "text" ? [e.text] : [])).join("");
   const stages = ask.events.flatMap((e) => (e.type === "stage" ? [e.stage] : []));
   const stage = stages[stages.length - 1];
+  const liveSteps = ask.events.flatMap((e) => (e.type === "step" ? [e.step] : []));
 
   useEffect(() => {
     if (asked || turns.length) end.current?.scrollIntoView({ block: "nearest" });
-  }, [turns.length, asked, written.length]);
+  }, [turns.length, asked, written.length, liveSteps.length]);
 
   const send = async (text: string) => {
     const value = text.trim();
@@ -225,7 +272,7 @@ function Conversation({ adder }: { adder: Adder }) {
     const history = turns.flatMap((turn) => [{ role: "user", content: turn.question.slice(0, MAX_TURN) }, { role: "assistant", content: turn.answer.text.slice(0, MAX_TURN) }]).slice(-MAX_HISTORY);
     setAsked(value);
     setQuestion("");
-    const result = await ask.run("/api/ask", { question: value, history, collections, generator, language: lang });
+    const result = await (mode === "agent" ? ask.run("/api/agent/run", { task: value, collections, generator, language: lang }) : ask.run("/api/ask", { question: value, history, collections, generator, language: lang }));
     setAsked(null);
     if (result) setTurns((list) => [...list, { question: value, answer: result.answer }]);
     else setQuestion(value);
@@ -271,6 +318,7 @@ function Conversation({ adder }: { adder: Adder }) {
               <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-beam-400" aria-hidden="true" />
               {stage ? t(`ask.stage.${stage}` as MessageKey) : t("app.loading")}
             </p>
+            {liveSteps.length > 0 && <Steps steps={liveSteps} />}
             {written && (
               <p className="m-0 whitespace-pre-wrap text-[17px] leading-[1.9] text-fog-300" dir="auto">
                 {written}
@@ -292,6 +340,14 @@ function Conversation({ adder }: { adder: Adder }) {
         <textarea id="ask-question" className="field min-h-[76px] resize-y" dir="auto" maxLength={MAX_QUESTION} placeholder={t("ask.placeholder")} value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={onKey} />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("ask.mode")}>
+              <span className="label">{t("ask.mode")}</span>
+              {(["answer", "agent"] as const).map((name) => (
+                <button key={name} type="button" className="chip" aria-pressed={mode === name} disabled={ask.running} onClick={() => setMode(name)}>
+                  {t(`ask.mode.${name}`)}
+                </button>
+              ))}
+            </div>
             <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("ask.searchIn")}>
               <span className="label">{t("ask.searchIn")}</span>
               {(["mine", "project"] as const).map((name) => (
@@ -323,6 +379,7 @@ function Conversation({ adder }: { adder: Adder }) {
             </button>
           </div>
         </div>
+        {mode === "agent" && <p className="m-0 text-[13px] leading-relaxed text-fog-400">{t("run.note")}</p>}
         {generator === "online" && <p className="m-0 text-[13px] text-warn-ink">{t("ask.onlineNote")}</p>}
       </form>
     </div>

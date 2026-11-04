@@ -1,0 +1,20 @@
+{
+ "about": "Tasks for the agent on the same made-up files (D-170), written to need more than one step: facts from two files, or a sum on what was found. gold holds what a right answer says, in any of the forms given. Too few to measure quality: they show whether the agent works and how the Guardian behaves beside it.",
+ "tasks": [
+  {"task": "How many years passed between the building of the harbour of Port Alder and the opening of the Riverside Museum?", "gold": ["60", "sixty"], "needs": ["search", "search", "calculate"]},
+  {"task": "How much do two adult ferry tickets and one child ferry ticket cost together?", "gold": ["29"], "needs": ["search", "calculate"]},
+  {"task": "How many books and paintings does the Riverside Museum hold in total?", "gold": ["12,300", "12300"], "needs": ["search", "calculate"]},
+  {"task": "What is the population of Port Alder, and how many docks does its harbour have?", "gold": ["48,000", "48000"], "needs": ["search", "search"]},
+  {"task": "On which day is the Riverside Library closed, and how many people does its reading room seat?", "gold": ["Sunday"], "needs": ["search", "search"]},
+  {"task": "Who is the mayor of Port Alder, and in what year was the mayor elected?", "gold": ["2019"], "needs": ["search"]},
+  {"task": "How many hours a day is the Riverside Library open?", "gold": ["8", "eight"], "needs": ["search", "calculate"]},
+  {"task": "Which documents are in the library?", "gold": ["port_alder.md"], "needs": ["documents"]}
+ ],
+ "persian": [
+  {"task": "دو بلیت بزرگسال و یک بلیت کودک کشتی روی هم چند یورو می‌شود؟", "gold": ["29", "۲۹"], "needs": ["search", "calculate"]},
+  {"task": "موزه ریورساید چند کتاب دارد و در چه سالی باز شد؟", "gold": ["1950", "۱۹۵۰"], "needs": ["search"]},
+  {"task": "کتابخانه ریورساید چه روزی تعطیل است و اتاق مطالعه‌اش چند نفر جا دارد؟", "gold": ["60", "۶۰", "شصت"], "needs": ["search", "search"]},
+  {"task": "شهردار پورت آلدر کیست و در چه سالی انتخاب شد؟", "gold": ["2019", "۲۰۱۹"], "needs": ["search"]}
+ ],
+ "unanswerable": ["How many ships sank near the harbour of Port Alder?", "How much does a ticket to the Riverside Museum cost?", "What is the name of the museum's director?"]
+}

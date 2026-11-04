@@ -151,7 +151,19 @@ export interface FoolResult {
   seconds: number;
 }
 
-export type AnswerStatus = "checked" | "healed" | "light" | "opinion" | "unchecked" | "not_in_documents";
+export type AnswerStatus = "checked" | "healed" | "light" | "opinion" | "unchecked" | "not_in_documents" | "stopped";
+
+/** One step of the agent that works from the library, with the Guardian's word on it (rag/agent.py). */
+export interface RunStep {
+  step: number;
+  kind: "thought" | "action" | "answer" | "guardian";
+  content: string;
+  tool: string | null;
+  observation: string | null;
+  failed: boolean;
+  alert: "warning" | "stop" | null;
+  reason: string | null;
+}
 
 export interface Citation {
   n: number;
@@ -182,6 +194,8 @@ export interface RagAnswer {
   cost_usd: number;
   seconds: number;
   notes: string[];
+  steps?: RunStep[];
+  corrections?: number;
 }
 
 export type AskTurn = { question: string; answer: RagAnswer };

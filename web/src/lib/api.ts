@@ -1,5 +1,5 @@
 import { languageName, t } from "../i18n";
-import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report, Shelf } from "./types";
+import type { CheckInput, Example, ExampleBrief, FoolAnswer, Health, Report, RunStep, Shelf } from "./types";
 
 export class ApiError extends Error {
   /** The HTTP status, when the server answered (0 otherwise). */
@@ -13,6 +13,7 @@ export type StreamEvent =
   | { type: "check"; round: number; t: number }
   | { type: "queued" }
   | { type: "text"; text: string }
+  | { type: "step"; step: RunStep }
   | { type: "error"; message: string }
   | ({ type: "result" } & Record<string, unknown>);
 

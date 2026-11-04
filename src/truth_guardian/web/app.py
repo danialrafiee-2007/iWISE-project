@@ -176,6 +176,14 @@ class AskIn(_Strict):
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
 
 
+class AgentRunIn(_Strict):
+    task: str = Field(min_length=1, max_length=MAX_QUESTION)
+    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    generator: Literal["local", "online"] = "local"
+    policy: Literal["strict", "lenient"] = "strict"
+    language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a task too short to tell its own")
+
+
 def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
     """Run work in a thread; it reports events through its first argument and returns the final result. The second
     argument is set when the client disconnects, so the checks it queued are dropped."""
@@ -627,6 +635,21 @@ def create_app(
     @app.get("/api/ask/generators")
     def ask_generators() -> dict:
         return {name: writer.available() for name, writer in writers().items()}
+
+    @app.post("/api/agent/run")
+    def agent_run(body: AgentRunIn) -> StreamingResponse:
+        """The agent that works from the library, each step told as it happens with the Guardian's word on it (rag/agent.py)."""
+        ready()
+        books, writer = shelf(), writers()[body.generator]
+        if not writer.available():
+            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing, and anthropic.example.env how to add a key")
+        from truth_guardian.rag.agent import run_agent
+
+        def work(emit, cancelled) -> dict:
+            found = run_agent(body.task, books, engine, writer, tuple(body.collections), body.policy, body.language, emit, cancelled)
+            return {"answer": found.model_dump(mode="json")}
+
+        return _stream(work)
 
     @app.post("/api/ask")
     def ask(body: AskIn) -> StreamingResponse:

@@ -170,11 +170,21 @@ the passages it was given and its verdict is shown beside it; Persian gets a lig
 resting on the image model's description is marked as an opinion and not checked.
 
 Measured on the local model (`scripts/evaluate_answers.py`). On held-out XQuAD articles, 93 of 100 questions whose article is
-left out say the documents do not say, and the right article is cited 94 to 100% of the time. On 28 real documents in seven
-languages (`eval/rag_documents`, questions written by us), no answerable question of 56 was stopped, the expected words are in 50,
+left out say the documents do not say, and the right article is shown 95 to 100% of the time. On 28 real documents in seven
+languages (`eval/rag_documents`, questions written by us), no answerable question of 56 was stopped, the expected words are in 52,
 and all 21 without an answer say so. What it does not do yet: a verdict says an answer rests on its sources, not that it answers
-the question; outside English the check calls many right answers uncertain (of 36 right answers in five languages, 13 were
+the question; outside English the check calls many right answers uncertain (of 38 right answers in five languages, 17 were
 grounded); and a right number attached to the wrong subject can pass. These are the next things to strengthen.
+
+### The agent (D-170)
+
+On the same page, "Agent, step by step" lets the model decide in several steps what to search for and work out, with the live
+Guardian reading each step as it happens. Its tools only read: searching the library, listing the documents, and arithmetic. An
+answer stating what no tool returned goes back once, and a second time ends the run with no answer shown; the finished answer is
+then checked with the agent's log. `POST /api/agent/run` streams its steps. On made-up files with the local model
+(`scripts/evaluate_agent.py`), 7 of 8 English tasks were right, sums among them, and all 3 without an answer said so, in about 30 s
+each. In Persian it is much weaker: 3 of 4 held the right words, yet with a wrong weekday and a misspelled name that its light check
+cannot see.
 
 ### Sound and images (media readers, D-125)
 

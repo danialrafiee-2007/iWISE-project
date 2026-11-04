@@ -65,8 +65,9 @@ class Generator(Protocol):
 
     def available(self) -> bool: ...
 
-    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = ()) -> Written:
-        """images: PNG pictures the model may look at along with the last message."""
+    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = (), schema: dict | None = None) -> Written:
+        """images: PNG pictures the model may look at along with the last message. schema: the JSON the reply must be, held to
+        by the local model's grammar; the system prompt must ask for it too, as Claude reads it from there."""
         ...
 
 
@@ -89,7 +90,7 @@ class LocalGenerator:
 
         return vision.files_present()
 
-    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = ()) -> Written:
+    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = (), schema: dict | None = None) -> Written:
         """One at a time: llama-server is started with one slot, and a second request would only wait for it."""
         from truth_guardian.media import vision
 
@@ -97,6 +98,8 @@ class LocalGenerator:
             raise NotAvailable("the local model is not on this computer; run TruthGuardian.bat setup once with internet")
         parts = [{"type": "image_url", "image_url": {"url": "data:image/png;base64," + base64.b64encode(image).decode()}} for image in images]
         body = {"model": vision.ALIAS, "temperature": 0, "max_tokens": LOCAL_MAX_TOKENS, "stream": True, "messages": [{"role": "system", "content": system}, *_with_images(messages, parts)]}
+        if schema:
+            body["response_format"] = {"type": "json_schema", "json_schema": {"name": "reply", "schema": schema}}
         written, cut_off = "", False
         try:
             with self._lock:
@@ -119,12 +122,12 @@ class LocalGenerator:
                         written += text
                         if on_text:
                             on_text(text)
-                        if written.rstrip().endswith(_SENTENCE_ENDS) and (repeat := repeat_starts(written)) is not None:
+                        if not schema and written.rstrip().endswith(_SENTENCE_ENDS) and (repeat := repeat_starts(written)) is not None:
                             written = written[:repeat]
                             break
         except (OSError, RuntimeError, http.client.HTTPException) as e:
             raise NotAvailable(f"the local model did not answer: {e}") from e
-        return Written((whole_sentences(written) if cut_off else written).strip(), vision.ALIAS)
+        return Written((whole_sentences(written) if cut_off and not schema else written).strip(), vision.ALIAS)
 
 
 class ClaudeGenerator:
@@ -136,7 +139,7 @@ class ClaudeGenerator:
     def available(self) -> bool:
         return self.client is not None or online.configured(self.root)
 
-    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = ()) -> Written:
+    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = (), schema: dict | None = None) -> Written:
         import anthropic
 
         values = online.settings(self.root)

@@ -42,9 +42,9 @@ class Script:
     def available(self) -> bool:
         return True
 
-    def write(self, system, messages, on_text=None, images=()) -> Written:
+    def write(self, system, messages, on_text=None, images=(), schema=None) -> Written:
         self.asked.append((system, messages))
-        self.images = list(images)
+        self.images, self.schema = list(images), schema
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
             raise reply
@@ -204,6 +204,7 @@ def test_the_model_is_told_the_language_only_where_the_script_tells_it(shelf):
     [
         ("[3]", [Change(0, 10, "x", "", "removed: the sources do not support it")]),
         ("A sentence from a source.", [Change(0, 10, "x", "A sentence from a source.", "replaced with the source sentence it contradicts")]),
+        ("Anne Frank died in 1945 [1].", [Change(19, 23, "1950", "1945", "replaced with the value in the sources")]),
     ],
 )
 def test_healing_that_leaves_no_answer_or_swaps_in_a_source_sentence_is_not_used(shelf, healed, changes):
@@ -223,6 +224,16 @@ def test_an_answer_citing_nothing_shows_the_passages_close_to_it_and_says_they_a
     assert [(c.document, c.inferred) for c in found.citations] == [("frank.txt", True)] and found.text == words
     assert answer(QUESTION, shelf, Checker(checked), Script(RIGHT)).citations[0].inferred is False
     assert answer(QUESTION, shelf, Checker(), Script("Nothing the passages say.")).citations == []
+
+
+def test_a_light_checked_answer_citing_nothing_also_shows_the_passages_close_to_it(tmp_path, monkeypatch):
+    monkeypatch.setattr("truth_guardian.rag.library.LINE_OTHER_LANGUAGE", 0.1)
+    monkeypatch.setattr("truth_guardian.rag.library.LINE_ACROSS_LANGUAGES", 0.1)
+    books = Library(tmp_path / "library.sqlite", fake_encode)
+    books.add("موزه.txt", "موزه ریورساید در سال ۱۳۲۹ در شهر باز شد.".encode())
+    found = answer("موزه ریورساید در چه سالی در شهر باز شد؟", books, Checker(refuses=not_checked("language")), Script("موزه ریورساید در سال ۱۳۲۹ باز شد."), (MINE,))
+    assert found.status == "light" and [(c.document, c.inferred) for c in found.citations] == [("موزه.txt", True)]
+    books.close()
 
 
 def test_one_sentence_joining_facts_from_two_files_shows_both(tmp_path, monkeypatch):

@@ -40,7 +40,7 @@ def main() -> None:
     questions = json.loads((FILES / "questions.json").read_text(encoding="utf-8"))
     books = Library(args.folder / "mixed.sqlite")
     for path in sorted(FILES.iterdir()):
-        if path.name != "questions.json":
+        if path.suffix != ".json":
             entry = books.add(path.name, path.read_bytes())
             print(f"{path.name}: {entry.kind}, {entry.passages} passages, concerns {entry.concerns!r}", flush=True)
     engine = Engine(ENGINE_ROOT)
