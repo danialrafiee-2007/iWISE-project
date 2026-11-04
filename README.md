@@ -146,7 +146,27 @@ returns the closest passages and `enough`, whether they are close enough to hold
 (`scripts/evaluate_retrieval.py`, half its articles held out) the right paragraph is in the top five 98.8 to 100% of the time in
 the same language and 89.2 to 99.0% over English; encyclopaedia paragraphs are an easy case, so real documents will do
 less well. `enough` is weaker: it refuses 57 to 90% of questions the library cannot answer in the same language, and across
-languages only the clearly unrelated. Answers written from the library and checked by the Guardian come next.
+languages only the clearly unrelated.
+
+A recording or an image goes in as text (D-165): what was said with its time, the words read in the image, and the image
+model's description, marked as its opinion. `POST /api/library/read` shows what was extracted without adding it, and
+`POST /api/library/reviewed` adds it as a person corrected it, marked as reviewed (D-167); this has no page yet.
+Readers make mistakes: speech has 5.5 to 32.7% word errors and text in photographs reads poorly, and Persian is unmeasured.
+
+### Asking the documents (the RAG, D-164)
+
+`POST /api/ask` answers a question from the library and streams its stages, its text and the result. The closest passages go
+to a model, the local Qwen by default or Claude if a key is set and the person chooses it, which cites them as [n]. When nothing
+is close enough, the answer says the documents do not say, without calling a model. The Guardian checks every answer against
+the passages it was given and its verdict is shown beside it; Persian gets a lighter check, labelled as such, and an answer
+resting on the image model's description is marked as an opinion and not checked.
+
+Measured on the local model (`scripts/evaluate_answers.py`). On held-out XQuAD articles, 93 of 100 questions whose article is
+left out say the documents do not say, and the right article is cited 94 to 100% of the time. On 28 real documents in seven
+languages (`eval/rag_documents`, questions written by us), no answerable question of 56 was stopped, the expected words are in 50,
+and all 21 without an answer say so. What it does not do yet: a verdict says an answer rests on its sources, not that it answers
+the question; outside English the check calls many right answers uncertain (of 36 right answers in five languages, 13 were
+grounded); and a right number attached to the wrong subject can pass. These are the next things to strengthen.
 
 ### Sound and images (media readers, D-125)
 

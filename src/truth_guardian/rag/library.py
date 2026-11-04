@@ -6,22 +6,28 @@ which finds names and numbers that embeddings blur. Their rankings are fused (re
 passages that share a word with the question, at the weight scripts/evaluate_retrieval.py chose. `Found.enough` says
 whether the closest passage is close enough for the library to hold an answer (D-163).
 
+Recordings and images come in through their readers (rag/media.py).
+
 Everything stays in one SQLite file under data/web, which is the one folder the Docker image may write to and which the
 ready-made package carries. Nothing here reaches the network.
 """
 
 import hashlib
+import secrets
 import sqlite3
 import threading
 import time
-from collections.abc import Callable
+from collections import OrderedDict
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import NamedTuple
 
 import numpy as np
 
 from truth_guardian.language import detect
-from truth_guardian.rag.chunks import passages
+from truth_guardian.media.contract import Reading
+from truth_guardian.rag.chunks import Passage, passages
+from truth_guardian.rag.media import Kept, concerns, cut, kind_of, read_file, reviewed
 from truth_guardian.rag.words import WordIndex
 from truth_guardian.retrieval import RRF_K, _ranks
 from truth_guardian.web.documents import extract
@@ -32,7 +38,8 @@ FOLDER = Path("data") / "web" / "library"
 MAX_DOCUMENTS = 200
 MAX_PASSAGES = 50_000
 BATCH = 32
-LINES = {"en": 0.810, "ar": 0.806, "es": 0.824, "ru": 0.812, "zh": 0.858}
+MAX_DRAFTS = 16
+LINES ={"en": 0.810, "ar": 0.806, "es": 0.824, "ru": 0.812, "zh": 0.858}
 LINE_OTHER_LANGUAGE = 0.810
 LINE_ACROSS_LANGUAGES = 0.747
 WORD_WEIGHT = 0.25
@@ -43,13 +50,16 @@ PROJECT_FILES = (
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY, collection TEXT NOT NULL, name TEXT NOT NULL, sha256 TEXT NOT NULL, kind TEXT NOT NULL, pages INTEGER,
-    language TEXT, added_at TEXT NOT NULL, UNIQUE (collection, sha256)
+    language TEXT, added_at TEXT NOT NULL, reader TEXT, concerns TEXT, reviewed_at TEXT, UNIQUE (collection, sha256)
 );
 CREATE TABLE IF NOT EXISTS passages (
-    id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE, page INTEGER, text TEXT NOT NULL, vector BLOB NOT NULL
+    id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE, page INTEGER, text TEXT NOT NULL, vector BLOB NOT NULL,
+    place TEXT, role TEXT
 );
 """
+ADDED_COLUMNS = {"documents": ("reader", "concerns", "reviewed_at"), "passages": ("place", "role")}
 Encode = Callable[[list[str], str], np.ndarray]
+Read = Callable[[str, bytes, Sequence[str], bool], Reading]
 
 
 class Entry(NamedTuple):
@@ -61,6 +71,18 @@ class Entry(NamedTuple):
     language: str | None
     added_at: str
     passages: int
+    reader: str | None = None
+    concerns: str | None = None
+    reviewed_at: str | None = None
+
+
+class Draft(NamedTuple):
+    """What was read in a file, waiting for a person to review it. It holds no copy of the file."""
+
+    id: str
+    name: str
+    digest: str
+    reading: Reading
 
 
 class Hit(NamedTuple):
@@ -72,6 +94,9 @@ class Hit(NamedTuple):
     text: str
     similarity: float
     score: float
+    place: str | None = None
+    role: str | None = None
+    reviewed: bool = False
 
 
 class Found(NamedTuple):
@@ -111,49 +136,104 @@ def _default_encode(texts: list[str], kind: str) -> np.ndarray:
 
 
 class Library:
-    def __init__(self, path: Path, encode: Encode | None = None):
-        self.encode = encode or _default_encode
+    def __init__(self, path: Path, encode: Encode | None = None, read: Read = read_file):
+        self.encode, self.read = encode or _default_encode, read
         path.parent.mkdir(parents=True, exist_ok=True)
         self._db = sqlite3.connect(path, check_same_thread=False)
         self._db.execute("PRAGMA foreign_keys = ON")
         self._db.executescript(SCHEMA)
+        for table, columns in ADDED_COLUMNS.items():
+            have = {row[1] for row in self._db.execute(f"PRAGMA table_info({table})")}
+            for column in columns:
+                if column not in have:
+                    self._db.execute(f"ALTER TABLE {table} ADD COLUMN {column} TEXT")
         self._lock = threading.Lock()
         self._indexes: dict[tuple[str, ...], _Index] = {}
+        self._drafts: OrderedDict[str, Draft] = OrderedDict()
 
     def close(self) -> None:
         self._db.close()
 
     def documents(self, collection: str | None = None) -> list[Entry]:
         where, values = ("WHERE d.collection = ?", (collection,)) if collection else ("", ())
-        query = f"""SELECT d.id, d.collection, d.name, d.kind, d.pages, d.language, d.added_at, COUNT(p.id) FROM documents d
+        query = f"""SELECT d.id, d.collection, d.name, d.kind, d.pages, d.language, d.added_at, COUNT(p.id), d.reader, d.concerns, d.reviewed_at FROM documents d
                     LEFT JOIN passages p ON p.document_id = d.id {where} GROUP BY d.id ORDER BY d.id"""
         with self._lock:
             return [Entry(*row) for row in self._db.execute(query, values)]
 
-    def add(self, name: str, data: bytes, collection: str = MINE, progress: Callable[[int, int], None] | None = None) -> Entry:
+    def add(
+        self, name: str, data: bytes, collection: str = MINE, progress: Callable[[int, int], None] | None = None, languages: Sequence[str] = (), describe: bool = True,
+    ) -> Entry:
         """Raises ValueError with a message meant for the person when the file cannot be used. Adding the same file again
-        changes nothing."""
+        changes nothing. languages and describe are for a recording or an image: see rag/media.py."""
         digest = hashlib.sha256(data).hexdigest()
         known = self._known(collection, digest)
         if known is not None:
             return known
+        if kind_of(name):
+            return self._store_reading(name, digest, self.read(name, data, languages, describe), collection, progress)
         found = extract(name, data)
-        cut = [p for page, text in enumerate(found.by_page, 1) for p in passages(text, page)] if found.by_page else passages(found.text)
-        if not cut:
+        pieces = [p for page, text in enumerate(found.by_page, 1) for p in passages(text, page)] if found.by_page else passages(found.text)
+        return self._store(name, digest, pieces, collection, progress, found.kind, found.pages, detect(found.text[:5000]).code)
+
+    def draft(self, name: str, data: bytes, languages: Sequence[str] = (), describe: bool = True) -> Draft:
+        """Reads a recording or an image without adding it; add_reviewed takes it from there. Only the latest MAX_DRAFTS wait."""
+        made = Draft(secrets.token_hex(8), name, hashlib.sha256(data).hexdigest(), self.read(name, data, languages, describe))
+        with self._lock:
+            self._drafts[made.id] = made
+            while len(self._drafts) > MAX_DRAFTS:
+                self._drafts.popitem(last=False)
+        return made
+
+    def has_draft(self, draft_id: str) -> bool:
+        with self._lock:
+            return draft_id in self._drafts
+
+    def add_reviewed(self, draft_id: str, kept: Sequence[Kept], collection: str = MINE, progress: Callable[[int, int], None] | None = None) -> Entry:
+        """Adds a reading as a person left it, in place of any copy of the file added without review. Raises KeyError for a
+        draft that is gone, and ValueError as add does. A draft that could not be used stays, so the person can try again."""
+        with self._lock:
+            made = self._drafts[draft_id]
+        reading = reviewed(made.reading, kept)
+        if not cut(reading):
+            raise ValueError("nothing is left to add; keep at least one part")
+        old = self._known(collection, made.digest)
+        if old is not None:
+            self.remove(old.id, collection)
+        entry = self._store_reading(made.name, made.digest, reading, collection, progress, time.strftime("%Y-%m-%dT%H:%M:%S"))
+        with self._lock:
+            self._drafts.pop(draft_id, None)
+        return entry
+
+    def passages_of(self, document_id: int) -> list[Passage]:
+        """What the library holds of a document, so a person can see what was extracted."""
+        with self._lock:
+            return [Passage(*row) for row in self._db.execute("SELECT text, page, place, role FROM passages WHERE document_id = ? ORDER BY id", (document_id,))]
+
+    def _store_reading(self, name: str, digest: str, reading: Reading, collection: str, progress, reviewed_at: str | None = None) -> Entry:
+        pieces = cut(reading)
+        language = reading.language.split("-")[0] if reading.language else detect(" ".join(p.text for p in pieces)[:5000]).code
+        return self._store(name, digest, pieces, collection, progress, reading.kind, None, language, reading.reader, "\n".join(concerns(reading)) or None, reviewed_at)
+
+    def _store(
+        self, name: str, digest: str, pieces: list[Passage], collection: str, progress, kind: str, pages: int | None, language: str | None,
+        reader: str | None = None, doubts: str | None = None, reviewed_at: str | None = None,
+    ) -> Entry:
+        if not pieces:
             raise ValueError("no text was found in the file")
         with self._lock:
             documents, stored = self._db.execute("SELECT (SELECT COUNT(*) FROM documents), (SELECT COUNT(*) FROM passages)").fetchone()
-        if documents >= MAX_DOCUMENTS or stored + len(cut) > MAX_PASSAGES:
+        if documents >= MAX_DOCUMENTS or stored + len(pieces) > MAX_PASSAGES:
             raise ValueError(f"the library is full ({MAX_DOCUMENTS} documents or {MAX_PASSAGES:,} passages); remove something first")
-        vectors = self._embed([p.text for p in cut], progress)
+        vectors = self._embed([p.text for p in pieces], progress)
         with self._lock, self._db:
             row = self._db.execute(
-                "INSERT INTO documents (collection, name, sha256, kind, pages, language, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (collection, name, digest, found.kind, found.pages, detect(found.text[:5000]).code, time.strftime("%Y-%m-%dT%H:%M:%S")),
+                "INSERT INTO documents (collection, name, sha256, kind, pages, language, added_at, reader, concerns, reviewed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (collection, name, digest, kind, pages, language, time.strftime("%Y-%m-%dT%H:%M:%S"), reader, doubts, reviewed_at),
             )
             self._db.executemany(
-                "INSERT INTO passages (document_id, page, text, vector) VALUES (?, ?, ?, ?)",
-                [(row.lastrowid, p.page, p.text, vector.tobytes()) for p, vector in zip(cut, vectors)],
+                "INSERT INTO passages (document_id, page, text, vector, place, role) VALUES (?, ?, ?, ?, ?, ?)",
+                [(row.lastrowid, p.page, p.text, vector.tobytes(), p.place, p.role) for p, vector in zip(pieces, vectors)],
             )
             self._indexes.clear()
         return self._known(collection, digest)
@@ -171,7 +251,7 @@ class Library:
             return Found([], 0.0, False)
         dense = index.vectors @ np.asarray(self.encode([query], "query")[0], dtype=np.float32)
         fused = fuse(dense, index.words.scores(query))
-        hits = [Hit(*index.rows[i][:6], float(dense[i]), float(fused[i])) for i in np.argsort(-fused, kind="stable")[:k]]
+        hits = [Hit(*index.rows[i][:6], float(dense[i]), float(fused[i]), *index.rows[i][7:9], index.rows[i][9] is not None) for i in np.argsort(-fused, kind="stable")[:k]]
         closest = int(dense.argmax())
         best = float(dense[closest])
         return Found(hits, best, best >= enough_line(detect(query).code, index.rows[closest][6]))
@@ -208,14 +288,14 @@ class Library:
 
     def _index(self, collections: tuple[str, ...]) -> _Index:
         marks = ", ".join("?" * len(collections))
-        query = f"""SELECT p.id, p.document_id, d.name, d.collection, p.page, p.text, d.language, p.vector FROM passages p JOIN documents d ON d.id = p.document_id
+        query = f"""SELECT p.id, p.document_id, d.name, d.collection, p.page, p.text, d.language, p.place, p.role, d.reviewed_at, p.vector FROM passages p JOIN documents d ON d.id = p.document_id
                     WHERE d.collection IN ({marks}) ORDER BY p.id"""
         with self._lock:
             if collections in self._indexes:
                 return self._indexes[collections]
             rows = self._db.execute(query, collections).fetchall()
-            vectors = np.stack([np.frombuffer(row[7], dtype=np.float32) for row in rows]) if rows else np.zeros((0, 0), dtype=np.float32)
-            index = _Index([row[:7] for row in rows], vectors, WordIndex([row[5] for row in rows]))
+            vectors = np.stack([np.frombuffer(row[10], dtype=np.float32) for row in rows]) if rows else np.zeros((0, 0), dtype=np.float32)
+            index = _Index([row[:10] for row in rows], vectors, WordIndex([row[5] for row in rows]))
             self._indexes[collections] = index
             return index
 

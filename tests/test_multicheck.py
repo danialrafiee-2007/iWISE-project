@@ -19,6 +19,14 @@ def test_a_citation_is_not_a_number_of_the_claim():
     assert text[start:end] == "1950" and forms == {"1950"}
 
 
+def test_the_models_do_not_read_a_citation_but_the_report_keeps_it():
+    text = "El museo se abrió en 1950 [1]. [2, 3]"
+    sentences = split_sentences(text)
+    assert multicheck._without_citations(sentences) == ["El museo se abrió en 1950 ."]
+    assert sentences[0].text == text
+    assert multicheck._without_citations(split_sentences("[1]")) == ["[1]"]
+
+
 def test_numbers_are_read_alike_in_every_script_and_separator():
     forms = lambda text: [sorted(f) for f in multicheck.numbers(text)]
     assert forms("توفيت في عام ١٩٤٥") == [["1945"]]

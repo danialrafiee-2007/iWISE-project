@@ -1,0 +1,40 @@
+{
+ "about": "A small handmade Persian set for the RAG's light check (D-164). Not a measure of accuracy: too small, and written by the team. It only shows whether the Persian line and the light check behave.",
+ "documents": {
+  "persepolis.txt": "تخت جمشید در استان فارس و در نزدیکی شهر شیراز قرار دارد. ساخت آن در حدود سال ۵۱۸ پیش از میلاد به فرمان داریوش یکم هخامنشی آغاز شد و در دوران خشایارشا و اردشیر یکم ادامه یافت. این مجموعه کاخ‌ها در سال ۳۳۰ پیش از میلاد به دست سپاه اسکندر مقدونی به آتش کشیده شد. تخت جمشید در سال ۱۹۷۹ میلادی در فهرست میراث جهانی یونسکو ثبت شد.",
+  "caspian.txt": "دریای خزر بزرگ‌ترین پهنه آبی محصور در خشکی جهان است و مساحت آن حدود ۳۷۱ هزار کیلومتر مربع است. پنج کشور ایران، روسیه، قزاقستان، ترکمنستان و جمهوری آذربایجان با این دریا مرز مشترک دارند. سطح آب آن حدود ۲۸ متر پایین‌تر از سطح آب‌های آزاد است. رود ولگا بیشترین آب این دریا را تأمین می‌کند.",
+  "hafez.txt": "حافظ شیرازی از بزرگ‌ترین شاعران زبان فارسی است که در سده هشتم هجری در شیراز زندگی می‌کرد. نام او شمس‌الدین محمد بود و دیوان او بیشتر از غزل تشکیل شده است. حافظ در سال ۷۹۲ هجری قمری درگذشت. آرامگاه او در حافظیه شیراز است."
+ },
+ "answerable": [
+  {"question": "ساخت تخت جمشید به فرمان چه کسی آغاز شد؟", "gold": ["داریوش"], "document": "persepolis.txt"},
+  {"question": "تخت جمشید در چه سالی در فهرست میراث جهانی ثبت شد؟", "gold": ["۱۹۷۹", "1979"], "document": "persepolis.txt"},
+  {"question": "چه کسی تخت جمشید را به آتش کشید؟", "gold": ["اسکندر"], "document": "persepolis.txt"},
+  {"question": "مساحت دریای خزر چقدر است؟", "gold": ["۳۷۱", "371"], "document": "caspian.txt"},
+  {"question": "کدام رود بیشترین آب دریای خزر را تأمین می‌کند؟", "gold": ["ولگا"], "document": "caspian.txt"},
+  {"question": "چند کشور با دریای خزر مرز مشترک دارند؟", "gold": ["پنج", "۵", "5"], "document": "caspian.txt"},
+  {"question": "نام اصلی حافظ چه بود؟", "gold": ["شمس‌الدین", "شمس الدین"], "document": "hafez.txt"},
+  {"question": "حافظ در چه سالی درگذشت؟", "gold": ["۷۹۲", "792"], "document": "hafez.txt"},
+  {"question": "آرامگاه حافظ کجاست؟", "gold": ["حافظیه"], "document": "hafez.txt"}
+ ],
+ "unanswerable": [
+  "جمعیت شهر شیراز چند نفر است؟",
+  "عمیق‌ترین نقطه دریای خزر چند متر است؟",
+  "بلندترین قله ایران چه نام دارد؟",
+  "پایتخت ژاپن کدام شهر است؟",
+  "حقوق کارگران در سال گذشته چقدر افزایش یافت؟",
+  "چگونه می‌توان یک وب‌سایت با پایتون ساخت؟"
+ ],
+ "claims": [
+  {"text": "ساخت تخت جمشید در حدود سال ۵۱۸ پیش از میلاد آغاز شد.", "document": "persepolis.txt", "wrong": false},
+  {"text": "مساحت دریای خزر حدود ۳۷۱ هزار کیلومتر مربع است.", "document": "caspian.txt", "wrong": false},
+  {"text": "حافظ در سال ۷۹۲ هجری قمری درگذشت.", "document": "hafez.txt", "wrong": false},
+  {"text": "رود ولگا بیشترین آب دریای خزر را تأمین می‌کند.", "document": "caspian.txt", "wrong": false},
+  {"text": "ساخت تخت جمشید در حدود سال ۶۲۰ پیش از میلاد آغاز شد.", "document": "persepolis.txt", "wrong": true, "kind": "number"},
+  {"text": "مساحت دریای خزر حدود ۵۰۰ هزار کیلومتر مربع است.", "document": "caspian.txt", "wrong": true, "kind": "number"},
+  {"text": "حافظ در سال ۸۱۰ هجری قمری درگذشت.", "document": "hafez.txt", "wrong": true, "kind": "number"},
+  {"text": "کشور ترکیه بزرگ‌ترین صادرکننده چای در جهان است.", "document": "caspian.txt", "wrong": true, "kind": "off_subject"},
+  {"text": "قیمت نفت خام در بازارهای جهانی کاهش یافت.", "document": "hafez.txt", "wrong": true, "kind": "off_subject"},
+  {"text": "رود نیل بیشترین آب دریای خزر را تأمین می‌کند.", "document": "caspian.txt", "wrong": true, "kind": "word_swap"},
+  {"text": "ساخت تخت جمشید به فرمان اسکندر مقدونی آغاز شد.", "document": "persepolis.txt", "wrong": true, "kind": "word_swap"}
+ ]
+}

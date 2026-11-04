@@ -10,7 +10,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 Kind = Literal["audio", "image"]
-Role = Literal["transcript", "ocr", "description"]
+Role = Literal["transcript", "ocr", "description", "confirmed"]  # confirmed: a description a person said is right (rag/media.py)
 
 # Below these a reading goes to review.
 LOW_LANGUAGE = 0.5

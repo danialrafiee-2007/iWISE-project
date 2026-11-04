@@ -42,10 +42,11 @@ def split_sentences(text: str) -> list[Sentence]:
                 if not _WORD.search(sent.text):
                     continue
                 start, end = offset + sent.start_char, offset + sent.end_char
-                citation = _CITATION_START.match(sent.text) if len(sentences) > first_of_line else None
-                if citation and (sentences[-1].text.endswith("[") or citation.end() == len(sent.text)):
+                lead = len(sent.text) - len(sent.text.lstrip())
+                citation = _CITATION_START.match(sent.text, lead) if len(sentences) > first_of_line else None
+                if citation and (sentences[-1].text.endswith(("[", "。", "！", "？")) or citation.end() == len(sent.text)):
                     before = sentences[-1]
-                    stop = start + len(citation.group().rstrip())
+                    stop = start + len(sent.text[: citation.end()].rstrip())
                     sentences[-1] = Sentence(before.start, stop, text[before.start : stop])
                     start += citation.end()
                     if not _WORD.search(text[start:end]):

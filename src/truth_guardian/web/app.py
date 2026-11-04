@@ -23,7 +23,7 @@ import threading
 import time
 from collections.abc import Callable
 from email.message import EmailMessage
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -36,6 +36,7 @@ from truth_guardian import models
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.media.evidence import evidence
 from truth_guardian.pipeline import NO_WORDS, make_sample
+from truth_guardian.rag.media import MEDIA_KINDS, Kept, concerns, kind_of, shown
 from truth_guardian.schema import Sample
 from truth_guardian.text import split_sentences
 from truth_guardian.web import contact
@@ -48,11 +49,6 @@ STATIC = Path(__file__).with_name("static")
 MAX_QUESTION, MAX_ANSWER, MAX_SOURCE, MAX_SOURCES = 1_000, 5_000, 20_000, 10
 MAX_STEPS, MAX_STEP = 30, 5_000
 MAX_MEDIA_BYTES = 25_000_000
-MEDIA_KINDS = {
-    "image": {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif"},
-    # .webm is what the browser's recorder makes; it is read for its sound only.
-    "audio": {".wav", ".mp3", ".m4a", ".ogg", ".opus", ".flac", ".aac", ".wma", ".weba", ".webm"},
-}
 HOSTS = ["127.0.0.1", "localhost", "testserver"]
 ACCESS_PROMPT = 'Basic realm="Truth Guardian", charset="UTF-8"'
 Task = Literal["qa", "summary", "data2text", "other"]
@@ -149,6 +145,37 @@ class SearchIn(_Strict):
     k: int = Field(default=5, ge=1, le=20)
 
 
+class ShelfFileIn(_Strict):
+    name: str = Field(min_length=1, max_length=255)
+    data: str = Field(max_length=(MAX_MEDIA_BYTES // 3 + 1) * 4, description="the file's bytes, base64")
+    languages: Annotated[list[Annotated[str, Field(pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$")]], Field(max_length=3)] = []
+    describe: bool = Field(default=True, description="also ask the image model what an image shows, so a picture without words can be found")
+
+
+class KeptIn(_Strict):
+    index: int = Field(ge=0)
+    text: str = Field(max_length=MAX_SOURCE)
+    confirmed: bool = Field(default=False, description="the person says this description of the image is right")
+
+
+class ReviewIn(_Strict):
+    draft: str = Field(min_length=1, max_length=64)
+    parts: Annotated[list[KeptIn], Field(max_length=5_000)] = Field(description="what stays, as the person left it; a part left out is removed")
+
+
+class TurnIn(_Strict):
+    role: Literal["user", "assistant"]
+    content: str = Field(max_length=MAX_ANSWER)
+
+
+class AskIn(_Strict):
+    question: str = Field(min_length=1, max_length=MAX_QUESTION)
+    history: Annotated[list[TurnIn], Field(max_length=20)] = []
+    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    generator: Literal["local", "online"] = "local"
+    language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
+
+
 def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
     """Run work in a thread; it reports events through its first argument and returns the final result. The second
     argument is set when the client disconnects, so the checks it queued are dropped."""
@@ -218,6 +245,7 @@ def prepare(engine, store: ExampleStore, every_model: bool = False) -> None:
 
 def create_app(
     engine=None, store: ExampleStore | None = None, root: Path = ROOT, load: bool = True, mailer: Callable[[contact.Settings, EmailMessage], None] = contact.send, library=None,
+    generators: dict | None = None,
 ) -> FastAPI:
     engine = engine or Engine(root)
     limit = contact.RateLimit()
@@ -466,6 +494,22 @@ def create_app(
         found = evidence(reading, raw, MAX_SOURCE, MAX_SOURCES)
         return {"name": body.name, "kind": kind, "reading": reading.model_dump(mode="json"), "evidence": found.model_dump(mode="json")}
 
+    @contextmanager
+    def media_job(kind: str | None, describe: bool):
+        """One media job at a time, and a reader's failure in words; no lock for a plain document (kind None)."""
+        if kind and not media_lock.acquire(timeout=1):
+            raise ValueError("another media file is being read; try again in a moment")
+        try:
+            yield
+        except ImportError as e:
+            raise ValueError("the media readers are not installed on this computer") from e
+        except (OSError, RuntimeError) as e:
+            absent = _absent_reader(kind, describe) if kind else None
+            raise ValueError(f"{absent} is not on this computer yet; run TruthGuardian.bat setup once with internet" if absent else f"the file could not be read: {type(e).__name__}") from e
+        finally:
+            if kind:
+                media_lock.release()
+
     def shelf():
         """The library opens on first use. It reads with multilingual E5, which the Docker image leaves out."""
         nonlocal library
@@ -480,11 +524,38 @@ def create_app(
 
     @app.get("/api/library")
     def library_documents() -> dict:
-        return {"documents": [entry._asdict() for entry in shelf().documents()], "types": SUPPORTED, "max_bytes": MAX_BYTES}
+        media = sorted(set().union(*MEDIA_KINDS.values()))
+        return {"documents": [entry._asdict() for entry in shelf().documents()], "types": SUPPORTED, "max_bytes": MAX_BYTES, "media_types": media, "max_media_bytes": MAX_MEDIA_BYTES}
 
     @app.post("/api/library/documents")
-    def library_add(body: FileIn) -> StreamingResponse:
-        """Adds a file to the person's documents; embedding a long one takes a while, so its progress is streamed."""
+    def library_add(body: ShelfFileIn) -> StreamingResponse:
+        """Adds a document, a recording or an image to the person's documents. Reading and embedding take a while, so the
+        progress is streamed; like /api/media/read, one media job runs at a time."""
+        try:
+            raw = base64.b64decode(body.data, validate=True)
+        except (binascii.Error, ValueError):
+            raise HTTPException(422, "the file could not be read") from None
+        books, kind = shelf(), kind_of(body.name)
+
+        def work(emit, cancelled) -> dict:
+            started = time.perf_counter()
+            stage = lambda name, **more: emit({"type": "stage", "stage": name, "t": round(time.perf_counter() - started, 2), **more})
+            progress = lambda done, total: stage("embedding", done=done, total=total)
+            with media_job(kind, body.describe):
+                if kind:
+                    stage("reading")
+                entry = books.add(body.name, raw, progress=progress, languages=body.languages, describe=body.describe)
+            return {"document": entry._asdict(), "seconds": round(time.perf_counter() - started, 2)}
+
+        return _stream(work)
+
+    @app.post("/api/library/read")
+    def library_read(body: ShelfFileIn) -> StreamingResponse:
+        """Reads a recording or an image and shows what was extracted, without adding it: the person reviews it and sends
+        it to /api/library/reviewed. Nothing goes on the shelf until then."""
+        kind = kind_of(body.name)
+        if kind is None:
+            raise HTTPException(422, "only recordings and images are read for review; add a document directly")
         try:
             raw = base64.b64decode(body.data, validate=True)
         except (binascii.Error, ValueError):
@@ -493,10 +564,39 @@ def create_app(
 
         def work(emit, cancelled) -> dict:
             started = time.perf_counter()
-            progress = lambda done, total: emit({"type": "stage", "stage": "embedding", "t": round(time.perf_counter() - started, 2), "done": done, "total": total})
-            return {"document": books.add(body.name, raw, progress=progress)._asdict(), "seconds": round(time.perf_counter() - started, 2)}
+            emit({"type": "stage", "stage": "reading", "t": 0.0})
+            with media_job(kind, body.describe):
+                made = books.draft(body.name, raw, body.languages, body.describe)
+            reading = made.reading
+            return {
+                "draft": made.id, "name": made.name, "kind": kind, "reader": reading.reader, "language": reading.language, "concerns": concerns(reading),
+                "parts": shown(reading), "seconds": round(time.perf_counter() - started, 2),
+            }
 
         return _stream(work)
+
+    @app.post("/api/library/reviewed")
+    def library_reviewed(body: ReviewIn) -> StreamingResponse:
+        """Adds what was read as the person left it, marked as reviewed."""
+        books = shelf()
+        if not books.has_draft(body.draft):
+            raise HTTPException(404, "this reading is no longer here; read the file again")
+
+        def work(emit, cancelled) -> dict:
+            started = time.perf_counter()
+            progress = lambda done, total: emit({"type": "stage", "stage": "embedding", "t": round(time.perf_counter() - started, 2), "done": done, "total": total})
+            entry = books.add_reviewed(body.draft, [Kept(part.index, part.text, part.confirmed) for part in body.parts], progress=progress)
+            return {"document": entry._asdict(), "seconds": round(time.perf_counter() - started, 2)}
+
+        return _stream(work)
+
+    @app.get("/api/library/documents/{document_id}/passages")
+    def library_passages(document_id: int) -> dict:
+        """What the library holds of a document, such as what was extracted from a recording."""
+        books = shelf()
+        if not any(entry.id == document_id for entry in books.documents()):
+            raise HTTPException(404, f"no document {document_id}")
+        return {"passages": [passage._asdict() for passage in books.passages_of(document_id)]}
 
     @app.delete("/api/library/documents/{document_id}")
     def library_remove(document_id: int) -> dict:
@@ -508,6 +608,34 @@ def create_app(
     def library_search(body: SearchIn) -> dict:
         found = shelf().search(body.query, tuple(body.collections), body.k)
         return {"hits": [hit._asdict() for hit in found.hits], "similarity": found.similarity, "enough": found.enough}
+
+    def writers() -> dict:
+        nonlocal generators
+        if generators is None:
+            from truth_guardian.rag.generators import ClaudeGenerator, LocalGenerator
+
+            generators = {"local": LocalGenerator(), "online": ClaudeGenerator(root)}
+        return generators
+
+    @app.get("/api/ask/generators")
+    def ask_generators() -> dict:
+        return {name: writer.available() for name, writer in writers().items()}
+
+    @app.post("/api/ask")
+    def ask(body: AskIn) -> StreamingResponse:
+        """An answer written from the library and checked before it is shown (rag/answer.py), told as it comes."""
+        ready()
+        books, writer = shelf(), writers()[body.generator]
+        if not writer.available():
+            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing, and anthropic.example.env how to add a key")
+        from truth_guardian.rag.answer import answer
+
+        def work(emit, cancelled) -> dict:
+            history = [turn.model_dump() for turn in body.history]
+            found = answer(body.question, books, engine, writer, tuple(body.collections), history, body.language, emit, cancelled)
+            return {"answer": found.model_dump(mode="json")}
+
+        return _stream(work)
 
     @app.get("/api/contact")
     def contact_status() -> dict:

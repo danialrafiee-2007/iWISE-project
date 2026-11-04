@@ -155,7 +155,7 @@ def test_word_search_finds_a_rare_word_and_common_words_find_nothing():
 
 def test_a_file_that_cannot_be_used_is_explained_and_leaves_nothing(shelf):
     with pytest.raises(ValueError, match="not supported"):
-        shelf.add("photo.png", b"\x89PNG")
+        shelf.add("program.exe", b"MZ")
     with pytest.raises(ValueError, match="no text"):
         shelf.add("empty.txt", b"   \n ")
     assert shelf.documents() == []

@@ -1,0 +1,621 @@
+{
+ "generator": "local",
+ "per_language": 20,
+ "languages": {
+  "en": {
+   "answerable": {
+    "questions": 20,
+    "answered": 0.95,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.05,
+    "holds_gold_words": 0.75,
+    "holds_gold_words_of_answered": 0.789,
+    "cites_the_right_article": 0.947,
+    "a_cited_passage_holds_gold": 0.895,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 19,
+     "not_in_documents": 1
+    },
+    "verdicts": {
+     "grounded": 19
+    },
+    "verdict_of_right": {
+     "grounded": 15
+    },
+    "verdict_of_not_right": {
+     "grounded": 4
+    }
+   },
+   "unanswerable": {
+    "questions": 20,
+    "said_not_in_documents": 0.95,
+    "stopped_before_model": 0.9,
+    "answered_anyway": 1,
+    "verdicts_of_answered_anyway": {
+     "uncertain": 1
+    },
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 18.5
+  },
+  "ar": {
+   "answerable": {
+    "questions": 20,
+    "answered": 0.85,
+    "stopped_before_model": 0.05,
+    "model_said_not_in_documents": 0.1,
+    "holds_gold_words": 0.55,
+    "holds_gold_words_of_answered": 0.647,
+    "cites_the_right_article": 0.941,
+    "a_cited_passage_holds_gold": 0.882,
+    "no_citation": 0.059,
+    "statuses": {
+     "checked": 17,
+     "not_in_documents": 3
+    },
+    "verdicts": {
+     "uncertain": 7,
+     "hallucinated": 4,
+     "grounded": 6
+    },
+    "verdict_of_right": {
+     "uncertain": 3,
+     "hallucinated": 3,
+     "grounded": 5
+    },
+    "verdict_of_not_right": {
+     "uncertain": 4,
+     "grounded": 1,
+     "hallucinated": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 20,
+    "said_not_in_documents": 0.95,
+    "stopped_before_model": 0.85,
+    "answered_anyway": 1,
+    "verdicts_of_answered_anyway": {
+     "uncertain": 1
+    },
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 31.9
+  },
+  "es": {
+   "answerable": {
+    "questions": 20,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.9,
+    "holds_gold_words_of_answered": 0.9,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 20
+    },
+    "verdicts": {
+     "hallucinated": 3,
+     "uncertain": 8,
+     "grounded": 9
+    },
+    "verdict_of_right": {
+     "hallucinated": 3,
+     "uncertain": 6,
+     "grounded": 9
+    },
+    "verdict_of_not_right": {
+     "uncertain": 2
+    }
+   },
+   "unanswerable": {
+    "questions": 20,
+    "said_not_in_documents": 0.95,
+    "stopped_before_model": 0.9,
+    "answered_anyway": 1,
+    "verdicts_of_answered_anyway": {
+     "grounded": 1
+    },
+    "shown_as_grounded": 0.05
+   },
+   "median_seconds_when_written": 28.6
+  },
+  "ru": {
+   "answerable": {
+    "questions": 20,
+    "answered": 0.85,
+    "stopped_before_model": 0.15,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.75,
+    "holds_gold_words_of_answered": 0.882,
+    "cites_the_right_article": 0.941,
+    "a_cited_passage_holds_gold": 0.882,
+    "no_citation": 0.059,
+    "statuses": {
+     "checked": 17,
+     "not_in_documents": 3
+    },
+    "verdicts": {
+     "grounded": 15,
+     "hallucinated": 1,
+     "uncertain": 1
+    },
+    "verdict_of_right": {
+     "grounded": 14,
+     "hallucinated": 1
+    },
+    "verdict_of_not_right": {
+     "uncertain": 1,
+     "grounded": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 20,
+    "said_not_in_documents": 0.9,
+    "stopped_before_model": 0.75,
+    "answered_anyway": 2,
+    "verdicts_of_answered_anyway": {
+     "grounded": 1,
+     "hallucinated": 1
+    },
+    "shown_as_grounded": 0.05
+   },
+   "median_seconds_when_written": 34.8
+  },
+  "zh": {
+   "answerable": {
+    "questions": 20,
+    "answered": 0.95,
+    "stopped_before_model": 0.05,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.8,
+    "holds_gold_words_of_answered": 0.842,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 19,
+     "not_in_documents": 1
+    },
+    "verdicts": {
+     "grounded": 13,
+     "uncertain": 4,
+     "hallucinated": 2
+    },
+    "verdict_of_right": {
+     "grounded": 11,
+     "uncertain": 4,
+     "hallucinated": 1
+    },
+    "verdict_of_not_right": {
+     "grounded": 2,
+     "hallucinated": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 20,
+    "said_not_in_documents": 0.9,
+    "stopped_before_model": 0.85,
+    "answered_anyway": 2,
+    "verdicts_of_answered_anyway": {
+     "hallucinated": 1,
+     "uncertain": 1
+    },
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 19.2
+  }
+ },
+ "persian_handmade": {
+  "answerable": {
+   "questions": 9,
+   "answered": 1.0,
+   "stopped_before_model": 0.0,
+   "model_said_not_in_documents": 0.0,
+   "holds_gold_words": 1.0,
+   "holds_gold_words_of_answered": 1.0,
+   "cites_the_right_article": 1.0,
+   "a_cited_passage_holds_gold": 1.0,
+   "no_citation": 0.0,
+   "statuses": {
+    "light": 9
+   },
+   "verdicts": {
+    "null": 9
+   },
+   "verdict_of_right": {
+    "null": 9
+   },
+   "verdict_of_not_right": {}
+  },
+  "unanswerable": {
+   "questions": 6,
+   "said_not_in_documents": 0.833,
+   "stopped_before_model": 0.667,
+   "answered_anyway": 1,
+   "verdicts_of_answered_anyway": {
+    "null": 1
+   },
+   "shown_as_grounded": 0.0
+  },
+  "median_seconds_when_written": 3.5,
+  "light_check_on_written_answers": {
+   "close": 9
+  },
+  "light_check_on_handmade_claims": {
+   "right": {
+    "claims": 4,
+    "called_doubtful": 0
+   },
+   "number": {
+    "claims": 3,
+    "called_doubtful": 3
+   },
+   "off_subject": {
+    "claims": 2,
+    "called_doubtful": 2
+   },
+   "word_swap": {
+    "claims": 2,
+    "called_doubtful": 0
+   }
+  },
+  "claims": [
+   {
+    "text": "ساخت تخت جمشید در حدود سال ۵۱۸ پیش از میلاد آغاز شد.",
+    "document": "persepolis.txt",
+    "wrong": false,
+    "found": false,
+    "reasons": []
+   },
+   {
+    "text": "مساحت دریای خزر حدود ۳۷۱ هزار کیلومتر مربع است.",
+    "document": "caspian.txt",
+    "wrong": false,
+    "found": false,
+    "reasons": []
+   },
+   {
+    "text": "حافظ در سال ۷۹۲ هجری قمری درگذشت.",
+    "document": "hafez.txt",
+    "wrong": false,
+    "found": false,
+    "reasons": []
+   },
+   {
+    "text": "رود ولگا بیشترین آب دریای خزر را تأمین می‌کند.",
+    "document": "caspian.txt",
+    "wrong": false,
+    "found": false,
+    "reasons": []
+   },
+   {
+    "text": "ساخت تخت جمشید در حدود سال ۶۲۰ پیش از میلاد آغاز شد.",
+    "document": "persepolis.txt",
+    "wrong": true,
+    "kind": "number",
+    "found": true,
+    "reasons": [
+     "a number is not in the documents"
+    ]
+   },
+   {
+    "text": "مساحت دریای خزر حدود ۵۰۰ هزار کیلومتر مربع است.",
+    "document": "caspian.txt",
+    "wrong": true,
+    "kind": "number",
+    "found": true,
+    "reasons": [
+     "a number is not in the documents"
+    ]
+   },
+   {
+    "text": "حافظ در سال ۸۱۰ هجری قمری درگذشت.",
+    "document": "hafez.txt",
+    "wrong": true,
+    "kind": "number",
+    "found": true,
+    "reasons": [
+     "a number is not in the documents"
+    ]
+   },
+   {
+    "text": "کشور ترکیه بزرگ‌ترین صادرکننده چای در جهان است.",
+    "document": "caspian.txt",
+    "wrong": true,
+    "kind": "off_subject",
+    "found": true,
+    "reasons": [
+     "no passage is close to this sentence"
+    ]
+   },
+   {
+    "text": "قیمت نفت خام در بازارهای جهانی کاهش یافت.",
+    "document": "hafez.txt",
+    "wrong": true,
+    "kind": "off_subject",
+    "found": true,
+    "reasons": [
+     "no passage is close to this sentence"
+    ]
+   },
+   {
+    "text": "رود نیل بیشترین آب دریای خزر را تأمین می‌کند.",
+    "document": "caspian.txt",
+    "wrong": true,
+    "kind": "word_swap",
+    "found": false,
+    "reasons": []
+   },
+   {
+    "text": "ساخت تخت جمشید به فرمان اسکندر مقدونی آغاز شد.",
+    "document": "persepolis.txt",
+    "wrong": true,
+    "kind": "word_swap",
+    "found": false,
+    "reasons": []
+   }
+  ]
+ },
+ "documents": {
+  "en": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.875,
+    "holds_gold_words_of_answered": 0.875,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 0.75,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 7,
+     "healed": 1
+    },
+    "verdicts": {
+     "grounded": 7,
+     "uncertain": 1
+    },
+    "verdict_of_right": {
+     "grounded": 6,
+     "uncertain": 1
+    },
+    "verdict_of_not_right": {
+     "grounded": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.667,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 20.0
+  },
+  "ar": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.75,
+    "holds_gold_words_of_answered": 0.75,
+    "cites_the_right_article": 0.875,
+    "a_cited_passage_holds_gold": 0.75,
+    "no_citation": 0.125,
+    "statuses": {
+     "checked": 7,
+     "healed": 1
+    },
+    "verdicts": {
+     "uncertain": 3,
+     "hallucinated": 4,
+     "grounded": 1
+    },
+    "verdict_of_right": {
+     "uncertain": 3,
+     "hallucinated": 2,
+     "grounded": 1
+    },
+    "verdict_of_not_right": {
+     "hallucinated": 2
+    }
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.667,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 29.5
+  },
+  "es": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.875,
+    "holds_gold_words_of_answered": 0.875,
+    "cites_the_right_article": 0.875,
+    "a_cited_passage_holds_gold": 0.875,
+    "no_citation": 0.125,
+    "statuses": {
+     "checked": 8
+    },
+    "verdicts": {
+     "uncertain": 3,
+     "hallucinated": 3,
+     "grounded": 2
+    },
+    "verdict_of_right": {
+     "uncertain": 3,
+     "hallucinated": 3,
+     "grounded": 1
+    },
+    "verdict_of_not_right": {
+     "grounded": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.667,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 23.2
+  },
+  "fa": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.875,
+    "holds_gold_words_of_answered": 0.875,
+    "cites_the_right_article": 0.875,
+    "a_cited_passage_holds_gold": 0.625,
+    "no_citation": 0.125,
+    "statuses": {
+     "light": 8
+    },
+    "verdicts": {
+     "null": 8
+    },
+    "verdict_of_right": {
+     "null": 7
+    },
+    "verdict_of_not_right": {
+     "null": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.333,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 39.4
+  },
+  "fr": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 1.0,
+    "holds_gold_words_of_answered": 1.0,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 0.875,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 7,
+     "healed": 1
+    },
+    "verdicts": {
+     "uncertain": 5,
+     "grounded": 3
+    },
+    "verdict_of_right": {
+     "uncertain": 5,
+     "grounded": 3
+    },
+    "verdict_of_not_right": {}
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.667,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 22.7
+  },
+  "ru": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 1.0,
+    "holds_gold_words_of_answered": 1.0,
+    "cites_the_right_article": 0.875,
+    "a_cited_passage_holds_gold": 0.875,
+    "no_citation": 0.125,
+    "statuses": {
+     "checked": 8
+    },
+    "verdicts": {
+     "uncertain": 2,
+     "hallucinated": 1,
+     "grounded": 5
+    },
+    "verdict_of_right": {
+     "uncertain": 2,
+     "hallucinated": 1,
+     "grounded": 5
+    },
+    "verdict_of_not_right": {}
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.333,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 34.0
+  },
+  "zh": {
+   "answerable": {
+    "questions": 8,
+    "answered": 1.0,
+    "stopped_before_model": 0.0,
+    "model_said_not_in_documents": 0.0,
+    "holds_gold_words": 0.875,
+    "holds_gold_words_of_answered": 0.875,
+    "cites_the_right_article": 1.0,
+    "a_cited_passage_holds_gold": 1.0,
+    "no_citation": 0.0,
+    "statuses": {
+     "checked": 8
+    },
+    "verdicts": {
+     "uncertain": 3,
+     "grounded": 4,
+     "hallucinated": 1
+    },
+    "verdict_of_right": {
+     "uncertain": 3,
+     "grounded": 3,
+     "hallucinated": 1
+    },
+    "verdict_of_not_right": {
+     "grounded": 1
+    }
+   },
+   "unanswerable": {
+    "questions": 3,
+    "said_not_in_documents": 1.0,
+    "stopped_before_model": 0.667,
+    "answered_anyway": 0,
+    "verdicts_of_answered_anyway": {},
+    "shown_as_grounded": 0.0
+   },
+   "median_seconds_when_written": 22.5
+  }
+ }
+}

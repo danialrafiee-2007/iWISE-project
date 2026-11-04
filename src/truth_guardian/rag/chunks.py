@@ -17,7 +17,9 @@ _WIDE = re.compile("[぀-ヿ㐀-鿿]")
 
 class Passage(NamedTuple):
     text: str
-    page: int | None
+    page: int | None = None
+    place: str | None = None  # where in a recording
+    role: str | None = None  # how a media reader got it (media/contract.py)
 
 
 def weight(text: str) -> int:

@@ -140,7 +140,7 @@ def explain(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     evidence = [u for d in sample.documents for u in units(d.text)]
     context = " ".join([sample.question or "", *(d.text for d in sample.documents)])
     known = set().union(*numbers(context)) if context.strip() else set()
-    similarity = _embed([s.text for s in sentences], "query") @ _embed(evidence, "passage").T if evidence and sentences else None
+    similarity = _embed(_without_citations(sentences), "query") @ _embed(evidence, "passage").T if evidence and sentences else None
     rows = []
     for k, s in enumerate(sentences):
         ranked = [evidence[int(i)] for i in np.argsort(-similarity[k])[:3]] if similarity is not None else []
@@ -218,6 +218,11 @@ def nli(pairs: list[tuple[str, str]]) -> np.ndarray:
     return _cached("mnli", [tuple(p) for p in pairs], compute)
 
 
+def _without_citations(sentences: list[Sentence]) -> list[str]:
+    """What the models read: a citation such as [1] says nothing, and counted as a word no source has it flagged right answers."""
+    return [_CITATION.sub("", s.text).strip() or s.text for s in sentences]
+
+
 def signal(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     if not sentences:
         return []
@@ -226,7 +231,7 @@ def signal(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     known = set().union(*numbers(context)) if context.strip() else set()
     known_words = content_words(context)
     source_script = script(" ".join(d.text for d in sample.documents))[0]
-    texts = [s.text for s in sentences]
+    texts = _without_citations(sentences)
     if evidence:
         similarity = _embed(texts, "query") @ _embed(evidence, "passage").T
         nearest = [sorted(np.argsort(-row)[:PREMISE_UNITS]) for row in similarity]

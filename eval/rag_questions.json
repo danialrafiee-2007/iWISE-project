@@ -1,0 +1,96 @@
+{
+ "about": "Questions the team's AI assistant wrote from eval/rag_documents, in every language of the project (D-166). gold holds words a right answer should hold, in any of the forms given; document is the subject, whichever language's copy is cited. Written by us and from the opening of each article, so they show how the RAG behaves on real documents, and are no independent benchmark.",
+ "languages": {
+  "en": {
+   "answerable": [
+    {"question": "How high is Mount Everest according to the 2020 survey?", "gold": ["8,848.86", "8848.86"], "document": "everest.txt"},
+    {"question": "How many people had died on Everest as of May 2024?", "gold": ["340"], "document": "everest.txt"},
+    {"question": "What is a hallucination in artificial intelligence?", "gold": ["false or misleading"], "document": "hallucination.txt"},
+    {"question": "In which high-stakes scenarios do hallucinations make language models hard to deploy?", "gold": ["chip design", "supply chain", "medical"], "document": "hallucination.txt"},
+    {"question": "What was the population of London in 2025?", "gold": ["9.14"], "document": "their_own.txt"},
+    {"question": "Under what name did the Romans found the City of London?", "gold": ["Londinium"], "document": "their_own.txt"},
+    {"question": "What does Article 4 of the Universal Declaration of Human Rights forbid?", "gold": ["slavery"], "document": "declaration.txt"},
+    {"question": "What does the Universal Declaration of Human Rights say about elementary education?", "gold": ["compulsory"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["What is the boiling point of mercury?", "How do I bake sourdough bread at home?", "Which company built the first hotel on the summit of Mount Everest?"]
+  },
+  "ar": {
+   "answerable": [
+    {"question": "كم يبلغ ارتفاع جبل إفرست عن سطح البحر؟", "gold": ["8848"], "document": "everest.txt"},
+    {"question": "من هما المتسلقان اللذان وصلا إلى قمة إفرست بعد ثلاث سنوات من ترخيص نيبال بالوصول إليها؟", "gold": ["هيلاري", "نورجاي"], "document": "everest.txt"},
+    {"question": "ما هي هلوسة الذكاء الاصطناعي؟", "gold": ["خاطئة", "مختلقة"], "document": "hallucination.txt"},
+    {"question": "ما الرقم الذي قد يخترعه بوت الدردشة عن عائدات شركة تسلا؟", "gold": ["13.6"], "document": "hallucination.txt"},
+    {"question": "كم يبلغ عدد سكان منطقة القاهرة الكبرى حسب إحصائيات عام 2021؟", "gold": ["21,322,750", "21322750"], "document": "their_own.txt"},
+    {"question": "من الذي أنشأ مدينة الفسطاط؟", "gold": ["عمرو بن العاص"], "document": "their_own.txt"},
+    {"question": "ماذا تحظر المادة 4 من الإعلان العالمي لحقوق الإنسان؟", "gold": ["استرقاق", "استعباد", "الرق"], "document": "declaration.txt"},
+    {"question": "ماذا يقول الإعلان العالمي لحقوق الإنسان عن التعليم الأولي؟", "gold": ["إلزامي"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["ما هي درجة غليان الزئبق؟", "كيف أخبز خبز العجين المخمر في المنزل؟", "ما الشركة التي بنت أول فندق على قمة جبل إفرست؟"]
+  },
+  "es": {
+   "answerable": [
+    {"question": "¿Cuál es la altitud del monte Everest?", "gold": ["8848,86", "8848.86"], "document": "everest.txt"},
+    {"question": "¿Qué altura tiene el pico Lhotse?", "gold": ["8516"], "document": "everest.txt"},
+    {"question": "¿Qué otros nombres recibe una alucinación en inteligencia artificial?", "gold": ["confabulación", "delirio"], "document": "hallucination.txt"},
+    {"question": "¿Qué cifra falsa podría dar un chatbot sobre los ingresos de Tesla?", "gold": ["13 600", "13.600", "13600"], "document": "hallucination.txt"},
+    {"question": "¿Cuántos habitantes tiene el municipio de Madrid según el INE 2025?", "gold": ["3 506 730", "3.506.730", "3506730"], "document": "their_own.txt"},
+    {"question": "¿Qué ciudades europeas superan a Madrid en PIB per cápita según el informe de PwC de 2009?", "gold": ["Londres", "París", "Moscú"], "document": "their_own.txt"},
+    {"question": "¿Qué prohíbe el artículo 4 de la Declaración Universal de los Derechos Humanos?", "gold": ["esclavitud"], "document": "declaration.txt"},
+    {"question": "¿Qué dice la Declaración Universal de los Derechos Humanos sobre la instrucción elemental?", "gold": ["obligatoria"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["¿Cuál es el punto de ebullición del mercurio?", "¿Cómo se hornea pan de masa madre en casa?", "¿Qué empresa construyó el primer hotel en la cima del Everest?"]
+  },
+  "fa": {
+   "answerable": [
+    {"question": "ارتفاع قله اورست از سطح دریا چقدر است؟", "gold": ["۸۸۴۸٫۸۶", "8848.86"], "document": "everest.txt"},
+    {"question": "نام انگلیسی رسمی اورست در چه سالی انتخاب شد؟", "gold": ["۱۸۶۵", "1865"], "document": "everest.txt"},
+    {"question": "توهم هوش مصنوعی چیست؟", "gold": ["پاسخ مطمئن", "نادرست"], "document": "hallucination.txt"},
+    {"question": "ربات چت ممکن است چه عددی را برای درآمد تسلا بگوید؟", "gold": ["۱۳٫۶", "13.6"], "document": "hallucination.txt"},
+    {"question": "جمعیت تهران در برآورد سال ۱۴۰۱ چقدر بوده است؟", "gold": ["۹٬۰۳۹٬۰۰۰", "9,039,000", "9039000"], "document": "their_own.txt"},
+    {"question": "قدمت اسکلت‌های انسانی کشف‌شده در تهران چند سال است؟", "gold": ["۷۰۰۰", "7000"], "document": "their_own.txt"},
+    {"question": "ماده ۴ اعلامیه جهانی حقوق بشر چه چیزی را منع می‌کند؟", "gold": ["بردگی", "برده"], "document": "declaration.txt"},
+    {"question": "اعلامیه جهانی حقوق بشر درباره آموزش ابتدایی چه می‌گوید؟", "gold": ["اجباری"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["نقطه جوش جیوه چند درجه است؟", "چگونه در خانه نان خمیر ترش بپزم؟", "کدام شرکت نخستین هتل را روی قله اورست ساخت؟"]
+  },
+  "fr": {
+   "answerable": [
+    {"question": "En quelle année des Européens ont-ils aperçu l'Everest pour la première fois ?", "gold": ["1847"], "document": "everest.txt"},
+    {"question": "En l'honneur de qui l'Everest a-t-il été nommé ?", "gold": ["George Everest"], "document": "everest.txt"},
+    {"question": "Qu'est-ce qu'une hallucination en intelligence artificielle générative ?", "gold": ["fausse", "trompeuse"], "document": "hallucination.txt"},
+    {"question": "Vers quelle année le terme hallucination a-t-il pris de l'importance en intelligence artificielle ?", "gold": ["2022"], "document": "hallucination.txt"},
+    {"question": "Sur quel fleuve Paris est-elle située ?", "gold": ["Seine"], "document": "their_own.txt"},
+    {"question": "Quel peuple gaulois occupait le site de Paris ?", "gold": ["Parisii"], "document": "their_own.txt"},
+    {"question": "Que interdit l'article 4 de la Déclaration universelle des droits de l'homme ?", "gold": ["esclavage"], "document": "declaration.txt"},
+    {"question": "Que dit la Déclaration universelle des droits de l'homme sur l'enseignement élémentaire ?", "gold": ["obligatoire"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["Quel est le point d'ébullition du mercure ?", "Comment faire du pain au levain à la maison ?", "Quelle entreprise a construit le premier hôtel au sommet de l'Everest ?"]
+  },
+  "ru": {
+   "answerable": [
+    {"question": "Какова высота Джомолунгмы?", "gold": ["8848,86", "8848.86"], "document": "everest.txt"},
+    {"question": "В каком году Эверест впервые определён как высочайшая гора планеты?", "gold": ["1852"], "document": "everest.txt"},
+    {"question": "Что такое галлюцинация в искусственном интеллекте?", "gold": ["уверенная реакция", "вымышленн", "не соответствующ"], "document": "hallucination.txt"},
+    {"question": "Какое число для доходов Tesla может выбрать чат-бот?", "gold": ["13,6"], "document": "hallucination.txt"},
+    {"question": "Какова численность населения Москвы в 2025 году?", "gold": ["13 274 285", "13274285"], "document": "their_own.txt"},
+    {"question": "К какому году относится первое письменное упоминание о Москве?", "gold": ["1147"], "document": "their_own.txt"},
+    {"question": "Что запрещает статья 4 Всеобщей декларации прав человека?", "gold": ["рабств"], "document": "declaration.txt"},
+    {"question": "Что Всеобщая декларация прав человека говорит о начальном образовании?", "gold": ["обязательн"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["Какова температура кипения ртути?", "Как испечь хлеб на закваске дома?", "Какая компания построила первый отель на вершине Эвереста?"]
+  },
+  "zh": {
+   "answerable": [
+    {"question": "珠穆朗玛峰的海拔是多少？", "gold": ["8848.86"], "document": "everest.txt"},
+    {"question": "珠穆朗玛峰全年平均温度是多少？", "gold": ["-29"], "document": "everest.txt"},
+    {"question": "人工智能领域中的幻觉是什么？", "gold": ["虚假", "误导"], "document": "hallucination.txt"},
+    {"question": "Meta 在哪一天发布了卡拉狄加的演示版本？", "gold": ["11月15日", "11月 15日"], "document": "hallucination.txt"},
+    {"question": "北京有多少项世界遗产？", "gold": ["8项", "8 项", "八项"], "document": "their_own.txt"},
+    {"question": "哪五个朝代在北京定都？", "gold": ["辽、金、元、明、清", "辽"], "document": "their_own.txt"},
+    {"question": "《世界人权宣言》第四条禁止什么？", "gold": ["奴隶", "奴役"], "document": "declaration.txt"},
+    {"question": "《世界人权宣言》对初级教育有什么规定？", "gold": ["义务"], "document": "declaration.txt"}
+   ],
+   "unanswerable": ["水银的沸点是多少？", "如何在家烤酸面包？", "哪家公司在珠穆朗玛峰顶建造了第一家酒店？"]
+  }
+ }
+}
