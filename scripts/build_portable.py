@@ -34,7 +34,7 @@ ENVIRONMENT_BYTES = 2_000_000_000
 SPARE_BYTES = 1_000_000_000
 LEFT_OUT = {
     ".git", ".pytest_cache", ".venv", "data/features", "dist", "eval/predictions", "layers-originals", "runtime/hf/hub/.locks",
-    "runtime/hf/xet", "runtime/logs", "runtime/online", "runtime/python/.temp", "web/node_modules",
+    "runtime/hf/xet", "runtime/logs", "runtime/npm-cache", "runtime/online", "runtime/python/.temp", "runtime/rag-eval", "web/node_modules",
 }
 LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt")
 KEPT_DATA = (

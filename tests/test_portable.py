@@ -46,6 +46,7 @@ def test_keys_logs_caches_and_raw_data_stay_out(install):
         "runtime/online/usage.json", "runtime/hf/xet/logs/x.log", "runtime/hf/hub/.locks/m/a.lock", "runtime/hf/.agent_harnesses.json", "runtime/hf/hub/m/model.safetensors.part",
         "runtime/opened-truth-guardian-hhem-fast.zip.txt", "runtime/python/.temp/x", "data/raw/ragtruth/response.jsonl", "data/raw/nltk_data/corpora/source.zip",
         "data/processed/ragtruth_train.jsonl", "data/processed/locked/ragtruth_test.jsonl", "data/features/nli/x.jsonl", "eval/predictions/x.jsonl",
+        "runtime/rag-eval/en-all.sqlite", "runtime/npm-cache/_cacache/index",
     ]
     write(install, *left_out, "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json")
     chosen = builder.select(install)
@@ -205,6 +206,15 @@ def test_the_installer_refuses_a_non_latin_folder_before_downloading_anything(tm
     done = subprocess.run(f'cmd /d /s /c ""{folder / "Install-Truth-Guardian.bat"}""', capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, stdin=subprocess.DEVNULL)
     assert done.returncode == 1 and "non-Latin" in done.stdout and "Project source" not in done.stdout
     assert not (folder / "TruthGuardian").exists()
+
+
+@windows
+def test_the_installer_will_not_make_a_second_copy_inside_a_project_folder(tmp_path):
+    shutil.copyfile(ROOT / "Install-Truth-Guardian.bat", tmp_path / "Install-Truth-Guardian.bat")
+    (tmp_path / "TruthGuardian.bat").write_text("@echo off\r\n", encoding="ascii")
+    done = subprocess.run(f'cmd /d /s /c ""{tmp_path / "Install-Truth-Guardian.bat"}""', capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, stdin=subprocess.DEVNULL)
+    assert done.returncode == 1 and "second copy" in done.stdout and "Project source" not in done.stdout
+    assert not (tmp_path / "TruthGuardian").exists()
 
 
 def test_a_name_too_long_for_the_folder_the_starter_allows_stops_the_build(install, tmp_path, monkeypatch):

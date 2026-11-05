@@ -322,6 +322,25 @@ Every dataset is converted to one JSONL format defined in `src/truth_guardian/sc
 Each line is a `Sample`: question, documents, answer, optional evidence and agent log, labels and meta.
 `meta.group_id` ties samples that share a source; a group never crosses train/dev/test splits.
 
+## Project layout
+
+One folder holds everything, and nothing that belongs to the project lies beside it (D-171).
+
+| Path | What it holds | In git |
+|---|---|---|
+| `src/truth_guardian/` | the Guardian, the RAG (`rag/`), the readers (`media/`), the web app (`web/`) | yes |
+| `web/` | the front end's source; `npm run build` writes `src/truth_guardian/web/static` | yes |
+| `tests/`, `scripts/`, `eval/`, `benchmark/`, `docs/`, `deploy/` | tests, tools, measures and their results, TG-Bench, documents, the package's starter | yes |
+| `models/` | the trained fusion models and profiles; the exact-word detector and the fast HHEM are downloaded | partly |
+| `data/` | datasets, cached examples, the document library | no |
+| `runtime/` | uv, Python, the package cache, the language models, the readers; `rag-eval/` and `npm-cache/` are working files that stay out of the package | no |
+| `.venv/` | built by the launcher from `runtime/`, for this folder only | no |
+| `dist/` | the judges' package, written by `scripts/build_portable.py` | no |
+
+To keep it this way: use a branch, not a second clone or copy; keep lasting working files under `runtime/` and add any new
+folder there to `LEFT_OUT` in `scripts/build_portable.py`; test a package in a temporary folder and remove it afterwards.
+`Install-Truth-Guardian.bat` is for an empty folder on a new computer and stops if it finds the project next to it.
+
 ## Documentation
 
 - `docs/AI_USAGE.md`: AI tools used, by whom, for what, and how outputs were verified

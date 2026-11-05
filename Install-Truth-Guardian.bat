@@ -18,6 +18,8 @@ set "CURL=%SystemRoot%\System32\curl.exe"
 set "TAR=%SystemRoot%\System32\tar.exe"
 set "NEED_GB=15"
 
+if exist "%CD%\TruthGuardian.bat" goto inside_project
+
 echo.
 echo   Truth Guardian installer
 echo   Downloads the project and its models, installs them into the folder below and starts the app.
@@ -178,6 +180,15 @@ goto fail
 echo   This folder's path has non-Latin letters, which tar and the models' libraries cannot read.
 echo   Move this file to a folder such as D:\TG and run it again.
 goto fail
+
+:inside_project
+echo.
+echo   This folder already holds the project, and installing here would make a second copy of it.
+echo   Start the app with TruthGuardian.bat. To install on a new computer, copy this file alone to an empty folder.
+echo.
+pause
+endlocal
+exit /b 1
 
 :fail
 echo.
