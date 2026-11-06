@@ -1,0 +1,87 @@
+{
+  "model": "20261028-222630-ensemble",
+  "per_language": 60,
+  "shown_as_grounded_below": 0.41310449267224303,
+  "languages": {
+    "es": {
+      "0": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.75,
+        "wrong_shown_as_grounded": 0.15,
+        "auroc": 0.5330555555555556
+      },
+      "3": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.6333333333333333,
+        "wrong_shown_as_grounded": 0.23333333333333334,
+        "auroc": 0.5852777777777777
+      },
+      "6": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.6666666666666666,
+        "wrong_shown_as_grounded": 0.2,
+        "auroc": 0.5944444444444444
+      }
+    },
+    "ar": {
+      "0": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.7833333333333333,
+        "wrong_shown_as_grounded": 0.21666666666666667,
+        "auroc": 0.4788888888888889
+      },
+      "3": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.6833333333333333,
+        "wrong_shown_as_grounded": 0.25,
+        "auroc": 0.5419444444444445
+      },
+      "6": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.7333333333333333,
+        "wrong_shown_as_grounded": 0.16666666666666666,
+        "auroc": 0.5680555555555555
+      }
+    },
+    "ru": {
+      "0": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.8,
+        "wrong_shown_as_grounded": 0.15,
+        "auroc": 0.5408333333333334
+      },
+      "3": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.5833333333333334,
+        "wrong_shown_as_grounded": 0.25,
+        "auroc": 0.6655555555555557
+      },
+      "6": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.5333333333333333,
+        "wrong_shown_as_grounded": 0.25,
+        "auroc": 0.6905555555555555
+      }
+    },
+    "zh": {
+      "0": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.8166666666666667,
+        "wrong_shown_as_grounded": 0.13333333333333333,
+        "auroc": 0.5177777777777778
+      },
+      "3": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.5333333333333333,
+        "wrong_shown_as_grounded": 0.2833333333333333,
+        "auroc": 0.6472222222222223
+      },
+      "6": {
+        "answers": 60,
+        "right_not_shown_as_grounded": 0.48333333333333334,
+        "wrong_shown_as_grounded": 0.31666666666666665,
+        "auroc": 0.6811111111111111
+      }
+    }
+  }
+}
