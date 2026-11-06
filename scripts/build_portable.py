@@ -147,9 +147,10 @@ def build(root: Path, out: Path, limit: int | None = None) -> list[Path]:
     verify(parts, chosen)
     unpacked = sum(source.stat().st_size for source in chosen.values())
     need_gb = math.ceil((unpacked + ENVIRONMENT_BYTES + SPARE_BYTES) / 2**30)
-    build_id = time.strftime("%Y%m%d-%H%M")
+    sums = "".join(f"{sha256_of(part)}  {part.name}\n" for part in parts)
+    build_id = time.strftime("%Y%m%d-%H%M") + "-" + hashlib.sha256(sums.encode("ascii")).hexdigest()[:8]
     (packages / "package.txt").write_text(f"BUILD={build_id}\nPARTS={len(parts)}\nNEED_GB={need_gb}\n", encoding="ascii", newline="\r\n")
-    (packages / "SHA256SUMS.txt").write_text("".join(f"{sha256_of(part)}  {part.name}\n" for part in parts), encoding="ascii", newline="\r\n")
+    (packages / "SHA256SUMS.txt").write_text(sums, encoding="ascii", newline="\r\n")
     shutil.copyfile(TEMPLATE / STARTER, out / STARTER)
     guide = (TEMPLATE / GUIDE).read_text(encoding="utf-8").replace("{need_gb}", str(need_gb)).replace("{build}", build_id)
     (out / GUIDE).write_text(guide, encoding="utf-8-sig", newline="\r\n")

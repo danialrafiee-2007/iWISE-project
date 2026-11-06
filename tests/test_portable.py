@@ -108,6 +108,15 @@ def test_a_build_replaces_an_earlier_package_but_never_another_folder(install, t
     assert (other / "keep.txt").exists()
 
 
+def test_two_packages_built_in_the_same_minute_never_share_a_build(install, tmp_path, monkeypatch):
+    monkeypatch.setattr(builder.time, "strftime", lambda *_: "20261106-1742")
+    builder.build(install, tmp_path / "a")
+    write(install, "models/extra.txt")
+    builder.build(install, tmp_path / "b")
+    builds = [(tmp_path / name / "packages" / "package.txt").read_text(encoding="ascii").split("BUILD=")[1].split()[0] for name in "ab"]
+    assert builds[0].startswith("20261106-1742-") and builds[0] != builds[1]
+
+
 def start(package: Path, *args: str, **env) -> subprocess.CompletedProcess:
     """SystemDrive points at a folder of the test, so that nothing here can ever unpack on the real system drive."""
     command = f'cmd /d /s /c ""{package / builder.STARTER}" {" ".join(args)}"'
@@ -115,12 +124,31 @@ def start(package: Path, *args: str, **env) -> subprocess.CompletedProcess:
     return subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, stdin=subprocess.DEVNULL, env={**os.environ, **sandbox})
 
 
+def short_package_folder() -> tuple[Path, Path] | None:
+    """A folder whose TruthGuardian folder the starter keeps beside it; past its limit, or in non-Latin letters, it would unpack at the top of the real drive."""
+    roots = [tempfile.gettempdir()]
+    if os.environ.get("LOCALAPPDATA"):
+        roots.append(os.path.join(os.environ["LOCALAPPDATA"], "Temp"))
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        base = Path(tempfile.mkdtemp(prefix="tg", dir=root))
+        out = base / "A (b)" / "p"
+        target = str(out / "TruthGuardian")
+        if len(target) <= builder.LONGEST_FOLDER and target.isascii():
+            return base, out
+        shutil.rmtree(base, ignore_errors=True)
+    return None
+
+
 @pytest.fixture
 def package(install) -> Path:
     """In a short folder with a space and brackets in its name: pytest's own folders are too long for unpacking next to the file."""
     write(install, *[f"models/file{i}.txt" for i in range(10)])
-    base = Path(tempfile.mkdtemp(prefix="tg", dir=tempfile.gettempdir()))
-    out = base / "A (b)" / "p"
+    folder = short_package_folder()
+    if folder is None:
+        pytest.skip(f"no temporary folder is short enough for the starter's {builder.LONGEST_FOLDER}-character limit")
+    base, out = folder
     parts = builder.build(install, out, limit=1500)
     assert len(parts) > 2
     yield out
