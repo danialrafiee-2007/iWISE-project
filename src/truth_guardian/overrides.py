@@ -3,7 +3,8 @@
 A confirmed polarity contradiction (an answer sentence that restates a source sentence with the opposite
 meaning, confirmed by NLI) is rare in natural answers but almost always a real error, so it is applied
 after the learned model rather than learned from data that barely contains it. A role swap found by the parse
-(shifts.py) is treated the same way, with a fixed score, since NLI largely ignores word order. A confirmed flip
+(shifts.py) is treated the same way, with a fixed score, since NLI largely ignores word order. A value of the sources
+put on the wrong subject (values.py) raises its sentence to NLI's contradiction, as a polarity finding does. A confirmed flip
 (flips.py) raises the sentence to the entailment of its flipped version when the word was turned into its opposite,
 and to a fixed overclaim score when the answer was stronger or more certain than the sources.
 """
@@ -28,6 +29,11 @@ def apply_shifts(prediction: Prediction, shift_rows: list[dict]) -> Prediction:
         (r["start"], r["end"]): ROLE_SWAP_SCORE if r.get("shift_overrides") else OVERCLAIM_SCORE
         for r in shift_rows if r.get("shift_confirmed")
     })
+
+
+def apply_values(prediction: Prediction, value_rows: list[dict]) -> Prediction:
+    """Raise a sentence to NLI's contradiction when another value of its source sentence makes the source entail it."""
+    return _raise(prediction, {(r["start"], r["end"]): r["val_contradiction"] for r in value_rows if r.get("val_confirmed")})
 
 
 def apply_flips(prediction: Prediction, flip_rows: list[dict]) -> Prediction:
@@ -61,7 +67,7 @@ def cached_predictions(model, dataset: Path, features_dir: Path) -> tuple[list, 
     samples = list(read_jsonl(dataset))
     rows = load_rows(model.signals, dataset, features_dir)
     predictions = {p.id: p for p in model.predictions(samples, fusion.build_table(samples, rows, model.signals, model.structure))}
-    for signal, apply in (("polarity", apply_polarity), ("shifts", apply_shifts), ("flips", apply_flips)):
+    for signal, apply in (("polarity", apply_polarity), ("shifts", apply_shifts), ("flips", apply_flips), ("values", apply_values)):
         if (features_dir / signal / f"{dataset.stem}.jsonl").exists():
             extra = load_rows([signal], dataset, features_dir)[signal]
             predictions = {k: apply(p, extra[k]) for k, p in predictions.items()}

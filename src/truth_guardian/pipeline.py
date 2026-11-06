@@ -1,7 +1,7 @@
 """Live analysis of one answer: compute signals, score with a saved fusion model, apply overrides, build the report.
 
 Around the score it adds the atomic claim carrying each error, meaning shifts (swapped roles override the score;
-overclaims become cautions), conflicts between sources, citation checks, the key evidence the answer leaves out,
+overclaims become cautions), values of the sources put on the wrong subject (values.py), conflicts between sources, citation checks, the key evidence the answer leaves out,
 who is to blame (retriever, generator or conflicting sources), the conformal guarantee, the triage lane, the
 reliability card, each claim's contribution to the answer's risk and, for agent trajectories, the step timeline
 with the guardian's alerts. A domain profile (adapt.py) replaces the RAGTruth calibration for another domain.
@@ -13,7 +13,7 @@ so any question, sources and answer can be checked.
 
 from collections.abc import Callable
 
-from truth_guardian import citations, completeness, conflicts, diagnosis, models, multicheck
+from truth_guardian import citations, completeness, conflicts, diagnosis, models, multicheck, values
 from truth_guardian.card import build_card
 from truth_guardian.claims import localize
 from truth_guardian.correct import suggest
@@ -25,7 +25,7 @@ from truth_guardian.guardian import Policy, replay
 from truth_guardian.heal import Healing
 from truth_guardian.heal import heal as heal_answer
 from truth_guardian.detector import shipped as shipped_detector
-from truth_guardian.overrides import apply_flips, apply_polarity, apply_shifts, with_words
+from truth_guardian.overrides import apply_flips, apply_polarity, apply_shifts, apply_values, with_words
 from truth_guardian.report import DomainReport, LanguageReport, Report, agent_report, build_report, completeness_report, verdict, with_diagnosis, with_guarantee, with_triage
 from truth_guardian.triage import BLOCK_FALSE_ALARM
 from truth_guardian.triage import Policy as TriagePolicy
@@ -77,6 +77,8 @@ def _risk(sample: Sample, model, per_signal: dict[str, list[dict]], keep: list[i
         prediction = apply_shifts(prediction, [per_signal["shifts"][i] for i in keep])
     if "flips" in per_signal:
         prediction = apply_flips(prediction, [per_signal["flips"][i] for i in keep])
+    if "values" in per_signal:
+        prediction = apply_values(prediction, [per_signal["values"][i] for i in keep])
     return prediction.score
 
 
@@ -104,6 +106,7 @@ def analyze(
     guardian_policy: Policy = "strict",
     use_shifts: bool = True,
     use_flips: bool = True,
+    use_values: bool = True,
     use_detector: bool = True,
     classify=None,
     calibration: Calibration | None = None,
@@ -124,6 +127,7 @@ def analyze(
     classify = classify or models.nli_probabilities
     progress = progress or (lambda stage: None)
     overrides = [*(["polarity"] if use_polarity else []), *(["shifts"] if use_shifts else []), *(["flips"] if use_flips else [])]
+    overrides += ["values"] if use_values else []
     overrides += ["detector"] if use_detector and shipped_detector() is not None else []
     signal_fns = signal_fns or {name: SIGNALS[name][1] for name in [*model.signals, *overrides]}
     per_signal = {}
@@ -139,13 +143,15 @@ def analyze(
         prediction = apply_shifts(prediction, per_signal["shifts"])
     if use_flips and "flips" in per_signal:
         prediction = apply_flips(prediction, per_signal["flips"])
+    if use_values and "values" in per_signal:
+        prediction = apply_values(prediction, per_signal["values"])
     if "detector" in per_signal:
         prediction = with_words(prediction, per_signal["detector"])
 
     progress("claims")
     merged = [{k: v for name in per_signal for k, v in per_signal[name][i].items()} for i in range(len(sentences))]
     flagged = {(s.start, s.end) for s in prediction.sentences if s.score >= model.thresholds["sentence"]}
-    fixes = [suggest(sample, s) if (s.start, s.end) in flagged else [] for s in sentences]
+    fixes = [values.fixes(row) + suggest(sample, s) if (s.start, s.end) in flagged else [] for s, row in zip(sentences, merged)]
     premise_for = lambda text: premises(sample, [Sentence(0, len(text), text)])[0]
     focus = [localize(s, row, premise_for, consistency) if (s.start, s.end) in flagged else [] for s, row in zip(sentences, merged)]
     agent = None

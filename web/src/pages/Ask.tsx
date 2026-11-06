@@ -32,7 +32,7 @@ const MAX_HISTORY = 20;
 const TRIES = ["ask.try1", "ask.try2", "ask.try3"] as const;
 // The server's own words for these; anything else it says is shown as it came.
 const NOTE: Record<string, MessageKey> = { "the model cited a document it was not given; that citation was removed": "ask.citedInvented", "the agent could not finish by itself, so this is the answer without its steps": "run.fellBack" };
-const REASON: Record<string, MessageKey> = { "a number is not in the documents": "ask.reason.number", "no passage is close to this sentence": "ask.reason.far" };
+const REASON: Record<string, MessageKey> = { "a number is not in the documents": "ask.reason.number", "a day or month is not in the documents": "ask.reason.calendar", "no passage is close to this sentence": "ask.reason.far" };
 
 function statusOf(answer: RagAnswer, t: (key: MessageKey) => string): { label: string; color: string } {
   if (answer.status === "checked" && answer.report) return VERDICT[answer.report.verdict];

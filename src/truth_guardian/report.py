@@ -297,6 +297,8 @@ def claim_report(
         evidence = Evidence(text=row["pol_evidence"])
     elif row.get("shift_overrides") and row.get("shift_evidence"):
         evidence = Evidence(text=row["shift_evidence"])
+    elif row.get("val_confirmed") and row.get("val_evidence"):
+        evidence = Evidence(text=row["val_evidence"])
     elif row.get("m_evidence"):  # the multilingual check's closest passage: word matching fails across languages
         evidence = Evidence(text=row["m_evidence"])
     else:

@@ -134,6 +134,24 @@ def flips(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     ]
 
 
+def values(sample: Sample, sentences: list[Sentence]) -> list[dict]:
+    from truth_guardian.values import check_sample as value_check
+
+    return [
+        {
+            "val_tries": c.tries,
+            "val_confirmed": int(c.confirmed),
+            "val_contradiction": c.contradiction,
+            "val_entailment": c.entailment,
+            "val_spans": [list(c.span)] if c.confirmed else [],
+            "val_original": c.original,
+            "val_replacement": c.replacement,
+            "val_evidence": c.evidence,
+        }
+        for c in value_check(sample, sentences)
+    ]
+
+
 def detector(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     """Token probabilities of the trained detector (detector.py), as absolute character ranges in the answer."""
     from truth_guardian.detector import shipped
@@ -159,6 +177,12 @@ def _flip_version() -> str:
     from truth_guardian.flips import ACTIVE, MAX_FLIPS, MIN_FLIPPED_ENTAILMENT, MIN_GAIN
 
     return f"v1:wordnet3.0:{models.NLI_MODEL}:top{PREMISE_SENTENCES}:max{MAX_FLIPS}:" + ":".join(f"{k}{MIN_FLIPPED_ENTAILMENT[k]}-{MIN_GAIN[k]}" for k in ACTIVE)
+
+
+def _value_version() -> str:
+    from truth_guardian.values import CANDIDATES, CONFIRM_CONTRADICTION, CONFIRM_CONTRAST, CONFIRM_ENTAILMENT, HOLDING_ENTAILMENT, MIN_OVERLAP
+
+    return f"v1:{models.NLI_MODEL}:top{CANDIDATES}:overlap{MIN_OVERLAP}:e{CONFIRM_ENTAILMENT}:c{CONFIRM_CONTRADICTION}:x{CONFIRM_CONTRAST}:h{HOLDING_ENTAILMENT}"
 
 
 def _shift_version() -> str:
@@ -197,6 +221,7 @@ SIGNALS: dict[str, tuple[str, Callable]] = {
     "polarity": (f"v2:wordnet3.0:{models.NLI_MODEL}:overlap0.65:ratio2.5:confirm0.8", polarity),
     "shifts": (_shift_version(), shifts),
     "flips": (_flip_version(), flips),
+    "values": (_value_version(), values),
     "detector": (_detector_version(), detector),
     "multilingual": (multicheck.version(), multicheck.signal),
 }

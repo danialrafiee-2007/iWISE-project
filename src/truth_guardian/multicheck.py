@@ -30,6 +30,7 @@ from truth_guardian.text import Sentence, split_sentences
 
 EVIDENCE_WORDS = 40  # a longer unit is cut into pieces of this many words (Chinese: this many characters, times two)
 PREMISE_UNITS = 2
+SHORT_ANSWER_WORDS = 0  # an answer of at most this many words (Chinese: characters, halved) is read after its question
 BATCH = 8
 # Answer languages with labelled answers in the check's dev set; Russian has none (XQuAD's edits are not real answers).
 MEASURED = ("en", "ar", "es", "fr", "zh")
@@ -140,7 +141,7 @@ def explain(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     evidence = [u for d in sample.documents for u in units(d.text)]
     context = " ".join([sample.question or "", *(d.text for d in sample.documents)])
     known = set().union(*numbers(context)) if context.strip() else set()
-    similarity = _embed(_without_citations(sentences), "query") @ _embed(evidence, "passage").T if evidence and sentences else None
+    similarity = _embed(_read(sample, sentences), "query") @ _embed(evidence, "passage").T if evidence and sentences else None
     rows = []
     for k, s in enumerate(sentences):
         ranked = [evidence[int(i)] for i in np.argsort(-similarity[k])[:3]] if similarity is not None else []
@@ -223,6 +224,18 @@ def _without_citations(sentences: list[Sentence]) -> list[str]:
     return [_CITATION.sub("", s.text).strip() or s.text for s in sentences]
 
 
+def short(answer: str) -> bool:
+    plain = _CITATION.sub("", answer)
+    size = len(_HAN.findall(plain)) / 2 if _HAN.search(plain) else len(plain.split())
+    return 0 < size <= SHORT_ANSWER_WORDS
+
+
+def _read(sample: Sample, sentences: list[Sentence]) -> list[str]:
+    """The sentences as the models read them: a short answer, such as "308", after its question, which gives it its meaning."""
+    texts = _without_citations(sentences)
+    return [f"{sample.question} {t}" for t in texts] if sample.question and short(sample.answer) else texts
+
+
 def signal(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     if not sentences:
         return []
@@ -231,7 +244,7 @@ def signal(sample: Sample, sentences: list[Sentence]) -> list[dict]:
     known = set().union(*numbers(context)) if context.strip() else set()
     known_words = content_words(context)
     source_script = script(" ".join(d.text for d in sample.documents))[0]
-    texts = _without_citations(sentences)
+    texts = _read(sample, sentences)
     if evidence:
         similarity = _embed(texts, "query") @ _embed(evidence, "passage").T
         nearest = [sorted(np.argsort(-row)[:PREMISE_UNITS]) for row in similarity]

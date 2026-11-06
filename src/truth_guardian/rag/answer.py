@@ -20,6 +20,7 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from truth_guardian import multicheck
+from truth_guardian.dates import calendar
 from truth_guardian.heal import Healing
 from truth_guardian.language import detect
 from truth_guardian.pipeline import make_sample
@@ -207,14 +208,15 @@ def _healed_well(healing: Healing, before: str) -> bool:
 
 
 def light_check(text: str, hits: list[Hit], encode: Callable[[list[str], str], np.ndarray] | None = None) -> list[LightClaim]:
-    """For a language no check reads. Numbers are read alike in every script and multilingual E5 reads across languages, so
-    these two work without any labelled answers; they cannot see a wrong claim made of words the passages hold."""
+    """For a language no check reads. Numbers, weekdays and months are read alike in every script and multilingual E5 reads
+    across languages, so these work without any labelled answers; they cannot see a wrong claim made of words the passages hold."""
     encode = encode or multicheck._embed
     sentences = split_sentences(text)
     if not sentences:
         return []
     context = " ".join(hit.text for hit in hits)
     known = set().union(*multicheck.numbers(context)) if context.strip() else set()
+    named = calendar(context)
     units = [unit for hit in hits for unit in multicheck.units(hit.text)]
     closest = (encode([_MARK.sub("", s.text) for s in sentences], "query") @ encode(units, "passage").T).max(axis=1) if units else np.zeros(len(sentences))
     claims = []
@@ -222,6 +224,8 @@ def light_check(text: str, hits: list[Hit], encode: Callable[[list[str], str], n
         reasons = []
         if any(not (forms & known) for forms in multicheck.numbers(sentence.text)):
             reasons.append("a number is not in the documents")
+        if calendar(sentence.text) - named:
+            reasons.append("a day or month is not in the documents")
         if similarity < LIGHT_LINE:
             reasons.append("no passage is close to this sentence")
         claims.append(LightClaim(start=sentence.start, end=sentence.end, text=sentence.text, status="doubtful" if reasons else "close", reasons=reasons))

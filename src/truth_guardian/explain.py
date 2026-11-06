@@ -25,6 +25,10 @@ def explain_sentence(row: dict, start: int, end: int) -> Explanation:
     if row.get("shift_overrides", 0):
         spans = [tuple(span) for span in row.get("shift_spans", [])] or [(start, end)]
         return Explanation(HallucinationType.CONTRADICTED, spans, f"it swaps who did what: {row.get('shift_detail', '')}")
+    if row.get("val_confirmed", 0):
+        spans = [tuple(span) for span in row.get("val_spans", [])] or [(start, end)]
+        other = f": the source it restates has {row['val_replacement']} here" if row.get("val_replacement") else ""
+        return Explanation(HallucinationType.CONTRADICTED, spans, f"it puts a value of the sources on the wrong subject{other}")
     if row.get("shift_confirmed", 0):
         spans = [tuple(span) for span in row.get("shift_spans", [])] or [(start, end)]
         return Explanation(HallucinationType.OVERCLAIM, spans, f"it claims more than the sources: {row.get('shift_detail', '')}")

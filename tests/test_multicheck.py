@@ -58,3 +58,15 @@ def test_the_signal_reads_premises_numbers_and_scripts_per_sentence(monkeypatch)
     assert [r["m_lex_cross"] for r in rows] == [0, 1]
     assert rows[0]["m_nli_contradiction"] == 0.7 and len(seen) == 2
     assert seen[0] == ("El museo abrió en 1945. Es el edificio más antiguo.", "El museo abrió en 1944.")
+
+
+def test_a_short_answer_is_read_after_its_question_and_a_longer_one_alone(monkeypatch):
+    seen = []
+    monkeypatch.setattr(multicheck, "SHORT_ANSWER_WORDS", 6)
+    monkeypatch.setattr(multicheck, "_embed", lambda texts, kind: np.eye(len(texts), 4))
+    monkeypatch.setattr(multicheck, "nli", lambda pairs: seen.extend(h for _, h in pairs) or np.tile([0.1, 0.8, 0.1], (len(pairs), 1)))
+    source = ["Los Panthers dejaron escapar 308 puntos en defensa."]
+    multicheck.signal(make_sample("308 [1]", source, "¿Cuántos puntos dejaron escapar los Panthers?"), split_sentences("308 [1]"))
+    longer = "Los Panthers dejaron escapar 308 puntos en defensa durante la temporada."
+    multicheck.signal(make_sample(longer, source, "¿Cuántos puntos?"), split_sentences(longer))
+    assert seen == ["¿Cuántos puntos dejaron escapar los Panthers? 308", longer]

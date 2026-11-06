@@ -535,3 +535,10 @@ def test_the_api_waits_for_the_guardian_before_writing(shelf):
     with TestClient(create_app(engine, ExampleStore(ROOT), load=False, library=shelf, generators={"local": writer})) as c:
         assert c.post("/api/ask", json={"question": QUESTION}).status_code == 503
     assert writer.asked == []
+
+
+def test_the_light_check_finds_a_weekday_no_passage_names_in_any_language():
+    hits = [light_hit("The library is closed on Sundays.")]
+    (wrong,) = light_check("کتابخانه شنبه‌ها تعطیل است.", hits, fake_encode_same)
+    (right,) = light_check("کتابخانه یکشنبه‌ها تعطیل است.", hits, fake_encode_same)
+    assert wrong.status == "doubtful" and "day or month" in wrong.reasons[0] and right.status == "close"

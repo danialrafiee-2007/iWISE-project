@@ -1,0 +1,160 @@
+{
+  "per_language": 100,
+  "languages": {
+    "en": {
+      "pairs": 100,
+      "auroc": 0.8893,
+      "lines": {
+        "0.75": {
+          "answering_below": 0.0,
+          "other_at_or_above": 0.84
+        },
+        "0.78": {
+          "answering_below": 0.0,
+          "other_at_or_above": 0.64
+        },
+        "0.8": {
+          "answering_below": 0.04,
+          "other_at_or_above": 0.48
+        },
+        "0.82": {
+          "answering_below": 0.09,
+          "other_at_or_above": 0.33
+        },
+        "0.84": {
+          "answering_below": 0.15,
+          "other_at_or_above": 0.21
+        }
+      }
+    },
+    "es": {
+      "pairs": 100,
+      "auroc": 0.8747999999999999,
+      "lines": {
+        "0.75": {
+          "answering_below": 0.01,
+          "other_at_or_above": 0.99
+        },
+        "0.78": {
+          "answering_below": 0.01,
+          "other_at_or_above": 0.82
+        },
+        "0.8": {
+          "answering_below": 0.02,
+          "other_at_or_above": 0.65
+        },
+        "0.82": {
+          "answering_below": 0.09,
+          "other_at_or_above": 0.51
+        },
+        "0.84": {
+          "answering_below": 0.13,
+          "other_at_or_above": 0.34
+        }
+      }
+    },
+    "ar": {
+      "pairs": 100,
+      "auroc": 0.8543999999999999,
+      "lines": {
+        "0.75": {
+          "answering_below": 0.01,
+          "other_at_or_above": 0.9
+        },
+        "0.78": {
+          "answering_below": 0.04,
+          "other_at_or_above": 0.62
+        },
+        "0.8": {
+          "answering_below": 0.11,
+          "other_at_or_above": 0.45
+        },
+        "0.82": {
+          "answering_below": 0.2,
+          "other_at_or_above": 0.28
+        },
+        "0.84": {
+          "answering_below": 0.29,
+          "other_at_or_above": 0.12
+        }
+      }
+    },
+    "ru": {
+      "pairs": 100,
+      "auroc": 0.8669,
+      "lines": {
+        "0.75": {
+          "answering_below": 0.01,
+          "other_at_or_above": 0.91
+        },
+        "0.78": {
+          "answering_below": 0.02,
+          "other_at_or_above": 0.69
+        },
+        "0.8": {
+          "answering_below": 0.07,
+          "other_at_or_above": 0.54
+        },
+        "0.82": {
+          "answering_below": 0.13,
+          "other_at_or_above": 0.36
+        },
+        "0.84": {
+          "answering_below": 0.28,
+          "other_at_or_above": 0.21
+        }
+      }
+    },
+    "zh": {
+      "pairs": 100,
+      "auroc": 0.8863,
+      "lines": {
+        "0.75": {
+          "answering_below": 0.0,
+          "other_at_or_above": 1.0
+        },
+        "0.78": {
+          "answering_below": 0.0,
+          "other_at_or_above": 0.99
+        },
+        "0.8": {
+          "answering_below": 0.0,
+          "other_at_or_above": 0.95
+        },
+        "0.82": {
+          "answering_below": 0.0,
+          "other_at_or_above": 0.89
+        },
+        "0.84": {
+          "answering_below": 0.02,
+          "other_at_or_above": 0.76
+        }
+      }
+    }
+  },
+  "pooled": {
+    "auroc": 0.839476,
+    "lines": {
+      "0.75": {
+        "answering_below": 0.006,
+        "other_at_or_above": 0.928
+      },
+      "0.78": {
+        "answering_below": 0.014,
+        "other_at_or_above": 0.752
+      },
+      "0.8": {
+        "answering_below": 0.048,
+        "other_at_or_above": 0.614
+      },
+      "0.82": {
+        "answering_below": 0.102,
+        "other_at_or_above": 0.474
+      },
+      "0.84": {
+        "answering_below": 0.174,
+        "other_at_or_above": 0.328
+      }
+    }
+  }
+}
