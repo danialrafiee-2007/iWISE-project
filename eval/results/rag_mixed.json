@@ -22,7 +22,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The Riverside Museum holds 12,000 books, and the Riverside Library is closed on Sunday.",
-   "seconds": 34.64,
+   "seconds": 51.86,
    "similarity": 0.8717280626296997,
    "cited": [
     "library_sign.png",
@@ -51,7 +51,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The reading room seats sixty people, and the Riverside Library opens from 9 in the morning to 5 in the afternoon. [1] [2]",
-   "seconds": 9.02,
+   "seconds": 28.47,
    "similarity": 0.8900442719459534,
    "cited": [
     "library_sign.png",
@@ -77,7 +77,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The harbour of Port Alder was built in 1890, and the mayor of Port Alder is Helena Voss. [1] [2]",
-   "seconds": 10.17,
+   "seconds": 9.01,
    "similarity": 0.8765528202056885,
    "cited": [
     "harbour_talk.wav",
@@ -103,7 +103,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "[3] Ferries leave for Brook Island every morning at 7 o'clock. [1] Adult ticket: 12 euros",
-   "seconds": 18.46,
+   "seconds": 17.19,
    "similarity": 0.8735874891281128,
    "cited": [
     "ferry_prices.png",
@@ -131,7 +131,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The Riverside Museum opened in the year 1950, and the reading room seats sixty people. [1] [2]",
-   "seconds": 7.4,
+   "seconds": 6.49,
    "similarity": 0.8699144124984741,
    "cited": [
     "museum_talk.wav",
@@ -157,7 +157,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The population of Port Alder is 48,000, and the child ferry ticket is 5 euros. [2] [3]",
-   "seconds": 8.01,
+   "seconds": 7.91,
    "similarity": 0.84699946641922,
    "cited": [
     "ferry_prices.png",
@@ -183,7 +183,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "A bicycle ticket for the ferry costs 3 euros. The harbour has four docks. The mayor of Port Alder is Helena Voss.",
-   "seconds": 4.53,
+   "seconds": 4.42,
    "similarity": 0.8699148893356323,
    "cited": [
     "ferry_prices.png",
@@ -215,7 +215,7 @@
    "status": "checked",
    "verdict": "uncertain",
    "text": "The circle in the picture is red. The Riverside Library is closed on Sunday.",
-   "seconds": 17.41,
+   "seconds": 15.71,
    "similarity": 0.8442440032958984,
    "cited": [
     "library_sign.png",
@@ -246,7 +246,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The Riverside Museum has about 300 paintings. [1]",
-   "seconds": 6.06,
+   "seconds": 5.7,
    "similarity": 0.8777256011962891,
    "cited": [
     "museum_talk.wav"
@@ -266,7 +266,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "3 euros",
-   "seconds": 14.73,
+   "seconds": 14.95,
    "similarity": 0.8504058122634888,
    "cited": [
     "ferry_prices.png"
@@ -287,8 +287,8 @@
    "question": "What colour is the circle in the picture?",
    "status": "opinion",
    "verdict": null,
-   "text": "The circle in the picture is red. [1]",
-   "seconds": 18.16,
+   "text": "The circle in the picture is red [1].",
+   "seconds": 16.42,
    "similarity": 0.8590949773788452,
    "cited": [
     "red_circle.png"
@@ -310,7 +310,7 @@
    "status": "checked",
    "verdict": "grounded",
    "text": "The mayor of Port Alder was elected in 2019. [1]",
-   "seconds": 8.69,
+   "seconds": 7.8,
    "similarity": 0.8979765176773071,
    "cited": [
     "port_alder.md"
@@ -333,7 +333,7 @@
    "verdict": null,
    "text": "The documents do not say.",
    "similarity": 0.8752883672714233,
-   "seconds": 4.54
+   "seconds": 4.46
   },
   {
    "question": "How much does a ticket to the Riverside Museum cost?",
@@ -341,7 +341,7 @@
    "verdict": null,
    "text": "The documents do not say.",
    "similarity": 0.8514777421951294,
-   "seconds": 1.68
+   "seconds": 1.51
   },
   {
    "question": "Who designed the old bridge?",

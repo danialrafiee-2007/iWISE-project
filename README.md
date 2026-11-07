@@ -169,12 +169,13 @@ is close enough, the answer says the documents do not say, without calling a mod
 the passages it was given and its verdict is shown beside it; Persian gets a lighter check, labelled as such, and an answer
 resting on the image model's description is marked as an opinion and not checked.
 
-Measured on the local model (`scripts/evaluate_answers.py`). On held-out XQuAD articles, 93 of 100 questions whose article is
-left out say the documents do not say, and the right article is shown 95 to 100% of the time. On 28 real documents in seven
-languages (`eval/rag_documents`, questions written by us), no answerable question of 56 was stopped, the expected words are in 52,
-and all 21 without an answer say so. What it does not do yet: a verdict says an answer rests on its sources, not that it answers
-the question; outside English the check calls many right answers uncertain (of 38 right answers in five languages, 17 were
-grounded); and a right number attached to the wrong subject can pass. These are the next things to strengthen.
+Measured on the local model (`scripts/evaluate_answers.py`, final run of D-172). On held-out XQuAD articles, 90 of 100
+questions whose article is left out say the documents do not say and none ends as a grounded answer, and the right article is
+shown 95 to 100% of the time. On 28 real documents in seven languages (`eval/rag_documents`, questions written by us), no
+answerable question of 56 was stopped, the expected words are in 51, and 19 of 21 without an answer say so. What it does not do:
+a verdict says an answer rests on its sources, not that it answers the question; outside English the check calls many right
+answers uncertain (of 44 right answers in six languages, 22 were grounded), and neither check can judge a bare short answer
+such as "308", so the model is asked for whole sentences (D-172).
 
 ### The agent (D-170)
 
@@ -183,8 +184,9 @@ Guardian reading each step as it happens. Its tools only read: searching the lib
 answer stating what no tool returned goes back once, and a second time ends the run with no answer shown; the finished answer is
 then checked with the agent's log. `POST /api/agent/run` streams its steps. On made-up files with the local model
 (`scripts/evaluate_agent.py`), 7 of 8 English tasks were right, sums among them, and all 3 without an answer said so, in about 30 s
-each. In Persian it is much weaker: 3 of 4 held the right words, yet with a wrong weekday and a misspelled name that its light check
-cannot see.
+each. In Persian it is much weaker: 3 of 4 held the right words, one with a wrong weekday, which the light check now marks, and
+one with a misspelled name, which it cannot see. A name the task writes in Persian no longer draws the live guardian's objection
+when the agent thinks in English: 1 of 4 Persian runs drew one, against 3 before (D-172).
 
 ### Sound and images (media readers, D-125)
 
@@ -232,26 +234,29 @@ npm run build    # writes src/truth_guardian/web/static
 
 ## Results
 
-The final model was evaluated once on each locked test set, with the thresholds chosen on RAGTruth dev; every run is
-logged in `eval/locked_runs.log` and the reports are in `eval/results`. The web app's Reliability page reads them directly.
+The locked test sets were opened twice, each time with the system as the app runs it and the thresholds chosen on RAGTruth
+dev: at the end of the Guardian's build (D-109), and after the RAG and the checks of phase 5 were added (D-172). The table
+gives the second; the fusion model is the same, only the rules around it grew. Every run is logged in `eval/locked_runs.log`
+and the reports are in `eval/results`. The web app's Reliability page reads them directly.
 
 | Locked test set | Answers | Truth Guardian AUROC | Best baseline AUROC |
 |---|---|---|---|
-| RAGTruth test | 2,700 | 0.859 [0.843, 0.874] | 0.687 (B1 lexical overlap) |
+| RAGTruth test | 2,700 | 0.856 [0.840, 0.871] (first: 0.859) | 0.687 (B1 lexical overlap) |
 | HaluEval QA (never trained on) | 1,000 | 0.933 | 0.845 (B1) |
 | HaluEval dialogue | 1,000 | 0.670 | 0.514 (B1) |
-| HaluEval summary | 1,000 | 0.694 | 0.642 (B1) |
+| HaluEval summary | 1,000 | 0.691 (first: 0.694) | 0.642 (B1) |
 
-On RAGTruth test: F1 0.721 (flagging every answer gives 0.518), character-level span F1 0.302, calibration error 0.061.
+On RAGTruth test: F1 0.717 (first: 0.721; flagging every answer gives 0.518), character-level span F1 0.325 (0.302),
+calibration error 0.069 (0.061).
 On AgentHallu (462 natural agent runs) the learned tracer finds the exact faulty step in 32% of hallucinating runs
 against 18% for a random step, but tells faithful from hallucinating runs barely better than chance (AUROC 0.53).
 
 External reference: LettuceDetect, a published detector fine-tuned on RAGTruth train itself (so RAGTruth test is its
-home ground), scored on the same answers. On RAGTruth test it ranks answers less well (AUROC 0.827 against 0.859) but
-finds the wrong words better (span F1 0.395 against 0.302); on HaluEval it scores 0.779 / 0.717 / 0.541 for QA /
-dialogue / summary against our 0.933 / 0.670 / 0.694. See D-109
+home ground), scored on the same answers. On RAGTruth test it ranks answers less well (AUROC 0.827 against 0.856) but
+finds the wrong words better (span F1 0.395 against 0.325); on HaluEval it scores 0.779 / 0.717 / 0.541 for QA /
+dialogue / summary against our 0.933 / 0.670 / 0.691. See D-109 and D-172
 
-Calibration: a risk reads as a probability on RAGTruth (calibration error 0.034 on dev, 0.061 on the locked test;
+Calibration: a risk reads as a probability on RAGTruth (calibration error 0.034 on dev, 0.069 on the locked test;
 the Reliability page shows the reliability diagram). On HaluEval, a domain the model never saw, it is 0.188 until a domain
 profile recalibrates it (D-111).
 

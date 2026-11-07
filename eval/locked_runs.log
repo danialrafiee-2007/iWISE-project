@@ -23,3 +23,7 @@
 2026-10-25T10:07:45+00:00	cda3682-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_qa.jsonl	eval/results/calibration.json
 2026-10-25T10:07:45+00:00	cda3682-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_dialogue.jsonl	eval/results/calibration.json
 2026-10-25T10:07:45+00:00	cda3682-dirty	calibration (saved predictions re-read, no model run)	data/processed/locked/halueval_summary.jsonl	eval/results/calibration.json
+2026-11-06T23:45:52+00:00	5c608a0	final	data/processed/locked/ragtruth_test.jsonl	eval/predictions/final__ragtruth_test.jsonl
+2026-11-06T23:51:31+00:00	5c608a0	final	data/processed/locked/halueval_qa.jsonl	eval/predictions/final__halueval_qa.jsonl
+2026-11-06T23:56:06+00:00	5c608a0	final	data/processed/locked/halueval_dialogue.jsonl	eval/predictions/final__halueval_dialogue.jsonl
+2026-11-07T00:27:22+00:00	5c608a0	final	data/processed/locked/halueval_summary.jsonl	eval/predictions/final__halueval_summary.jsonl

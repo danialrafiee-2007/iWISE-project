@@ -2,8 +2,8 @@
   "name": "final",
   "data": "data/processed/locked/halueval_dialogue.jsonl",
   "predictions": "eval/predictions/final__halueval_dialogue.jsonl",
-  "commit": "1ac472c-dirty",
-  "timestamp": "2026-10-23T22:32:15+00:00",
+  "commit": "5c608a0",
+  "timestamp": "2026-11-06T23:56:06+00:00",
   "threshold": 0.4538356475415264,
   "sentence_threshold": 0.31042325738681364,
   "response": {

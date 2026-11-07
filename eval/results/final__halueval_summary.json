@@ -2,32 +2,32 @@
   "name": "final",
   "data": "data/processed/locked/halueval_summary.jsonl",
   "predictions": "eval/predictions/final__halueval_summary.jsonl",
-  "commit": "1ac472c-dirty",
-  "timestamp": "2026-10-23T22:32:38+00:00",
+  "commit": "5c608a0",
+  "timestamp": "2026-11-07T00:27:22+00:00",
   "threshold": 0.4538356475415264,
   "sentence_threshold": 0.31042325738681364,
   "response": {
     "n": 1000,
     "hallucinated_rate": 0.5,
-    "precision": 0.6742424242424242,
-    "recall": 0.356,
-    "f1": 0.46596858638743455,
+    "precision": 0.6642599277978339,
+    "recall": 0.368,
+    "f1": 0.47361647361647363,
     "f1_flag_everything": 0.6666666666666666,
-    "accuracy": 0.592,
-    "auroc": 0.6942079999999999,
-    "pr_auc": 0.6356924481675769,
-    "brier": 0.27212417233672925,
-    "ece": 0.2226742883072679
+    "accuracy": 0.591,
+    "auroc": 0.691352,
+    "pr_auc": 0.6284293622626117,
+    "brier": 0.27224299424349147,
+    "ece": 0.22003120770896117
   },
   "span": null,
   "ci95": {
     "f1": [
-      0.4237164778431091,
-      0.5083978223775087
+      0.4330620364406956,
+      0.512063377923127
     ],
     "auroc": [
-      0.6635882,
-      0.7236695000000001
+      0.6590232,
+      0.7214594500000001
     ]
   },
   "breakdown": {}
