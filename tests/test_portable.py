@@ -226,25 +226,6 @@ def test_a_long_or_non_latin_folder_unpacks_at_the_top_of_the_same_drive(install
     assert again.returncode == 0 and "unpacking" not in again.stdout.lower()
 
 
-@windows
-def test_the_installer_refuses_a_non_latin_folder_before_downloading_anything(tmp_path):
-    folder = tmp_path / "داوری"
-    folder.mkdir()
-    shutil.copyfile(ROOT / "Install-Truth-Guardian.bat", folder / "Install-Truth-Guardian.bat")
-    done = subprocess.run(f'cmd /d /s /c ""{folder / "Install-Truth-Guardian.bat"}""', capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, stdin=subprocess.DEVNULL)
-    assert done.returncode == 1 and "non-Latin" in done.stdout and "Project source" not in done.stdout
-    assert not (folder / "TruthGuardian").exists()
-
-
-@windows
-def test_the_installer_will_not_make_a_second_copy_inside_a_project_folder(tmp_path):
-    shutil.copyfile(ROOT / "Install-Truth-Guardian.bat", tmp_path / "Install-Truth-Guardian.bat")
-    (tmp_path / "TruthGuardian.bat").write_text("@echo off\r\n", encoding="ascii")
-    done = subprocess.run(f'cmd /d /s /c ""{tmp_path / "Install-Truth-Guardian.bat"}""', capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60, stdin=subprocess.DEVNULL)
-    assert done.returncode == 1 and "second copy" in done.stdout and "Project source" not in done.stdout
-    assert not (tmp_path / "TruthGuardian").exists()
-
-
 def test_a_name_too_long_for_the_folder_the_starter_allows_stops_the_build(install, tmp_path, monkeypatch):
     assert f"TARGET:~{builder.LONGEST_FOLDER}" in (ROOT / "deploy" / "portable" / builder.STARTER).read_text(encoding="ascii")
     long_name = "x" * (builder.WINDOWS_PATH_LIMIT - builder.LONGEST_FOLDER)

@@ -3,14 +3,6 @@
 Hallucination detection and reliability assessment for RAG and agentic AI answers.
 Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 
-## On a new Windows computer: one file
-
-Download [`Install-Truth-Guardian.bat`](https://github.com/danialrafiee-2007/iWISE-project/releases/download/word-detector-v1/Install-Truth-Guardian.bat)
-into a short folder, such as `D:\TG`, on a drive with 15 GB free, and double-click it. It downloads the project and its
-models, installs everything into a `TruthGuardian` folder next to it and starts the app. It needs internet and can take
-a long time; if it stops, run it again and it continues. If Windows says it protected your PC, choose More info, then
-Run anyway. Afterwards `TruthGuardian.bat` in that folder starts the app, with no internet.
-
 ## For judges: the ready-made package
 
 `scripts/build_portable.py` turns a finished install into one folder with everything the setup steps produce, so whoever
@@ -45,16 +37,11 @@ unless `HF_HOME` says otherwise, so nothing is downloaded into the user profile.
 Setup also fetches the models for sound, images and other languages, and the large weights of the language models, from
 their official sources, checking each against `scripts/media_models.json`; a download that breaks resumes where it
 stopped. If some could not be fetched, setup says so instead of reporting success, `TruthGuardian.bat check` lists them,
-and running setup again fetches only what is missing. The one-file installer above unzips these from the repository's
-[Releases](https://github.com/danialrafiee-2007/iWISE-project/releases) first; by hand, unzip them into this folder before
-setup, keeping their paths, so that `models/detector/full/model.safetensors` exists:
-
-| File | What it holds | Without it | SHA-256 |
-|---|---|---|---|
-| `truth-guardian-word-detector.zip` (79 MB) | The exact-word detector, which takes about 7 hours to train | Flagged claims mark the whole sentence | `58989703e2480b12fc981687f57b4ec31698df422faff612a11aea8ebf3c5206` |
-| `truth-guardian-hhem-fast.zip` (389 MB) | The fast HHEM behind the published numbers | Setup downloads HHEM's models and rebuilds it | `fc632fe4bbbc7bf80970a9969df87bcce31ada52e791141d378c6ffb656e043c` |
-| `truth-guardian-reader-e5.zip` (271 MB) | The retrieval model of the check of other languages | Setup downloads it | `903ac3f0791e8aa4e4627095ecf7bc25b774b4524726230ce9e530ee3dde861f` |
-| `truth-guardian-reader-nli.zip` (497 MB) | The entailment model of the check of other languages | Setup downloads it | `f512ff609ab956e9c66f310ba1b1751f032e810c87d39ff132597287bd1785f7` |
+and running setup again fetches only what is missing. Two models do not come from setup: the exact-word detector
+(`models/detector/full`; training it takes about 7 hours with `scripts/train_detector.py --full`, and without it flagged
+claims mark the whole sentence) and the fast HHEM export behind the published numbers (`models/onnx`; without it setup
+downloads HHEM's models and rebuilds it). Both are in the ready-made package: copy them from its unpacked `TruthGuardian`
+folder into this one, keeping their paths, before setup.
 
 | Command | What it does |
 |---|---|
@@ -336,7 +323,7 @@ One folder holds everything, and nothing that belongs to the project lies beside
 | `src/truth_guardian/` | the Guardian, the RAG (`rag/`), the readers (`media/`), the web app (`web/`) | yes |
 | `web/` | the front end's source; `npm run build` writes `src/truth_guardian/web/static` | yes |
 | `tests/`, `scripts/`, `eval/`, `benchmark/`, `docs/`, `deploy/` | tests, tools, measures and their results, TG-Bench, documents, the package's starter | yes |
-| `models/` | the trained fusion models and profiles; the exact-word detector and the fast HHEM are downloaded | partly |
+| `models/` | the trained fusion models and profiles; the exact-word detector and the fast HHEM come from the ready-made package (see Quick start) | partly |
 | `data/` | datasets, cached examples, the document library | no |
 | `runtime/` | uv, Python, the package cache, the language models, the readers; `rag-eval/` and `npm-cache/` are working files that stay out of the package | no |
 | `.venv/` | built by the launcher from `runtime/`, for this folder only | no |
@@ -344,7 +331,6 @@ One folder holds everything, and nothing that belongs to the project lies beside
 
 To keep it this way: use a branch, not a second clone or copy; keep lasting working files under `runtime/` and add any new
 folder there to `LEFT_OUT` in `scripts/build_portable.py`; test a package in a temporary folder and remove it afterwards.
-`Install-Truth-Guardian.bat` is for an empty folder on a new computer and stops if it finds the project next to it.
 
 ## Documentation
 

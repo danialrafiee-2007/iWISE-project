@@ -15,7 +15,7 @@ wheels/
 # Portable runtime made by TruthGuardian.bat setup: uv, Python, package cache and language models (about 2 GB)
 runtime/
 
-# The folder Install-Truth-Guardian.bat installs into, when it is run from inside this repository
+# The folder the package's starter unpacks into, if a package is ever started from this folder
 /TruthGuardian/
 
 # Data and model artifacts (downloaded or generated, never committed)
