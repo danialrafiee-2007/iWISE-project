@@ -175,3 +175,50 @@ def test_wikipedia_is_asked_again_once_after_too_many_and_kept_after(monkeypatch
 def test_markup_is_cleaned_to_prose():
     page = "World Population Review[](https://worldpopulationreview.com/x) says ![logo](a.png) [Thimphu](https://t.org) has [12](n) 114,551 people.[3]\n| a | b |"
     assert free.clean(page) == "World Population Review says  Thimphu has  114,551 people."
+
+
+def test_the_web_search_keeps_passages_that_concern_the_answer():
+    seen = {}
+
+    def fetch(url, data=None, headers=None, timeout=None):
+        seen.update(url=url, headers=headers, data=data)
+        return 200, json.dumps({"results": [
+            {"title": "Karun River | Britannica", "url": "https://www.britannica.com/place/Karun-River", "content": "The Karun River, Iran's longest river, is about 950 km long and joins the Shatt al-Arab."},
+            {"title": "Cooking", "url": "https://food.example/x", "content": "A recipe for rice with saffron."},
+        ]})
+
+    words = set(free.terms("How long is the Karun River? It is 950 km long."))
+    found = free.tavily("How long is the Karun River?", words, None, fetch)
+    assert [url for _, url, _ in found] == ["https://www.britannica.com/place/Karun-River"]
+    assert seen["headers"] == {"X-Tavily-Access-Mode": "keyless"}
+    free.tavily("q", words, "tvly-test", fetch)
+    assert seen["headers"] == {"Authorization": "Bearer tvly-test"}
+    assert free.tavily("q", words, None, lambda *a, **k: (429, "daily cap")) == []
+
+
+def test_wikidata_facts_become_plain_sentences():
+    entity = {"id": "Q243", "labels": {"en": {"value": "Eiffel Tower"}}, "claims": {
+        "P2048": [{"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "quantity", "value": {"amount": "+330", "unit": "http://www.wikidata.org/entity/Q11573"}}}}],
+        "P1619": [{"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "time", "value": {"time": "+1889-05-15T00:00:00Z", "precision": 11}}}}],
+        "P17": [{"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q142"}}}}],
+        "P1082": [
+            {"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "quantity", "value": {"amount": "+1", "unit": "1"}}}},
+            {"rank": "preferred", "mainsnak": {"snaktype": "value", "datavalue": {"type": "quantity", "value": {"amount": "+2", "unit": "1"}}}, "qualifiers": {"P585": [{"datavalue": {"value": {"time": "+2016-00-00T00:00:00Z", "precision": 9}}}]}},
+        ],
+    }}
+
+    def fetch(url, data=None, headers=None, timeout=None):
+        if "ids=Q142" in url:
+            return 200, json.dumps({"entities": {"Q142": {"labels": {"en": {"value": "France"}}}}})
+        return 200, json.dumps({"entities": {"Q243": entity}})
+
+    [(name, url, text)] = free.wikidata([("en", "Eiffel Tower")], fetch)
+    assert name == "Eiffel Tower" and url == "https://www.wikidata.org/wiki/Q243"
+    assert text == ("The population of Eiffel Tower is 2 (in 2016). The height of Eiffel Tower is 330 metres. "
+                    "The date of official opening of Eiffel Tower is 15 May 1889. The country of Eiffel Tower is France.")
+
+
+def test_one_wikidata_entity_is_given_once():
+    entity = {"id": "Q622796", "labels": {"en": {"value": "Milad Tower"}}, "claims": {"P2048": [{"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "quantity", "value": {"amount": "+435", "unit": "http://www.wikidata.org/entity/Q11573"}}}}]}}
+    fetch = lambda url, data=None, headers=None, timeout=None: (200, json.dumps({"entities": {"Q622796": entity}}))
+    assert len(free.wikidata([("fa", "برج میلاد"), ("en", "Milad Tower")], fetch)) == 1

@@ -44,7 +44,7 @@ from truth_guardian.web.engine import NotChecked, _proceed
 
 ROOT = Path(__file__).resolve().parents[3]
 SETTINGS_FILE = "free.local.env"
-KEYS = ("GROQ_API_KEY", "GROQ_MODEL", "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "TG_FREE_PROVIDER")
+KEYS = ("GROQ_API_KEY", "GROQ_MODEL", "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "TG_FREE_PROVIDER", "TAVILY_API_KEY")
 # Wikimedia asks every program to name itself and a way to reach its makers (its User-Agent policy).
 AGENT = "TruthGuardian/1.0 (iWISE 2026 hallucination research; https://github.com/danialrafiee-2007/iWISE-project)"
 # The free services, each OpenAI-compatible. key: the setting that holds its key (None: it needs none).
@@ -56,6 +56,26 @@ PROVIDERS = {
 ORDER = ("groq", "openrouter", "pollinations")
 WIKI = "https://{lang}.wikipedia.org/w/api.php"
 READER = "https://r.jina.ai/"
+# Tavily: a web search made for checking answers; without a key it runs in its free "keyless" mode (rate-limited), with
+# TAVILY_API_KEY (free, 1,000 searches a month) on the account's own limit.
+TAVILY = "https://api.tavily.com/search"
+TAVILY_RESULTS = 4
+# Wikidata: the structured facts behind Wikipedia (a population with its year, a height, a date of birth), read for
+# the articles found, as plain sentences the check can compare numbers and dates with.
+WIKIDATA = "https://www.wikidata.org/w/api.php"
+FACTS = {
+    "P1082": "population", "P2048": "height", "P2043": "length", "P2046": "area", "P2044": "elevation above sea level",
+    "P2386": "diameter", "P2067": "mass", "P571": "date of founding or construction", "P1619": "date of official opening",
+    "P577": "date of publication", "P569": "date of birth", "P570": "date of death", "P19": "place of birth",
+    "P20": "place of death", "P36": "capital", "P17": "country", "P50": "author", "P1120": "number of deaths",
+    "P166": "award received", "P585": "date",
+}
+UNITS = {
+    "Q11573": "metres", "Q828224": "kilometres", "Q712226": "square kilometres", "Q25343": "square metres",
+    "Q174728": "centimetres", "Q3710": "feet", "Q11570": "kilograms", "Q191118": "tonnes", "Q11574": "seconds",
+    "Q7727": "minutes", "Q25235": "hours", "Q573": "days", "Q577": "years", "Q11229": "percent", "Q81454": "ångström",
+}
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 WIKI_LANGS = {"en", "fa", "ar", "fr", "ru", "es", "zh"}
 MAX_MODEL_PAGES = 3
 WIKI_ARTICLES = 2
@@ -292,6 +312,111 @@ def wikipedia(question: str, words: set[str], lang: str, fetch=_request) -> list
     return found
 
 
+def tavily(question: str, words: set[str], key: str | None = None, fetch=_request) -> list[tuple[str, str, str]]:
+    """Web pages found for the question by Tavily: (title, address, the passage it found), keeping only passages that
+    share at least two words with the question or the answer."""
+    headers = {"Authorization": f"Bearer {key}"} if key else {"X-Tavily-Access-Mode": "keyless"}
+    status, text = fetch(TAVILY, {"query": question[:400], "max_results": TAVILY_RESULTS, "search_depth": "basic"}, headers, PAGE_TIMEOUT)
+    if status != 200:
+        return []
+    try:
+        results = json.loads(text).get("results", [])
+    except ValueError:
+        return []
+    found = []
+    for result in results:
+        content = clean(str(result.get("content") or ""))
+        if result.get("url") and len(words & set(terms(content))) >= 2:
+            found.append((str(result.get("title") or result["url"]), str(result["url"]), content[:PASSAGE_CHARS]))
+    return found
+
+
+def _when(value: dict) -> str | None:
+    """A Wikidata time as words: "31 March 1889", "March 1889" or "1889", by its precision."""
+    match = re.match(r"^([+-])(\d+)-(\d\d)-(\d\d)", value.get("time", ""))
+    if not match:
+        return None
+    year, month, day = int(match.group(2)), int(match.group(3)), int(match.group(4))
+    year_text = f"{year}" + (" BC" if match.group(1) == "-" else "")
+    precision = value.get("precision", 9)
+    if precision >= 11 and month and day:
+        return f"{day} {MONTHS[month - 1]} {year_text}"
+    if precision == 10 and month:
+        return f"{MONTHS[month - 1]} {year_text}"
+    if precision == 7:
+        return f"the {year // 100 + 1}th century"
+    return year_text
+
+
+def _amount(value: dict) -> str | None:
+    try:
+        number = float(value["amount"])
+    except (KeyError, ValueError):
+        return None
+    shown = f"{int(number):,}" if number.is_integer() else f"{number:,.2f}".rstrip("0").rstrip(".")
+    unit = UNITS.get(str(value.get("unit", "")).rsplit("/", 1)[-1], "")
+    return f"{shown} {unit}".strip()
+
+
+def wikidata(articles: list[tuple[str, str]], fetch=_request) -> list[tuple[str, str, str]]:
+    """The facts Wikidata holds for Wikipedia articles [(language, title)], one passage of plain sentences per article:
+    (title, address, sentences). Each property's preferred statement is taken, else its latest; a population or similar
+    number carries its year."""
+    found, seen = [], set()
+    for lang, title in articles:
+        query = urllib.parse.urlencode({"action": "wbgetentities", "sites": f"{lang}wiki", "titles": title, "props": "claims|labels", "languages": f"en|{lang}", "format": "json"})
+        status, text = _wiki_get(f"{WIKIDATA}?{query}", fetch)
+        if status != 200:
+            continue
+        try:
+            entity = next(iter(json.loads(text)["entities"].values()))
+        except (ValueError, KeyError, StopIteration):
+            continue
+        if "missing" in entity or "claims" not in entity or entity.get("id") in seen:
+            continue  # one entity once, though its Persian and English articles were both found
+        seen.add(entity.get("id"))
+        name = (entity.get("labels", {}).get("en") or entity.get("labels", {}).get(lang) or {}).get("value", title)
+        facts, items = [], set()
+        for prop, label in FACTS.items():
+            statements = [c for c in entity["claims"].get(prop, []) if c.get("mainsnak", {}).get("snaktype") == "value"]
+            if not statements:
+                continue
+            preferred = [c for c in statements if c.get("rank") == "preferred"]
+            claim = (preferred or statements)[-1]
+            data = claim["mainsnak"]["datavalue"]
+            kind, value = data.get("type"), data.get("value")
+            if kind == "time":
+                shown = _when(value)
+            elif kind == "quantity":
+                shown = _amount(value)
+                when = (claim.get("qualifiers", {}).get("P585") or [{}])[0].get("datavalue", {}).get("value")
+                if shown and isinstance(when, dict):
+                    shown = f"{shown} (in {_when(when)})"
+            elif kind == "wikibase-entityid":
+                shown = f"@{value.get('id')}"
+                items.add(value.get("id"))
+            else:
+                shown = None
+            if shown:
+                facts.append((label, shown))
+        if not facts:
+            continue
+        if items:  # the names of the places, people and countries the facts point to
+            query = urllib.parse.urlencode({"action": "wbgetentities", "ids": "|".join(sorted(items)[:50]), "props": "labels", "languages": f"en|{lang}", "format": "json"})
+            status, text = _wiki_get(f"{WIKIDATA}?{query}", fetch)
+            names = {}
+            if status == 200:
+                try:
+                    for qid, item in json.loads(text)["entities"].items():
+                        names[qid] = (item.get("labels", {}).get("en") or item.get("labels", {}).get(lang) or {}).get("value", qid)
+                except (ValueError, KeyError):
+                    pass
+            facts = [(label, names.get(shown[1:], shown[1:]) if shown.startswith("@") else shown) for label, shown in facts]
+        sentences = " ".join(f"The {label} of {name} is {shown}." for label, shown in facts)
+        found.append((name, f"https://www.wikidata.org/wiki/{entity.get('id', '')}", sentences))
+    return found
+
+
 def _same(evidence: str, source: str) -> bool:
     flat = lambda text: " ".join(text.split())
     return bool(evidence.strip()) and flat(evidence) in flat(source)
@@ -377,12 +502,18 @@ def answer_free(
     words = set(terms(f"{question} {text}"))
     code = (detect(f"{question} {text}").code or "en").split("-")[0].lower()
     langs = list(dict.fromkeys([code if code in WIKI_LANGS else "en", "en"]))
-    # Every page the model named and every Wikipedia search are read at once, not one after another.
-    with ThreadPoolExecutor(max_workers=len(urls) + len(langs)) as pool:
+    # Every page the model named, every Wikipedia search and the web search are read at once, not one after another;
+    # then Wikidata's facts for the articles found.
+    with ThreadPoolExecutor(max_workers=len(urls) + len(langs) + 1) as pool:
         pages = [pool.submit(read_page, url, words, fetch) for url in urls]
         searches = [pool.submit(wikipedia, question, words, lang, fetch) for lang in langs]
+        web = pool.submit(tavily, question, words, settings(root).get("TAVILY_API_KEY"), fetch)
         read = [page.result() for page in pages]
         found = [search.result() for search in searches]
+        on_web = web.result()
+    articles = [(lang, title) for lang, hits in zip(langs, found) for title, _, _ in hits]
+    articles += [(m.group(1), urllib.parse.unquote(m.group(2)).replace("_", " ")) for url in urls if (m := _WIKI_PAGE.match(url))]
+    facts = wikidata(list(dict.fromkeys(articles))[:4], fetch)
     _proceed(cancelled)
     sources: list[dict] = [{"title": url, "url": url, "text": passage or "", "opened": passage is not None, "found_by": "model"} for url, passage in zip(urls, read)]
     for lang, hits in zip(langs, found):
@@ -394,6 +525,17 @@ def answer_free(
                     same[0].update(text=passage, opened=True)
             else:
                 sources.append({"title": f"Wikipedia ({lang}): {title}", "url": url, "text": passage, "opened": True, "found_by": "guardian"})
+    for title, url, passage in on_web:
+        same = [s for s in sources if s["url"].rstrip("/") == url.rstrip("/")]
+        if same:
+            if same[0]["found_by"] == "model":
+                same[0]["found_by"] = "both"
+            if not same[0]["opened"]:
+                same[0].update(text=passage, opened=True)
+        elif "wikipedia.org/wiki/" not in url:  # Wikipedia is read whole above; a search snippet of it adds nothing
+            sources.append({"title": f"Web: {title}", "url": url, "text": passage, "opened": True, "found_by": "guardian"})
+    for name, url, sentences in facts:
+        sources.append({"title": f"Wikidata: {name}", "url": url, "text": sentences, "opened": True, "found_by": "guardian"})
 
     opened = [s for s in sources if s["opened"]]
     notes = [NOTE]
