@@ -262,10 +262,12 @@ The risk still ranks the wrong answers above their faithful twins (AUROC 0.94, 1
 unsupported, weak sources and agents); the misses are answers just under the line, and an agent that keeps an
 outdated value after a newer tool result is not caught (0 of 5). See D-110 in `docs/DECISIONS.md` for the full record.
 
-### After the locked test (measured on development data only)
+### After the first locked test (measured on development data only)
 
-The locked sets were opened once (D-109) and not again; these later changes are measured on development and external
-development data:
+The locked sets were opened twice: first at the end of the Guardian's build (D-109), then once more after phase 5 (D-172),
+as the Results above say. The changes below came between the two openings. Each was chosen and measured on development
+and external development data only; the second opening then measured the whole system with them. A second opening makes
+the locked numbers somewhat less clean than a single one would be, which is why the table above shows both runs:
 
 - **Domain profiles** (D-113): from 50 labelled answers of a new domain, a profile re-weights the model's evidence and
   recalibrates its risk. On HaluEval answers the profiles did not see: dialogue AUROC 0.683 to 0.723, summary 0.699 to
