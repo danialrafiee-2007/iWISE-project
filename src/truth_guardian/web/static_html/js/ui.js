@@ -49,11 +49,23 @@
     root.lang = info.code;
     root.dir = info.dir;
     document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+    // In every page title, "Guardian" takes the home page's look: italic, in the site's peach (".title-text em").
+    document.querySelectorAll(".title-text[data-i18n]").forEach((el) => {
+      const text = el.textContent;
+      const at = text.indexOf("Guardian");
+      if (at < 0) return;
+      el.textContent = text.slice(0, at);
+      const em = document.createElement("em");
+      em.textContent = "Guardian";
+      el.append(em, text.slice(at + "Guardian".length));
+    });
     document.querySelectorAll("[data-i18n-label]").forEach((el) => {
       const text = t(el.dataset.i18nLabel);
       el.dataset.label = text;
       el.setAttribute("aria-label", text);
+      if (el.matches(".tool-btn, .send-btn")) el.title = text; // the composer's buttons show their name under the pointer
     });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
     document.querySelectorAll("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", t(el.dataset.i18nAria)));
     const intro = document.getElementById("intro");
     if (intro) intro.setAttribute("aria-label", `Truth Guardian. ${t("splash.enter")}`);
@@ -142,6 +154,39 @@
     });
   });
   window.TG.closeMenus = close;
+
+  // ---- The rail comes alive under the mouse: a light follows the pointer along it (--ly), and each icon grows and
+  // rises the nearer the pointer is (--mag), like a dock. Mouse only; nothing moves for those who ask for less. ----
+  const rail = document.querySelector(".rail");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (rail && !reducedMotion) {
+    const buttons = [...rail.querySelectorAll(".rail-btn:not(.rail-lamp)")];
+    let frame = 0;
+    let lastY = null;
+    const RANGE = 80; // px from an icon's centre at which it starts to grow
+    const GROW = 0.26; // how much larger the icon right under the pointer is
+    const update = () => {
+      frame = 0;
+      const box = rail.getBoundingClientRect();
+      rail.style.setProperty("--ly", lastY === null ? "-200px" : `${lastY - box.top}px`);
+      for (const b of buttons) {
+        let mag = 1;
+        if (lastY !== null) {
+          const r = b.getBoundingClientRect();
+          const d = Math.abs(lastY - (r.top + r.height / 2));
+          mag = 1 + GROW * Math.max(0, 1 - d / RANGE) ** 2;
+        }
+        b.style.setProperty("--mag", mag.toFixed(3));
+      }
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    rail.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      lastY = e.clientY;
+      schedule();
+    });
+    rail.addEventListener("pointerleave", () => { lastY = null; schedule(); });
+  }
   document.addEventListener("mousedown", (e) => { if (openMenu && !openMenu.contains(e.target)) close(); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && openMenu) {
@@ -157,11 +202,14 @@
   const STEPS = [{ title: "tour.s1.title", body: "tour.s1.body", seconds: 8 }];
   let tour = null;
 
+  // The tour's card fades out softly, as everything else on the site.
   function stopTour() {
     if (!tour) return;
     clearInterval(tour.timer);
-    tour.layer.remove();
+    const layer = tour.layer;
     tour = null;
+    layer.classList.add("closing");
+    setTimeout(() => layer.remove(), 320);
   }
 
   function showStep() {

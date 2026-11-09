@@ -164,6 +164,14 @@ a verdict says an answer rests on its sources, not that it answers the question;
 answers uncertain (of 44 right answers in six languages, 22 were grounded), and neither check can judge a bare short answer
 such as "308", so the model is asked for whole sentences (D-172).
 
+When the documents hold no answer, `POST /api/ask/web` (D-182, `rag/web.py`) can ask online instead: Claude searches the web
+and answers, and the local Guardian checks that answer against the passages the API marks as cited (each citation's text,
+taken from the page by the search tool, not quotes the model writes) before it is shown, with its report. A grounded verdict
+there means the answer keeps to its cited pages, not that the pages are right. It is off like the online check until a key
+is set in `anthropic.local.env`, shares its daily budget, sends only the question, and keeps each answer so the same
+question is never paid for twice. Tested with a stand-in client only (`tests/test_web_answer.py`); not yet run against the
+real API.
+
 ### The agent (D-170)
 
 On the same page, "Agent, step by step" lets the model decide in several steps what to search for and work out, with the live

@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=8">
-  <link rel="stylesheet" href="/css/intro.css?v=8">
+  <link rel="stylesheet" href="/css/style.css?v=15">
+  <link rel="stylesheet" href="/css/intro.css?v=15">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -189,10 +189,38 @@
             </div>
           </section>
 
-          <!-- The AI engine's two parts, reached from its menu in the rail. -->
+          <!-- The conversation, as in a chat: write or speak a question, or add a document, a recording or an image. The
+               files go into the person's documents (/api/library/documents); the question is answered from them and the
+               project's documents by the local model and checked by the Guardian before it is shown (/api/ask). js/chat.js -->
+          <section class="card section chat" id="chat" aria-labelledby="chat-title">
+            <h2 class="section-title" id="chat-title" data-i18n="html.chat.title">Ask Truth Guardian</h2>
+            <p class="section-note" data-i18n="html.chat.lead"></p>
+            <ol class="chat-log" id="chat-log" aria-live="polite"></ol>
+            <form class="composer" id="composer">
+              <ul class="composer-files" id="composer-files" hidden></ul>
+              <textarea id="chat-input" rows="1" maxlength="1000" data-i18n-placeholder="html.chat.placeholder" placeholder="Ask a question…"></textarea>
+              <div class="composer-bar">
+                <label class="tool-btn" data-i18n-label="html.chat.attach" data-label="Add a file" aria-label="Add a file">
+                  <input type="file" id="chat-file" multiple hidden accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json,.log,.html,.htm,.png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff,.gif,.wav,.mp3,.m4a,.ogg,.opus,.flac,.aac,.wma,.weba,.webm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5l-8.2 8.2a5.2 5.2 0 01-7.4-7.4l8.6-8.6a3.5 3.5 0 015 5l-8.6 8.6a1.8 1.8 0 01-2.5-2.5l7.9-7.9"/></svg>
+                </label>
+                <button type="button" class="tool-btn" id="chat-mic" data-i18n-label="html.chat.record" data-label="Speak" aria-label="Speak" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3"/></svg>
+                </button>
+                <span class="composer-note" id="composer-note" aria-live="polite"></span>
+                <button type="submit" class="send-btn" id="chat-send" data-i18n-label="html.chat.send" data-label="Send" aria-label="Send">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg>
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- The models' measured results, read live from /api/model-card (js/models.js): four figures, the
+               candles of Truth Guardian against the baselines, the tables and the calibration. -->
           <section class="card section" id="models" aria-labelledby="models-title">
             <h2 class="section-title" id="models-title" data-i18n="html.models">Model performance</h2>
-            <p class="section-note" data-i18n="html.soon">This part is built in the next step.</p>
+            <p class="section-note" data-i18n="html.m.lead"></p>
+            <div class="models-body" id="models-body"><p class="section-note" data-i18n="html.m.loading"></p></div>
           </section>
           <section class="card section" id="structure" aria-labelledby="structure-title">
             <h2 class="section-title" id="structure-title" data-i18n="html.structure">How the structure works</h2>
@@ -227,32 +255,36 @@
 
           <ul class="people">
             <li><button type="button" class="card person-card" data-person="danial">
+              <span class="person-cover" aria-hidden="true"></span>
               <span class="avatar"><img src="/people/danial-rafiee.jpg" alt="" width="900" height="1125" decoding="async"></span>
               <span class="person-name" lang="en">Danial Rafiee</span>
               <span class="chip-rank" data-i18n="team.member">Team member</span>
               <span class="person-role" data-i18n="team.role.models">Design and training of the project's trained models</span>
-              <span class="person-more" data-i18n="team.more">Read more</span>
+              <span class="btn-accent btn-small person-more"><span data-i18n="team.more">Read more</span></span>
             </button></li>
             <li><button type="button" class="card person-card" data-person="mojdeh">
+              <span class="person-cover" aria-hidden="true"></span>
               <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
               <span class="person-name" lang="en">Mojdeh Ghazvinian</span>
               <span class="chip-rank" data-i18n="team.member">Team member</span>
               <span class="person-role" data-i18n="team.role.models">Design and training of the project's trained models</span>
-              <span class="person-more" data-i18n="team.more">Read more</span>
+              <span class="btn-accent btn-small person-more"><span data-i18n="team.more">Read more</span></span>
             </button></li>
             <li><button type="button" class="card person-card" data-person="sepehr">
+              <span class="person-cover" aria-hidden="true"></span>
               <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
               <span class="person-name" lang="en">Sepehr Kakoli</span>
               <span class="chip-rank" data-i18n="team.member">Team member</span>
               <span class="person-role" data-i18n="team.role.sepehr">Consulting, coordination and UI/UX design</span>
-              <span class="person-more" data-i18n="team.more">Read more</span>
+              <span class="btn-accent btn-small person-more"><span data-i18n="team.more">Read more</span></span>
             </button></li>
             <li><button type="button" class="card person-card" data-person="majid">
+              <span class="person-cover" aria-hidden="true"></span>
               <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
               <span class="person-name" lang="en">Majid Rafiee</span>
               <span class="chip-rank" data-i18n="team.member">Team member</span>
               <span class="person-role" data-i18n="team.role.majid">Model synchronisation and UI/UX design</span>
-              <span class="person-more" data-i18n="team.more">Read more</span>
+              <span class="btn-accent btn-small person-more"><span data-i18n="team.more">Read more</span></span>
             </button></li>
           </ul>
 
@@ -386,17 +418,18 @@
               <span class="form-hint" data-i18n="contact.privacy"></span>
             </div>
             <p class="form-status" id="contact-status" role="status" aria-live="polite" hidden></p>
-            <p class="form-direct"><span data-i18n="html.mailTo">Or write directly to</span> <a href="mailto:majidrafiee1404@gmail.com" dir="ltr">majidrafiee1404@gmail.com</a></p>
           </form>
         </div>
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=8"></script>
-  <script src="/js/ui.js?v=8"></script>
-  <script src="/js/intro.js?v=8"></script>
-  <script src="/js/pages.js?v=8"></script>
-  <script src="/js/contact.js?v=8"></script>
-  <script src="/js/app.js?v=8"></script>
+  <script src="/js/i18n.js?v=15"></script>
+  <script src="/js/ui.js?v=15"></script>
+  <script src="/js/intro.js?v=15"></script>
+  <script src="/js/pages.js?v=15"></script>
+  <script src="/js/contact.js?v=15"></script>
+  <script src="/js/models.js?v=15"></script>
+  <script src="/js/chat.js?v=15"></script>
+  <script src="/js/app.js?v=15"></script>
 </body>
 </html>

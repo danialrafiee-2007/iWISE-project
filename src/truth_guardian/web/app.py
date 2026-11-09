@@ -184,6 +184,10 @@ class AskIn(_Strict):
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
 
 
+class AskWebIn(_Strict):
+    question: str = Field(min_length=1, max_length=MAX_QUESTION)
+
+
 class AgentRunIn(_Strict):
     task: str = Field(min_length=1, max_length=MAX_QUESTION)
     collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
@@ -671,6 +675,23 @@ def create_app(
         def work(emit, cancelled) -> dict:
             history = [turn.model_dump() for turn in body.history]
             found = answer(body.question, books, engine, writer, tuple(body.collections), history, body.language, emit, cancelled)
+            return {"answer": found.model_dump(mode="json")}
+
+        return _stream(work)
+
+    @app.post("/api/ask/web")
+    def ask_web(body: AskWebIn) -> StreamingResponse:
+        """When the documents hold no answer: Claude answers from the web, and the local Guardian checks that answer
+        against the passages it cited before it is shown (rag/web.py, D-182). Off until a key is set."""
+        from truth_guardian.rag import web
+
+        if not web.available(root):
+            raise HTTPException(503, "the online model has no key yet; anthropic.example.env says how to add one")
+        ready()
+
+        def work(emit, cancelled) -> dict:
+            # NotAvailable (no key, today's budget spent) is a ValueError, so it reaches the page as the stream's error.
+            found = web.answer_from_web(body.question, engine, emit, cancelled, root=root)
             return {"answer": found.model_dump(mode="json")}
 
         return _stream(work)

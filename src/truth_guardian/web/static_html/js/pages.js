@@ -10,10 +10,49 @@
   // The addresses this front end has a page for; the others (pages not built yet) show the home page.
   const ROUTES = { "/": "home", "/team": "team", "/about": "about", "/contact": "contact" };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const OUT = 320; // ms the page shown takes to fade out, in style.css (.page.leaving)
   const tr = (key) => (window.TG ? window.TG.t(key) : key);
+  // The change's timings, read from style.css (:root), so the one standard is set in one place.
+  const css = getComputedStyle(document.documentElement);
+  const ms = (name, fallback) => parseFloat(css.getPropertyValue(name)) || fallback;
+  const OUT = ms("--fade-out", 520);
+  const LAYER = ms("--layer-in", 700);
+  const STAGGER = ms("--stagger", 110);
+  const CONTENT = ms("--content-delay", 240);
   let current = null;
   let busy = Promise.resolve();
+
+  // A page's layers, in the order they come in: each box on it, and each card of a row of cards.
+  function layersOf(page) {
+    const found = [];
+    for (const child of page.children) {
+      if (child.tagName === "DIALOG") continue;
+      if (child.matches("ul, ol")) child.querySelectorAll(":scope > li > *").forEach((el) => found.push(el));
+      else found.push(child);
+    }
+    return found;
+  }
+
+  // Plays the entrance on `page`: its layers one after another, after `start` ms.
+  let entranceTimer = 0;
+  function enter(page, start = 0) {
+    if (reduced) return;
+    const layers = layersOf(page);
+    page.querySelectorAll(".layer").forEach((el) => el.classList.remove("layer"));
+    layers.forEach((el, i) => {
+      el.classList.add("layer");
+      el.style.setProperty("--i", String(i));
+    });
+    page.style.setProperty("--start", `${start}ms`);
+    page.classList.remove("entering-page");
+    void page.offsetWidth;
+    page.classList.add("entering-page");
+    clearTimeout(entranceTimer);
+    // Once everything is in, the classes go, so nothing is left holding an animation.
+    entranceTimer = setTimeout(() => page.classList.remove("entering-page"), start + layers.length * STAGGER + CONTENT + LAYER + 900);
+  }
+
+  // The site's first entrance plays behind the opening's circle (intro.js sends tg:entering as it starts).
+  document.addEventListener("tg:entering", () => { if (current) enter(current, 700); });
 
   const pageFor = (path) => ROUTES[path.replace(/\/+$/, "") || "/"] || "home";
 
@@ -56,14 +95,10 @@
       // While nothing is shown the page is scrolled back to its top, so the next one arrives in place, not with a jump.
       window.scrollTo({ top: 0, behavior: "auto" });
       next.hidden = false;
-      if (!instant && !reduced) {
-        next.classList.remove("entering-page");
-        void next.offsetWidth;
-        next.classList.add("entering-page");
-      }
+      if (!instant) enter(next, 60);
       current = next;
       document.title = name === "home" ? "Truth Guardian (HTML)" : `${tr(`${name}.title`)} · Truth Guardian`;
-      if (section) setTimeout(() => scrollToSection(section), reduced ? 0 : 200);
+      if (section) setTimeout(() => scrollToSection(section), reduced ? 0 : 300);
     });
     return busy;
   }
@@ -128,9 +163,20 @@
       dialog.showModal();
     });
   });
+  // Closing fades it out softly first, as everything else on the site (Esc too).
+  function closeDialog() {
+    if (!dialog.open || dialog.classList.contains("closing")) return;
+    if (reduced) return dialog.close();
+    dialog.classList.add("closing");
+    setTimeout(() => {
+      dialog.close();
+      dialog.classList.remove("closing");
+    }, 320);
+  }
   if (dialog) {
-    dialog.querySelector(".dialog-x").addEventListener("click", () => dialog.close());
-    dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+    dialog.querySelector(".dialog-x").addEventListener("click", closeDialog);
+    dialog.addEventListener("click", (e) => { if (e.target === dialog) closeDialog(); });
+    dialog.addEventListener("cancel", (e) => { e.preventDefault(); closeDialog(); });
     if (window.TG) window.TG.onLang(fillPerson);
   }
 

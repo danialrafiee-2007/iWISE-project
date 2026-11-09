@@ -39,6 +39,7 @@
     logo.style.setProperty("--fly-s", `${size / box.height}`);
 
     body.classList.add("entering");
+    document.dispatchEvent(new Event("tg:entering")); // the page's layers come in behind the circle (pages.js)
     const finish = () => {
       body.classList.remove("intro-on", "entering");
       body.classList.add("entered");
