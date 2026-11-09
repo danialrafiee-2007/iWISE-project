@@ -45,7 +45,15 @@ from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
 from truth_guardian.web.metrics import model_card
 
-STATIC = Path(__file__).with_name("static")
+
+
+def ui_folder(choice: str | None) -> Path:
+    """The front end the server shows: the built React app (static), or the plain HTML one (static_html) when
+    TG_UI=html, which TruthGuardian-HTML.bat sets. The API is the same for both."""
+    return Path(__file__).with_name("static_html" if (choice or "").strip().lower() == "html" else "static")
+
+
+STATIC = ui_folder(os.environ.get("TG_UI"))
 MAX_QUESTION, MAX_ANSWER, MAX_SOURCE, MAX_SOURCES = 1_000, 5_000, 20_000, 10
 MAX_STEPS, MAX_STEP = 30, 5_000
 MAX_MEDIA_BYTES = 25_000_000

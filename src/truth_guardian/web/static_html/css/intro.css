@@ -1,0 +1,267 @@
+/* The opening: a deep emerald screen. The Guardian's shield is put together from small pieces, then shows solid and
+   glossy as on the React site (its gradient face, darker edge, bright rim and raised check), and the name rises
+   beneath it as in the React site's top bar: the same letters and sheen, and a light breathing out from behind the
+   name only (.brand-glow there), here in a light green brighter than the emerald round it.
+   A click, a scroll, a touch or a key: the name fades, the shield flies to the top left, and the site opens there as
+   a growing circle (intro.js, and .site in style.css). */
+
+@font-face {
+  font-family: "Fraunces TG";
+  src: url("/fonts/fraunces-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+.intro {
+  --glow-rgb: 47 133 90;
+  --name-light: 168 240 198;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  /* The emerald itself is the page's own background (style.css), so while the site opens the shield and the pale
+     disc can stay above the growing circle. */
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+.intro-mark {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+/* ---- The shield ---- */
+
+.intro-logo-box {
+  position: relative;
+  width: clamp(64px, 10vmin, 92px);
+  aspect-ratio: 19 / 21.5;
+  z-index: 2;
+}
+.intro-logo-box svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The pieces: each is the same shield outline, its dash showing only its own short stretch of it. */
+.intro-pieces .piece {
+  fill: none;
+  stroke: #bff5d6;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 3.4 96.6;
+  stroke-dashoffset: calc(var(--i) * -6.25);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: intro-piece 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.25) forwards;
+  animation-delay: calc(0.35s + var(--i) * 0.06s);
+}
+.intro-pieces {
+  filter: drop-shadow(0 0 4px rgb(125 255 190 / 0.5));
+  animation: intro-fade-out 0.45s ease-in 1.5s forwards;
+}
+
+/* The solid shield, glossy, turning once about its upright axis every few seconds as in the React site's top bar. */
+.intro-shield {
+  opacity: 0;
+  filter: drop-shadow(0 3px 3px rgb(6 48 27 / 0.38)) drop-shadow(0 0 6px rgb(var(--glow-rgb) / 0.4));
+  animation: intro-shield-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1.4s forwards,
+    intro-shield-turn 4s cubic-bezier(0.55, 0.05, 0.3, 1) 2.6s infinite;
+}
+.intro-shield .check {
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  animation: intro-check 0.4s ease-out 1.75s forwards;
+}
+.intro-shield .gloss {
+  animation: intro-gloss 4s ease-in-out 2.2s infinite;
+}
+
+/* ---- The name, as .brand-name and .brand-glow in the React site's styles.css ---- */
+
+.intro-brand {
+  position: relative;
+  isolation: isolate;
+  opacity: 0;
+  translate: 0 8px;
+  animation: intro-rise 0.8s ease-out 2s forwards;
+}
+
+/* The light behind the name only: a rounded band just round the letters, blurred so it seems to come out from
+   behind them, breathing on an uneven beat. */
+.intro-name-glow {
+  position: absolute;
+  z-index: -1;
+  inset: -12px -24px;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgb(var(--name-light) / 1), rgb(var(--name-light) / 0.62) 48%, transparent 74%);
+  filter: blur(10px);
+  animation: name-glow 4.2s ease-in-out infinite;
+}
+
+.intro-name {
+  position: relative;
+  display: block;
+  margin: 0;
+  font-family: "Fraunces TG", Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 6vmin, 3rem);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  white-space: nowrap;
+  /* The face in the site's peach orange (--accent, #e6986d), the band of light a pale peach. */
+  background: linear-gradient(100deg, #e6986d 0 38%, #f3b48d 45%, #fff1e6 50%, #f3b48d 55%, #e6986d 62% 100%);
+  background-size: 260% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: brand-sheen 7s ease-in-out infinite, brand-letters 4.2s ease-in-out infinite;
+}
+
+/* The letters in depth: a copy of the name behind them (from data-text), stepped down in darker greens so each
+   letter stands up off the light as a solid block, with a soft shadow under it. The sheen stays on the face. */
+.intro-name::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: #c47a52;
+  -webkit-text-fill-color: #c47a52;
+  text-shadow:
+    0 -1px 0 rgb(255 241 230 / 0.7),
+    0 1px 0 #b86a43,
+    0 2px 0 #a75d39,
+    0 3px 0 #945030,
+    0 4px 0 #804428,
+    0 5px 0 #6b3820,
+    0 6px 1px rgb(40 18 8 / 0.35),
+    0 9px 10px rgb(0 0 0 / 0.35),
+    0 14px 22px rgb(0 0 0 / 0.25);
+}
+
+/* A quiet line at the bottom that says how to go on. */
+.intro-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  margin: 0;
+  text-align: center;
+  font: 500 0.82rem/1.4 system-ui, "Segoe UI", sans-serif;
+  letter-spacing: 0.06em;
+  color: rgb(217 255 233 / 0.62);
+  opacity: 0;
+  animation: intro-rise 0.8s ease-out 3.2s forwards;
+}
+
+/* ---- Leaving, as in the reference: the name goes, the shield flies to the top left and a pale disc lights under
+   it, and from that spot the site opens as a growing circle (.site in style.css). intro.js sets --fly-x, --fly-y and
+   --fly-s from where the shield stands. ---- */
+
+.intro-dot {
+  position: absolute;
+  left: var(--dock-x, 44px);
+  top: var(--dock-y, 44px);
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f2fff7, #cfeedd 70%, #b4e3c8);
+  box-shadow: 0 0 24px rgb(var(--name-light) / 0.55);
+  scale: 0;
+  opacity: 0;
+  z-index: 1;
+}
+
+body.entering .intro { pointer-events: none; z-index: 70; }
+body.entering .intro-brand,
+body.entering .intro-hint {
+  animation: intro-fade-out 0.3s ease-in forwards;
+}
+body.entering .intro-logo-box {
+  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+  transform: translate(var(--fly-x, 0px), var(--fly-y, 0px)) scale(var(--fly-s, 0.5));
+}
+body.entering .intro-shield {
+  opacity: 1;
+  animation: none;
+}
+body.entering .intro-dot {
+  animation: intro-dot 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.5s forwards;
+}
+body.entering .intro { animation: intro-fade-out 0.4s ease-in 1.5s forwards; }
+body.entered .intro { display: none; }
+
+/* ---- Motion ---- */
+
+@keyframes intro-piece {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes intro-fade-out { to { opacity: 0; } }
+@keyframes intro-shield-in {
+  from { opacity: 0; transform: scale(0.86); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes intro-shield-turn {
+  0%, 60% { transform: perspective(300px) rotateY(0deg); }
+  92%, 100% { transform: perspective(300px) rotateY(360deg); }
+}
+@keyframes intro-check { to { stroke-dashoffset: 0; } }
+@keyframes intro-gloss {
+  0%, 100% { opacity: 0.35; }
+  45% { opacity: 0.95; }
+}
+@keyframes intro-rise { to { opacity: 1; translate: 0 0; } }
+@keyframes intro-dot { to { scale: 1; opacity: 1; } }
+
+/* The React site's own beats (styles.css): the light behind the name, the letters' edge and the band of light. */
+@keyframes brand-glow {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  28% { opacity: 0.95; transform: scale(1.04); }
+  42% { opacity: 0.6; transform: scale(1); }
+  58% { opacity: 1; transform: scale(1.06); }
+}
+/* The same uneven beat, but never dimmer than 0.75: on the dark screen the dark letters need the light behind them. */
+@keyframes name-glow {
+  0%, 100% { opacity: 0.75; transform: scale(0.96); }
+  28% { opacity: 1; transform: scale(1.04); }
+  42% { opacity: 0.85; transform: scale(1); }
+  58% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes brand-letters {
+  0%, 100% { filter: drop-shadow(0 0 1px rgb(var(--glow-rgb) / 0.3)) drop-shadow(0 0 4px rgb(var(--glow-rgb) / 0.12)); }
+  28% { filter: drop-shadow(0 0 2px rgb(var(--glow-rgb) / 0.6)) drop-shadow(0 0 9px rgb(var(--glow-rgb) / 0.35)); }
+  42% { filter: drop-shadow(0 0 1px rgb(var(--glow-rgb) / 0.45)) drop-shadow(0 0 6px rgb(var(--glow-rgb) / 0.2)); }
+  58% { filter: drop-shadow(0 0 2px rgb(var(--glow-rgb) / 0.7)) drop-shadow(0 0 12px rgb(var(--glow-rgb) / 0.42)); }
+}
+@keyframes brand-sheen {
+  0%, 35% { background-position: 100% 0; }
+  75%, 100% { background-position: 0% 0; }
+}
+
+/* Visitors who ask for less motion see the finished logo and name at once, and the site opens without flying. */
+@media (prefers-reduced-motion: reduce) {
+  .intro-shield, .intro-brand, .intro-hint, .intro-shield .check, .intro-shield .gloss,
+  .intro-name, .intro-name-glow {
+    animation: none;
+    opacity: 1;
+    translate: none;
+    stroke-dashoffset: 0;
+  }
+  .intro-pieces { display: none; }
+  body.entering .intro-logo-box { transition: none; }
+  body.entering .intro { animation: none; opacity: 0; }
+}

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#051813">
+  <title>Truth Guardian (HTML)</title>
+  <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/style.css?v=8">
+  <link rel="stylesheet" href="/css/intro.css?v=8">
+</head>
+<body class="intro-on">
+  <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
+       Started by TruthGuardian-HTML.bat. -->
+
+  <!-- The opening. The shield is first drawn as 16 short pieces of its outline (each path shows one stretch through its
+       dash), then shows solid and glossy, then the name. A click, scroll, touch or key opens the site (js/intro.js). -->
+  <section class="intro" id="intro" aria-label="Truth Guardian. Click, scroll or touch to enter.">
+    <div class="intro-dot" aria-hidden="true"></div>
+    <div class="intro-mark">
+      <div class="intro-logo-box" aria-hidden="true">
+        <svg class="intro-pieces" viewBox="3 1.5 19 21.5">
+          <path class="piece" style="--i:0"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:1"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:2"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:3"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:4"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:5"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:6"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:7"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:8"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:9"  pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:10" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:11" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:12" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:13" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:14" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+          <path class="piece" style="--i:15" pathLength="100" d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/>
+        </svg>
+        <!-- The solid shield, the same drawing as the React site's ShieldMark. -->
+        <svg class="intro-shield" viewBox="3 1.5 19 21.5">
+          <defs>
+            <linearGradient id="tg-face" x1="0.15" y1="0" x2="0.85" y2="1">
+              <stop offset="0" stop-color="#9dffc4"/>
+              <stop offset="0.45" stop-color="#2fb36a"/>
+              <stop offset="1" stop-color="#0f5a34"/>
+            </linearGradient>
+            <linearGradient id="tg-edge" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#145c37"/>
+              <stop offset="1" stop-color="#06301b"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" fill="url(#tg-edge)" transform="translate(0.9 1.1)"/>
+          <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" fill="url(#tg-face)" stroke="#d9ffe9" stroke-opacity="0.7" stroke-width="0.7" stroke-linejoin="round"/>
+          <path class="gloss" d="M12 4.6l5.6 2.4" stroke="#ffffff" stroke-opacity="0.85" stroke-width="0.9" stroke-linecap="round"/>
+          <path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#06301b" stroke-opacity="0.55" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0.35 0.5)"/>
+          <path class="check" pathLength="12" d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#f3fff8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="intro-brand">
+        <span class="intro-name-glow" aria-hidden="true"></span>
+        <span class="intro-name" data-text="Truth Guardian">Truth Guardian</span>
+      </p>
+    </div>
+    <p class="intro-hint" data-i18n="splash.enter">Click, scroll or touch to enter</p>
+  </section>
+
+  <!-- The site: one rounded panel on a near-white page, the deep green rail on its left and the main column beside it. -->
+  <div class="site" id="site">
+    <div class="panel">
+      <!-- The rail: the shield (where the opening's shield lands), then the previous site's header icons: its three
+           inputs (text, sound, images), the tour and the languages, and the models' lamp at the bottom. -->
+      <nav class="rail" aria-label="Main" data-i18n-aria="nav.main">
+        <a class="rail-logo" href="/" aria-label="Truth Guardian, home">
+          <svg viewBox="3 1.5 19 21.5" aria-hidden="true">
+            <defs>
+              <linearGradient id="rail-face" x1="0.15" y1="0" x2="0.85" y2="1">
+                <stop offset="0" stop-color="#9dffc4"/>
+                <stop offset="0.45" stop-color="#2fb36a"/>
+                <stop offset="1" stop-color="#0f5a34"/>
+              </linearGradient>
+              <linearGradient id="rail-edge" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#145c37"/>
+                <stop offset="1" stop-color="#06301b"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" fill="url(#rail-edge)" transform="translate(0.9 1.1)"/>
+            <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" fill="url(#rail-face)" stroke="#d9ffe9" stroke-opacity="0.7" stroke-width="0.7" stroke-linejoin="round"/>
+            <path d="M12 4.6l5.6 2.4" stroke="#ffffff" stroke-opacity="0.75" stroke-width="0.9" stroke-linecap="round"/>
+            <path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#06301b" stroke-opacity="0.55" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0.35 0.5)"/>
+            <path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="#f3fff8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+
+        <!-- The previous site's top bar: Home; the AI engine's two parts, each a button of its own that goes to its
+             section of the home page; then Team, About and Contact us. -->
+        <div class="rail-group">
+          <a class="rail-btn" href="/" data-page="home" aria-current="page" data-label="Home" aria-label="Home" data-i18n-label="nav.home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>
+          </a>
+        </div>
+
+        <span class="rail-line" aria-hidden="true"></span>
+
+        <div class="rail-group" role="group" aria-label="AI engine" data-i18n-aria="nav.engine">
+          <a class="rail-btn" href="/#models" data-section="models" data-label="Model performance" aria-label="Model performance" data-i18n-label="html.models">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16M7 16.5V11M12 16.5V5.5M17 16.5v-4"/></svg>
+          </a>
+          <a class="rail-btn" href="/#structure" data-section="structure" data-label="How the structure works" aria-label="How the structure works" data-i18n-label="html.structure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3.5" width="6" height="5" rx="1.2"/><rect x="3.5" y="15.5" width="6" height="5" rx="1.2"/><rect x="14.5" y="15.5" width="6" height="5" rx="1.2"/><path d="M12 8.5v3.5M6.5 15.5V12h11v3.5"/></svg>
+          </a>
+        </div>
+
+        <span class="rail-line" aria-hidden="true"></span>
+
+        <div class="rail-group">
+          <a class="rail-btn" href="/team" data-page="team" data-label="Team" aria-label="Team" data-i18n-label="nav.team">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5v-.8A4.7 4.7 0 017.7 14h2.6a4.7 4.7 0 014.7 4.7v.8"/><path d="M15.5 5a3.2 3.2 0 010 6.2M17.5 14.2a4.7 4.7 0 013.5 4.5v.8"/></svg>
+          </a>
+          <a class="rail-btn" href="/about" data-page="about" data-label="About" aria-label="About" data-i18n-label="nav.about">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/></svg>
+          </a>
+          <a class="rail-btn" href="/contact" data-page="contact" data-label="Contact us" aria-label="Contact us" data-i18n-label="nav.contact">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4.5 7.5l7.5 5.5 7.5-5.5"/></svg>
+          </a>
+        </div>
+        <span class="rail-gap" aria-hidden="true"></span>
+
+        <!-- At the bottom, as the previous site's controls: the tour, then the languages, then the models' lamp. Each
+             opens its list beside the rail (js/ui.js). -->
+        <div class="rail-group">
+          <div class="rail-menu" data-menu="tour">
+            <button class="rail-btn" type="button" data-label="Tour" aria-label="Tour" data-i18n-label="tour.button" aria-haspopup="menu" aria-expanded="false" aria-controls="tour-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg>
+            </button>
+            <div class="pop" id="tour-menu" role="menu" aria-label="Start the guided tour" data-i18n-aria="tour.start" hidden>
+              <button class="pop-item" type="button" role="menuitem" data-tour="text">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 6h14M5 10h14M5 14h9M5 18h6"/></svg>
+                <span data-i18n="tour.text">Text tour</span>
+              </button>
+              <button class="pop-item" type="button" role="menuitem" aria-disabled="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3"/></svg>
+                <span data-i18n="tour.audio">Audio tour</span>
+                <span class="pop-tag" data-i18n="tour.soon">Coming</span>
+              </button>
+              <button class="pop-item" type="button" role="menuitem" aria-disabled="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2zM4 16l5-5 4 4 2-2 5 5M15 9h.01"/></svg>
+                <span data-i18n="tour.image">Image tour</span>
+                <span class="pop-tag" data-i18n="tour.soon">Coming</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="rail-menu" data-menu="lang">
+            <button class="rail-btn" type="button" data-label="Language" aria-label="Language" data-i18n-label="lang.label" aria-haspopup="menu" aria-expanded="false" aria-controls="lang-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9s1.3-6.4 3.9-9z"/></svg>
+            </button>
+            <!-- The seven languages of the previous site, in its order; Arabic and Persian named in English, so the list
+                 reads left to right on every page. -->
+            <div class="pop pop-lang" id="lang-menu" role="menu" aria-label="Language" data-i18n-aria="lang.label" dir="ltr" hidden></div>
+          </div>
+
+          <span class="rail-line" aria-hidden="true"></span>
+
+          <span class="rail-btn rail-lamp" id="rail-lamp" role="status" aria-label="connecting" title="connecting">
+            <span class="lamp" aria-hidden="true"></span>
+          </span>
+        </div>
+      </nav>
+
+      <main class="main" id="main">
+        <!-- The pages. Choosing one in the rail fades the page shown out softly and the next one in, without loading
+             another page (js/pages.js); the address changes, so Back and a reload come to the same page. -->
+        <div class="page" data-page="home">
+          <!-- The banner: the name, what it does (the previous site's lead), and the way in. -->
+          <section class="banner" aria-labelledby="banner-title">
+            <div>
+              <h1 class="banner-title" id="banner-title"><span class="title-glow" aria-hidden="true"></span><span class="title-text">Truth <em>Guardian</em></span></h1>
+              <p class="banner-text" data-i18n="landing.lead">An AI's answer is only as good as its evidence. The challenge is to tell whether an
+                answer is grounded or hallucinated, how great the risk is, which parts are suspect and why; Truth Guardian
+                does it for text, and also for sound and images.</p>
+            </div>
+            <div class="banner-side">
+              <span class="status-chip" aria-live="polite"><span class="lamp" id="chip-lamp" aria-hidden="true"></span><span id="state">Connecting…</span></span>
+              <a class="btn-accent" href="/analyze">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                <span data-i18n="nav.analyze">Check an answer</span>
+              </a>
+            </div>
+          </section>
+
+          <!-- The AI engine's two parts, reached from its menu in the rail. -->
+          <section class="card section" id="models" aria-labelledby="models-title">
+            <h2 class="section-title" id="models-title" data-i18n="html.models">Model performance</h2>
+            <p class="section-note" data-i18n="html.soon">This part is built in the next step.</p>
+          </section>
+          <section class="card section" id="structure" aria-labelledby="structure-title">
+            <h2 class="section-title" id="structure-title" data-i18n="html.structure">How the structure works</h2>
+            <p class="section-note" data-i18n="html.soon">This part is built in the next step.</p>
+          </section>
+        </div>
+
+        <!-- Team, from the previous site's Team page: the teacher and guide on top, as the reference's profile header,
+             and the four members in a row of cards below. A card opens that person's introduction over the page. -->
+        <div class="page" data-page="team" hidden>
+          <section class="banner" aria-labelledby="team-title">
+            <div>
+              <h1 class="banner-title" id="team-title"><span class="title-glow" aria-hidden="true"></span><span class="title-text" data-i18n="team.title">Team</span></h1>
+              <p class="banner-text" data-i18n="team.lead">The people behind Truth Guardian: our teacher and guide, and the four members of the team. Choose a card to read about each.</p>
+            </div>
+          </section>
+
+          <button type="button" class="card person-feature" data-person="hamed">
+            <span class="person-cover" aria-hidden="true"></span>
+            <span class="person-feature-body">
+              <span class="avatar avatar-lg"><img src="/people/hamed-khalilavi.jpg" alt="" width="900" height="1125" decoding="async"></span>
+              <span class="person-text">
+                <span class="person-name" lang="en">Hamed Khalilavi</span>
+                <span class="person-role" data-i18n="team.role.hamed">Specialist engineer and AI programmer</span>
+              </span>
+              <span class="person-side">
+                <span class="chip-rank" data-i18n="team.supervisor">Teacher and guide</span>
+                <span class="btn-accent btn-small"><span data-i18n="team.more">Read more</span></span>
+              </span>
+            </span>
+          </button>
+
+          <ul class="people">
+            <li><button type="button" class="card person-card" data-person="danial">
+              <span class="avatar"><img src="/people/danial-rafiee.jpg" alt="" width="900" height="1125" decoding="async"></span>
+              <span class="person-name" lang="en">Danial Rafiee</span>
+              <span class="chip-rank" data-i18n="team.member">Team member</span>
+              <span class="person-role" data-i18n="team.role.models">Design and training of the project's trained models</span>
+              <span class="person-more" data-i18n="team.more">Read more</span>
+            </button></li>
+            <li><button type="button" class="card person-card" data-person="mojdeh">
+              <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
+              <span class="person-name" lang="en">Mojdeh Ghazvinian</span>
+              <span class="chip-rank" data-i18n="team.member">Team member</span>
+              <span class="person-role" data-i18n="team.role.models">Design and training of the project's trained models</span>
+              <span class="person-more" data-i18n="team.more">Read more</span>
+            </button></li>
+            <li><button type="button" class="card person-card" data-person="sepehr">
+              <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
+              <span class="person-name" lang="en">Sepehr Kakoli</span>
+              <span class="chip-rank" data-i18n="team.member">Team member</span>
+              <span class="person-role" data-i18n="team.role.sepehr">Consulting, coordination and UI/UX design</span>
+              <span class="person-more" data-i18n="team.more">Read more</span>
+            </button></li>
+            <li><button type="button" class="card person-card" data-person="majid">
+              <span class="avatar avatar-empty" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></span>
+              <span class="person-name" lang="en">Majid Rafiee</span>
+              <span class="chip-rank" data-i18n="team.member">Team member</span>
+              <span class="person-role" data-i18n="team.role.majid">Model synchronisation and UI/UX design</span>
+              <span class="person-more" data-i18n="team.more">Read more</span>
+            </button></li>
+          </ul>
+
+          <dialog class="person-dialog" id="person-dialog" aria-labelledby="person-dialog-name">
+            <div class="person-dialog-inner">
+              <button type="button" class="dialog-x" data-i18n-aria="team.close" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              </button>
+              <div class="person-dialog-photo"></div>
+              <div class="person-dialog-text">
+                <span class="chip-rank" id="person-dialog-rank"></span>
+                <h2 class="person-dialog-name" id="person-dialog-name" lang="en"></h2>
+                <p class="person-role" id="person-dialog-role"></p>
+                <p class="person-bio" id="person-dialog-bio"></p>
+              </div>
+            </div>
+          </dialog>
+        </div>
+
+        <!-- About: the previous site's text on the challenge, the engine's five stages and where it runs, with the data,
+             the models and the locked results brought up to date from README.md (as of D-172). -->
+        <div class="page" data-page="about" hidden>
+          <section class="banner" aria-labelledby="about-title">
+            <div>
+              <h1 class="banner-title" id="about-title"><span class="title-glow" aria-hidden="true"></span><span class="title-text" data-i18n="about.title">About Truth Guardian</span></h1>
+              <p class="banner-text" data-i18n="about.lead">Truth Guardian is our entry to the iWISE 2026 AI Challenge 4 on hallucination detection.</p>
+            </div>
+          </section>
+
+          <section class="card section" aria-labelledby="about-challenge">
+            <h2 class="section-title" id="about-challenge" data-i18n="about.challengeTitle">The challenge</h2>
+            <p class="section-text" data-i18n="about.challengeBody"></p>
+          </section>
+
+          <section class="card section" aria-labelledby="about-engine">
+            <h2 class="section-title" id="about-engine" data-i18n="about.engineTitle">How the engine works</h2>
+            <p class="section-text" data-i18n="about.engineBody"></p>
+            <ol class="stages">
+              <li class="stage"><span class="stage-no">01 · <span data-i18n="about.s1.label"></span></span><strong data-i18n="about.s1.title"></strong><span data-i18n="about.s1.sub"></span></li>
+              <li class="stage"><span class="stage-no">02 · <span data-i18n="about.s2.label"></span></span><strong data-i18n="about.s2.title"></strong><span data-i18n="about.s2.sub"></span></li>
+              <li class="stage"><span class="stage-no">03 · <span data-i18n="about.s3.label"></span></span><strong data-i18n="about.s3.title"></strong><span data-i18n="about.s3.sub"></span></li>
+              <li class="stage"><span class="stage-no">04 · <span data-i18n="about.s4.label"></span></span><strong data-i18n="about.s4.title"></strong><span data-i18n="about.s4.sub"></span></li>
+              <li class="stage"><span class="stage-no">05 · <span data-i18n="about.s5.label"></span></span><strong data-i18n="about.s5.title"></strong><span data-i18n="about.s5.sub"></span></li>
+            </ol>
+          </section>
+
+          <!-- The data: counts read from data/processed (not the locked sets) and, for the locked sets, from README. -->
+          <section class="card section" aria-labelledby="about-data">
+            <h2 class="section-title" id="about-data" data-i18n="html.about.data">The data</h2>
+            <div class="table-wrap">
+              <table class="facts">
+                <thead><tr><th data-i18n="html.col.set">Data</th><th data-i18n="html.col.use">Used for</th><th class="num" data-i18n="html.col.size">Size</th></tr></thead>
+                <tbody>
+                  <tr><td lang="en">RAGTruth train</td><td data-i18n="html.use.train"></td><td class="num">13,584 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">RAGTruth dev</td><td data-i18n="html.use.dev"></td><td class="num">1,506 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">RAGTruth test</td><td data-i18n="html.use.locked"></td><td class="num">2,700 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">HaluEval QA · dialogue · summary</td><td data-i18n="html.use.unseen"></td><td class="num">3 × 1,000 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">AgentHallu</td><td data-i18n="html.use.agent"></td><td class="num">231 + 462 <span data-i18n="html.unit.runs"></span></td></tr>
+                  <tr><td lang="en">RAGTruth (es · fr · zh) · PsiloQA · XQuAD</td><td data-i18n="html.use.multi"></td><td class="num">4,436 + 1,628 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">Fool the Guardian</td><td data-i18n="html.use.fool"></td><td class="num">432 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">Challenge cases</td><td data-i18n="html.use.cases"></td><td class="num">100 <span data-i18n="html.unit.answers"></span></td></tr>
+                  <tr><td lang="en">RAG documents</td><td data-i18n="html.use.rag"></td><td class="num">28 <span data-i18n="html.unit.docs"></span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card section" aria-labelledby="about-models">
+            <h2 class="section-title" id="about-models" data-i18n="html.about.models">The models</h2>
+            <div class="table-wrap">
+              <table class="facts">
+                <thead><tr><th data-i18n="html.col.role">What it does</th><th data-i18n="html.col.model">Model</th></tr></thead>
+                <tbody>
+                  <tr><td data-i18n="html.role.retrieve"></td><td lang="en">BM25 + all-MiniLM-L6-v2</td></tr>
+                  <tr><td data-i18n="html.role.nli"></td><td lang="en">nli-deberta-v3-base</td></tr>
+                  <tr><td data-i18n="html.role.hhem"></td><td lang="en">HHEM (Vectara, flan-t5-base) · ONNX Runtime</td></tr>
+                  <tr><td data-i18n="html.role.fusion"></td><td><span lang="en">Fusion ensemble</span> <span class="own" data-i18n="html.ownModel"></span></td></tr>
+                  <tr><td data-i18n="html.role.words"></td><td><span lang="en">Token-level detector</span> <span class="own" data-i18n="html.ownModel"></span></td></tr>
+                  <tr><td data-i18n="html.role.tracer"></td><td><span lang="en">Learned tracer</span> <span class="own" data-i18n="html.ownModel"></span></td></tr>
+                  <tr><td data-i18n="html.role.multi"></td><td lang="en">multilingual E5 + mDeBERTa NLI</td></tr>
+                  <tr><td data-i18n="html.role.speech"></td><td lang="en">Whisper Small (faster-whisper, int8)</td></tr>
+                  <tr><td data-i18n="html.role.ocr"></td><td lang="en">Tesseract 5.5</td></tr>
+                  <tr><td data-i18n="html.role.vision"></td><td lang="en">Qwen3-VL-2B · llama.cpp</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card section" aria-labelledby="about-results">
+            <h2 class="section-title" id="about-results" data-i18n="html.about.results">Measured results</h2>
+            <div class="table-wrap">
+              <table class="facts">
+                <thead><tr><th data-i18n="html.col.set">Data</th><th class="num" data-i18n="html.col.answers">Answers</th><th class="num" data-i18n="html.col.tg">Truth Guardian</th><th class="num" data-i18n="html.col.base">Best baseline</th></tr></thead>
+                <tbody>
+                  <tr><td lang="en">RAGTruth test</td><td class="num">2,700</td><td class="num strong">0.856</td><td class="num">0.687</td></tr>
+                  <tr><td lang="en">HaluEval QA</td><td class="num">1,000</td><td class="num strong">0.933</td><td class="num">0.845</td></tr>
+                  <tr><td lang="en">HaluEval dialogue</td><td class="num">1,000</td><td class="num strong">0.670</td><td class="num">0.514</td></tr>
+                  <tr><td lang="en">HaluEval summary</td><td class="num">1,000</td><td class="num strong">0.691</td><td class="num">0.642</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="section-note" data-i18n="html.about.resultsNote"></p>
+          </section>
+
+          <section class="card section" aria-labelledby="about-runs">
+            <h2 class="section-title" id="about-runs" data-i18n="about.runsTitle">Where the processing happens</h2>
+            <p class="section-text" data-i18n="about.runsBody"></p>
+          </section>
+        </div>
+
+        <!-- Contact us: the form sends through the server to majidrafiee1404@gmail.com (contact.py) when a mail account
+             is set up in smtp.local.env; until then, or if the server cannot send, the visitor's own email app opens with
+             the message ready for the same address, so a message is never blocked. -->
+        <div class="page" data-page="contact" hidden>
+          <section class="banner" aria-labelledby="contact-title">
+            <div>
+              <h1 class="banner-title" id="contact-title"><span class="title-glow" aria-hidden="true"></span><span class="title-text" data-i18n="contact.title">Contact us</span></h1>
+              <p class="banner-text" data-i18n="contact.lead"></p>
+            </div>
+          </section>
+
+          <form class="card section contact-form" id="contact-form" novalidate>
+            <div class="field-row">
+              <label class="field"><span data-i18n="contact.name">Your name</span><input name="name" type="text" required maxlength="100" autocomplete="name"></label>
+              <label class="field"><span data-i18n="contact.email">Your email</span><input name="email" type="email" required maxlength="254" autocomplete="email" dir="ltr"></label>
+            </div>
+            <label class="field"><span data-i18n="contact.subject">Subject</span><input name="subject" type="text" required maxlength="150"></label>
+            <label class="field"><span data-i18n="contact.message">Message</span><textarea name="message" rows="6" required maxlength="5000"></textarea></label>
+            <div class="form-foot">
+              <button type="submit" class="btn-accent" id="contact-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg><span data-i18n="contact.send">Send message</span></button>
+              <span class="form-hint" data-i18n="contact.privacy"></span>
+            </div>
+            <p class="form-status" id="contact-status" role="status" aria-live="polite" hidden></p>
+            <p class="form-direct"><span data-i18n="html.mailTo">Or write directly to</span> <a href="mailto:majidrafiee1404@gmail.com" dir="ltr">majidrafiee1404@gmail.com</a></p>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="/js/i18n.js?v=8"></script>
+  <script src="/js/ui.js?v=8"></script>
+  <script src="/js/intro.js?v=8"></script>
+  <script src="/js/pages.js?v=8"></script>
+  <script src="/js/contact.js?v=8"></script>
+  <script src="/js/app.js?v=8"></script>
+</body>
+</html>
