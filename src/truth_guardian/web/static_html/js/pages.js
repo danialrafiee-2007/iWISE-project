@@ -8,7 +8,7 @@
   if (!main) return;
   const pages = new Map([...main.querySelectorAll(".page")].map((el) => [el.dataset.page, el]));
   // The addresses this front end has a page for; the others (pages not built yet) show the home page.
-  const ROUTES = { "/": "home", "/team": "team", "/about": "about", "/contact": "contact" };
+  const ROUTES = { "/": "home", "/models": "models", "/team": "team", "/about": "about", "/contact": "contact" };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tr = (key) => (window.TG ? window.TG.t(key) : key);
   // The change's timings, read from style.css (:root), so the one standard is set in one place.
@@ -97,7 +97,8 @@
       next.hidden = false;
       if (!instant) enter(next, 60);
       current = next;
-      document.title = name === "home" ? "Truth Guardian (HTML)" : `${tr(`${name}.title`)} · Truth Guardian`;
+      const TITLES = { models: "html.models", team: "team.title", about: "about.title", contact: "contact.title" };
+      document.title = name === "home" ? "Truth Guardian (HTML)" : `${tr(TITLES[name] || `${name}.title`)} · Truth Guardian`;
       if (section) setTimeout(() => scrollToSection(section), reduced ? 0 : 300);
     });
     return busy;
@@ -128,6 +129,44 @@
   });
 
   window.addEventListener("popstate", () => show(location.pathname));
+
+  // Other parts of the page go to a page the same way the rail does (the chat's "Truth Guardian check").
+  if (window.TG) {
+    window.TG.go = (path) => {
+      if (path !== location.pathname) history.pushState({}, "", path);
+      return show(path);
+    };
+  }
+
+  // ---- The Model performance page's row of tabs: one opens at a time, softly, below the row ----
+  const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
+  function openTab(tab, focus = false) {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute("aria-controls"));
+      if (!panel) return;
+      panel.hidden = !on;
+      if (on && !reduced) {
+        panel.classList.remove("tab-in");
+        void panel.offsetWidth;
+        panel.classList.add("tab-in");
+      }
+    });
+    if (focus) tab.focus();
+  }
+  tabs.forEach((tab, i) => {
+    tab.addEventListener("click", () => openTab(tab));
+    tab.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      const dir = document.documentElement.dir === "rtl" ? -step : step;
+      openTab(tabs[(i + dir + tabs.length) % tabs.length], true);
+    });
+  });
+  if (window.TG) window.TG.openTab = (id) => { const t = document.getElementById(id); if (t) openTab(t); };
 
   // ---- The Team page's introductions ----
 

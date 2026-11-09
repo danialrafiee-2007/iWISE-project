@@ -170,7 +170,6 @@
   }
 
   const STATUS = { checked: "html.chat.checked", healed: "html.chat.healed", light: "html.chat.light", opinion: "html.chat.opinion", unchecked: "html.chat.unchecked", stopped: "html.chat.stopped" };
-  const CLAIM = { supported: "html.chat.supported", contradicted: "html.chat.contradicted", unsupported: "html.chat.unsupported", insufficient_evidence: "html.chat.insufficient", contested: "html.chat.contested" };
 
   function showAnswer(box, a) {
     if (a.status === "not_in_documents") {
@@ -182,24 +181,45 @@
       box.innerHTML = `${online}<p class="msg-off">${esc((a.notes || []).join(" · ") || tr("html.chat.error", { error: "" }))}</p>`;
       return;
     }
-    const report = a.report;
-    const verdict = report ? `<span class="verdict ${report.verdict}">${esc(tr(`html.chat.${report.verdict}`))}</span><span class="risk">${esc(tr("html.chat.risk"))} ${Math.round(report.risk * 100)}%</span>` : "";
-    const claims = report && report.claims.length
-      ? `<ul class="claims">${report.claims.map((c) => `<li class="claim ${c.status}"><span class="claim-tag">${esc(tr(CLAIM[c.status] || c.status))}</span><span>${esc(c.text)}</span></li>`).join("")}</ul>`
-      : "";
+    // The answer and, under it, the Guardian's report in full, as on the previous site's check page: the verdict card,
+    // the answer with each claim coloured (a click on a claim shows its evidence, action and fix), then the notes and
+    // the sources. Its whole report, with how the models read it, opens with "Truth Guardian check".
     const sources = a.citations.length
-      ? `<details class="sources"><summary>${esc(tr("html.chat.sources"))} (${a.citations.length})</summary><ol>${a.citations.map((c) => `<li><strong>[${c.n}] ${esc(c.document)}${c.page ? ` · p. ${c.page}` : ""}</strong><span>${esc(c.text.slice(0, 320))}${c.text.length > 320 ? "…" : ""}</span></li>`).join("")}</ol></details>`
+      ? `<details class="sources"><summary>${esc(tr("html.chat.sources"))} (${a.citations.length})</summary><ol>${a.citations.map((c) => `<li><strong>[${c.n}] ${esc(c.document)}${c.page ? ` · p. ${c.page}` : ""}</strong><span>${esc(c.text.slice(0, 320))}${c.text.length > 320 ? "…" : ""}</span>${c.place && /^https?:/.test(c.place) ? `<span class="rp-small mono" dir="ltr">${esc(c.place)}</span>` : ""}</li>`).join("")}</ol></details>`
       : "";
     box.innerHTML = `
       ${online}
-      <p class="msg-text">${esc(a.text)}</p>
-      <div class="report">
-        <div class="report-head"><span class="report-title">${esc(tr("html.chat.report"))}</span><span class="status-tag ${a.status}">${esc(tr(STATUS[a.status] || a.status))}</span>${verdict}</div>
-        ${claims}
-        ${(a.notes || []).map((n) => `<p class="report-note" lang="en">${esc(n)}</p>`).join("")}
-      </div>
+      <div class="report-head"><span class="report-title">${esc(tr("html.chat.report"))}</span><span class="status-tag ${a.status}">${esc(tr(STATUS[a.status] || a.status))}</span></div>
+      ${a.report ? "" : `<p class="msg-text">${esc(a.text)}</p>`}
+      <div class="chat-report"></div>
+      ${(a.notes || []).map((n) => `<p class="report-note" lang="en">${esc(n)}</p>`).join("")}
       ${sources}`;
+    if (a.report && window.TGReport) window.TGReport.render(box.querySelector(".chat-report"), a, { compact: true });
   }
+
+  // ---- "Truth Guardian check": the last checked answer's whole report on the Model performance page ----
+  const checkBtn = document.getElementById("chat-check");
+  let last = null;
+  function fillReportPage() {
+    const body = document.getElementById("report-body");
+    const asked = document.getElementById("report-question");
+    if (!body || !last || !window.TGReport) return;
+    asked.textContent = `${tr("html.r.question")}: ${last.question}`;
+    window.TGReport.render(body, last.answer);
+  }
+  function remember(question, a) {
+    if (!a.report) return;
+    last = { question, answer: a };
+    checkBtn.disabled = false;
+    fillReportPage();
+  }
+  checkBtn?.addEventListener("click", () => {
+    if (!last) return;
+    fillReportPage();
+    if (window.TG?.openTab) window.TG.openTab("tab-report");
+    if (window.TG?.go) window.TG.go("/models");
+  });
+  if (window.TG) window.TG.onLang(fillReportPage);
 
   // Whether the online model can answer here: its key is set (/api/ask/generators, "online").
   async function onlineOn() {
@@ -246,6 +266,7 @@
         a = web.answer;
       }
       showAnswer(box, a);
+      remember(question, a);
       history.push({ role: "user", content: question.slice(0, 5000) }, { role: "assistant", content: String(a.text).slice(0, 5000) });
       fileList.innerHTML = "";
       fileList.hidden = true;

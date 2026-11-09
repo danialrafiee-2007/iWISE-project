@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=15">
-  <link rel="stylesheet" href="/css/intro.css?v=15">
+  <link rel="stylesheet" href="/css/style.css?v=17">
+  <link rel="stylesheet" href="/css/intro.css?v=17">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -102,15 +102,11 @@
 
         <span class="rail-line" aria-hidden="true"></span>
 
-        <div class="rail-group" role="group" aria-label="AI engine" data-i18n-aria="nav.engine">
-          <a class="rail-btn" href="/#models" data-section="models" data-label="Model performance" aria-label="Model performance" data-i18n-label="html.models">
+        <div class="rail-group">
+          <a class="rail-btn" href="/models" data-page="models" data-label="Model performance" aria-label="Model performance" data-i18n-label="html.models">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16M7 16.5V11M12 16.5V5.5M17 16.5v-4"/></svg>
           </a>
-          <a class="rail-btn" href="/#structure" data-section="structure" data-label="How the structure works" aria-label="How the structure works" data-i18n-label="html.structure">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3.5" width="6" height="5" rx="1.2"/><rect x="3.5" y="15.5" width="6" height="5" rx="1.2"/><rect x="14.5" y="15.5" width="6" height="5" rx="1.2"/><path d="M12 8.5v3.5M6.5 15.5V12h11v3.5"/></svg>
-          </a>
         </div>
-
         <span class="rail-line" aria-hidden="true"></span>
 
         <div class="rail-group">
@@ -182,10 +178,6 @@
             </div>
             <div class="banner-side">
               <span class="status-chip" aria-live="polite"><span class="lamp" id="chip-lamp" aria-hidden="true"></span><span id="state">Connecting…</span></span>
-              <a class="btn-accent" href="/analyze">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-                <span data-i18n="nav.analyze">Check an answer</span>
-              </a>
             </div>
           </section>
 
@@ -208,26 +200,66 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3"/></svg>
                 </button>
                 <span class="composer-note" id="composer-note" aria-live="polite"></span>
+                <!-- Once an answer has come and been checked, this opens its full Guardian report and how the models
+                     judged it, on the Model performance page (js/chat.js, js/pages.js). -->
+                <button type="button" class="check-btn" id="chat-check" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+                  <span data-i18n="html.chat.checkBtn">Truth Guardian check</span>
+                </button>
                 <button type="submit" class="send-btn" id="chat-send" data-i18n-label="html.chat.send" data-label="Send" aria-label="Send">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg>
                 </button>
               </div>
             </form>
           </section>
-
-          <!-- The models' measured results, read live from /api/model-card (js/models.js): four figures, the
-               candles of Truth Guardian against the baselines, the tables and the calibration. -->
-          <section class="card section" id="models" aria-labelledby="models-title">
-            <h2 class="section-title" id="models-title" data-i18n="html.models">Model performance</h2>
-            <p class="section-note" data-i18n="html.m.lead"></p>
-            <div class="models-body" id="models-body"><p class="section-note" data-i18n="html.m.loading"></p></div>
-          </section>
-          <section class="card section" id="structure" aria-labelledby="structure-title">
-            <h2 class="section-title" id="structure-title" data-i18n="html.structure">How the structure works</h2>
-            <p class="section-note" data-i18n="html.soon">This part is built in the next step.</p>
-          </section>
         </div>
 
+        <!-- Model performance: what the judges open with "Truth Guardian check". A row of tabs, after the previous site's
+             AI engine in the order the owner set; each opens below it. The first holds the last answer's full Guardian
+             report and how the models read it (js/report.js); the second the models' measured results and the media models'
+             state (js/models.js); the others say what each part of the engine does and come in the next steps. -->
+        <div class="page" data-page="models" hidden>
+          <section class="banner" aria-labelledby="models-page-title">
+            <div>
+              <h1 class="banner-title" id="models-page-title"><span class="title-glow" aria-hidden="true"></span><span class="title-text" data-i18n="html.models">Model performance</span></h1>
+              <p class="banner-text" data-i18n="html.m.lead"></p>
+            </div>
+          </section>
+
+          <div class="tabs card" role="tablist" aria-label="Model performance" data-i18n-aria="html.models">
+            <button type="button" class="tab" role="tab" id="tab-report" aria-controls="panel-report" aria-selected="true" data-i18n="nav.analyze">Check an answer</button>
+            <button type="button" class="tab" role="tab" id="tab-reliability" aria-controls="panel-reliability" aria-selected="false" data-i18n="nav.model">Reliability</button>
+            <button type="button" class="tab" role="tab" id="tab-agent" aria-controls="panel-agent" aria-selected="false" data-i18n="nav.agent">Check an agent</button>
+            <button type="button" class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-i18n="nav.ask">Ask the documents</button>
+            <button type="button" class="tab" role="tab" id="tab-fool" aria-controls="panel-fool" aria-selected="false" data-i18n="nav.fool">Fool the Guardian</button>
+          </div>
+
+          <section class="card section tab-panel" role="tabpanel" id="panel-report" aria-labelledby="tab-report">
+            <p class="section-note" id="report-question"></p>
+            <div id="report-body"><p class="section-note" data-i18n="html.r.none"></p></div>
+          </section>
+          <section class="card section tab-panel" role="tabpanel" id="panel-reliability" aria-labelledby="tab-reliability" hidden>
+            <div class="models-body" id="models-body"><p class="section-note" data-i18n="html.m.loading"></p></div>
+            <h3 class="section-title small" data-i18n="models.title">Models and status</h3>
+            <p class="section-note" data-i18n="models.note"></p>
+            <div class="media-models" id="media-models"></div>
+          </section>
+          <section class="card section tab-panel" role="tabpanel" id="panel-agent" aria-labelledby="tab-agent" hidden>
+            <h3 class="section-title small" data-i18n="agent.title"></h3>
+            <p class="section-text" data-i18n="agent.lead"></p>
+            <p class="section-note" data-i18n="html.soon"></p>
+          </section>
+          <section class="card section tab-panel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
+            <h3 class="section-title small" data-i18n="ask.title"></h3>
+            <p class="section-text" data-i18n="ask.lead"></p>
+            <p class="section-note" data-i18n="html.soon"></p>
+          </section>
+          <section class="card section tab-panel" role="tabpanel" id="panel-fool" aria-labelledby="tab-fool" hidden>
+            <h3 class="section-title small" data-i18n="fool.title"></h3>
+            <p class="section-text" data-i18n="fool.lead"></p>
+            <p class="section-note" data-i18n="html.soon"></p>
+          </section>
+        </div>
         <!-- Team, from the previous site's Team page: the teacher and guide on top, as the reference's profile header,
              and the four members in a row of cards below. A card opens that person's introduction over the page. -->
         <div class="page" data-page="team" hidden>
@@ -423,13 +455,14 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=15"></script>
-  <script src="/js/ui.js?v=15"></script>
-  <script src="/js/intro.js?v=15"></script>
-  <script src="/js/pages.js?v=15"></script>
-  <script src="/js/contact.js?v=15"></script>
-  <script src="/js/models.js?v=15"></script>
-  <script src="/js/chat.js?v=15"></script>
-  <script src="/js/app.js?v=15"></script>
+  <script src="/js/i18n.js?v=17"></script>
+  <script src="/js/ui.js?v=17"></script>
+  <script src="/js/intro.js?v=17"></script>
+  <script src="/js/pages.js?v=17"></script>
+  <script src="/js/contact.js?v=17"></script>
+  <script src="/js/report.js?v=17"></script>
+  <script src="/js/models.js?v=17"></script>
+  <script src="/js/chat.js?v=17"></script>
+  <script src="/js/app.js?v=17"></script>
 </body>
 </html>

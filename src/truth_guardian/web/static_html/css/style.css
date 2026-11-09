@@ -995,6 +995,180 @@ a.pop-item { text-decoration: none; }
   .msg { max-width: 100%; }
 }
 
+/* ---- The home page is the chat: it takes the rest of the screen, its log grows above the box, as in a chat app ---- */
+
+.chat { display: flex; flex-direction: column; min-height: calc(100vh - 260px); }
+.chat .chat-log { flex: 1; max-height: none; min-height: 240px; overflow-y: auto; padding: 4px 2px; }
+.chat .chat-log:empty { display: block; }
+.chat .msg { max-width: min(860px, 100%); }
+.chat .composer { position: sticky; bottom: 12px; margin-top: auto; }
+.chat-report { display: grid; gap: 10px; margin-top: 10px; }
+
+/* "Truth Guardian check": quiet until an answer has been checked, then the site's peach. */
+.check-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f2b08b 0%, var(--accent) 55%, #d9845a 100%);
+  color: #3a1d0c;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -10px rgb(230 152 109 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.55);
+  transition: filter 160ms, transform 160ms, opacity 160ms;
+}
+.check-btn svg { width: 17px; height: 17px; }
+.check-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
+.check-btn:disabled { opacity: 0.45; cursor: default; filter: grayscale(0.4); }
+
+/* ---- Model performance: the row of tabs, side by side; the chosen one opens below ---- */
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+.tab {
+  flex: 1 1 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 200ms, color 200ms, box-shadow 200ms;
+}
+.tab:hover { background: rgb(118 186 168 / 0.14); color: var(--ink); }
+.tab[aria-selected="true"] {
+  color: #0b2a22;
+  background:
+    radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 50%),
+    linear-gradient(160deg, var(--active-light), var(--active));
+  box-shadow: 0 8px 16px -10px rgb(var(--emerald) / 0.7), inset 0 1px 1px rgb(255 255 255 / 0.8), inset 0 -2px 4px rgb(11 74 50 / 0.25);
+}
+.tab-panel.tab-in { animation: layer-in 520ms var(--ease-soft) both; }
+.section-title.small { font-size: 1.15rem; margin-top: 18px; }
+
+/* The media models' cards, from the previous site's "Models and status". */
+.media-models { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
+.media-card { display: grid; gap: 6px; padding: 16px; border-radius: 16px; background: rgb(255 255 255 / 0.7); border: 1px solid rgb(255 255 255 / 0.8); box-shadow: 0 6px 14px -10px rgb(var(--emerald) / 0.45), var(--bevel-light); }
+.state-list { display: grid; gap: 4px; margin: 4px 0 0; padding: 0; list-style: none; font-size: 0.86rem; }
+.state-list li { display: flex; align-items: center; gap: 8px; }
+.state-list li > span:first-child { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 0.7rem; font-weight: 700; }
+.state-list li.yes > span:first-child { background: rgb(57 255 136 / 0.2); color: #17603b; }
+.state-list li.no { color: #8aa197; }
+.state-list li.no > span:first-child { background: rgb(var(--emerald) / 0.08); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---- The Guardian's report (js/report.js), as on the previous site's check page ---- */
+
+.rp-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; }
+.rp-main, .rp-side { display: grid; align-content: start; gap: 12px; min-width: 0; }
+.rp-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.92), rgb(246 250 248 / 0.85));
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow: 0 6px 14px -10px rgb(var(--emerald) / 0.45), var(--bevel-light);
+}
+.rp-card h4 { margin: 0; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #2f6b56; }
+.rp-text { margin: 0; line-height: 1.65; }
+.rp-small { font-size: 0.8rem; color: var(--ink-soft); margin: 0; }
+.mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.78rem; }
+.rp-answer { margin: 0; line-height: 1.9; font-size: 0.98rem; }
+.claim-mark {
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 2px solid;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+.claim-mark.supported { border-color: #2f9a72; background: rgb(57 255 136 / 0.08); }
+.claim-mark.contradicted { border-color: #d23c3c; background: rgb(255 107 107 / 0.12); }
+.claim-mark.unsupported { border-bottom-style: dashed; border-color: #c98a12; background: rgb(243 195 79 / 0.14); }
+.claim-mark.insufficient_evidence { border-bottom-style: dotted; border-color: #8f8a6a; background: rgb(200 190 150 / 0.14); }
+.claim-mark.contested { border-bottom-style: double; border-bottom-width: 3px; border-color: #7a5fc0; background: rgb(150 120 220 / 0.12); }
+.claim-mark.on { box-shadow: 0 0 0 2px rgb(118 186 168 / 0.6); }
+.legend-row { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 0.74rem; color: var(--ink-soft); }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 3px; border-radius: 2px; background: currentColor; }
+.legend-item.supported .legend-dot { background: #2f9a72; }
+.legend-item.contradicted .legend-dot { background: #d23c3c; }
+.legend-item.unsupported .legend-dot { background: #c98a12; }
+.legend-item.insufficient_evidence .legend-dot { background: #8f8a6a; }
+.legend-item.contested .legend-dot { background: #7a5fc0; }
+.pill { display: inline-flex; padding: 2px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; }
+.pill.supported, .pill.lane-pass { background: rgb(57 255 136 / 0.16); color: #17603b; }
+.pill.contradicted, .pill.lane-block { background: rgb(255 107 107 / 0.16); color: #8f1f1f; }
+.pill.unsupported, .pill.insufficient_evidence, .pill.lane-review { background: rgb(243 195 79 / 0.22); color: #6b4a06; }
+.pill.contested { background: rgb(150 120 220 / 0.16); color: #4a3a85; }
+.rp-claim { display: grid; gap: 8px; padding: 14px 16px; border-radius: 16px; background: rgb(255 255 255 / 0.9); border-inline-start: 4px solid #2f9a72; box-shadow: 0 6px 14px -10px rgb(var(--emerald) / 0.45); }
+.rp-claim.contradicted { border-inline-start-color: #d23c3c; }
+.rp-claim.unsupported { border-inline-start-color: #c98a12; }
+.rp-claim.insufficient_evidence { border-inline-start-color: #8f8a6a; }
+.rp-claim.contested { border-inline-start-color: #7a5fc0; }
+.rp-claim-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rp-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rp-well { display: grid; gap: 4px; padding: 10px 12px; border-radius: 12px; background: rgb(var(--emerald) / 0.05); font-size: 0.88rem; }
+.fix { justify-self: start; padding: 2px 8px; border-radius: 8px; background: rgb(57 255 136 / 0.16); color: #17603b; font-family: ui-monospace, Consolas, monospace; font-size: 0.8rem; }
+.rp-warn { margin: 0; padding: 8px 12px; border-radius: 12px; background: rgb(243 195 79 / 0.16); color: #6b4a06; font-size: 0.84rem; }
+.rp-verdict { border-top: 4px solid #2f9a72; }
+.rp-verdict.hallucinated { border-top-color: #d23c3c; }
+.rp-verdict.uncertain { border-top-color: #c98a12; }
+.rp-verdict-head { display: flex; align-items: center; gap: 12px; }
+.rp-verdict-head > div { display: grid; gap: 2px; }
+.rp-verdict-word { font-size: 1.15rem; font-weight: 700; }
+.rp-verdict.grounded .rp-verdict-word { color: #17603b; }
+.rp-verdict.hallucinated .rp-verdict-word { color: #a02424; }
+.rp-verdict.uncertain .rp-verdict-word { color: #8a5d05; }
+.grade { display: grid; place-items: center; width: 56px; height: 56px; flex: none; border-radius: 16px; font-size: 1.9rem; font-weight: 700; box-shadow: var(--bevel-light); }
+.grade.gA { background: rgb(57 255 136 / 0.18); color: #17603b; }
+.grade.gB { background: rgb(134 239 172 / 0.25); color: #1f6b3f; }
+.grade.gC { background: rgb(243 195 79 / 0.25); color: #6b4a06; }
+.grade.gD { background: rgb(251 146 60 / 0.22); color: #7a3a0c; }
+.grade.gF { background: rgb(255 107 107 / 0.2); color: #8f1f1f; }
+.gauge { position: relative; height: 10px; border-radius: 999px; background: rgb(var(--emerald) / 0.1); box-shadow: inset 0 1px 3px rgb(var(--emerald) / 0.2); }
+.gauge-fill { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: inherit; background: linear-gradient(90deg, #4fbf93, #f3c34f 55%, #e5484d); }
+.gauge-mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); border-radius: 2px; }
+.gauge-scale { display: flex; justify-content: space-between; color: var(--ink-soft); }
+.rp-lane { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgb(var(--emerald) / 0.05); }
+.share { display: grid; gap: 4px; }
+.share-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.84rem; }
+.share-row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar { height: 6px; border-radius: 999px; background: rgb(var(--emerald) / 0.08); overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: inherit; background: #d23c3c; }
+.bar.ok span { background: #2f9a72; }
+.bar.warn span { background: #f3c34f; }
+.bar.bad span { background: #d23c3c; }
+.bar.none span { background: #b9c6bf; }
+.stage-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.stage-chip { padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; background: rgb(var(--emerald) / 0.06); color: #8aa197; }
+.stage-chip.on { background: linear-gradient(160deg, rgb(159 224 201 / 0.6), rgb(118 186 168 / 0.45)); color: #0b2a22; font-weight: 600; }
+.rp-list { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; }
+
+@media (max-width: 1000px) {
+  .rp-grid { grid-template-columns: 1fr; }
+  .rp-two { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .chat { min-height: calc(100vh - 200px); }
+  .check-btn span { display: none; }
+  .check-btn { padding: 0; width: 38px; justify-content: center; }
+  .tab { flex: 1 1 45%; }
+}
+
 /* ---- Sheen, as on the previous site (its card-sheen and brand-sheen) ----
    Every header (the deep green banners) carries a band of light that passes over it again and again, slowly, for as
    long as it is shown. Every light box (.card: the team's cards, the sections) shows the same band once each time the

@@ -104,6 +104,33 @@
       </div>`;
   }
 
+  // The models that read sound and images, as on the previous site's "Models and status" pages (/api/media/status):
+  // for each, four separate states on this computer (files present, runtime installed, run on known samples, quality
+  // evaluated on labelled data) and what its run on the samples showed.
+  const media = document.getElementById("media-models");
+  let mediaRows = null;
+  const STATES = [["files_present", "models.files"], ["runtime_ready", "models.runtime"], ["run_tested", "models.tested"], ["quality_evaluated", "models.evaluated"]];
+  function renderMedia() {
+    if (!media || !mediaRows) return;
+    // The readers behind sound and images, as on the previous site (its READERS): speech, text in images, what it shows.
+    media.innerHTML = mediaRows.filter((row) => ["speech", "ocr", "vision"].includes(row.name)).map((row) => {
+      const p = row.pilot;
+      const seconds = p?.seconds ? Object.values(p.seconds).reduce((a, b) => a + b, 0) : 0;
+      return `<div class="media-card">
+        <span class="stage-no">${esc(tr(`models.role.${row.name}`))}</span>
+        <strong dir="ltr">${esc(row.model)}</strong>
+        <p class="section-note">${esc(tr(`models.about.${row.name}`))}</p>
+        <ul class="state-list">${STATES.map(([k, key]) => `<li class="${row[k] ? "yes" : "no"}"><span aria-hidden="true">${row[k] ? "✓" : "–"}</span>${esc(tr(key))}<span class="sr-only">${esc(tr(row[k] ? "models.yes" : "models.no"))}</span></li>`).join("")}</ul>
+        ${p?.checks != null ? `<p class="section-note">${esc(tr("models.pilot", { passed: num(p.passed_checks ?? 0, 0), checks: num(p.checks, 0), s: num(seconds, 1), mb: num(Math.round((p.peak_mb ?? 0) + (p.server_peak_mb ?? 0)), 0) }))}</p>` : ""}
+      </div>`;
+    }).join("");
+  }
+  fetch("/api/media/status", { cache: "no-store" })
+    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+    .then((data) => { mediaRows = data.components || []; renderMedia(); })
+    .catch(() => { if (media) media.innerHTML = `<p class="section-note">${esc(tr("models.error"))}</p>`; });
+  if (window.TG) window.TG.onLang(renderMedia);
+
   fetch("/api/model-card", { cache: "no-store" })
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
     .then((data) => { card = data; render(); })
