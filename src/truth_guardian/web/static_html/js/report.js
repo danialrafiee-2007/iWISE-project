@@ -149,5 +149,24 @@
     draw();
   }
 
-  window.TGReport = { render };
+  // The engine's stages while a check streams, as the previous site's StageProgress: done ones ticked with the time
+  // they took, the current one blinking, the rest faint. stages: [{ stage, t }] in the order they arrived.
+  function progress(stages, queued) {
+    const seen = new Set(stages.map((s) => s.stage));
+    const current = stages[stages.length - 1]?.stage;
+    const took = (stage) => {
+      const i = stages.findIndex((s) => s.stage === stage);
+      return i >= 0 && i + 1 < stages.length ? stages[i + 1].t - stages[i].t : null;
+    };
+    return `<ol class="ck-stages" aria-live="polite">
+      ${queued ? `<li class="rp-warn">${esc(tr("panels.waiting"))}</li>` : ""}
+      ${STAGES.map((s) => {
+        const done = seen.has(s) && s !== current;
+        const active = s === current;
+        return `<li class="${done ? "done" : active ? "active" : ""}"><span class="ck-dot" aria-hidden="true">${done ? "✓" : ""}</span>${esc(label("stage", s))}${done ? `<span class="mono rp-small">${esc(tr("common.seconds", { s: num(took(s), 1) }))}</span>` : ""}</li>`;
+      }).join("")}
+    </ol>`;
+  }
+
+  window.TGReport = { render, progress };
 })();

@@ -35,6 +35,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from truth_guardian import models
 from truth_guardian.heal import apply as apply_changes
 from truth_guardian.media.evidence import evidence
+from truth_guardian.perturb import KINDS as TRICKS
 from truth_guardian.pipeline import NO_WORDS, make_sample
 from truth_guardian.rag.media import MEDIA_KINDS, Kept, concerns, kind_of, shown
 from truth_guardian.schema import Sample
@@ -411,6 +412,27 @@ def create_app(
             raise HTTPException(422, "this trick does not apply to this answer; pick another trick or another answer")
         span = edited.labels.spans[0]
         return {"answer": edited.answer, "edit": {"start": span.start, "end": span.end, "new": span.text, "original": (span.note or "").removeprefix("Original: ")}}
+
+    # Which tricks can change an answer at all (dropping a hedge needs a "may" or "reportedly" in it, changing a
+    # quantifier a "some" or "most"): the edit tried once with seed 0, which fits exactly when any seed does (the seed
+    # only picks where), kept once worked out. The page marks the other tricks so none ends in "does not apply".
+    fits: dict[str, list[str]] = {}
+
+    def fitting(sample: Sample, kind: str, pool: list[Sample]) -> bool:
+        try:
+            return engine.edit(sample, kind, 0, pool) is not None
+        except KeyError:
+            return False
+
+    @app.get("/api/fool/tricks/{answer_id}")
+    def fool_tricks(answer_id: str) -> dict:
+        ready()
+        if answer_id not in fool:
+            raise HTTPException(404, f"no answer {answer_id!r}")
+        if answer_id not in fits:
+            pool = list(fool.values())
+            fits[answer_id] = [kind for kind in TRICKS if fitting(fool[answer_id], kind, pool)]
+        return {"answer_id": answer_id, "kinds": fits[answer_id]}
 
     @app.post("/api/fool/check")
     def fool_check(body: FoolIn) -> StreamingResponse:

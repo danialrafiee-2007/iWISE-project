@@ -36,6 +36,28 @@ def test_the_html_launcher_sets_its_front_end_and_its_own_port():
     assert text.index('set "HERE=%~dp0"') < text.index(":args") and "%~dp0" not in text[text.index(":args") :]
 
 
+def test_the_model_card_carries_the_sound_and_image_readers_measured_quality(tmp_path):
+    """The Reliability tab reads them from /api/model-card; they come from eval/results/media_eval.json (D-139)."""
+    import json
+
+    from truth_guardian.web.metrics import model_card
+
+    results = tmp_path / "eval" / "results"
+    results.mkdir(parents=True)
+    chain = {"auroc": 0.77}
+    (results / "media_eval.json").write_text(json.dumps({
+        "speech": {"en": {"recordings": 100, "error_rate": 0.08, "unit": "words", "language_right": 1.0, "chain": chain}},
+        "images": {"textvqa_en": {"questions": 150, "text_found": 0.93, "answer_read": 0.09, "chain": chain}},
+        "qwen": {"answers": 60, "right": 0.88, "chain": chain},
+        "components": {"speech": {"data": "FLEURS dev"}},
+    }), encoding="utf-8")
+    media = model_card(tmp_path)["media"]
+    assert media["speech"]["en"] == {"recordings": 100, "error_rate": 0.08, "unit": "words", "language_right": 1.0, "auroc": 0.77}
+    assert media["images"]["textvqa_en"]["answer_read"] == 0.09 and media["vision"]["right"] == 0.88
+    assert media["data"]["speech"] == "FLEURS dev"
+    assert "media" not in model_card(tmp_path / "none")  # no file, no section
+
+
 def test_the_full_screen_opener_waits_for_the_server_and_uses_its_own_profile():
     raw = (ROOT / "scripts" / "open_fullscreen.ps1").read_bytes()
     assert b"\n" not in raw.replace(b"\r\n", b"")
@@ -78,3 +100,68 @@ def test_the_server_shows_the_html_pages_when_asked(monkeypatch):
         assert page.status_code == 200 and "/js/app.js" in page.text
         assert c.get("/css/style.css").status_code == 200
         assert c.get("/api/health").status_code == 200
+
+
+def test_check_an_answer_is_its_own_tab_and_ask_the_documents_is_gone():
+    """D-185: the chat answers from the documents, so the separate Ask tab and js/library.js were removed; Check an
+    answer is the previous site's page (examples, own input, streamed check, report, heal) in js/check.js."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert 'id="tab-ask"' not in page and 'id="panel-ask"' not in page and "library.js" not in page
+    assert not (HTML / "js" / "library.js").exists()
+    assert 'id="check-tab"' in page and "/js/check.js" in page
+    check = (HTML / "js" / "check.js").read_text(encoding="utf-8")
+    for endpoint in ("/api/examples", "/api/analyze", "/api/heal", "/api/documents"):
+        assert endpoint in check
+    assert "TGCheck?.showChat" in (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+
+
+def test_fool_the_guardian_has_the_cards_cascade_and_waits_for_the_models():
+    """D-186: the tricks are the previous site's cards cascade (js/cascade.js), the check streams its stages, the
+    sources read in their own direction, and nothing is tricked or checked before the models are ready."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert page.index("/js/cascade.js") < page.index("/js/fool.js") and 'id="fool-score"' in page
+    fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
+    assert "TGCascade" in fool and "TGReport.progress" in fool and "getReader" in fool
+    assert "/api/health" in fool and 'dir="auto"' in fool
+    cascade = (HTML / "js" / "cascade.js").read_text(encoding="utf-8")
+    assert '"wheel"' in cascade and "preventDefault" in cascade and "prefers-reduced-motion" in cascade
+
+
+def test_fool_outcome_is_the_coloured_shield_and_the_sources_are_a_list():
+    """D-187: the outcome shows the project's shield in green, amber or red beside its title (no lamp); the sources are
+    a list always in view whose text can be selected; report text cannot push its box off the page."""
+    fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
+    assert "outcome-shield" in fool and "signal-lamp" not in fool and "<details" not in fool
+    assert all(colour in fool for colour in ("green:", "amber:", "red:")) and "fool-source" in fool
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert "unicode-bidi: plaintext" in css and "overflow-wrap: anywhere" in css and "user-select: text" in css
+    assert "signal-studio" not in css
+
+
+def test_fool_marks_tricks_that_do_not_fit_and_its_score_starts_at_zero():
+    """D-188: the cards of tricks that cannot change the answer are marked and their button finds an answer they fit;
+    the score is kept for the visit only; the wheel turns one card per mouse notch."""
+    fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
+    assert "/api/fool/tricks/" in fool and "findAnswer" in fool and "localStorage" not in fool
+    cascade = (HTML / "js" / "cascade.js").read_text(encoding="utf-8")
+    assert "const STEP = 100;" in cascade and "const PAUSE = 520;" in cascade
+
+
+def test_fool_answer_comes_first_and_the_apply_row_sits_in_the_deck():
+    """D-189: the answer panel before the deck, a taller deck with bigger cards, the Apply row inside the deck."""
+    fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
+    assert fool.index('id="fool-answer-card"') < fool.index('id="fool-deck"')
+    assert "height: 620" in fool and '.querySelector(".cascade-stage")?.appendChild(applyEl)' in fool
+
+
+def test_check_an_answer_uses_the_previous_sites_coverflow_deck():
+    """D-190: the examples are the previous site's ring coverflow (js/spectra.js, loaded before js/check.js), mounted
+    once and paused while a check runs or a report is shown; the example titles come in every language."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert page.index("/js/spectra.js") < page.index("/js/check.js")
+    check = (HTML / "js" / "check.js").read_text(encoding="utf-8")
+    assert "TGSpectra.mount" in check and "paused: () => check.running || heal.running || !!view" in check
+    spectra = (HTML / "js" / "spectra.js").read_text(encoding="utf-8")
+    assert all(word in spectra for word in ("pointerdown", '"wheel"', "setInterval", "prefers-reduced-motion"))
+    i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    assert '"example.anne-frank.title": "سال اشتباه و ارجاع اشتباه"' in i18n and '"deck.browse"' in i18n

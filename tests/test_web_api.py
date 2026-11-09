@@ -172,6 +172,16 @@ def test_fool_edit_errors_are_explained(client):
     assert client.post("/api/fool/edit", json={"answer_id": first, "kind": "bogus"}).status_code == 422
 
 
+def test_fool_tricks_lists_only_the_tricks_that_can_change_the_answer(client):
+    """D-188: the fake engine fits no trick (number gives None, the rest are unknown to it), so none is listed."""
+    answers = client.get("/api/fool/answers").json()
+    if not answers:
+        pytest.skip("the Fool-the-Guardian controls are not built")
+    found = client.get(f"/api/fool/tricks/{answers[0]['id']}").json()
+    assert found == {"answer_id": answers[0]["id"], "kinds": []}
+    assert client.get("/api/fool/tricks/nope").status_code == 404
+
+
 def test_model_card_reads_the_committed_results(client):
     card = client.get("/api/model-card").json()
     assert 0.8 < card["ragtruth_dev"]["auroc"] < 0.9 and "B1 lexical overlap" in card["baselines"]

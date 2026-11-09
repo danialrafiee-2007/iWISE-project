@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=17">
-  <link rel="stylesheet" href="/css/intro.css?v=17">
+  <link rel="stylesheet" href="/css/style.css?v=26">
+  <link rel="stylesheet" href="/css/intro.css?v=26">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -230,34 +230,39 @@
             <button type="button" class="tab" role="tab" id="tab-report" aria-controls="panel-report" aria-selected="true" data-i18n="nav.analyze">Check an answer</button>
             <button type="button" class="tab" role="tab" id="tab-reliability" aria-controls="panel-reliability" aria-selected="false" data-i18n="nav.model">Reliability</button>
             <button type="button" class="tab" role="tab" id="tab-agent" aria-controls="panel-agent" aria-selected="false" data-i18n="nav.agent">Check an agent</button>
-            <button type="button" class="tab" role="tab" id="tab-ask" aria-controls="panel-ask" aria-selected="false" data-i18n="nav.ask">Ask the documents</button>
             <button type="button" class="tab" role="tab" id="tab-fool" aria-controls="panel-fool" aria-selected="false" data-i18n="nav.fool">Fool the Guardian</button>
           </div>
 
+          <!-- Check an answer (js/check.js), as on the previous site's page of the same name. -->
           <section class="card section tab-panel" role="tabpanel" id="panel-report" aria-labelledby="tab-report">
-            <p class="section-note" id="report-question"></p>
-            <div id="report-body"><p class="section-note" data-i18n="html.r.none"></p></div>
+            <h3 class="section-title small" data-i18n="analyze.title"></h3>
+            <p class="section-text" data-i18n="analyze.lead"></p>
+            <div class="tab-body" id="check-tab"></div>
           </section>
           <section class="card section tab-panel" role="tabpanel" id="panel-reliability" aria-labelledby="tab-reliability" hidden>
             <div class="models-body" id="models-body"><p class="section-note" data-i18n="html.m.loading"></p></div>
             <h3 class="section-title small" data-i18n="models.title">Models and status</h3>
             <p class="section-note" data-i18n="models.note"></p>
             <div class="media-models" id="media-models"></div>
+            <h3 class="section-title small" data-i18n="html.mq.title">Sound and images, measured on real media</h3>
+            <div class="media-quality" id="media-quality"></div>
           </section>
+          <!-- Check an agent (js/agent.js) and Fool the Guardian (js/fool.js), each as on
+               the previous site's page of the same name. -->
           <section class="card section tab-panel" role="tabpanel" id="panel-agent" aria-labelledby="tab-agent" hidden>
             <h3 class="section-title small" data-i18n="agent.title"></h3>
             <p class="section-text" data-i18n="agent.lead"></p>
-            <p class="section-note" data-i18n="html.soon"></p>
-          </section>
-          <section class="card section tab-panel" role="tabpanel" id="panel-ask" aria-labelledby="tab-ask" hidden>
-            <h3 class="section-title small" data-i18n="ask.title"></h3>
-            <p class="section-text" data-i18n="ask.lead"></p>
-            <p class="section-note" data-i18n="html.soon"></p>
+            <div class="tab-body" id="agent-tab"></div>
           </section>
           <section class="card section tab-panel" role="tabpanel" id="panel-fool" aria-labelledby="tab-fool" hidden>
-            <h3 class="section-title small" data-i18n="fool.title"></h3>
-            <p class="section-text" data-i18n="fool.lead"></p>
-            <p class="section-note" data-i18n="html.soon"></p>
+            <div class="fool-head">
+              <div>
+                <h3 class="section-title small" data-i18n="fool.title"></h3>
+                <p class="section-text" data-i18n="fool.lead"></p>
+              </div>
+              <div class="score" id="fool-score" aria-live="polite"></div>
+            </div>
+            <div class="tab-body" id="fool-tab"></div>
           </section>
         </div>
         <!-- Team, from the previous site's Team page: the teacher and guide on top, as the reference's profile header,
@@ -455,14 +460,19 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=17"></script>
-  <script src="/js/ui.js?v=17"></script>
-  <script src="/js/intro.js?v=17"></script>
-  <script src="/js/pages.js?v=17"></script>
-  <script src="/js/contact.js?v=17"></script>
-  <script src="/js/report.js?v=17"></script>
-  <script src="/js/models.js?v=17"></script>
-  <script src="/js/chat.js?v=17"></script>
-  <script src="/js/app.js?v=17"></script>
+  <script src="/js/i18n.js?v=26"></script>
+  <script src="/js/ui.js?v=26"></script>
+  <script src="/js/intro.js?v=26"></script>
+  <script src="/js/pages.js?v=26"></script>
+  <script src="/js/contact.js?v=26"></script>
+  <script src="/js/report.js?v=26"></script>
+  <script src="/js/models.js?v=26"></script>
+  <script src="/js/spectra.js?v=26"></script>
+  <script src="/js/check.js?v=26"></script>
+  <script src="/js/agent.js?v=26"></script>
+  <script src="/js/cascade.js?v=26"></script>
+  <script src="/js/fool.js?v=26"></script>
+  <script src="/js/chat.js?v=26"></script>
+  <script src="/js/app.js?v=26"></script>
 </body>
 </html>

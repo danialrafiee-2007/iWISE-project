@@ -13,7 +13,7 @@
   // Numbers in the page language's digits, as on the previous site (Persian digits in Persian, Latin in Arabic).
   const loc = () => ({ fa: "fa-IR", ar: "ar-u-nu-latn" })[lang()] || lang();
   const num = (x, digits = 3) => (x == null || Number.isNaN(x) ? "–" : new Intl.NumberFormat(loc(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(x));
-  const pct = (x) => (x == null ? "–" : new Intl.NumberFormat(loc(), { style: "percent", maximumFractionDigits: 0 }).format(x));
+  const pct = (x) => (x == null ? "–" : new Intl.NumberFormat(loc(), { style: "percent", maximumFractionDigits: 1 }).format(x));
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
   // One candle: a rounded bar whose height is the value on a 0.5 to 1 scale (0.5 is chance for AUROC).
@@ -131,9 +131,34 @@
     .catch(() => { if (media) media.innerHTML = `<p class="section-note">${esc(tr("models.error"))}</p>`; });
   if (window.TG) window.TG.onLang(renderMedia);
 
+  // How well the sound and image readers did on real media (eval/results/media_eval.json through the model card, D-139):
+  // speech per language (errors in words or characters, the language told, and how well the check then tells a true
+  // transcript's answer from a changed one), text in images per set, and the image model's answers right.
+  const quality = document.getElementById("media-quality");
+  function renderQuality() {
+    const m = card?.media;
+    if (!quality || !m) return;
+    const languageName = (code) => { try { return new Intl.DisplayNames([lang()], { type: "language" }).of(code) || code; } catch { return code; } };
+    quality.innerHTML = `
+      <div class="table-wrap"><table class="facts">
+        <caption class="chart-title">${esc(tr("html.mq.speech"))}</caption>
+        <thead><tr><th>${esc(tr("html.mq.lang"))}</th><th class="num">${esc(tr("html.mq.errors"))}</th><th class="num">${esc(tr("html.mq.told"))}</th><th class="num">${esc(tr("html.mq.chain"))}</th></tr></thead>
+        <tbody>${Object.entries(m.speech || {}).map(([code, d]) => `<tr><td>${esc(languageName(code))}</td><td class="num">${pct(d.error_rate)} <span class="rp-small">${esc(d.unit)}</span></td><td class="num">${pct(d.language_right)}</td><td class="num strong">${num(d.auroc)}</td></tr>`).join("")}</tbody>
+      </table></div>
+      <div class="table-wrap"><table class="facts">
+        <caption class="chart-title">${esc(tr("html.mq.ocr"))}</caption>
+        <thead><tr><th>${esc(tr("html.mq.set"))}</th><th class="num">${esc(tr("html.col.answers"))}</th><th class="num">${esc(tr("html.mq.found"))}</th><th class="num">${esc(tr("html.mq.read"))}</th><th class="num">${esc(tr("html.mq.chain"))}</th></tr></thead>
+        <tbody>${Object.entries(m.images || {}).map(([name, d]) => `<tr><td lang="en">${esc(name.replace("_", " · "))}</td><td class="num">${num(d.questions, 0)}</td><td class="num">${pct(d.text_found)}</td><td class="num">${pct(d.answer_read)}</td><td class="num strong">${num(d.auroc)}</td></tr>`).join("")}</tbody>
+      </table></div>
+      ${m.vision ? `<div class="stat-row">
+        <div class="stat"><span class="stat-label">${esc(tr("html.mq.vision"))}</span><span class="stat-value">${pct(m.vision.right)}</span><span class="stat-note">${esc(tr("html.mq.right"))} · ${num(m.vision.answers, 0)}</span></div>
+      </div>` : ""}`;
+  }
+  if (window.TG) window.TG.onLang(renderQuality);
+
   fetch("/api/model-card", { cache: "no-store" })
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
-    .then((data) => { card = data; render(); })
+    .then((data) => { card = data; render(); renderQuality(); })
     .catch(() => { body.innerHTML = `<p class="section-note">${esc(tr("html.m.failed"))}</p>`; });
   if (window.TG) window.TG.onLang(render);
 })();

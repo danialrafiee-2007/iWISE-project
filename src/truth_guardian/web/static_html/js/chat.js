@@ -197,29 +197,20 @@
     if (a.report && window.TGReport) window.TGReport.render(box.querySelector(".chat-report"), a, { compact: true });
   }
 
-  // ---- "Truth Guardian check": the last checked answer's whole report on the Model performance page ----
+  // ---- "Truth Guardian check": the last checked answer and its whole report on Check an answer (js/check.js) ----
   const checkBtn = document.getElementById("chat-check");
   let last = null;
-  function fillReportPage() {
-    const body = document.getElementById("report-body");
-    const asked = document.getElementById("report-question");
-    if (!body || !last || !window.TGReport) return;
-    asked.textContent = `${tr("html.r.question")}: ${last.question}`;
-    window.TGReport.render(body, last.answer);
-  }
   function remember(question, a) {
     if (!a.report) return;
     last = { question, answer: a };
     checkBtn.disabled = false;
-    fillReportPage();
   }
   checkBtn?.addEventListener("click", () => {
     if (!last) return;
-    fillReportPage();
+    window.TGCheck?.showChat(last.question, last.answer);
     if (window.TG?.openTab) window.TG.openTab("tab-report");
     if (window.TG?.go) window.TG.go("/models");
   });
-  if (window.TG) window.TG.onLang(fillReportPage);
 
   // Whether the online model can answer here: its key is set (/api/ask/generators, "online").
   async function onlineOn() {

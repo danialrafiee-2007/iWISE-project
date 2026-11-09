@@ -1068,7 +1068,14 @@ a.pop-item { text-decoration: none; }
 
 /* ---- The Guardian's report (js/report.js), as on the previous site's check page ---- */
 
-.rp-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; }
+.rp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 14px; }
+/* Nothing in a report, a tab or a result may push its box wider than the page, in any language: grid children may
+   shrink, long words and numbers wrap, and text from the server (mostly English) keeps its own direction on
+   right-to-left pages. */
+.rp-card, .rp-claim, .rp-well, .tab-body, .ck-view, .ck-results, .fool-results, .fool-left { grid-template-columns: minmax(0, 1fr); }
+.rp-card > *, .rp-claim > *, .rp-well > *, .tab-body > *, .ck-view > *, .ck-results > *, .fool-results > *, .rp-main > *, .rp-side > *, .rp-verdict-head > div, .rp-lane > span { min-width: 0; }
+.rp-card, .rp-claim, .rp-warn, .rp-small, .rp-text, .mono { overflow-wrap: anywhere; }
+.rp-answer, .rp-text, .rp-small, .rp-warn, .rp-well > span, .rp-list li, .step-text, .step-obs, .ck-why li span { unicode-bidi: plaintext; text-align: start; }
 .rp-main, .rp-side { display: grid; align-content: start; gap: 12px; min-width: 0; }
 .rp-card {
   display: grid;
@@ -1085,6 +1092,11 @@ a.pop-item { text-decoration: none; }
 .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.78rem; }
 .rp-answer { margin: 0; line-height: 1.9; font-size: 0.98rem; }
 .claim-mark {
+  display: inline;
+  text-align: inherit;
+  white-space: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   padding: 0 2px;
   border: 0;
   border-bottom: 2px solid;
@@ -1144,7 +1156,8 @@ a.pop-item { text-decoration: none; }
 .gauge-mark { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--ink); border-radius: 2px; }
 .gauge-scale { display: flex; justify-content: space-between; color: var(--ink-soft); }
 .rp-lane { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 12px; background: rgb(var(--emerald) / 0.05); }
-.share { display: grid; gap: 4px; }
+.share { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; }
+.share > *, .share-row > span { min-width: 0; }
 .share-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.84rem; }
 .share-row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar { height: 6px; border-radius: 999px; background: rgb(var(--emerald) / 0.08); overflow: hidden; }
@@ -1167,6 +1180,285 @@ a.pop-item { text-decoration: none; }
   .check-btn span { display: none; }
   .check-btn { padding: 0; width: 38px; justify-content: center; }
   .tab { flex: 1 1 45%; }
+}
+
+/* ---- The tabs' own parts: Check an answer, Check an agent, Fool the Guardian (js/check.js, agent.js, fool.js) ---- */
+
+.tab-body { display: grid; gap: 12px; margin-top: 14px; }
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chips.end { justify-content: flex-end; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgb(var(--emerald) / 0.16);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff, #f1f7f4);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.84rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px -6px rgb(var(--emerald) / 0.5), inset 0 1px 0 #fff;
+  transition: background 160ms, box-shadow 160ms;
+}
+.chip:hover:not(:disabled) { background: rgb(159 224 201 / 0.35); }
+.chip[aria-pressed="true"], .chip[aria-checked="true"] { background: linear-gradient(160deg, var(--active-light), var(--active)); color: #0b2a22; font-weight: 600; }
+.chip:disabled { opacity: 0.5; cursor: default; }
+.own summary { cursor: pointer; font-size: 0.88rem; color: #2f6b56; font-weight: 600; }
+.own[open] { display: grid; gap: 8px; }
+textarea.code {
+  width: 100%;
+  min-height: 200px;
+  padding: 10px 12px;
+  border: 1px solid rgb(var(--emerald) / 0.18);
+  border-radius: 14px;
+  background: #fbfdfc;
+  color: var(--ink);
+  font: 0.8rem/1.55 ui-monospace, Consolas, monospace;
+  resize: vertical;
+  box-shadow: inset 0 2px 4px rgb(var(--emerald) / 0.07);
+}
+textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line-height: 1.6; }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.ok-line { margin: 0; color: #17603b; font-size: 0.88rem; }
+.rp-small.bad, .bad { color: #a02424; }
+
+/* Check an agent: the run's state, the steps arriving, the tracer. */
+.agent-head { grid-template-columns: 1fr; border-top: 4px solid var(--active); }
+.agent-head.halted { border-top-color: #d23c3c; }
+.agent-state { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2f7a62; }
+.agent-head.halted .agent-state { color: #a02424; }
+.steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.step { padding: 10px 14px; border-radius: 14px; background: rgb(var(--emerald) / 0.04); border: 1px solid rgb(var(--emerald) / 0.08); opacity: 0.45; transition: opacity 400ms, background 300ms; }
+.step.shown { opacity: 1; background: rgb(255 255 255 / 0.85); }
+.step.warning { background: rgb(243 195 79 / 0.12); border-color: rgb(201 138 18 / 0.35); }
+.step.stop { background: rgb(255 107 107 / 0.1); border-color: rgb(210 60 60 / 0.4); }
+.step-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.78rem; }
+.step-head .pill { background: rgb(var(--emerald) / 0.08); color: var(--ink-soft); }
+.step-text { margin: 6px 0 0; font: 0.84rem/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; }
+.step-obs { margin: 6px 0 0; padding: 6px 10px; border-radius: 10px; background: rgb(var(--emerald) / 0.06); font: 0.8rem/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; color: var(--ink-soft); }
+.step-alert { margin: 8px 0 0; font-size: 0.86rem; font-weight: 600; }
+.step-alert.stop { color: #a02424; }
+.step-alert.warning { color: #8a5d05; }
+.tracer-row { display: grid; grid-template-columns: 70px 1fr 48px; align-items: center; gap: 10px; font-size: 0.82rem; }
+
+/* Fool the Guardian: the title with the score beside it, the tricks' cascade, the answer, the outcome lamp. */
+.fool-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
+.fool-head .section-text { max-width: 62ch; margin-bottom: 0; }
+.score { display: flex; gap: 22px; padding: 10px 18px; border-radius: 16px; background: rgb(255 255 255 / 0.8); box-shadow: var(--lift), var(--bevel-light); }
+.score > div { display: grid; justify-items: center; }
+.score-n { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.7rem; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--ink); }
+.score-n.bad { color: #a02424; }
+.fool-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+/* The Apply row inside the deck, along its foot, above the cards that fold forward. */
+.fool-apply-row { position: absolute; inset-inline: 14px; bottom: 14px; z-index: 3000; display: grid; gap: 8px; padding: 10px 12px; border: 1px solid rgb(228 221 202 / 0.9); border-radius: 18px; background: rgb(253 251 245 / 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 10px 24px -16px rgb(44 58 52 / 0.5); }
+.fool-apply-row .rp-warn, .fool-apply-row .fool-unfit-note { padding: 6px 10px; }
+.fool-left { display: grid; align-content: start; gap: 12px; min-width: 0; }
+.fool-grid > .rp-card, .rp-grid .rp-card { align-content: start; align-self: start; }
+.fool-answer textarea.code.plain { min-height: 180px; }
+/* The answer's sources, always in view: each one a few lines until a click opens it in full; its words can be selected. */
+.fool-sources { display: grid; gap: 6px; }
+.fool-sources-title { margin: 0; font-size: 0.86rem; font-weight: 600; color: #2f6b56; }
+.fool-sources-list { display: grid; gap: 6px; max-height: 480px; margin: 0; padding: 0 0 0 0; padding-inline-end: 6px; overflow-y: auto; list-style: none; }
+.fool-source { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 8px 10px; border: 1px solid #e4ddca; border-radius: 12px; background: rgb(243 237 223 / 0.75); font-size: 0.86rem; line-height: 1.6; color: var(--ink-soft); cursor: pointer; user-select: text; transition: background 160ms, border-color 160ms; }
+.fool-source:hover { background: rgb(253 230 210 / 0.55); }
+.fool-source:focus-visible { outline: none; border-color: var(--active); box-shadow: 0 0 0 3px rgb(118 186 168 / 0.3); }
+/* The source opened with a click: a pale peach, so the one being read stands out from the rest. */
+.fool-source.open { border-color: #efc29c; background: linear-gradient(180deg, #fff1e5, #fde6d2); color: var(--ink); cursor: text; box-shadow: 0 6px 14px -10px rgb(201 120 60 / 0.5); }
+.fool-source.open .mono { color: #b4642a; }
+.fool-source .mono { color: #2f7a62; }
+.fool-source-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-align: start; unicode-bidi: plaintext; overflow-wrap: anywhere; }
+.fool-source.open .fool-source-text { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.fool-results { display: grid; gap: 14px; scroll-margin-top: 20px; }
+.fool-results:empty { display: none; }
+/* The previous site's warm panels (its card: sage at the top left fading to cream, a hairline of #e4ddca) for the
+   answer and for every layer of the result below it, the report's cards included. */
+.fool-answer, .fool-results .rp-card, .fool-results .rp-claim,
+.ck-form-card, .ck-results .rp-card, .ck-results .rp-claim {
+  border: 1px solid #e4ddca;
+  background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
+  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 34px -24px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.fool-results .rp-well, .fool-results .rp-lane, .fool-results .own,
+.ck-results .rp-well, .ck-results .rp-lane, .ck-results .ck-why li { background: rgb(243 237 223 / 0.7); }
+/* Check an answer's form in the previous site's colours: plain labels, cream-edged fields on near-white, its buttons. */
+.ck-form-card h4, .ck-label { font-size: 0.86rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-soft); }
+.ck-form .field { font-weight: 400; color: var(--ink-soft); }
+.ck-form .field input, .ck-form .field textarea, .ck-form select { border-color: #e4ddca; background: #fffdf8; color: var(--ink); box-shadow: inset 0 1px 2px rgb(44 58 52 / 0.05); }
+.ck-form .field input::placeholder, .ck-form .field textarea::placeholder { font-family: "Fraunces TG", Georgia, serif; color: #8a948d; }
+.ck-form .chip { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+.ck-form .ck-submit:disabled { opacity: 1; background: #e9e4d6; color: #6f776f; box-shadow: none; }
+.ck-results .btn-ghost { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+.fool-answer h4 { font-size: 0.9rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-soft); }
+.fool-answer textarea.code.plain { border-color: #e4ddca; background: #fffdf8; font-family: "Fraunces TG", Georgia, serif; font-size: 1rem; line-height: 1.75; }
+.fool-answer .btn-ghost { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+/* A trick with nothing to change in this answer: dimmed, with a note on the card. */
+.cascade-unfit { display: none; align-self: flex-start; padding: 3px 8px; border-radius: 8px; background: rgb(0 0 0 / 0.35); font-size: 0.72rem; color: #fff; }
+.cascade-card.unfit .cascade-unfit { display: inline-block; }
+.cascade-card.unfit .cascade-face { filter: grayscale(0.65) brightness(0.85); }
+.fool-unfit-note { padding: 8px 12px; border-radius: 12px; background: rgb(243 237 223 / 0.8); }
+
+/* The cards cascade (js/cascade.js), as on the previous site: the deck on a warm field, the counter and dots beside it. */
+.cascade { position: relative; display: flex; align-items: stretch; gap: 16px; }
+.cascade-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 24px; background: radial-gradient(130% 100% at 50% 10%, #e4ece1 0%, #efe6d3 78%); perspective-origin: 50% 38%; outline: none; box-shadow: inset 0 1px 0 #fff, 0 10px 24px -18px rgb(var(--emerald) / 0.45); }
+.cascade-stage:focus-visible { box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
+.cascade-origin { position: absolute; left: 50%; top: 44%; width: 0; height: 0; transform-style: preserve-3d; }
+.cascade-card { position: absolute; transform-style: preserve-3d; will-change: transform, opacity; backface-visibility: hidden; cursor: pointer; }
+.cascade-face { position: absolute; inset: 0; overflow: hidden; border-radius: 26px; box-shadow: 0 2px 3px rgb(44 58 52 / 0.18), 0 24px 44px -18px rgb(44 58 52 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.07); backface-visibility: hidden; }
+.cascade-face::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(160deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0) 30%, rgb(0 0 0 / 0.2) 100%); opacity: var(--sheen, 0.5); mix-blend-mode: soft-light; }
+.cascade-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgb(8 10 18 / 0.82) 0%, rgb(8 10 18 / 0.3) 34%, rgb(8 10 18 / 0) 60%); }
+.cascade-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px; box-sizing: border-box; color: #fff; text-align: start; }
+.cascade-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cascade-chip { padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 8px; background: rgb(255 255 255 / 0.15); font: 500 0.75rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; }
+.cascade-rate { font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.8); }
+.cascade-kicker { margin: 0 0 6px; font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.18em; text-transform: uppercase; color: rgb(255 255 255 / 0.7); }
+.cascade-title { margin: 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.75rem; font-weight: 600; line-height: 1.05; color: #fff; }
+.cascade-hint { max-width: 30ch; margin: 8px 0 0; font-size: 0.82rem; line-height: 1.45; color: rgb(255 255 255 / 0.78); }
+.cascade-rail { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.cascade-count { font: 500 1.5rem ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; color: var(--ink); }
+.cascade-count small { font-size: 0.85rem; color: var(--ink-soft); }
+.cascade-count [data-count] { display: inline-block; }
+.cascade-count .tick { animation: cascade-tick 320ms ease-out; }
+@keyframes cascade-tick { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.cascade-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
+.cascade-dot:hover { background: rgb(var(--emerald) / 0.08); }
+.cascade-dot span { display: block; width: 6px; height: 6px; border-radius: 50%; background: #c9bfa6; transition: width 200ms, height 200ms, background 200ms, box-shadow 200ms; }
+.cascade-dot[aria-selected="true"] span { width: 12px; height: 12px; background: #456b56; box-shadow: 0 0 0 4px rgb(69 107 86 / 0.18), 0 0 12px rgb(69 107 86 / 0.45); }
+@media (prefers-reduced-motion: reduce) { .cascade-count .tick { animation: none; } }
+
+.own { padding: 8px 12px; border-radius: 12px; background: rgb(var(--emerald) / 0.05); }
+.trick-deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.trick {
+  display: grid;
+  align-content: space-between;
+  gap: 8px;
+  min-height: 140px;
+  padding: 12px;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  box-shadow: 0 10px 20px -12px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.2);
+  opacity: 0.78;
+  transform: scale(0.97);
+  transition: transform 220ms, opacity 220ms, box-shadow 220ms;
+}
+.trick:hover { opacity: 0.95; }
+.trick.on { opacity: 1; transform: scale(1); box-shadow: 0 0 0 3px rgb(159 224 201 / 0.9), 0 14px 26px -12px rgb(0 0 0 / 0.65); }
+.trick-top { display: flex; justify-content: space-between; gap: 6px; font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; opacity: 0.85; }
+.trick-count { padding: 1px 6px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 6px; }
+.trick-name { font-size: 1.15rem; font-weight: 700; line-height: 1.1; }
+.trick-hint { font-size: 0.74rem; opacity: 0.8; line-height: 1.35; }
+.fix.bad { background: rgb(255 107 107 / 0.14); color: #8f1f1f; }
+.outcome { gap: 8px; padding: 22px 24px; }
+.outcome.green { border-top: 4px solid #2f9a72; }
+.outcome.amber { border-top: 4px solid #c98a12; }
+.outcome.red { border-top: 4px solid #d23c3c; }
+/* The project's shield in the outcome's colour, beside the outcome's title (js/fool.js). */
+.outcome-head { display: flex; align-items: center; gap: 16px; }
+.outcome-head > div { display: grid; gap: 2px; min-width: 0; }
+.outcome-shield { width: 64px; height: 72px; flex: none; filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.18)); animation: shield-in 600ms cubic-bezier(.2, .8, .3, 1.2) both; }
+@keyframes shield-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .outcome-shield { animation: none; } }
+.signal-lamp { width: 54px; height: 54px; border-radius: 50%; box-shadow: inset 0 -4px 8px rgb(0 0 0 / 0.25), inset 0 3px 6px rgb(255 255 255 / 0.5); }
+.signal-lamp.green { background: radial-gradient(circle at 35% 30%, #c9ffe0, #39d98a 60%); box-shadow: 0 0 22px 4px rgb(57 217 138 / 0.6); }
+.signal-lamp.amber { background: radial-gradient(circle at 35% 30%, #fff1c2, #f3c34f 60%); box-shadow: 0 0 22px 4px rgb(243 195 79 / 0.6); }
+.signal-lamp.red { background: radial-gradient(circle at 35% 30%, #ffd0d0, #e5484d 60%); box-shadow: 0 0 22px 4px rgb(229 72 77 / 0.55); }
+.outcome-word { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.outcome.green .outcome-word { color: #17603b; }
+.outcome.amber .outcome-word { color: #8a5d05; }
+.outcome.red .outcome-word { color: #a02424; }
+.outcome-title { margin: 4px 0; font-family: "Fraunces TG", Georgia, serif; font-weight: 500; font-size: 1.5rem; }
+
+/* Check an answer: the examples deck beside the form, the stages while it checks, the report, the healing rounds. */
+.ck-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
+.ck-label { margin: 0 0 8px; font-size: 0.84rem; font-weight: 600; color: var(--ink-soft); }
+/* The examples deck (js/spectra.js), as the previous site's: a ring coverflow on a sage-to-cream field, a halo in the
+   centre card's colour behind it, the centre card's title and the button below. */
+.spectra { position: relative; display: flex; flex-direction: column; align-items: center; gap: 24px; overflow: hidden; padding: 48px 16px 40px; border: 1px solid #e4ddca; border-radius: 28px; background: radial-gradient(120% 90% at 50% 0%, #e4ece1, #f6f1e4 70%); outline: none; }
+.spectra-halo { position: absolute; left: 50%; top: 40%; width: 620px; height: 420px; transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--halo, #2dd4bf), transparent 72%); opacity: 0.55; filter: blur(24px); pointer-events: none; transition: background 700ms; }
+.spectra-stage { position: relative; width: 100%; height: 340px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.spectra-origin { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.spectra-card { position: absolute; left: -130px; top: -165px; width: 260px; height: 330px; padding: 0; border: 0; border-radius: 26px; color: #fff; font: inherit; text-align: start; cursor: pointer; box-shadow: 0 30px 60px -22px rgb(44 58 52 / 0.55); will-change: transform, opacity, filter; }
+.spectra-shade { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(to top, rgb(5 7 12 / 0.85), rgb(5 7 12 / 0) 60%); }
+.spectra-content { position: relative; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px; box-sizing: border-box; }
+.spectra-chip { align-self: flex-start; padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 8px; background: rgb(255 255 255 / 0.12); font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; }
+.spectra-text { display: grid; gap: 8px; }
+.spectra-kicker { font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.7); }
+.spectra-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.35rem; font-weight: 600; line-height: 1.15; }
+.spectra-about { font-size: 0.82rem; line-height: 1.4; color: rgb(255 255 255 / 0.75); }
+.spectra-foot { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.spectra-caption { display: flex; align-items: center; min-height: 2.5em; margin: 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.4rem; font-weight: 400; line-height: 1.2; color: var(--ink); }
+.ck-form { display: grid; gap: 12px; }
+.ck-form select {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgb(var(--emerald) / 0.18);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #f6faf8);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+}
+.ck-form .field textarea { min-height: 76px; }
+.ck-sources { display: grid; gap: 8px; margin: 0; padding: 0; border: 1px dashed transparent; border-radius: 16px; transition: background 160ms, border-color 160ms; }
+.ck-sources.drop { padding: 10px; border-color: var(--active); background: rgb(159 224 201 / 0.12); }
+.ck-sources legend { margin-bottom: 4px; padding: 0; }
+.ck-source { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 6px; align-items: start; }
+.ck-n { padding-top: 12px; text-align: end; font-size: 0.74rem; color: #2f7a62; }
+.ck-remove { width: 34px; height: 34px; margin-top: 6px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 1.2rem; cursor: pointer; }
+.ck-remove:hover { background: rgb(var(--emerald) / 0.08); }
+.ck-indent { margin-inline-start: 34px; }
+.ck-foot { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.ck-submit { margin-inline-start: auto; }
+.ck-results { display: grid; gap: 14px; scroll-margin-top: 20px; }
+.ck-results:empty { display: none; }
+.ck-checking { display: grid; place-items: center; min-height: 220px; gap: 14px; }
+.ck-pulse { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #d6fae4, var(--active) 65%); animation: ck-pulse 1.6s ease-out infinite; }
+@keyframes ck-pulse { 0% { box-shadow: 0 0 0 0 rgb(118 186 168 / 0.55); } 100% { box-shadow: 0 0 0 26px rgb(118 186 168 / 0); } }
+.ck-stages { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 0.88rem; }
+.ck-stages li { display: flex; align-items: center; gap: 10px; color: rgb(var(--emerald) / 0.35); }
+.ck-stages li.done { color: var(--ink-soft); }
+.ck-stages li.active { color: var(--ink); font-weight: 600; }
+.ck-stages li .mono { margin-inline-start: auto; }
+.ck-dot { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: rgb(var(--emerald) / 0.1); font-size: 0.7rem; color: #17603b; }
+.ck-stages li.active .ck-dot { background: var(--active); animation: ck-blink 1s ease-in-out infinite alternate; }
+@keyframes ck-blink { to { opacity: 0.4; } }
+.ck-view { display: grid; gap: 12px; transition: opacity 300ms; }
+.ck-view.dim { opacity: 0.35; pointer-events: none; }
+.ck-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.ck-gold { margin: 0; }
+.ck-slide { height: 4px; overflow: hidden; border-radius: 999px; background: rgb(var(--emerald) / 0.1); }
+.ck-slide span { display: block; width: 33%; height: 100%; border-radius: inherit; background: var(--active); animation: ck-slide 1.4s ease-in-out infinite; }
+@keyframes ck-slide { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+.ck-heal { display: grid; gap: 12px; }
+.ck-heal-head .section-text { margin: 4px 0 0; }
+.ck-diff del { color: var(--ink-soft); text-decoration-color: #d23c3c; text-decoration-thickness: 2px; }
+.ck-diff ins { padding: 0 2px; border-radius: 4px; background: rgb(57 217 138 / 0.18); color: #17603b; text-decoration: none; }
+.ck-why, .ck-rounds { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ck-why li { display: grid; gap: 4px; padding: 10px 12px; border-radius: 14px; background: rgb(var(--emerald) / 0.05); font-size: 0.86rem; }
+.ck-round { display: grid; gap: 8px; width: 100%; padding: 10px; border: 0; border-radius: 14px; background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer; }
+.ck-round:hover { background: rgb(var(--emerald) / 0.05); }
+.ck-round.on { background: rgb(159 224 201 / 0.3); }
+.ck-round-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.86rem; }
+.ck-round-verdict { display: flex; align-items: center; gap: 8px; }
+.ck-round-verdict > span:last-child { display: grid; }
+.ck-round .grade { width: 34px; height: 34px; border-radius: 10px; font-size: 1.1rem; }
+@media (max-width: 1100px) {
+  .ck-top { grid-template-columns: 1fr; }
+}
+
+/* A file button (Check an answer's sources). */
+.file-btn { display: inline-flex; align-items: center; cursor: pointer; }
+.file-btn.off { opacity: 0.5; pointer-events: none; }
+.media-quality { display: grid; gap: 12px; margin-top: 10px; }
+
+@media (max-width: 900px) {
+  .fool-grid { grid-template-columns: 1fr; }
 }
 
 /* ---- Sheen, as on the previous site (its card-sheen and brand-sheen) ----

@@ -20,6 +20,7 @@ LOCKED_REFERENCE = "lettuce"
 CASES = "challenge_cases.json"
 CALIBRATION = "calibration.json"
 PROFILES = "profiles.json"
+MEDIA = "media_eval.json"  # the sound and image readers on real media (scripts/evaluate_media.py, D-139)
 LOCKED_SETS = {"ragtruth": "ragtruth_test", "qa": "halueval_qa", "dialogue": "halueval_dialogue", "summary": "halueval_summary"}
 
 
@@ -102,5 +103,16 @@ def model_card(root: Path) -> dict:
             "trajectories": agent["trajectories"], "detection_auroc": agent.get("detection_auroc_learned", agent.get("detection_auroc")),
             "exact": agent["localization"]["all"].get("learned_exact", agent["localization"]["all"].get("tracer_exact")),
             "random": agent["localization"]["all"].get("random", agent["localization"]["all"].get("baseline_random")),
+        }
+    if media := use(MEDIA):
+        # Per language for speech (FLEURS: word or character errors, the language told, and how well the check then
+        # tells a true transcript's answer from a changed one), per set for text in images (TextVQA, MTVQA: the
+        # answer's words read), and the image model's answers right on TextVQA.
+        auroc = lambda d: (d.get("chain") or {}).get("auroc")
+        card["media"] = {
+            "data": {name: c.get("data") for name, c in media.get("components", {}).items()},
+            "speech": {lang: {"recordings": d["recordings"], "error_rate": d["error_rate"], "unit": d["unit"], "language_right": d.get("language_right"), "auroc": auroc(d)} for lang, d in media.get("speech", {}).items()},
+            "images": {name: {"questions": d["questions"], "text_found": d.get("text_found"), "answer_read": d.get("answer_read"), "auroc": auroc(d)} for name, d in media.get("images", {}).items()},
+            "vision": {"answers": media["qwen"]["answers"], "right": media["qwen"]["right"], "auroc": auroc(media["qwen"])} if media.get("qwen") else None,
         }
     return card
