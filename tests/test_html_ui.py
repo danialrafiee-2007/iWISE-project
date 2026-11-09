@@ -112,7 +112,7 @@ def test_check_an_answer_is_its_own_tab_and_ask_the_documents_is_gone():
     check = (HTML / "js" / "check.js").read_text(encoding="utf-8")
     for endpoint in ("/api/examples", "/api/analyze", "/api/heal", "/api/documents"):
         assert endpoint in check
-    assert "TGCheck?.showChat" in (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    assert "drawFull" in (HTML / "js" / "chat.js").read_text(encoding="utf-8")  # D-191: the full report shows under the chat
 
 
 def test_fool_the_guardian_has_the_cards_cascade_and_waits_for_the_models():
@@ -165,3 +165,12 @@ def test_check_an_answer_uses_the_previous_sites_coverflow_deck():
     assert all(word in spectra for word in ("pointerdown", '"wheel"', "setInterval", "prefers-reduced-motion"))
     i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
     assert '"example.anne-frank.title": "سال اشتباه و ارجاع اشتباه"' in i18n and '"deck.browse"' in i18n
+
+
+def test_the_chat_goes_to_the_free_online_answer_and_shows_the_full_report_below():
+    """D-191: no Claude in the chat's online answer; "Truth Guardian check" shows the full report under the chat."""
+    chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    assert "/api/ask/free" in chat and "/api/ask/web" not in chat and "TG.go" not in chat
+    assert 'id="chat-full"' in (HTML / "index.html").read_text(encoding="utf-8")
+    server = (ROOT / "src" / "truth_guardian" / "web" / "app.py").read_text(encoding="utf-8")
+    assert '"/api/ask/free"' in server and '"/api/ask/web"' not in server

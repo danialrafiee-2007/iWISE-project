@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=26">
-  <link rel="stylesheet" href="/css/intro.css?v=26">
+  <link rel="stylesheet" href="/css/style.css?v=29">
+  <link rel="stylesheet" href="/css/intro.css?v=29">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -200,8 +200,8 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a3 3 0 013 3v4a3 3 0 01-6 0V7a3 3 0 013-3zM6 11a6 6 0 0012 0M12 17v3"/></svg>
                 </button>
                 <span class="composer-note" id="composer-note" aria-live="polite"></span>
-                <!-- Once an answer has come and been checked, this opens its full Guardian report and how the models
-                     judged it, on the Model performance page (js/chat.js, js/pages.js). -->
+                <!-- Once an answer has come and been checked, this shows its full Guardian report under the chat, on
+                     this page: the verdict, every claim, the sources with what each says, the notes (js/chat.js). -->
                 <button type="button" class="check-btn" id="chat-check" disabled>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
                   <span data-i18n="html.chat.checkBtn">Truth Guardian check</span>
@@ -212,6 +212,8 @@
               </div>
             </form>
           </section>
+          <!-- "Truth Guardian check": the last answer's full report, shown here under the chat (js/chat.js). -->
+          <section class="card section chat-full" id="chat-full" aria-live="polite" hidden></section>
         </div>
 
         <!-- Model performance: what the judges open with "Truth Guardian check". A row of tabs, after the previous site's
@@ -460,19 +462,19 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=26"></script>
-  <script src="/js/ui.js?v=26"></script>
-  <script src="/js/intro.js?v=26"></script>
-  <script src="/js/pages.js?v=26"></script>
-  <script src="/js/contact.js?v=26"></script>
-  <script src="/js/report.js?v=26"></script>
-  <script src="/js/models.js?v=26"></script>
-  <script src="/js/spectra.js?v=26"></script>
-  <script src="/js/check.js?v=26"></script>
-  <script src="/js/agent.js?v=26"></script>
-  <script src="/js/cascade.js?v=26"></script>
-  <script src="/js/fool.js?v=26"></script>
-  <script src="/js/chat.js?v=26"></script>
-  <script src="/js/app.js?v=26"></script>
+  <script src="/js/i18n.js?v=29"></script>
+  <script src="/js/ui.js?v=29"></script>
+  <script src="/js/intro.js?v=29"></script>
+  <script src="/js/pages.js?v=29"></script>
+  <script src="/js/contact.js?v=29"></script>
+  <script src="/js/report.js?v=29"></script>
+  <script src="/js/models.js?v=29"></script>
+  <script src="/js/spectra.js?v=29"></script>
+  <script src="/js/check.js?v=29"></script>
+  <script src="/js/agent.js?v=29"></script>
+  <script src="/js/cascade.js?v=29"></script>
+  <script src="/js/fool.js?v=29"></script>
+  <script src="/js/chat.js?v=29"></script>
+  <script src="/js/app.js?v=29"></script>
 </body>
 </html>

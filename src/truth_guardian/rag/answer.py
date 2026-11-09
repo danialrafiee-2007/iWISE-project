@@ -80,6 +80,8 @@ class Citation(BaseModel):
     document_id: int | None = None
     reviewed: bool = Field(default=False, description="A person read and corrected what the reader extracted")
     inferred: bool = Field(default=False, description="The model cited nothing; this is a passage close to what it wrote")
+    stance: Literal["supports", "contradicts", "unrelated", "missing", "unjudged"] | None = Field(default=None, description="What the check found this source says of the answer (online answers, rag/free.py)")
+    found_by: Literal["model", "guardian", "both"] | None = Field(default=None, description="Named by the model that answered, or found by the Guardian itself")
 
 
 class LightClaim(BaseModel):

@@ -164,13 +164,17 @@ a verdict says an answer rests on its sources, not that it answers the question;
 answers uncertain (of 44 right answers in six languages, 22 were grounded), and neither check can judge a bare short answer
 such as "308", so the model is asked for whole sentences (D-172).
 
-When the documents hold no answer, `POST /api/ask/web` (D-182, `rag/web.py`) can ask online instead: Claude searches the web
-and answers, and the local Guardian checks that answer against the passages the API marks as cited (each citation's text,
-taken from the page by the search tool, not quotes the model writes) before it is shown, with its report. A grounded verdict
-there means the answer keeps to its cited pages, not that the pages are right. It is off like the online check until a key
-is set in `anthropic.local.env`, shares its daily budget, sends only the question, and keeps each answer so the same
-question is never paid for twice. Tested with a stand-in client only (`tests/test_web_answer.py`); not yet run against the
-real API.
+When the documents hold no answer, `POST /api/ask/free` (D-191, `rag/free.py`) asks online instead, with no Claude and
+nothing paid: a free model answers (Groq or OpenRouter when their keys are in `free.local.env`, see `free.example.env`;
+otherwise Pollinations, which needs no key and gives one answer every 45 seconds) and names the pages it relied on. The
+Guardian then reads those pages (Wikipedia's API for Wikipedia articles, Jina Reader for the rest, cleaned of markup) and
+finds its own sources on Wikipedia in the question's language and in English, never from the model's choice. The local
+engine checks every claim against all of them, and each source is labelled: supports, contradicts, unrelated, could not
+be opened (a page the model named that does not open may not exist), or read but not judged (the light check of a
+language no full check reads, such as Persian). The verdict is the local engine's, not another model's opinion; a
+grounded verdict means the answer agrees with what was found, and Wikipedia does not hold everything. The HTML chat calls
+it by itself, and its "Truth Guardian check" button shows the last answer's full report under the chat.
+`scripts/free_trial.py` runs ten mixed questions through it and keeps every answer with its sources and labels.
 
 ### The agent (D-170)
 

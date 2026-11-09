@@ -185,7 +185,7 @@ class AskIn(_Strict):
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
 
 
-class AskWebIn(_Strict):
+class AskFreeIn(_Strict):
     question: str = Field(min_length=1, max_length=MAX_QUESTION)
 
 
@@ -701,19 +701,18 @@ def create_app(
 
         return _stream(work)
 
-    @app.post("/api/ask/web")
-    def ask_web(body: AskWebIn) -> StreamingResponse:
-        """When the documents hold no answer: Claude answers from the web, and the local Guardian checks that answer
-        against the passages it cited before it is shown (rag/web.py, D-182). Off until a key is set."""
-        from truth_guardian.rag import web
+    @app.post("/api/ask/free")
+    def ask_free(body: AskFreeIn) -> StreamingResponse:
+        """When the documents hold no answer: a free online model answers (no Claude), and the local Guardian checks the
+        answer against the pages the model named and the Wikipedia articles it finds itself, labelling each source
+        (rag/free.py, D-191). Needs no key: Pollinations answers when no free key is set."""
+        from truth_guardian.rag import free
 
-        if not web.available(root):
-            raise HTTPException(503, "the online model has no key yet; anthropic.example.env says how to add one")
         ready()
 
         def work(emit, cancelled) -> dict:
-            # NotAvailable (no key, today's budget spent) is a ValueError, so it reaches the page as the stream's error.
-            found = web.answer_from_web(body.question, engine, emit, cancelled, root=root)
+            # NotAvailable (the free service is busy or unreachable) is a ValueError, so it reaches the page as the stream's error.
+            found = free.answer_free(body.question, engine, emit, cancelled, root=root)
             return {"answer": found.model_dump(mode="json")}
 
         return _stream(work)

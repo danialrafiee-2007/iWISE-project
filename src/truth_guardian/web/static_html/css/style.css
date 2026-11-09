@@ -923,6 +923,30 @@ a.pop-item { text-decoration: none; }
 .sources ol { display: grid; gap: 6px; margin: 8px 0 0; padding-inline-start: 0; list-style: none; }
 .sources li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: rgb(var(--emerald) / 0.05); }
 .sources li span { color: var(--ink-soft); }
+.sources li { min-width: 0; overflow-wrap: anywhere; }
+.sources li a { color: #2f6b56; text-decoration: none; }
+.sources li a:hover { text-decoration: underline; }
+/* What each source says about an online answer (js/chat.js, rag/free.py), and who brought it. */
+.source-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.stance { display: inline-flex; padding: 1px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.sources li .stance.supports, .stance.supports { background: rgb(57 217 138 / 0.18); color: #17603b; }
+.sources li .stance.contradicts, .stance.contradicts { background: rgb(255 107 107 / 0.18); color: #8f1f1f; }
+.sources li .stance.unrelated, .stance.unrelated { background: rgb(185 198 191 / 0.35); color: #4a5a52; }
+.sources li .stance.missing, .stance.missing { background: rgb(243 195 79 / 0.25); color: #6b4a06; }
+.sources li .stance.unjudged, .stance.unjudged { background: rgb(150 120 220 / 0.16); color: #4a3a85; }
+/* The light check, sentence by sentence. */
+.light-list { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.light-list li { display: grid; gap: 3px; padding: 8px 10px; border-radius: 10px; background: rgb(243 237 223 / 0.6); font-size: 0.88rem; }
+.light-list li.doubtful { background: rgb(255 107 107 / 0.08); }
+.light-list .stance { justify-self: start; }
+/* "Truth Guardian check": the last answer's full report under the chat, in site 1's warm panel colours. */
+.chat-full { display: grid; gap: 12px; margin-top: 18px; border: 1px solid #e4ddca; background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%); scroll-margin-top: 16px; }
+.chat-full[hidden] { display: none; }
+.chat-full > * { min-width: 0; }
+.full-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.full-head .section-title { margin: 0; }
+.chat-full .rp-card, .chat-full .rp-claim { border: 1px solid #e4ddca; background: rgb(255 253 248 / 0.85); }
+.full-sources .sources { margin-top: 0; }
 
 /* The composer: a rounded box with the question, and the tools under it, as in a chat. */
 .composer {

@@ -103,3 +103,16 @@ Read from the installed package metadata on 2026-10-23.
 | Resource | Source | License | Status | Use |
 |---|---|---|---|---|
 | Layers bought from GetLayers, then edited by the team: Neural Monitor (template, with its brain model rotten-brain.glb, the particle brain on the landing page), Roadmap Ascent, Slider Spectra, Cards Cascade (sections), Glass Halo, Halftone Iris, Lumen Grid, Signal Array, Rift Stone (scenes; of Rift Stone only the way it cracks, rewritten in the landing brain's shader, D-142), Jade Cipher (scene; its falling rain rewritten as the site's opening, with zeros and ones for its glyphs, D-150), Pharos, Loupe, Riffle (gradients), Text Animations (tool) | https://www.getlayers.ai | GetLayers licence, purchased by the team | purchased | Visual layers of the web app; changes listed in web/scripts/vendor-layers.mjs and in each adapted component |
+
+## Free online services (the chat's online answer, D-191)
+
+Used only when the documents hold no answer, over the internet; the app works fully without them. Checked from the team's
+computer on 2026-11-10 (see `docs/DECISIONS.md` D-191). No Claude and nothing paid.
+
+| Service | Link | Terms | Use |
+|---|---|---|---|
+| Pollinations text API | https://pollinations.ai | Free without a key: one answer every 45 seconds per address; its own terms | Default free model that answers (GPT-OSS 20B) |
+| Groq (optional) | https://console.groq.com | Free tier with an account and key; its own terms | Answers instead, when GROQ_API_KEY is set |
+| OpenRouter free models (optional) | https://openrouter.ai | Free models (`:free`): 20 a minute, 50 a day; each model's own licence | Answers instead, when OPENROUTER_API_KEY is set |
+| Wikipedia API | https://www.mediawiki.org/wiki/API:Main_page | Text CC BY-SA 4.0; the API is free without a key | The Guardian's own sources: short passages shown with their article's link |
+| Jina Reader | https://jina.ai/reader | Free without a key at a low rate; its own terms | Reads the pages the model names as plain text |

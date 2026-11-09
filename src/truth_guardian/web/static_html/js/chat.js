@@ -3,9 +3,10 @@
 // recordings and images (each read and added to their documents, /api/library/documents). The question then goes to
 // /api/ask: the local model answers from those files and the project's documents, and the Guardian checks the answer
 // before it is shown, with its verdict, risk, claims and sources (the Guardian's report).
-// When the documents hold no answer and the online model's key is set, the question goes online: Claude answers from
-// the web and the local Guardian checks that answer against the pages it cited before it is shown (/api/ask/web,
-// rag/web.py). Without the key the page says the online answer is off.
+// When the documents hold no answer, the question goes online to a free model (no Claude, nothing paid; /api/ask/free,
+// rag/free.py): the Guardian reads the pages the model named, finds its own sources on Wikipedia, and the project's own
+// models check every claim; each source is labelled (supports, contradicts, unrelated, could not be opened).
+// "Truth Guardian check" then shows the last answer's full report under the chat, on this page.
 
 (() => {
   const form = document.getElementById("composer");
@@ -171,56 +172,109 @@
 
   const STATUS = { checked: "html.chat.checked", healed: "html.chat.healed", light: "html.chat.light", opinion: "html.chat.opinion", unchecked: "html.chat.unchecked", stopped: "html.chat.stopped" };
 
+  const STANCE = (c) => (c.stance ? `<span class="stance ${c.stance}">${esc(tr(`html.free.st.${c.stance}`))}</span>` : "");
+  const FOUND_BY = (c) => (c.found_by ? `<span class="rp-small">${esc(tr(`html.free.by.${c.found_by}`))}</span>` : "");
+  const isFree = (a) => String(a.generator || "").startsWith("free-online");
+  const freeModel = (a) => String(a.generator || "").split(":").slice(1).join(":");
+
+  // The sources: for an online answer each carries what the check found it says (supports, contradicts, unrelated,
+  // could not be opened) and who brought it (the model or the Guardian); the documents' passages as before.
+  function sourcesHTML(a, open = false) {
+    if (!a.citations.length) return "";
+    return `<details class="sources"${open ? " open" : ""}><summary>${esc(isFree(a) ? tr("html.free.sourcesTitle") : tr("html.chat.sources"))} (${a.citations.length})</summary><ol>${a.citations.map((c) => `
+      <li><strong dir="auto">[${c.n}] ${esc(c.document)}${c.page ? ` · p. ${c.page}` : ""}</strong>
+        ${c.stance || c.found_by ? `<span class="source-tags">${STANCE(c)}${FOUND_BY(c)}</span>` : ""}
+        ${c.text ? `<span dir="auto">${esc(c.text.slice(0, 320))}${c.text.length > 320 ? "…" : ""}</span>` : ""}
+        ${c.place && /^https?:/.test(c.place) ? `<a class="rp-small mono" dir="ltr" href="${esc(c.place)}" target="_blank" rel="noopener noreferrer">${esc(c.place)}</a>` : ""}</li>`).join("")}</ol></details>`;
+  }
+
+  // The server's notes on a free online answer come in English (rag/free.py); they are shown in the page's language.
+  const NOTES = [
+    [/^answered online by a free model/, () => tr("html.free.n.main")],
+    [/^(\d+) page\(s\) the model named could not be opened; they may not exist: (.*)$/, (m) => tr("html.free.n.missing", { n: new Intl.NumberFormat(({ fa: "fa-IR", ar: "ar-u-nu-latn" })[lang()] || lang()).format(Number(m[1])), urls: m[2] })],
+    [/^the model named no page for its answer$/, () => tr("html.free.n.noPage")],
+    [/^no source was found to check it against$/, () => tr("html.free.n.noSource")],
+    [/^the free model wrote no answer$/, () => tr("html.free.n.noAnswer")],
+  ];
+  function noteText(note) {
+    for (const [pattern, say] of NOTES) {
+      const m = String(note).match(pattern);
+      if (m) return { text: say(m), own: true };
+    }
+    return { text: String(note), own: false };
+  }
+  const noteHTML = (note) => {
+    const n = noteText(note);
+    return `<p class="report-note"${n.own ? ' dir="auto"' : ' lang="en" dir="ltr"'}>${esc(n.text)}</p>`;
+  };
+
+  // The light check (a language no full check reads): each sentence close to the sources or doubtful, and why.
+  const REASON = { "a number is not in the documents": "html.full.r.number", "a day or month is not in the documents": "html.full.r.day", "no passage is close to this sentence": "html.full.r.far" };
+  function lightHTML(a) {
+    if (!a.light?.length) return "";
+    return `<ul class="light-list">${a.light.map((l) => `<li class="${l.status}"><span class="stance ${l.status === "close" ? "supports" : "contradicts"}">${esc(tr(l.status === "close" ? "html.full.close" : "html.full.doubtful"))}</span><span dir="auto">${esc(l.text)}</span>${l.reasons.length ? `<span class="rp-small">${l.reasons.map((r) => esc(REASON[r] ? tr(REASON[r]) : r)).join(" · ")}</span>` : ""}</li>`).join("")}</ul>`;
+  }
+
   function showAnswer(box, a) {
     if (a.status === "not_in_documents") {
-      box.innerHTML = `<p>${esc(a.text)}</p><p class="msg-off">${esc(tr("html.chat.notFound"))}</p>`;
+      box.innerHTML = `<p>${esc(a.text)}</p>`;
       return;
     }
-    const online = a.generator === "online-web" ? `<p class="online-tag">${esc(tr("html.chat.onlineTag"))}</p>` : "";
+    const online = isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>` : "";
     if (!a.text) {
-      box.innerHTML = `${online}<p class="msg-off">${esc((a.notes || []).join(" · ") || tr("html.chat.error", { error: "" }))}</p>`;
+      box.innerHTML = `${online}<p class="msg-off">${esc((a.notes || []).map((n) => noteText(n).text).join(" · ") || tr("html.chat.error", { error: "" }))}</p>`;
       return;
     }
-    // The answer and, under it, the Guardian's report in full, as on the previous site's check page: the verdict card,
-    // the answer with each claim coloured (a click on a claim shows its evidence, action and fix), then the notes and
-    // the sources. Its whole report, with how the models read it, opens with "Truth Guardian check".
-    const sources = a.citations.length
-      ? `<details class="sources"><summary>${esc(tr("html.chat.sources"))} (${a.citations.length})</summary><ol>${a.citations.map((c) => `<li><strong>[${c.n}] ${esc(c.document)}${c.page ? ` · p. ${c.page}` : ""}</strong><span>${esc(c.text.slice(0, 320))}${c.text.length > 320 ? "…" : ""}</span>${c.place && /^https?:/.test(c.place) ? `<span class="rp-small mono" dir="ltr">${esc(c.place)}</span>` : ""}</li>`).join("")}</ol></details>`
-      : "";
+    // The answer and, under it, the Guardian's report, short: the verdict, the answer with each claim coloured (a click
+    // on a claim shows its evidence, action and fix), then the sources with their labels. Its whole report opens under
+    // the chat with "Truth Guardian check".
     box.innerHTML = `
       ${online}
       <div class="report-head"><span class="report-title">${esc(tr("html.chat.report"))}</span><span class="status-tag ${a.status}">${esc(tr(STATUS[a.status] || a.status))}</span></div>
-      ${a.report ? "" : `<p class="msg-text">${esc(a.text)}</p>`}
+      ${a.report ? "" : `<p class="msg-text" dir="auto">${esc(a.text)}</p>`}
       <div class="chat-report"></div>
-      ${(a.notes || []).map((n) => `<p class="report-note" lang="en">${esc(n)}</p>`).join("")}
-      ${sources}`;
+      ${lightHTML(a)}
+      ${sourcesHTML(a)}`;
     if (a.report && window.TGReport) window.TGReport.render(box.querySelector(".chat-report"), a, { compact: true });
   }
 
-  // ---- "Truth Guardian check": the last checked answer and its whole report on Check an answer (js/check.js) ----
+  // ---- "Truth Guardian check": the last answer's full report, under the chat on this page ----
   const checkBtn = document.getElementById("chat-check");
+  const full = document.getElementById("chat-full");
   let last = null;
+  function drawFull() {
+    if (!full || !last) return;
+    const a = last.answer;
+    full.hidden = false;
+    full.innerHTML = `
+      <div class="full-head">
+        <h2 class="section-title">${esc(tr("html.full.title"))}</h2>
+        <button type="button" class="btn-ghost" id="chat-full-close">${esc(tr("html.full.hide"))}</button>
+      </div>
+      <p class="section-note"><strong>${esc(tr("html.full.question"))}:</strong> <span dir="auto">${esc(last.question)}</span></p>
+      ${isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>` : ""}
+      <p class="mono rp-small">${esc(tr("html.full.meta", { g: a.generator || "", s: Number(a.seconds || 0).toFixed(1) }))}</p>
+      <div id="chat-full-report"></div>
+      ${a.light?.length ? `<div class="rp-card"><h4>${esc(tr("html.full.light"))}</h4>${lightHTML(a)}</div>` : ""}
+      ${a.citations.length ? `<div class="rp-card full-sources">${sourcesHTML(a, true)}</div>` : ""}
+      ${(a.notes || []).length ? `<div class="rp-card"><h4>${esc(tr("html.full.notes"))}</h4>${a.notes.map(noteHTML).join("")}</div>` : ""}`;
+    const body = full.querySelector("#chat-full-report");
+    if (a.report && window.TGReport) window.TGReport.render(body, a);
+    else body.innerHTML = `<p class="msg-text" dir="auto">${esc(a.text)}</p>`;
+    full.querySelector("#chat-full-close").addEventListener("click", () => { full.hidden = true; });
+  }
   function remember(question, a) {
-    if (!a.report) return;
+    if (!a.text || a.status === "not_in_documents") return;
     last = { question, answer: a };
     checkBtn.disabled = false;
+    if (full && !full.hidden) drawFull();
   }
   checkBtn?.addEventListener("click", () => {
     if (!last) return;
-    window.TGCheck?.showChat(last.question, last.answer);
-    if (window.TG?.openTab) window.TG.openTab("tab-report");
-    if (window.TG?.go) window.TG.go("/models");
+    drawFull();
+    full?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
-
-  // Whether the online model can answer here: its key is set (/api/ask/generators, "online").
-  async function onlineOn() {
-    try {
-      const res = await fetch("/api/ask/generators", { cache: "no-store" });
-      return res.ok && (await res.json()).online === true;
-    } catch {
-      return false;
-    }
-  }
+  if (window.TG) window.TG.onLang(() => { if (full && !full.hidden) drawFull(); });
 
   let busy = false;
   form.addEventListener("submit", async (e) => {
@@ -249,12 +303,32 @@
         }
       });
       let a = result.answer;
-      // Not in the documents: when the online model is on (its key is set), the question goes online, and its answer
-      // comes back checked by the local Guardian against the pages it cited (/api/ask/web). Otherwise it says so.
-      if (a.status === "not_in_documents" && (await onlineOn())) {
-        box.innerHTML = `<p class="thinking">${esc(tr("html.chat.online"))}</p>`;
-        const web = await stream("/api/ask/web", { question }, () => {});
-        a = web.answer;
+      // Not in the documents: the question goes to a free online model, and its answer comes back checked by the
+      // project's own models against the pages it named and sources the Guardian found (/api/ask/free). Each step is told.
+      if (a.status === "not_in_documents") {
+        // The model's answer is shown the moment it comes; the Guardian's steps go on under it until its report is ready.
+        let said = "";
+        const status = (text) => { box.innerHTML = `${said ? `<p class="msg-text" dir="auto">${esc(said)}</p>` : ""}<p class="thinking">${esc(text)}</p>`; };
+        let countdown = 0;
+        status(tr("html.chat.online"));
+        try {
+          const online = await stream("/api/ask/free", { question }, (event) => {
+            if (event.type === "text") { said = event.text; return; }
+            if (event.type !== "stage") return;
+            clearInterval(countdown);
+            if (event.stage === "online") status(tr("html.free.asking", { p: `${event.provider} · ${event.model}` }));
+            if (event.stage === "waiting") {
+              let left = event.seconds;
+              status(tr("html.free.waiting", { s: left }));
+              countdown = setInterval(() => { left = Math.max(0, left - 1); status(tr("html.free.waiting", { s: left })); }, 1000);
+            }
+            if (event.stage === "sources") status(tr("html.free.sources"));
+            if (event.stage === "check") status(tr("html.free.checking"));
+          });
+          a = online.answer;
+        } finally {
+          clearInterval(countdown);
+        }
       }
       showAnswer(box, a);
       remember(question, a);
@@ -262,7 +336,9 @@
       fileList.innerHTML = "";
       fileList.hidden = true;
     } catch (err) {
-      box.innerHTML = `<p class="msg-off">${esc(tr("html.chat.error", { error: err.message }))}</p>`;
+      // A free service that asks for a longer wait than the server waits says so in the page's language.
+      const busy = /free service .* (is|still) busy/.test(err.message);
+      box.innerHTML = `<p class="msg-off">${esc(busy ? tr("html.free.busy") : tr("html.chat.error", { error: err.message }))}</p>`;
     } finally {
       busy = false;
       send.disabled = false;
