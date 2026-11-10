@@ -155,12 +155,15 @@
   });
 
   // ---- The conversation ----
+  // The newest message comes into view inside the chat, which scrolls by itself; the page around it does not move (D-201).
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const toBottom = () => requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; });
   function bubble(role) {
     const li = document.createElement("li");
     li.className = `msg ${role}`;
     li.innerHTML = `<span class="msg-who">${esc(tr(role === "user" ? "html.chat.you" : "html.chat.guardian"))}</span><div class="msg-body"></div>`;
     log.appendChild(li);
-    li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    toBottom();
     return li.querySelector(".msg-body");
   }
   function addNote(text, kind = "") {
@@ -281,19 +284,28 @@
     return a.status === "checked" && a.report?.verdict === "hallucinated";
   }
 
-  // ---- "Truth Guardian check": the last answer's full report, under the chat on this page ----
+  // ---- "Truth Guardian check": the last answer's full report, in a window over the page (D-201) ----
+  // It opens as the team's introductions do, softly, and its content scrolls inside it when it is longer than the screen.
   const checkBtn = document.getElementById("chat-check");
   const full = document.getElementById("chat-full");
+  const fullBody = full?.querySelector(".report-dialog-body");
   let last = null;
+  function closeFull() {
+    if (!full?.open || full.classList.contains("closing")) return;
+    if (reduced) return full.close();
+    full.classList.add("closing");
+    setTimeout(() => { full.close(); full.classList.remove("closing"); }, 320);
+  }
+  if (full) {
+    full.querySelector(".dialog-x").addEventListener("click", closeFull);
+    full.addEventListener("click", (e) => { if (e.target === full) closeFull(); });
+    full.addEventListener("cancel", (e) => { e.preventDefault(); closeFull(); });
+  }
   function drawFull() {
-    if (!full || !last) return;
+    if (!fullBody || !last) return;
     const a = last.answer;
-    full.hidden = false;
-    full.innerHTML = `
-      <div class="full-head">
-        <h2 class="section-title">${esc(tr("html.full.title"))}</h2>
-        <button type="button" class="btn-ghost" id="chat-full-close">${esc(tr("html.full.hide"))}</button>
-      </div>
+    fullBody.innerHTML = `
+      <h2 class="section-title report-dialog-title" id="chat-full-title">${esc(tr("html.full.title"))}</h2>
       <p class="section-note"><strong>${esc(tr("html.full.question"))}:</strong> <span dir="auto">${esc(last.question)}</span></p>
       ${isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>` : ""}
       <p class="mono rp-small">${esc(tr("html.full.meta", { g: a.generator || "", s: Number(a.seconds || 0).toFixed(1) }))}</p>
@@ -303,23 +315,23 @@
       ${a.light?.length ? `<div class="rp-card"><h4>${esc(tr("html.full.light"))}</h4>${lightHTML(a)}</div>` : ""}
       ${a.citations.length ? `<div class="rp-card full-sources">${sourcesHTML(a, true)}</div>` : ""}
       ${(a.notes || []).length ? `<div class="rp-card"><h4>${esc(tr("html.full.notes"))}</h4>${a.notes.map(noteHTML).join("")}</div>` : ""}`;
-    const body = full.querySelector("#chat-full-report");
+    const body = fullBody.querySelector("#chat-full-report");
     if (a.report && window.TGReport) window.TGReport.render(body, a);
     else body.innerHTML = `<p class="msg-text" dir="auto">${esc(a.text)}</p>`;
-    full.querySelector("#chat-full-close").addEventListener("click", () => { full.hidden = true; });
   }
   function remember(question, a) {
     if (!a.text || a.status === "not_in_documents") return;
     last = { question, answer: a };
     checkBtn.disabled = false;
-    if (full && !full.hidden) drawFull();
+    if (full?.open) drawFull();
   }
   checkBtn?.addEventListener("click", () => {
     if (!last) return;
     drawFull();
-    full?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (full && !full.open) full.showModal();
+    if (fullBody) fullBody.scrollTop = 0;
   });
-  if (window.TG) window.TG.onLang(() => { if (full && !full.hidden) drawFull(); });
+  if (window.TG) window.TG.onLang(() => { if (full?.open) drawFull(); });
 
   let busy = false;
   form.addEventListener("submit", async (e) => {
@@ -386,7 +398,7 @@
     } finally {
       busy = false;
       send.disabled = false;
-      box.closest(".msg").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      toBottom();
     }
   });
 

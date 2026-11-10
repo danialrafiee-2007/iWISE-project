@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=33">
-  <link rel="stylesheet" href="/css/intro.css?v=33">
+  <link rel="stylesheet" href="/css/style.css?v=35">
+  <link rel="stylesheet" href="/css/intro.css?v=35">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -212,8 +212,14 @@
               </div>
             </form>
           </section>
-          <!-- "Truth Guardian check": the last answer's full report, shown here under the chat (js/chat.js). -->
-          <section class="card section chat-full" id="chat-full" aria-live="polite" hidden></section>
+          <!-- "Truth Guardian check": the last answer's full report, in a window over the page as the team's
+               introductions are, scrolling inside when it is long (js/chat.js, D-201). -->
+          <dialog class="person-dialog report-dialog" id="chat-full" aria-labelledby="chat-full-title">
+            <button type="button" class="dialog-x" data-i18n-aria="team.close" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <div class="report-dialog-body"></div>
+          </dialog>
         </div>
 
         <!-- Model performance: what the judges open with "Truth Guardian check". A row of tabs, after the previous site's
@@ -462,19 +468,19 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=33"></script>
-  <script src="/js/ui.js?v=33"></script>
-  <script src="/js/intro.js?v=33"></script>
-  <script src="/js/pages.js?v=33"></script>
-  <script src="/js/contact.js?v=33"></script>
-  <script src="/js/report.js?v=33"></script>
-  <script src="/js/models.js?v=33"></script>
-  <script src="/js/spectra.js?v=33"></script>
-  <script src="/js/check.js?v=33"></script>
-  <script src="/js/agent.js?v=33"></script>
-  <script src="/js/cascade.js?v=33"></script>
-  <script src="/js/fool.js?v=33"></script>
-  <script src="/js/chat.js?v=33"></script>
-  <script src="/js/app.js?v=33"></script>
+  <script src="/js/i18n.js?v=35"></script>
+  <script src="/js/ui.js?v=35"></script>
+  <script src="/js/intro.js?v=35"></script>
+  <script src="/js/pages.js?v=35"></script>
+  <script src="/js/contact.js?v=35"></script>
+  <script src="/js/report.js?v=35"></script>
+  <script src="/js/models.js?v=35"></script>
+  <script src="/js/spectra.js?v=35"></script>
+  <script src="/js/check.js?v=35"></script>
+  <script src="/js/agent.js?v=35"></script>
+  <script src="/js/cascade.js?v=35"></script>
+  <script src="/js/fool.js?v=35"></script>
+  <script src="/js/chat.js?v=35"></script>
+  <script src="/js/app.js?v=35"></script>
 </body>
 </html>

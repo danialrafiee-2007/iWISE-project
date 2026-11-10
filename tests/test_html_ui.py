@@ -198,3 +198,13 @@ def test_the_second_opinion_is_shown_in_the_full_report():
     assert "function secondHTML(a)" in chat and "${secondHTML(a)}" in chat
     i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
     assert '"html.second.disputed": "دو مدل اختلاف دارند: احتمال توهم"' in i18n
+
+
+def test_the_chat_scrolls_inside_itself_and_the_report_opens_in_a_window():
+    """D-201: the chat keeps its height and its log scrolls; the full report opens in a window over the page."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert '<dialog class="person-dialog report-dialog" id="chat-full"' in page and 'class="report-dialog-body"' in page
+    chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    assert "full.showModal()" in chat and "scrollIntoView" not in chat and "log.scrollTop = log.scrollHeight" in chat
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert ".chat .chat-log { flex: 1 1 0; min-height: 0;" in css and ".report-dialog-body {" in css
