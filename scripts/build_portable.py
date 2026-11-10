@@ -35,7 +35,10 @@ SPARE_BYTES = 1_000_000_000
 LEFT_OUT = {
     ".git", ".pytest_cache", ".venv", "data/features", "dist", "eval/predictions", "layers-originals", "runtime/hf/hub/.locks",
     "runtime/browser-profile", "runtime/hf/xet", "runtime/logs", "runtime/npm-cache", "runtime/online", "runtime/python/.temp", "runtime/rag-eval", "web/node_modules",
+    "runtime/tmp", "runtime/media-smoke",
 }
+# The chat's document library: the project's documents go into the package, the person's own never (D-214).
+LIBRARY = "data/web/library/library.sqlite"
 LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt")
 KEPT_DATA = (
     "data/web", "data/raw/nltk_data/corpora/wordnet", "data/processed/ragtruth_dev.jsonl", "data/processed/xdev_halueval_dialogue.jsonl",
@@ -67,6 +70,27 @@ def select(root: Path) -> dict[str, Path]:
             if not relative.startswith("data/") or _kept_data(relative):
                 chosen[relative] = Path(folder) / name
     return chosen
+
+
+def project_library(chosen: dict[str, Path], work: Path) -> None:
+    """The library as the package carries it: a copy with only the project's documents, so the files a person added in
+    the chat (and their passages, pictures and second readings) stay on this computer."""
+    if LIBRARY not in chosen:
+        return
+    import sqlite3
+
+    work.mkdir(parents=True, exist_ok=True)
+    copy = work / "library.sqlite"
+    source = sqlite3.connect(chosen[LIBRARY])
+    target = sqlite3.connect(copy)
+    source.backup(target)
+    source.close()
+    target.execute("PRAGMA foreign_keys = ON")
+    target.execute("DELETE FROM documents WHERE collection != 'project'")
+    target.commit()
+    target.execute("VACUUM")
+    target.close()
+    chosen[LIBRARY] = copy
 
 
 def add_vc_runtime(chosen: dict[str, Path], root: Path) -> None:
@@ -139,6 +163,7 @@ def build(root: Path, out: Path, limit: int | None = None) -> list[Path]:
         sys.exit(f"{out} is not empty and holds no earlier package; choose another folder")
     packages.mkdir(parents=True)
     chosen = select(root)
+    project_library(chosen, out / "work")
     add_vc_runtime(chosen, root)
     longest = max(chosen, key=len)
     if LONGEST_FOLDER + 1 + len(longest) >= WINDOWS_PATH_LIMIT:
@@ -151,6 +176,7 @@ def build(root: Path, out: Path, limit: int | None = None) -> list[Path]:
     build_id = time.strftime("%Y%m%d-%H%M") + "-" + hashlib.sha256(sums.encode("ascii")).hexdigest()[:8]
     (packages / "package.txt").write_text(f"BUILD={build_id}\nPARTS={len(parts)}\nNEED_GB={need_gb}\n", encoding="ascii", newline="\r\n")
     (packages / "SHA256SUMS.txt").write_text(sums, encoding="ascii", newline="\r\n")
+    shutil.rmtree(out / "work", ignore_errors=True)
     shutil.copyfile(TEMPLATE / STARTER, out / STARTER)
     guide = (TEMPLATE / GUIDE).read_text(encoding="utf-8").replace("{need_gb}", str(need_gb)).replace("{build}", build_id)
     (out / GUIDE).write_text(guide, encoding="utf-8-sig", newline="\r\n")

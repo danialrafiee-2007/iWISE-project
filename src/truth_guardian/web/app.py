@@ -49,10 +49,11 @@ from truth_guardian.web.metrics import model_card
 
 
 
-def ui_folder(choice: str | None) -> Path:
-    """The front end the server shows: the built React app (static), or the plain HTML one (static_html) when
-    TG_UI=html, which TruthGuardian-HTML.bat sets. The API is the same for both."""
-    return Path(__file__).with_name("static_html" if (choice or "").strip().lower() == "html" else "static")
+def ui_folder(choice: str | None = None) -> Path:
+    """The front end the server shows: the site in plain HTML5, CSS3 and JavaScript (static_html). The first site, in
+    React with bought visual layers, was removed for the final project (D-214); TG_UI is no longer needed and is
+    ignored, so an old launcher that sets it still opens this site."""
+    return Path(__file__).with_name("static_html")
 
 
 STATIC = ui_folder(os.environ.get("TG_UI"))
@@ -825,7 +826,7 @@ def create_app(
             raise HTTPException(404, f"no file {path!r}; reload the page if the app was rebuilt")
         index = STATIC / "index.html"
         if not index.exists():
-            raise HTTPException(404, "the web app is not built; run `npm run build` in web/")
+            raise HTTPException(404, "the web app is missing; restore src/truth_guardian/web/static_html from the repository")
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
     return app

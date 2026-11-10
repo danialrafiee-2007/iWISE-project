@@ -5,6 +5,14 @@ Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 
 ## For judges: the ready-made package
 
+**One file does everything:** download `Get-Truth-Guardian.bat` from the latest
+[Release](https://github.com/danialrafiee-2007/iWISE-project/releases/latest) and double-click it. It asks which drive
+to use, makes the folder `iWISE_Truth Guardian` there, downloads the latest ready-made package (the whole source code
+with its tests and documents, Python with every package, and every model), checks each part against its SHA-256,
+unpacks it and opens the app in the browser, offline from then on. A broken download resumes where it stopped and
+running the file again skips what is done; it installs nothing in Windows and needs no administrator (D-213). Windows
+may warn about a file from the internet: choose **More info**, then **Run anyway**.
+
 `scripts/build_portable.py` turns a finished install into one folder with everything the setup steps produce, so whoever
 receives it has nothing to download or wait for beyond the first unpacking: they copy the folder, double-click
 `Start-Truth-Guardian.bat`, and the app opens in the browser, offline. `README-FIRST.txt` in the folder says this in
@@ -79,34 +87,34 @@ HF_HUB_OFFLINE=1 uv run --offline python scripts/export_onnx.py
 
 ## Web app
 
-One command starts it on http://127.0.0.1:8765 and opens the browser; the models load and warm up in the background
-(about a minute on the project laptop), and the ready-made examples are checked once and kept on disk:
+`TruthGuardian.bat` starts it on http://127.0.0.1:8765 and opens the browser (`TruthGuardian-HTML.bat` opens the same
+site full screen on port 8766); the models load and warm up in the background (about a minute on the project laptop):
 
 ```bash
 uv run --offline python -m truth_guardian.web
 ```
 
-It runs fully offline (no CDN, no online fonts; Hugging Face is told not to reach the network, so the models must have
-been downloaded once) and only answers on localhost. The top bar has Home, **AI engine**, About, Team and Contact us.
-Resting the pointer on AI engine lists its three inputs, text first (the challenge's own), then audio and images (the
-project's additions; video was dropped, D-140), and on each the parts behind it (D-127): under Text one flat list
-(D-144): Check an answer, whose page holds the examples as a card deck and heals a flagged answer in place, Check an
-agent, Fool the Guardian and Reliability. Under Audio and Image a page that reads a file and one that names the models doing it and what they have been shown to
-do. **Tour** lists one tour per input: the text tour walks through every tool in about
-three minutes (`?tour=play` runs it hands-free); the others come once their pages are settled. Sources can be added
-from PDF, Word, HTML, Markdown or text files.
-The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe at the end of the top bar,
-or `?lang=fa`); Persian and Arabic pages read right to left. English answers over English sources go to the English
-engine; Arabic, Chinese, French, Russian and Spanish (also across languages, such as a Chinese answer over English data)
-go to a separate, experimental multilingual check (multilingual E5 and mDeBERTa NLI, D-137, D-138), which on its dev set
-ranks answers at 0.77 to 0.85 AUROC by language but sees fewer kinds of error than the English engine; Persian and other
-languages are not checked, and the page says so. The language comes from the texts, never from the interface.
+The site is plain HTML5, CSS3 and JavaScript in `src/truth_guardian/web/static_html`: no framework, no build step, no
+CDN or online font, nothing that needs Node. It is one page whose parts change softly, with a rail on the left: **Home**
+(a chat that answers from the person's files and the project's documents and checks every answer before it is shown,
+with three lamps for the local models, the free online models and the Guardian), **Model performance** (check an
+answer, reliability with the calibration diagram, check an agent, fool the Guardian), **Architecture** (the engine's
+real code as a live map, every node opening its code), **Team**, **About** and **Contact**. A 26-step tour walks the
+judges through the site and its brain, and the activity log (bottom corner) shows what the page and the engine do,
+live, with the project's history, downloadable as CSV or JSON. The first site, in React with bought visual layers, was
+removed for the final project (D-214); its strings live on in `src/truth_guardian/web/i18n`.
+
+The interface speaks English, Arabic, Chinese, French, Russian, Spanish and Persian (the globe in the rail); Persian and
+Arabic pages read right to left. English answers over English sources go to the English engine; Arabic, Chinese, French,
+Russian and Spanish (also across languages) go to a separate, experimental multilingual check (multilingual E5 and
+mDeBERTa NLI, D-137, D-138), which on its dev set ranks answers at 0.77 to 0.85 AUROC by language but sees fewer kinds of
+error than the English engine; Persian answers get a lighter check of numbers, dates and names, and the page says so.
+The language comes from the texts, never from the interface.
 On real media (D-139, `scripts/evaluate_media.py`): Whisper hears read speech with 5.5 to 13% word errors in Spanish,
 English, Russian and French (33% Arabic, 22% of Chinese characters) and names the language every time, and the chain
 then tells a transcript from one with a changed fact at 0.74 to 0.78 AUROC (0.65 Chinese). Photos of scenes are another
 matter: Tesseract, built for documents, reads the answer's words in only 4 to 26% of them, so the check finds little
 evidence there and calls most answers unsupported; documents and screenshots read well.
-The built front end is committed in `src/truth_guardian/web/static`, so Node is not needed to run it.
 
 An experimental online check (D-141, `online.py`) can give a second opinion when the local check is not sure: up to
 three doubtful claims go to Claude Opus 5.5, which reads the same sources and searches the web, and its answer is shown
@@ -210,26 +218,15 @@ draws samples with known content, runs every reader on them with the network cut
 and its peak memory in `eval/results/media_pilot.json`. Those samples are synthetic: they show the readers work, not how
 well they do on real media, which still needs labelled data.
 
-A click on the landing page's brain cracks it, like a stone along glowing jagged cracks, into three unequal parts, one
-per input (text upper left, sound upper right, images below), each naming itself under the pointer and saying what the
-engine does with it; a click on a part opens that input's page, and scrolling closes it (D-128, D-129, D-140, D-142). On the landing page each of the three inputs also
-opens a panel where it is given to the models (D-126): write or paste an answer with its sources, choose or paste an
-image, or press the microphone and speak, in any language; what was read or found comes back in the same panel, with where it was found and how sure the reader is.
-With an AI's answer about the file, the words read in it become the check's sources and every claim is shown with
-where its evidence is, a box in the picture or a moment in the recording (D-135). A file in a language the checks do
-not read is read but given no verdict (D-138). The
-browser asks for the microphone once; it allows it on `localhost` and `127.0.0.1`, not on a plain `http://` address of
-another computer.
+In the chat a recording or an image is added like a document: what was read in it becomes text the Guardian can
+check, and an answer about an image is checked against what the OCR reader read in it (D-199). A free online model gives
+a second, independent reading of the same image or recording, and the Guardian marks each sentence agreed, disputed or
+unclear (D-200). The browser asks for the microphone once; it allows it on `localhost` and `127.0.0.1`, not on a plain
+`http://` address of another computer.
 
-To change the front end (Node 20 or later):
-
-```bash
-cd web
-npm install
-npm run layers   # only when the scenes in web/layers-src change
-npm run dev      # http://localhost:5173, API proxied to the Python server on port 8765
-npm run build    # writes src/truth_guardian/web/static
-```
+To change the site, edit the files in `src/truth_guardian/web/static_html` and reload the page; after changing a Python
+file the Architecture page shows, run `uv run python scripts/build_arch_source.py` so its code map shows the code as it
+is (a test fails until then).
 
 ## Results
 
@@ -335,7 +332,6 @@ One folder holds everything, and nothing that belongs to the project lies beside
 | Path | What it holds | In git |
 |---|---|---|
 | `src/truth_guardian/` | the Guardian, the RAG (`rag/`), the readers (`media/`), the web app (`web/`) | yes |
-| `web/` | the front end's source; `npm run build` writes `src/truth_guardian/web/static` | yes |
 | `tests/`, `scripts/`, `eval/`, `benchmark/`, `docs/`, `deploy/` | tests, tools, measures and their results, TG-Bench, documents, the package's starter | yes |
 | `models/` | the trained fusion models and profiles; the exact-word detector and the fast HHEM come from the ready-made package (see Quick start) | partly |
 | `data/` | datasets, cached examples, the document library | no |

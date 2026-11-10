@@ -1,6 +1,6 @@
 // Fool the Guardian, as on the previous site's page (pages/Fool.tsx): take a grounded answer, slip one lie into it with
 // one of eight tricks (or edit it by hand), and see whether the Guardian finds the exact words. The tricks are the
-// previous site's cards cascade (js/cascade.js: the wheel over it turns the cards, the dots and the counter beside it),
+// tricks as a row of cards to choose from (js/deck.js, D-214),
 // each card with the share of its trick caught in the project's suite. While the edit is checked, the engine's stages
 // come in one by one; the result is the project's shield in green (caught and found), amber (flagged but not placed,
 // or only cautioned) or red (it got through) beside its title, then the full report. The sources are a list always in
@@ -117,7 +117,7 @@
   const fitsTrick = (k) => !fits || fits.has(k);
 
   function markCards() {
-    deckEl.querySelectorAll(".cascade-card").forEach((el, i) => el.classList.toggle("unfit", !fitsTrick(KINDS[i])));
+    deckEl.querySelectorAll(".tk-card").forEach((el, i) => el.classList.toggle("unfit", !fitsTrick(KINDS[i])));
   }
 
   function showAnswer(i) {
@@ -241,24 +241,22 @@
   function drawDeck() {
     const rates = card?.fool_the_guardian?.edits;
     const n = int(KINDS.length, 2);
-    window.TGCascade?.mount(deckEl, {
-      height: 620,
+    window.TGDeck?.tricks(deckEl, {
       active: trick,
-      label: tr("fool.tricks"),
-      tabsLabel: tr("fool.chooseTrick"),
-      announce: (i) => tr("fool.trickOf", { i: int(i + 1), n: int(KINDS.length), label: kindName(KINDS[i]) }),
+      label: tr("fool.chooseTrick"),
       onActive: (i) => { trick = i; drawApply(); },
       cards: KINDS.map((k, i) => ({
         key: k,
-        label: kindName(k),
+        label: tr("fool.trickOf", { i: int(i + 1), n: int(KINDS.length), label: kindName(k) }),
         fill: FILL[k],
         html: `
-          <div class="cascade-top"><span class="cascade-chip" dir="ltr">${esc(tr("fool.cardCount", { i: int(i + 1, 2), n }))}</span><span class="cascade-rate">${rates?.[k] ? esc(tr("fool.caughtRate", { p: pct(rates[k].detected) })) : ""}</span></div>
-          <span class="cascade-unfit">${esc(tr("html.f.unfit"))}</span>
-          <div><p class="cascade-kicker">${esc(tr("fool.trick", { i: int(i + 1, 2) }))}</p><h3 class="cascade-title">${esc(kindName(k))}</h3><p class="cascade-hint">${esc(tr(`fool.hint.${k}`))}</p></div>`,
+          <span class="tk-top"><span class="tk-chip" dir="ltr">${esc(tr("fool.cardCount", { i: int(i + 1, 2), n }))}</span><span class="tk-rate">${rates?.[k] ? esc(tr("fool.caughtRate", { p: pct(rates[k].detected) })) : ""}</span></span>
+          <span class="tk-title">${esc(kindName(k))}</span>
+          <span class="tk-hint">${esc(tr(`fool.hint.${k}`))}</span>
+          <span class="tk-unfit">${esc(tr("html.f.unfit"))}</span>`,
       })),
     });
-    deckEl.querySelector(".cascade-stage")?.appendChild(applyEl); // the Apply row sits inside the deck, over its foot
+    deckEl.querySelector(".tk-foot")?.appendChild(applyEl); // the Apply row sits under the cards
     markCards();
   }
 

@@ -77,32 +77,18 @@ Read from the installed package metadata on 2026-10-21.
 | tesserocr (media group; its wheel carries Tesseract 5.5.3, Apache-2.0, and Leptonica, BSD-2-Clause) | 2.12.0 | MIT |
 | Pillow (media group) | 13.0.0 | MIT-CMU |
 
-## Web app (Phase 4)
+## Web app
 
-Read from the installed package metadata on 2026-10-23.
+The site is plain HTML5, CSS3 and JavaScript written for the project (`src/truth_guardian/web/static_html`), with no
+JavaScript library. The first site (React, three.js, Tailwind, Vite and visual layers bought from GetLayers) was removed
+for the final project, with every layer and every part taken from one (D-214); nothing of it is in the repository or
+the package.
 
-| Library | Version | License |
+| Resource | Version | License |
 |---|---|---|
-| react, react-dom | 19.3.1 | MIT |
-| three (app and Glass Halo, Signal Array) | 0.170.0 | MIT |
-| three (Halftone Iris, Lumen Grid, as shipped) | 0.143.0 | MIT |
-| @react-spring/web | 10.1.2 | MIT |
-| spring-text-engine | 0.1.5 | MIT |
-| tailwindcss, @tailwindcss/vite | 4.3.3 | MIT |
-| vite | 8.3.5 | MIT |
-| @vitejs/plugin-react | 6.1.2 | MIT |
-| typescript | 5.9.3 | Apache-2.0 |
-| @fontsource/jetbrains-mono | 5.3.0 | OFL-1.1 |
-| @fontsource/vazirmatn (Vazirmatn by Saber Rastikerdar, Arabic-script subset: Persian and Arabic interface text) | 5.3.0 | OFL-1.1 |
-| @fontsource/fraunces (Fraunces by Undercase Type: headings, after iridology.app) | 5.3.0 | OFL-1.1 |
-| @fontsource/newsreader (Newsreader by Production Type: reading text) | 5.3.0 | OFL-1.1 |
-| @fontsource/jost (Jost by indestructible type*: menus, buttons, labels, numbers) | 5.3.0 | OFL-1.1 |
-| @fontsource/literata (Literata by TypeTogether, Cyrillic subset: Russian headings and text) | 5.3.0 | OFL-1.1 |
+| Fraunces by Undercase Type (headings; `static_html/fonts/fraunces-500.woff2`, served from the site itself) | 500 weight | OFL-1.1 |
 | Microsoft Visual C++ Runtime (ready-made package only, `scripts/build_portable.py`, beside Python) | 14.51 | Microsoft Visual Studio redistributable; check its terms before publishing the package |
-
-| Resource | Source | License | Status | Use |
-|---|---|---|---|---|
-| Layers bought from GetLayers, then edited by the team: Neural Monitor (template, with its brain model rotten-brain.glb, the particle brain on the landing page), Roadmap Ascent, Slider Spectra, Cards Cascade (sections), Glass Halo, Halftone Iris, Lumen Grid, Signal Array, Rift Stone (scenes; of Rift Stone only the way it cracks, rewritten in the landing brain's shader, D-142), Jade Cipher (scene; its falling rain rewritten as the site's opening, with zeros and ones for its glyphs, D-150), Pharos, Loupe, Riffle (gradients), Text Animations (tool) | https://www.getlayers.ai | GetLayers licence, purchased by the team | purchased | Visual layers of the web app; changes listed in web/scripts/vendor-layers.mjs and in each adapted component |
+| AI-Archaeologist (INNOVERSE), its AI Engine graph (D-206): the owner's earlier project, rewritten for the Architecture page's code map | - | The owner's own work |
 
 ## Free online services (the chat's online answer, D-191)
 
@@ -122,4 +108,3 @@ computer on 2026-11-10 (see `docs/DECISIONS.md` D-191). No Claude and nothing pa
 | OpenAlex API (D-197) | https://openalex.org | Data CC0; free without a key | Scholarly works for questions about research |
 | Groq vision and Whisper large (D-200) | https://console.groq.com | Free tier with the owner's key; its own terms | A second model's look at an image and a second transcript of a recording; the picture or recording is sent to Groq |
 | Jina Reader | https://jina.ai/reader | Free without a key at a low rate; its own terms | Reads the pages the model names as plain text |
-| AI-Archaeologist (INNOVERSE), its AI Engine graph (D-206) | the owner's earlier project, js/ai-graph.js | The owner's own work | Rewritten for this site | The Architecture page's code map: its force-directed graph, side panel and meta graph |

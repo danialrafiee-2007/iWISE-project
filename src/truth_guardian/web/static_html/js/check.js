@@ -23,7 +23,7 @@
   const MAX_FILE_BYTES = 10_000_000;
   const ACCEPT = ".pdf,.docx,.txt,.md,.markdown,.html,.htm,.csv,.json,.log";
   const LONG_SOURCES = 60_000;
-  // The previous site's card colours for the examples deck (components/ExamplesDeck.tsx).
+  // A colour for each example's card stripe.
   const GLOW = ["#fb7185", "#c4b5fd", "#a78bfa", "#fbbf24", "#34d399", "#60a5fa", "#2dd4bf", "#f472b6", "#fb923c", "#93c5fd", "#5eead4", "#e879f9"];
   const exampleTitle = (e) => (has(`example.${e.id}.title`) ? tr(`example.${e.id}.title`) : e.title);
   const exampleAbout = (e) => (has(`example.${e.id}.about`) ? tr(`example.${e.id}.about`) : e.about);
@@ -220,36 +220,24 @@
   }
 
   // ---- Drawing ----
-  // The ready-made examples as the previous site's coverflow deck (js/spectra.js), each card in its own colour; it
-  // waits while a check runs or a report is shown, as there.
+  // The ready-made examples as a grid of the site's own cards (js/deck.js, D-214), each with a stripe in its colour.
   function drawDeck() {
     const el = root.querySelector("#ck-deck");
-    if (!el || !window.TGSpectra) return;
+    if (!el || !window.TGDeck) return;
     const n = examples.length;
-    window.TGSpectra.mount(el, {
+    window.TGDeck.examples(el, {
       label: tr("examples.button"),
-      browse: tr("deck.browse"),
-      cta: tr("examples.cta"),
-      itemLabel: (i) => tr("deck.item", { label: exampleTitle(examples[i]), i: int(i + 1), n: int(n) }),
-      paused: () => check.running || heal.running || !!view,
       onOpen: (i) => pick(examples[i].id),
-      cards: examples.map((e, i) => {
-        const glow = GLOW[i % GLOW.length];
-        return {
-          key: e.id,
-          label: exampleTitle(e),
-          glow,
-          c1: `color-mix(in oklab, ${glow} 48%, #2c3a34)`,
-          c2: "#1f2a25",
-          html: `
-            <span class="spectra-chip" dir="ltr">${esc(new Intl.NumberFormat(loc(), { minimumIntegerDigits: 2 }).format(i + 1))}</span>
-            <span class="spectra-text">
-              ${has(`task.${e.task}`) ? `<span class="spectra-kicker">${esc(tr(`task.${e.task}`))}</span>` : ""}
-              <span class="spectra-title" dir="auto">${esc(exampleTitle(e))}</span>
-              <span class="spectra-about" dir="auto">${esc(exampleAbout(e))}</span>
-            </span>`,
-        };
-      }),
+      cards: examples.map((e, i) => ({
+        key: e.id,
+        label: tr("deck.item", { label: exampleTitle(e), i: int(i + 1), n: int(n) }),
+        glow: GLOW[i % GLOW.length],
+        html: `
+          <span class="ex-chip" dir="ltr">${esc(new Intl.NumberFormat(loc(), { minimumIntegerDigits: 2 }).format(i + 1))}</span>
+          ${has(`task.${e.task}`) ? `<span class="ex-kicker">${esc(tr(`task.${e.task}`))}</span>` : ""}
+          <span class="ex-title" dir="auto">${esc(exampleTitle(e))}</span>
+          <span class="ex-about" dir="auto">${esc(exampleAbout(e))}</span>`,
+      })),
     });
   }
 

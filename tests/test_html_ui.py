@@ -10,11 +10,11 @@ HTML = ROOT / "src" / "truth_guardian" / "web" / "static_html"
 LAUNCHER = ROOT / "TruthGuardian-HTML.bat"
 
 
-def test_tg_ui_html_picks_the_html_folder_and_anything_else_the_react_build():
-    assert web_app.ui_folder("html") == HTML
-    assert web_app.ui_folder(" HTML ") == HTML
-    for choice in (None, "", "react", "static"):
-        assert web_app.ui_folder(choice).name == "static"
+def test_the_html_site_is_the_only_front_end_served():
+    # D-214: the HTML site is the only one; whatever TG_UI says, it is served.
+    for choice in (None, "", "html", " HTML ", "react", "static"):
+        assert web_app.ui_folder(choice) == HTML
+    assert not (HTML.parent / "static").exists() and not (ROOT / "web").exists()
 
 
 def test_the_html_front_end_loads_nothing_from_the_internet():
@@ -117,16 +117,16 @@ def test_check_an_answer_is_its_own_tab_and_ask_the_documents_is_gone():
     assert "drawFull" in (HTML / "js" / "chat.js").read_text(encoding="utf-8")  # D-191: the full report shows under the chat
 
 
-def test_fool_the_guardian_has_the_cards_cascade_and_waits_for_the_models():
-    """D-186: the tricks are the previous site's cards cascade (js/cascade.js), the check streams its stages, the
+def test_fool_the_guardian_chooses_its_trick_from_the_sites_own_cards_and_waits_for_the_models():
+    """D-186, D-214: the tricks are a row of the site's own cards (js/deck.js), the check streams its stages, the
     sources read in their own direction, and nothing is tricked or checked before the models are ready."""
     page = (HTML / "index.html").read_text(encoding="utf-8")
-    assert page.index("/js/cascade.js") < page.index("/js/fool.js") and 'id="fool-score"' in page
+    assert page.index("/js/deck.js") < page.index("/js/fool.js") and 'id="fool-score"' in page
     fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
-    assert "TGCascade" in fool and "TGReport.progress" in fool and "getReader" in fool
+    assert "TGDeck?.tricks" in fool and "TGReport.progress" in fool and "getReader" in fool
     assert "/api/health" in fool and 'dir="auto"' in fool
-    cascade = (HTML / "js" / "cascade.js").read_text(encoding="utf-8")
-    assert '"wheel"' in cascade and "preventDefault" in cascade and "prefers-reduced-motion" in cascade
+    deck = (HTML / "js" / "deck.js").read_text(encoding="utf-8")
+    assert 'role="radiogroup"' in deck and "ArrowRight" in deck
 
 
 def test_fool_outcome_is_the_coloured_shield_and_the_sources_are_a_list():
@@ -142,31 +142,33 @@ def test_fool_outcome_is_the_coloured_shield_and_the_sources_are_a_list():
 
 def test_fool_marks_tricks_that_do_not_fit_and_its_score_starts_at_zero():
     """D-188: the cards of tricks that cannot change the answer are marked and their button finds an answer they fit;
-    the score is kept for the visit only; the wheel turns one card per mouse notch."""
+    the score is kept for the visit only."""
     fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
     assert "/api/fool/tricks/" in fool and "findAnswer" in fool and "localStorage" not in fool
-    cascade = (HTML / "js" / "cascade.js").read_text(encoding="utf-8")
-    assert "const STEP = 100;" in cascade and "const PAUSE = 520;" in cascade
+    assert '.querySelectorAll(".tk-card").forEach((el, i) => el.classList.toggle("unfit"' in fool
 
 
-def test_fool_answer_comes_first_and_the_apply_row_sits_in_the_deck():
-    """D-189: the answer panel before the deck, a taller deck with bigger cards, the Apply row inside the deck."""
+def test_fool_answer_comes_first_and_the_apply_row_sits_under_the_tricks():
+    """D-189, D-214: the answer panel before the tricks, the Apply row under them."""
     fool = (HTML / "js" / "fool.js").read_text(encoding="utf-8")
     assert fool.index('id="fool-answer-card"') < fool.index('id="fool-deck"')
-    assert "height: 620" in fool and '.querySelector(".cascade-stage")?.appendChild(applyEl)' in fool
+    assert '.querySelector(".tk-foot")?.appendChild(applyEl)' in fool
 
 
-def test_check_an_answer_uses_the_previous_sites_coverflow_deck():
-    """D-190: the examples are the previous site's ring coverflow (js/spectra.js, loaded before js/check.js), mounted
-    once and paused while a check runs or a report is shown; the example titles come in every language."""
+def test_check_an_answer_shows_its_examples_as_the_sites_own_cards_and_nothing_of_the_bought_layers_is_left():
+    """D-190, D-214: the examples are a grid of the site's own cards (js/deck.js, loaded before js/check.js); the
+    example titles come in every language; no file of the site comes from the bought layers any more."""
     page = (HTML / "index.html").read_text(encoding="utf-8")
-    assert page.index("/js/spectra.js") < page.index("/js/check.js")
+    assert page.index("/js/deck.js") < page.index("/js/check.js")
     check = (HTML / "js" / "check.js").read_text(encoding="utf-8")
-    assert "TGSpectra.mount" in check and "paused: () => check.running || heal.running || !!view" in check
-    spectra = (HTML / "js" / "spectra.js").read_text(encoding="utf-8")
-    assert all(word in spectra for word in ("pointerdown", '"wheel"', "setInterval", "prefers-reduced-motion"))
+    assert "TGDeck.examples(" in check
     i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
-    assert '"example.anne-frank.title": "سال اشتباه و ارجاع اشتباه"' in i18n and '"deck.browse"' in i18n
+    assert '"example.anne-frank.title": "سال اشتباه و ارجاع اشتباه"' in i18n
+    for path in HTML.rglob("*"):
+        if path.suffix in {".js", ".css", ".html"} and path.name != "arch-src.js":
+            text = path.read_text(encoding="utf-8").lower()
+            assert "getlayers" not in text and "spectra" not in text and "cardscascade" not in text, path
+    assert not (HTML / "js" / "spectra.js").exists() and not (HTML / "js" / "cascade.js").exists()
 
 
 def test_the_chat_goes_to_the_free_online_answer_and_shows_the_full_report_below():

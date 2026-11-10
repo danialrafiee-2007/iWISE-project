@@ -1,5 +1,5 @@
-// The strings this front end shows, in the seven languages of the React site, copied from its web/src/i18n files
-// by a script (keys as there). Generated; change the React site's files and copy again rather than editing here.
+// The strings this site shows, in seven languages, generated from src/truth_guardian/web/i18n (the first site's
+// strings, kept when that site was removed, D-214) and the html.* strings. Generated: change the sources and run again.
 // The html.* keys are this front end's own and were written by the AI, except the Persian names of the AI
 // engine's two parts, which are the owner's words.
 window.TG_MESSAGES = {

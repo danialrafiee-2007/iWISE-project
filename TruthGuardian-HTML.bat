@@ -1,9 +1,9 @@
 @echo off
-rem Truth Guardian with the plain HTML front end (src\truth_guardian\web\static_html), next to the React one.
-rem Same models, same API, same options as TruthGuardian.bat; only the pages differ.
+rem Truth Guardian full screen on its own port: the same site TruthGuardian.bat serves (src\truth_guardian\web\static_html).
+rem Same models, same API, same options as TruthGuardian.bat.
 rem   TruthGuardian-HTML.bat           start it on http://127.0.0.1:8766 and open it full screen
 rem   TruthGuardian-HTML.bat --port N  another port
-rem It uses port 8766, not 8765, so it never opens the React app by mistake and both can run at once.
+rem It uses port 8766, so it can run beside TruthGuardian.bat (port 8765), which serves the same site (D-214).
 rem The site opens full screen, like a film, as soon as the server answers (scripts\open_fullscreen.ps1): Chrome or
 rem Edge as an app window with no address bar or tabs. F11 leaves full screen, Alt+F4 closes it. --no-browser opens
 rem nothing; setup, check, test and smoke open nothing either.

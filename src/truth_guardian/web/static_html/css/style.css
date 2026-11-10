@@ -1370,7 +1370,7 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 .step-alert.warning { color: #8a5d05; }
 .tracer-row { display: grid; grid-template-columns: 70px 1fr 48px; align-items: center; gap: 10px; font-size: 0.82rem; }
 
-/* Fool the Guardian: the title with the score beside it, the tricks' cascade, the answer, the outcome lamp. */
+/* Fool the Guardian: the title with the score beside it, the tricks' cards, the answer, the outcome lamp. */
 .fool-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
 .fool-head .section-text { max-width: 62ch; margin-bottom: 0; }
 .score { display: flex; gap: 22px; padding: 10px 18px; border-radius: 16px; background: rgb(255 255 255 / 0.8); box-shadow: var(--lift), var(--bevel-light); }
@@ -1420,39 +1420,9 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 .fool-answer h4 { font-size: 0.9rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--ink-soft); }
 .fool-answer textarea.code.plain { border-color: #e4ddca; background: #fffdf8; font-family: "Fraunces TG", Georgia, serif; font-size: 1rem; line-height: 1.75; }
 .fool-answer .btn-ghost { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
-/* A trick with nothing to change in this answer: dimmed, with a note on the card. */
-.cascade-unfit { display: none; align-self: flex-start; padding: 3px 8px; border-radius: 8px; background: rgb(0 0 0 / 0.35); font-size: 0.72rem; color: #fff; }
-.cascade-card.unfit .cascade-unfit { display: inline-block; }
-.cascade-card.unfit .cascade-face { filter: grayscale(0.65) brightness(0.85); }
 .fool-unfit-note { padding: 8px 12px; border-radius: 12px; background: rgb(243 237 223 / 0.8); }
 
-/* The cards cascade (js/cascade.js), as on the previous site: the deck on a warm field, the counter and dots beside it. */
-.cascade { position: relative; display: flex; align-items: stretch; gap: 16px; }
-.cascade-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 24px; background: radial-gradient(130% 100% at 50% 10%, #e4ece1 0%, #efe6d3 78%); perspective-origin: 50% 38%; outline: none; box-shadow: inset 0 1px 0 #fff, 0 10px 24px -18px rgb(var(--emerald) / 0.45); }
-.cascade-stage:focus-visible { box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
-.cascade-origin { position: absolute; left: 50%; top: 44%; width: 0; height: 0; transform-style: preserve-3d; }
-.cascade-card { position: absolute; transform-style: preserve-3d; will-change: transform, opacity; backface-visibility: hidden; cursor: pointer; }
-.cascade-face { position: absolute; inset: 0; overflow: hidden; border-radius: 26px; box-shadow: 0 2px 3px rgb(44 58 52 / 0.18), 0 24px 44px -18px rgb(44 58 52 / 0.5), inset 0 0 0 1px rgb(255 255 255 / 0.07); backface-visibility: hidden; }
-.cascade-face::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(160deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0) 30%, rgb(0 0 0 / 0.2) 100%); opacity: var(--sheen, 0.5); mix-blend-mode: soft-light; }
-.cascade-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgb(8 10 18 / 0.82) 0%, rgb(8 10 18 / 0.3) 34%, rgb(8 10 18 / 0) 60%); }
-.cascade-content { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px; box-sizing: border-box; color: #fff; text-align: start; }
-.cascade-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.cascade-chip { padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 8px; background: rgb(255 255 255 / 0.15); font: 500 0.75rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; }
-.cascade-rate { font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.8); }
-.cascade-kicker { margin: 0 0 6px; font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.18em; text-transform: uppercase; color: rgb(255 255 255 / 0.7); }
-.cascade-title { margin: 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.75rem; font-weight: 600; line-height: 1.05; color: #fff; }
-.cascade-hint { max-width: 30ch; margin: 8px 0 0; font-size: 0.82rem; line-height: 1.45; color: rgb(255 255 255 / 0.78); }
-.cascade-rail { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-.cascade-count { font: 500 1.5rem ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; color: var(--ink); }
-.cascade-count small { font-size: 0.85rem; color: var(--ink-soft); }
-.cascade-count [data-count] { display: inline-block; }
-.cascade-count .tick { animation: cascade-tick 320ms ease-out; }
-@keyframes cascade-tick { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.cascade-dot { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; }
-.cascade-dot:hover { background: rgb(var(--emerald) / 0.08); }
-.cascade-dot span { display: block; width: 6px; height: 6px; border-radius: 50%; background: #c9bfa6; transition: width 200ms, height 200ms, background 200ms, box-shadow 200ms; }
-.cascade-dot[aria-selected="true"] span { width: 12px; height: 12px; background: #456b56; box-shadow: 0 0 0 4px rgb(69 107 86 / 0.18), 0 0 12px rgb(69 107 86 / 0.45); }
-@media (prefers-reduced-motion: reduce) { .cascade-count .tick { animation: none; } }
+
 
 .own { padding: 8px 12px; border-radius: 12px; background: rgb(var(--emerald) / 0.05); }
 .trick-deck { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
@@ -1503,22 +1473,6 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 /* Check an answer: the examples deck beside the form, the stages while it checks, the report, the healing rounds. */
 .ck-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
 .ck-label { margin: 0 0 8px; font-size: 0.84rem; font-weight: 600; color: var(--ink-soft); }
-/* The examples deck (js/spectra.js), as the previous site's: a ring coverflow on a sage-to-cream field, a halo in the
-   centre card's colour behind it, the centre card's title and the button below. */
-.spectra { position: relative; display: flex; flex-direction: column; align-items: center; gap: 24px; overflow: hidden; padding: 48px 16px 40px; border: 1px solid #e4ddca; border-radius: 28px; background: radial-gradient(120% 90% at 50% 0%, #e4ece1, #f6f1e4 70%); outline: none; }
-.spectra-halo { position: absolute; left: 50%; top: 40%; width: 620px; height: 420px; transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--halo, #2dd4bf), transparent 72%); opacity: 0.55; filter: blur(24px); pointer-events: none; transition: background 700ms; }
-.spectra-stage { position: relative; width: 100%; height: 340px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
-.spectra-origin { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
-.spectra-card { position: absolute; left: -130px; top: -165px; width: 260px; height: 330px; padding: 0; border: 0; border-radius: 26px; color: #fff; font: inherit; text-align: start; cursor: pointer; box-shadow: 0 30px 60px -22px rgb(44 58 52 / 0.55); will-change: transform, opacity, filter; }
-.spectra-shade { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(to top, rgb(5 7 12 / 0.85), rgb(5 7 12 / 0) 60%); }
-.spectra-content { position: relative; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 20px; box-sizing: border-box; }
-.spectra-chip { align-self: flex-start; padding: 4px 8px; border: 1px solid rgb(255 255 255 / 0.3); border-radius: 8px; background: rgb(255 255 255 / 0.12); font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; }
-.spectra-text { display: grid; gap: 8px; }
-.spectra-kicker { font: 0.69rem ui-monospace, Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.7); }
-.spectra-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.35rem; font-weight: 600; line-height: 1.15; }
-.spectra-about { font-size: 0.82rem; line-height: 1.4; color: rgb(255 255 255 / 0.75); }
-.spectra-foot { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
-.spectra-caption { display: flex; align-items: center; min-height: 2.5em; margin: 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.4rem; font-weight: 400; line-height: 1.2; color: var(--ink); }
 .ck-form { display: grid; gap: 12px; }
 .ck-form select {
   min-height: 42px;
@@ -2101,3 +2055,40 @@ body:not(.entered) .log-fab { opacity: 0; pointer-events: none; }
 :root[dir="rtl"] .log-fab { right: auto; left: 22px; }
 :root[dir="rtl"] .log-fab-n { right: auto; left: -4px; }
 @media (max-width: 720px) { :root[dir="rtl"] .log-fab { right: auto; left: 14px; } }
+
+
+/* ---- The site's own choosers (js/deck.js, D-214) ----
+   Check an answer's examples: a grid of warm cards, each with a stripe in its colour. Fool the Guardian's tricks: a row
+   of cards, the chosen one lit in green, with the Apply row under them. */
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.ex-tile {
+  position: relative; display: grid; align-content: start; gap: 6px; min-height: 150px; padding: 14px 14px 14px 18px; text-align: start;
+  border: 1px solid #e4ddca; border-radius: 16px; cursor: pointer; color: var(--ink); font: inherit; overflow: hidden;
+  background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
+  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 14px 26px -22px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
+  transition: transform 160ms, box-shadow 160ms;
+}
+.ex-tile::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 5px; background: var(--accent); }
+.ex-tile:hover, .ex-tile:focus-visible { transform: translateY(-2px); box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 30px -20px rgb(44 58 52 / 0.55), 0 0 0 2px color-mix(in oklab, var(--accent) 45%, transparent); outline: none; }
+.ex-chip { justify-self: start; padding: 2px 8px; border-radius: 8px; background: color-mix(in oklab, var(--accent) 22%, #fffdf8); color: #2c3a34; font: 600 0.72rem ui-monospace, Consolas, monospace; }
+.ex-kicker { font: 0.68rem ui-monospace, Consolas, monospace; letter-spacing: 0.12em; text-transform: uppercase; color: #6f8a7e; }
+.ex-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.05rem; font-weight: 600; line-height: 1.2; }
+.ex-about { font-size: 0.8rem; line-height: 1.45; color: var(--ink-soft); }
+.tk { display: grid; gap: 12px; }
+.tk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.tk-card {
+  position: relative; display: grid; align-content: start; gap: 6px; min-height: 140px; padding: 12px 14px; text-align: start;
+  border: 1px solid #e4ddca; border-block-start: 4px solid var(--fill); border-radius: 14px; cursor: pointer; color: var(--ink); font: inherit;
+  background: linear-gradient(180deg, #fffdf8, #f6f0e2); box-shadow: 0 2px 3px rgb(44 58 52 / 0.06); transition: transform 160ms, box-shadow 160ms, background 200ms;
+}
+.tk-card:hover { transform: translateY(-2px); }
+.tk-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
+.tk-card[aria-checked="true"] { background: radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 55%), linear-gradient(160deg, var(--active-light), var(--active)); border-color: transparent; border-block-start-color: var(--fill); box-shadow: 0 10px 22px -14px rgb(var(--emerald) / 0.7); }
+.tk-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.tk-chip { padding: 2px 7px; border-radius: 7px; background: rgb(20 64 58 / 0.08); font: 600 0.7rem ui-monospace, Consolas, monospace; }
+.tk-rate { font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #6f8a7e; }
+.tk-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.1rem; font-weight: 600; line-height: 1.15; }
+.tk-hint { font-size: 0.78rem; line-height: 1.45; color: var(--ink-soft); }
+.tk-unfit { display: none; justify-self: start; padding: 2px 8px; border-radius: 8px; background: rgb(20 64 58 / 0.1); font-size: 0.7rem; color: #4b6158; }
+.tk-card.unfit { opacity: 0.6; }
+.tk-card.unfit .tk-unfit { display: inline-block; }

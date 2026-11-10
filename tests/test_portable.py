@@ -46,7 +46,7 @@ def test_keys_logs_caches_and_raw_data_stay_out(install):
         "runtime/online/usage.json", "runtime/hf/xet/logs/x.log", "runtime/hf/hub/.locks/m/a.lock", "runtime/hf/.agent_harnesses.json", "runtime/hf/hub/m/model.safetensors.part",
         "runtime/opened-truth-guardian-hhem-fast.zip.txt", "runtime/python/.temp/x", "data/raw/ragtruth/response.jsonl", "data/raw/nltk_data/corpora/source.zip",
         "data/processed/ragtruth_train.jsonl", "data/processed/locked/ragtruth_test.jsonl", "data/features/nli/x.jsonl", "eval/predictions/x.jsonl",
-        "runtime/rag-eval/en-all.sqlite", "runtime/npm-cache/_cacache/index",
+        "runtime/rag-eval/en-all.sqlite", "runtime/npm-cache/_cacache/index", "runtime/tmp/pytest/x.txt", "runtime/media-smoke/ocr-en.png",
     ]
     write(install, *left_out, "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json")
     chosen = builder.select(install)
@@ -232,3 +232,33 @@ def test_a_name_too_long_for_the_folder_the_starter_allows_stops_the_build(insta
     monkeypatch.setattr(builder, "select", lambda root: {long_name: install / "README.md"})
     with pytest.raises(SystemExit, match="too long"):
         builder.build(install, tmp_path / "out")
+
+
+def test_the_package_carries_the_projects_documents_but_never_the_persons_own(install, tmp_path):
+    """D-214: the chat's library goes into the package with only the project's documents; what a person added in the
+    chat (their files, passages and pictures) stays on their computer."""
+    import sqlite3
+
+    folder = install / "data" / "web" / "library"
+    folder.mkdir(parents=True)
+    db = sqlite3.connect(folder / "library.sqlite")
+    db.executescript("""
+        CREATE TABLE documents (id INTEGER PRIMARY KEY, collection TEXT NOT NULL, name TEXT NOT NULL);
+        CREATE TABLE passages (id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE, text TEXT);
+        CREATE TABLE pictures (document_id INTEGER PRIMARY KEY REFERENCES documents (id) ON DELETE CASCADE, data BLOB);
+        INSERT INTO documents VALUES (1, 'project', 'museum_talk.wav'), (2, 'mine', 'my-photo.jpeg');
+        INSERT INTO passages VALUES (1, 1, 'the museum opened in 1901'), (2, 2, 'private words');
+        INSERT INTO pictures VALUES (2, x'00');
+    """)
+    db.commit()
+    db.close()
+    parts = builder.build(install, tmp_path / "out", limit=10_000_000)
+    with zipfile.ZipFile(parts[0]) as archive:
+        (tmp_path / "carried.sqlite").write_bytes(archive.read(builder.LIBRARY))
+    carried = sqlite3.connect(tmp_path / "carried.sqlite")
+    assert carried.execute("SELECT name FROM documents").fetchall() == [("museum_talk.wav",)]
+    assert carried.execute("SELECT text FROM passages").fetchall() == [("the museum opened in 1901",)]
+    assert carried.execute("SELECT count(*) FROM pictures").fetchone() == (0,)
+    carried.close()
+    assert sqlite3.connect(folder / "library.sqlite").execute("SELECT count(*) FROM documents").fetchone() == (2,)  # the install keeps its own
+    assert not (tmp_path / "out" / "work").exists()

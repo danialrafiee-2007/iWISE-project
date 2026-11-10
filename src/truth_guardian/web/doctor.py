@@ -68,8 +68,7 @@ def readiness(root: Path) -> list[Item]:
     readers = status.files_present([multilingual.E5, multilingual.NLI])
     media = {row["name"]: _reader(row) for row in status.status()}
     return [
-        Item("built web front end", (STATIC / "index.html").exists(), True,
-             "restore src/truth_guardian/web/static_html from the repository" if STATIC.name == "static_html" else "cd web && npm install && npm run build"),
+        Item("web front end", (STATIC / "index.html").exists(), True, "restore src/truth_guardian/web/static_html from the repository"),
         Item("trained fusion model and tracer", _trained(root, "fusion") and _trained(root, "tracer"), True, "restore models/fusion and models/tracer from the repository"),
         Item("sentence encoder (all-MiniLM-L6-v2)", _cached(models.EMBEDDING_MODEL, models.REVISIONS[models.EMBEDDING_MODEL]), True, SETUP),
         Item("NLI model (nli-deberta-v3-base)", _cached(models.NLI_MODEL, models.REVISIONS[models.NLI_MODEL]), True, SETUP),
