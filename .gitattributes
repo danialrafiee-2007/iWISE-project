@@ -1,3 +1,6 @@
 * text=auto eol=lf
-*.bat text eol=crlf
+# Windows batch files are kept byte for byte, with their CRLF line ends, also inside the repository (D-215): a judge
+# who takes Get-Truth-Guardian.bat from the code page or a ZIP of the repository gets a file cmd reads correctly;
+# stored with LF, cmd misreads a batch file that holds Persian text.
+*.bat -text
 *.ps1 text eol=crlf

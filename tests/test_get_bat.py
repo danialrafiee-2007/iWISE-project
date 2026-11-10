@@ -29,3 +29,22 @@ def test_it_installs_nothing_and_keeps_windows_line_endings():
     text = raw.decode("utf-8").lower()
     for forbidden in ("runas", "reg add", "setx", "msiexec", "winget", "choco "):
         assert forbidden not in text, forbidden
+
+
+def test_the_repository_keeps_every_batch_file_with_crlf_line_ends():
+    """D-215: git keeps .bat files byte for byte, so the copy on the code page and in a ZIP of the repository is the
+    same as the Release's; stored with LF, cmd misreads a batch file that holds Persian text."""
+    import shutil
+    import subprocess
+
+    import pytest
+
+    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.bat -text" in attributes and "*.bat text eol=crlf" not in attributes
+    if not shutil.which("git") or not (ROOT / ".git").exists():
+        pytest.skip("no git repository here")
+    names = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.bat"], capture_output=True, text=True, check=True).stdout.split()
+    assert "Get-Truth-Guardian.bat" in names
+    for name in names:
+        stored = subprocess.run(["git", "-C", str(ROOT), "show", f":{name}"], capture_output=True, check=True).stdout
+        assert stored.count(b"\r\n") == stored.count(b"\n") > 0, name
