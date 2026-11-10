@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=38">
-  <link rel="stylesheet" href="/css/intro.css?v=38">
+  <link rel="stylesheet" href="/css/style.css?v=46">
+  <link rel="stylesheet" href="/css/intro.css?v=46">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -168,6 +168,10 @@
           <span class="rail-btn rail-lamp" id="rail-online-lamp" role="status" aria-label="online" title="online">
             <span class="lamp" aria-hidden="true"></span>
           </span>
+          <!-- The Guardian's lamp: the models that check every answer (D-204). -->
+          <span class="rail-btn rail-lamp" id="rail-guard-lamp" role="status" aria-label="Guardian" title="Guardian">
+            <span class="lamp" aria-hidden="true"></span>
+          </span>
         </div>
       </nav>
 
@@ -188,10 +192,11 @@
                 available.</p>
             </div>
             <div class="banner-side">
-              <!-- Two lamps: the local (offline) models, and under it the free online models (/api/online/status, D-202). -->
+              <!-- Three lamps: the local (offline) models, the free online models (D-202) and the Guardian (D-204), js/app.js. -->
               <div class="status-stack">
                 <span class="status-chip" aria-live="polite"><span class="lamp" id="chip-lamp" aria-hidden="true"></span><span id="state">Connecting…</span></span>
                 <span class="status-chip" id="online-chip" aria-live="polite"><span class="lamp" id="online-lamp" aria-hidden="true"></span><span id="online-state">online · checking…</span></span>
+                <span class="status-chip" id="guard-chip" aria-live="polite"><span class="lamp" id="guard-lamp" aria-hidden="true"></span><span id="guard-state">Guardian · loading…</span></span>
               </div>
             </div>
           </section>
@@ -366,6 +371,19 @@
               </article>
             </li>
           </ol>
+          <!-- The code, node by node (D-206): a live map of each part's modules and functions, after the AI Engine section of
+               the owner's earlier project. A node opens what it does, its inputs and outputs and its real code; a
+               double-click on the background opens the graph that explains this graph (js/arch-graph.js). -->
+          <section class="card section ag-section" aria-labelledby="ag-heading">
+            <h2 class="section-title" id="ag-heading" data-i18n="html.ag.heading">The code, node by node</h2>
+            <p class="section-text" data-i18n="html.ag.lead"></p>
+            <div class="ag-tabs" role="group" aria-labelledby="ag-heading">
+              <button type="button" class="chip" data-graph="guardian" aria-pressed="true" data-i18n="html.ag.tab.guardian">The Guardian</button>
+              <button type="button" class="chip" data-graph="answers" aria-pressed="false" data-i18n="html.ag.tab.answers">Answers and online</button>
+              <button type="button" class="chip" data-graph="readers" aria-pressed="false" data-i18n="html.ag.tab.readers">Sound and image readers</button>
+            </div>
+            <div class="ag-stack" id="arch-graphs"></div>
+          </section>
         </div>
         <!-- Team, from the previous site's Team page: the teacher and guide on top, as the reference's profile header,
              and the four members in a row of cards below. A card opens that person's introduction over the page. -->
@@ -562,19 +580,22 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=38"></script>
-  <script src="/js/ui.js?v=38"></script>
-  <script src="/js/intro.js?v=38"></script>
-  <script src="/js/pages.js?v=38"></script>
-  <script src="/js/contact.js?v=38"></script>
-  <script src="/js/report.js?v=38"></script>
-  <script src="/js/models.js?v=38"></script>
-  <script src="/js/spectra.js?v=38"></script>
-  <script src="/js/check.js?v=38"></script>
-  <script src="/js/agent.js?v=38"></script>
-  <script src="/js/cascade.js?v=38"></script>
-  <script src="/js/fool.js?v=38"></script>
-  <script src="/js/chat.js?v=38"></script>
-  <script src="/js/app.js?v=38"></script>
+  <script src="/js/i18n.js?v=46"></script>
+  <script src="/js/ui.js?v=46"></script>
+  <script src="/js/intro.js?v=46"></script>
+  <script src="/js/pages.js?v=46"></script>
+  <script src="/js/arch-data.js?v=46"></script>
+  <script src="/js/arch-src.js?v=46"></script>
+  <script src="/js/arch-graph.js?v=46"></script>
+  <script src="/js/contact.js?v=46"></script>
+  <script src="/js/report.js?v=46"></script>
+  <script src="/js/models.js?v=46"></script>
+  <script src="/js/spectra.js?v=46"></script>
+  <script src="/js/check.js?v=46"></script>
+  <script src="/js/agent.js?v=46"></script>
+  <script src="/js/cascade.js?v=46"></script>
+  <script src="/js/fool.js?v=46"></script>
+  <script src="/js/chat.js?v=46"></script>
+  <script src="/js/app.js?v=46"></script>
 </body>
 </html>

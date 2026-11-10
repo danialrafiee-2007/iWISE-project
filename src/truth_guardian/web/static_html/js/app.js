@@ -1,87 +1,105 @@
 // The plain HTML front end's script: no framework, no build step. It asks the same API as the React app.
-// For now it keeps the models' lamp on the rail and the chip in the banner up to date (/api/health), in the
-// previous site's words for each state (engine.* in js/i18n.js).
+// It keeps three lamps up to date, each in the banner's chips and in the rail, one under the other (D-202, D-204):
+// 1. the local models that answer and read files, offline on this computer (/api/ask/generators, /api/media/status);
+// 2. the free online models (/api/online/status);
+// 3. the Guardian itself, the models that check every answer (/api/health).
+// Green when ready, amber while loading or when only part is there, red when not there.
 
-const stateEl = document.getElementById("state");
-const lamps = [document.querySelector("#rail-lamp .lamp"), document.getElementById("chip-lamp")].filter(Boolean);
-const railLamp = document.getElementById("rail-lamp");
-const tr = (key) => (window.TG ? window.TG.t(key) : key);
-let lastKey = "engine.connecting";
-let lastKind = "wait";
+const tr = (key, vars) => (window.TG ? window.TG.t(key, vars) : key);
 
-function show(key, kind) {
-  lastKey = key;
-  lastKind = kind;
-  const text = tr(key);
-  if (stateEl) stateEl.textContent = text;
-  for (const lamp of lamps) {
-    lamp.classList.toggle("ready", kind === "ok");
-    lamp.classList.toggle("bad", kind === "bad");
+// One lamp: its chip in the banner (lamp and words) and its twin in the rail (lamp and tooltip).
+function lamp(chipLamp, chipText, rail) {
+  const chip = document.getElementById(chipText)?.closest(".status-chip");
+  const lamps = [document.getElementById(chipLamp), document.querySelector(`#${rail} .lamp`)].filter(Boolean);
+  const railEl = document.getElementById(rail);
+  const textEl = document.getElementById(chipText);
+  let last = null;
+  function show(key, kind, detail = "") {
+    last = [key, kind, detail];
+    const text = tr(key);
+    const tip = detail ? `${text}: ${detail}` : text;
+    if (textEl) textEl.textContent = text;
+    for (const el of lamps) {
+      el.classList.toggle("ready", kind === "ok");
+      el.classList.toggle("bad", kind === "bad");
+    }
+    if (chip) chip.title = tip;
+    if (railEl) {
+      railEl.title = tip;
+      railEl.setAttribute("aria-label", tip);
+    }
   }
-  if (railLamp) {
-    railLamp.title = text;
-    railLamp.setAttribute("aria-label", text);
-  }
+  return { show, again: () => last && show(...last) };
 }
 
-async function poll() {
+const local = lamp("chip-lamp", "state", "rail-lamp");
+const onlineLamp = lamp("online-lamp", "online-state", "rail-online-lamp");
+const guard = lamp("guard-lamp", "guard-state", "rail-guard-lamp");
+
+const json = async (url) => {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw Object.assign(new Error(`HTTP ${res.status}`), { status: res.status });
+  return res.json();
+};
+
+// ---- 1. The local models: the one that writes answers and the three readers (speech, text in images, what an image
+// shows). Each counts when its files are present and its runtime is installed. ----
+// Qwen3-VL-2B both writes the answers and says what an image shows, so it is named once.
+const READERS = { vision: "Qwen3-VL-2B", speech: "Whisper Small", ocr: "Tesseract 5" };
+async function pollLocal() {
   try {
-    const res = await fetch("/api/health", { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const h = await res.json();
-    if (h.state === "ready") return show("engine.ready", "ok");
-    if (h.state === "error" || h.state === "failed") return show("engine.failed", "bad");
-    show(h.state === "warming" ? "engine.warming" : "engine.loading", "wait");
+    const [writers, media] = await Promise.all([json("/api/ask/generators"), json("/api/media/status")]);
+    const rows = Object.fromEntries((media.components || []).map((row) => [row.name, row]));
+    const parts = Object.entries(READERS).map(([name, label]) => {
+      const row = rows[name];
+      const ok = !!(row && row.files_present && row.runtime_ready) && (name !== "vision" || !!writers.local);
+      return [label, ok];
+    });
+    const ready = parts.filter(([, ok]) => ok).map(([name]) => name);
+    const missing = parts.filter(([, ok]) => !ok).map(([name]) => name);
+    if (!missing.length) local.show("engine.ready", "ok", ready.join(" · "));
+    else if (ready.length) local.show("html.local.partly", "wait", missing.join(" · "));
+    else local.show("html.local.none", "bad");
+    setTimeout(pollLocal, 60000);
   } catch {
-    show("engine.unreachable", "bad");
+    local.show("engine.unreachable", "bad");
+    setTimeout(pollLocal, 5000);
   }
-  setTimeout(poll, 2000);
 }
 
-// ---- The second lamp: whether the free online models answer now (/api/online/status, D-202) ----
-// Green when a model and Wikipedia answer, amber when only one of them does, red when none. Its tooltip names the
-// services that answered. The server keeps its answer a minute, so asking once a minute costs nothing.
-const onlineEl = document.getElementById("online-state");
-const onlineLamps = [document.getElementById("online-lamp"), document.querySelector("#rail-online-lamp .lamp")].filter(Boolean);
-const railOnline = document.getElementById("rail-online-lamp");
-const onlineChip = document.getElementById("online-chip");
+// ---- 2. The free online models: green when a model and Wikipedia answer, amber when only one of them does, red when
+// none. The server keeps its answer a minute, so asking once a minute costs nothing. A 404 means the server was started
+// before this lamp existed: the internet may well be there, so it asks for the server to be restarted. ----
 const NAMES = { groq: "Groq", openrouter: "OpenRouter", pollinations: "Pollinations", wikipedia: "Wikipedia", tavily: "Tavily" };
-let online = null;
-
-function showOnline() {
-  const state = online ? online.state : "checking";
-  const key = { online: "html.online.on", partly: "html.online.partly", offline: "html.online.off", restart: "html.online.restart" }[state] || "html.online.checking";
-  if (onlineEl) onlineEl.textContent = tr(key);
-  for (const lamp of onlineLamps) {
-    lamp.classList.toggle("ready", state === "online");
-    lamp.classList.toggle("bad", state === "offline");
-  }
-  const names = online ? [...online.answer, ...online.search].map((n) => NAMES[n] || n) : [];
-  const tip = names.length ? `${tr(key)}: ${names.join(" · ")}` : tr(key);
-  if (onlineChip) onlineChip.title = tip;
-  if (railOnline) {
-    railOnline.title = tip;
-    railOnline.setAttribute("aria-label", tip);
-  }
-}
-
 async function pollOnline() {
   try {
-    const res = await fetch("/api/online/status", { cache: "no-store" });
-    // 404: the server was started before this page had its online lamp (D-203); the internet may well be there, so
-    // the lamp asks for the server to be restarted instead of saying "not connected".
-    if (res.status === 404) online = { state: "restart", answer: [], search: [] };
-    else if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    else online = await res.json();
-  } catch {
-    online = { state: "offline", answer: [], search: [] };
+    const online = await json("/api/online/status");
+    const names = [...online.answer, ...online.search].map((n) => NAMES[n] || n).join(" · ");
+    const key = { online: "html.online.on", partly: "html.online.partly" }[online.state] || "html.online.off";
+    onlineLamp.show(key, { online: "ok", partly: "wait" }[online.state] || "bad", names);
+  } catch (e) {
+    onlineLamp.show(e.status === 404 ? "html.online.restart" : "html.online.off", e.status === 404 ? "wait" : "bad");
   }
-  showOnline();
   setTimeout(pollOnline, 60000);
 }
 
-if (window.TG) window.TG.onLang(() => { show(lastKey, lastKind); showOnline(); });
-show("engine.connecting", "wait");
-showOnline();
-poll();
+// ---- 3. The Guardian: the models that check every answer, loaded and warmed up on the server (/api/health) ----
+async function pollGuard() {
+  try {
+    const h = await json("/api/health");
+    if (h.state === "ready") return guard.show("html.guard.ready", "ok", h.model_version || "");
+    if (h.state === "error" || h.state === "failed") return guard.show("html.guard.failed", "bad", h.error || "");
+    guard.show("html.guard.loading", "wait");
+  } catch {
+    guard.show("engine.unreachable", "bad");
+  }
+  setTimeout(pollGuard, 2000);
+}
+
+if (window.TG) window.TG.onLang(() => { local.again(); onlineLamp.again(); guard.again(); });
+local.show("engine.connecting", "wait");
+onlineLamp.show("html.online.checking", "wait");
+guard.show("html.guard.loading", "wait");
+pollLocal();
 pollOnline();
+pollGuard();

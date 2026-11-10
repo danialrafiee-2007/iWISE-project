@@ -21,6 +21,8 @@ def test_the_html_front_end_loads_nothing_from_the_internet():
     files = [p for p in HTML.rglob("*") if p.suffix in {".html", ".css", ".js"}]
     assert (HTML / "index.html") in files
     for path in files:
+        if path.name == "arch-src.js":
+            continue  # the project's source code shown as text on the Architecture page (D-206); nothing in it is loaded
         assert not re.search(r"https?://", path.read_text(encoding="utf-8")), path
 
 
@@ -237,3 +239,52 @@ def test_the_architecture_page_and_the_rails_online_lamp():
         assert strings.count(f'"html.arch.s{n}.d"') == 7
     css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
     assert 'grid-template-rows: auto minmax(0, 1fr)' in css and "text-align: justify" in css
+
+
+def test_three_lamps_soft_tabs_and_the_reliability_diagram():
+    """D-204: a third lamp for the Guardian in the banner and the rail; the Model performance tabs change without the
+    page dropping to the top (the new height is worked out, never measured by letting the page go short); Reliability
+    has the previous site's reliability diagram."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert 'id="guard-lamp"' in page and 'id="rail-guard-lamp"' in page
+    assert page.index('id="rail-online-lamp"') < page.index('id="rail-guard-lamp"')
+    script = (HTML / "js" / "app.js").read_text(encoding="utf-8")
+    assert "html.guard.ready" in script and "/api/health" in script and "/api/media/status" in script
+    pages = (HTML / "js" / "pages.js").read_text(encoding="utf-8")
+    assert "from - shownHeight + next.offsetHeight" in pages and 'page.style.minHeight = ""' in pages
+    models = (HTML / "js" / "models.js").read_text(encoding="utf-8")
+    assert "calib.aria" in models and "card.calib1" in models
+    strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    for key in ("html.guard.ready", "calib.point", "card.calib3"):
+        assert strings.count(f'"{key}"') == 7, key
+
+
+def test_a_reload_goes_home_and_the_lamps_are_level_with_the_description():
+    """D-205: a reload anywhere opens the home page; the banner's three lamps share the description's row, as tall as
+    its box, in three equal rows."""
+    pages = (HTML / "js" / "pages.js").read_text(encoding="utf-8")
+    assert '"reload"' in pages and 'history.replaceState(null, "", "/")' in pages
+    assert pages.index('history.replaceState(null, "", "/")') < pages.index("show(location.pathname, { instant: true")
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert ".home-banner .status-stack { height: 100%; grid-template-rows: repeat(3, minmax(0, 1fr))" in css
+
+
+def test_the_architecture_graph_shows_the_real_code_in_seven_languages():
+    """D-206: every node of the code map names code that exists, the page's copy of that code is the code as it is now
+    (run scripts/build_arch_source.py after changing a file it shows), and every node says what it does in all seven
+    languages."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("build_arch_source", ROOT / "scripts" / "build_arch_source.py")
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    assert (HTML / "js" / "arch-src.js").read_text(encoding="utf-8") == builder.build(), "run scripts/build_arch_source.py"
+    data = (HTML / "js" / "arch-data.js").read_text(encoding="utf-8")
+    ids = re.findall(r'id: "([^"]+)"', data)
+    assert len(ids) == len(set(ids)) >= 90
+    strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    for node in ids:
+        assert strings.count(f'"html.ag.{node}"') == 7, node
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    order = [page.index(f'<script src="/js/{name}') for name in ("arch-data.js", "arch-src.js", "arch-graph.js")]
+    assert 'id="arch-graphs"' in page and order == sorted(order)

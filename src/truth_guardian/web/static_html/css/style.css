@@ -611,6 +611,52 @@ a.pop-item { text-decoration: none; }
 .status-stack .status-chip { justify-content: flex-start; }
 .rail-lamp + .rail-lamp { margin-top: -6px; }
 
+/* ---- D-204: the tabs change softly, and Reliability and Check an agent take Check an answer's warm panels ---- */
+.tab-panel.tab-out { opacity: 0; transform: translateY(6px); transition: opacity 180ms ease, transform 180ms ease; pointer-events: none; }
+.tab-panel.tab-in { animation: tab-in 460ms var(--ease-soft) both; }
+@keyframes tab-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.tab { transition: background 260ms ease, color 260ms ease, box-shadow 260ms ease; }
+#panel-reliability .stat, #panel-reliability .chart-box, #panel-reliability .media-card, #panel-reliability .table-wrap,
+#panel-reliability .media-quality > *, #panel-agent .rp-card {
+  border: 1px solid #e4ddca;
+  background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
+  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 34px -24px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+#panel-reliability .table-wrap { padding: 12px 14px; }
+#panel-agent .step { background: rgb(243 237 223 / 0.7); border-color: #e4ddca; }
+#panel-agent .chip { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+#panel-agent .chip[aria-pressed="true"] { background: radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 50%), linear-gradient(160deg, var(--active-light), var(--active)); border-color: transparent; }
+#panel-agent .btn-ghost { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+#panel-agent .rp-well, #panel-agent .own, #panel-agent .step-obs { background: rgb(243 237 223 / 0.7); }
+
+/* ---- The reliability diagram (D-204), as on the previous site: the chart and, beside it, how to read it ---- */
+.calib-box { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 22px; align-items: start; }
+.calib-chart { display: grid; gap: 10px; min-width: 0; }
+.calib-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: 0.76rem; color: var(--ink-soft); }
+.calib-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.calib-dot { width: 10px; height: 10px; border-radius: 50%; }
+.calib-dash { width: 16px; border-top: 1.5px dashed #5f6f67; }
+.calib-plot { position: relative; }
+.calib-plot svg { display: block; width: 100%; height: auto; }
+.calib-plot .grid { stroke: rgb(44 58 52 / 0.12); }
+.calib-plot .tick { font-size: 11px; fill: #6f8a7e; }
+.calib-plot .axis { font-size: 12px; fill: var(--ink-soft); }
+.calib-plot .name { font-size: 11px; fill: var(--ink); stroke: #f7f3e9; stroke-width: 3px; paint-order: stroke; }
+.calib-plot .hit { fill: transparent; cursor: pointer; }
+.calib-plot .hit:focus { outline: none; }
+.calib-tip { position: absolute; z-index: 2; min-width: 180px; padding: 8px 12px; border-radius: 10px; background: #0f2a26; color: #e6f2ec; font-size: 0.74rem; line-height: 1.5; pointer-events: none; box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.6); }
+.calib-tip[hidden] { display: none; }
+.calib-tip b { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.calib-read { display: grid; gap: 12px; font-size: 0.88rem; line-height: 1.7; color: var(--ink); }
+.calib-read p { margin: 0; }
+.calib-read small { color: #6f8a7e; font-size: 0.76rem; }
+.calib-table summary { cursor: pointer; font-size: 0.78rem; color: var(--ink-soft); }
+.calib-table table { width: 100%; min-width: 520px; margin-top: 8px; border-collapse: collapse; font-size: 0.76rem; }
+.calib-table th, .calib-table td { padding: 5px 10px 5px 0; text-align: start; border-top: 1px solid #e4ddca; font-weight: 400; }
+.calib-table td { font-family: ui-monospace, Consolas, monospace; color: var(--ink-soft); }
+.calib-table > div { overflow-x: auto; }
+@media (max-width: 1000px) { .calib-box { grid-template-columns: 1fr; } }
+
 /* ---- The home page fits the screen (D-203): the banner takes what its text needs, the chat the rest, and only the
    chat's log scrolls. The description sits in a framed box, justified, across the banner's width. On a narrow or very
    short screen the page flows and scrolls as before. ---- */
@@ -1133,7 +1179,6 @@ a.pop-item { text-decoration: none; }
     linear-gradient(160deg, var(--active-light), var(--active));
   box-shadow: 0 8px 16px -10px rgb(var(--emerald) / 0.7), inset 0 1px 1px rgb(255 255 255 / 0.8), inset 0 -2px 4px rgb(11 74 50 / 0.25);
 }
-.tab-panel.tab-in { animation: layer-in 520ms var(--ease-soft) both; }
 .section-title.small { font-size: 1.15rem; margin-top: 18px; }
 
 /* The media models' cards, from the previous site's "Models and status". */
@@ -1852,3 +1897,84 @@ button.person-card { text-align: center; padding: 0 16px 18px; }
   .page.leaving, .page.entering-page .layer, .page.entering-page .layer > *, .page.entering-page .layer .title-text,
   .person-dialog[open], .person-dialog.closing, .section.flash, .pop:not([hidden]), .tour-layer, .tour-card { animation: none; }
 }
+
+/* ---- The home banner's three lamps, level with the description's box (D-205): the title takes the first row, the box
+   and the lamps share the second, the lamps' column exactly as tall as the box, three equal rows, every chip as wide
+   as the widest. ---- */
+.home-banner { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: stretch; row-gap: 8px; }
+.home-banner > div:first-child { display: contents; }
+.home-banner .banner-title { grid-column: 1; grid-row: 1; align-self: end; }
+.home-banner .banner-lead { grid-column: 1; grid-row: 2; margin: 0; }
+.home-banner .banner-side { grid-column: 2; grid-row: 2; align-self: stretch; display: grid; }
+.home-banner .status-stack { height: 100%; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 10px; min-width: 250px; }
+.home-banner .status-stack .status-chip { height: 100%; min-height: 34px; padding: 0 16px; gap: 10px; font-size: 0.86rem; }
+@media (max-width: 900px) {
+  .home-banner { grid-template-columns: 1fr; }
+  .home-banner .banner-side { grid-column: 1; grid-row: 3; }
+  .home-banner .status-stack { min-width: 0; grid-template-rows: none; }
+}
+
+
+/* ---- The code, node by node (D-206): the live graph of each part, in the site's colours. Modules deep green, functions
+   peach, the entry point a large emerald disc, on the warm panel; the side panel beside it holds the node's words and
+   its code on deep green. ---- */
+.ag-section { display: grid; gap: 12px; }
+.ag-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.ag-tabs .chip { border: 1px solid #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
+.ag-tabs .chip[aria-pressed="true"] { border-color: transparent; background: radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 50%), linear-gradient(160deg, var(--active-light), var(--active)); }
+.ag-stack { display: grid; gap: 14px; }
+.ag-wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.ag-wrap.with-panel { grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); }
+.ag-graph {
+  position: relative; height: clamp(460px, 62vh, 640px); overflow: hidden; border-radius: 18px; border: 1px solid #e4ddca;
+  background:
+    radial-gradient(60% 60% at 50% 52%, rgb(157 255 196 / 0.16), rgb(157 255 196 / 0) 70%),
+    linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
+  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 34px -24px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.ag-svg { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; user-select: none; }
+.ag-svg.dragging, .ag-svg:active { cursor: grabbing; }
+.ag-arrow { fill: rgb(20 64 58 / 0.45); }
+.ag-edge { stroke: rgb(20 64 58 / 0.28); stroke-width: 1.2; transition: stroke 160ms, opacity 160ms; }
+.ag-edge.hot { stroke: #c96a2a; stroke-width: 1.8; }
+.ag-edge.dim { opacity: 0.25; }
+.ag-node { cursor: pointer; stroke-width: 2; transition: opacity 160ms, filter 160ms; outline: none; }
+.ag-node.root { fill: #1f8f57; stroke: #c9ffe0; stroke-width: 3; filter: drop-shadow(0 4px 10px rgb(15 90 52 / 0.45)); }
+.ag-node.hub { fill: #14403a; stroke: #9dffc4; }
+.ag-node.leaf { fill: #e8a060; stroke: #fff3e6; stroke-width: 1.5; }
+.ag-node.hot, .ag-node:focus-visible { filter: drop-shadow(0 0 8px rgb(57 255 136 / 0.85)); }
+.ag-node.leaf.hot, .ag-node.leaf:focus-visible { filter: drop-shadow(0 0 8px rgb(232 160 96 / 0.95)); }
+.ag-node.dim { opacity: 0.28; }
+.ag-title { position: absolute; inset: 14px 60px auto 16px; display: grid; gap: 2px; pointer-events: none; }
+.ag-title b { font-family: "Fraunces TG", Georgia, serif; font-weight: 500; font-size: 1.05rem; color: var(--ink); }
+.ag-title span { font-size: 0.74rem; color: #6f8a7e; }
+.ag-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid #e4ddca; border-radius: 50%; background: #fffdf8; color: var(--ink); cursor: pointer; }
+.ag-close svg, .ag-panel-x svg { width: 16px; height: 16px; }
+.ag-tip { position: absolute; z-index: 2; transform: translate(-50%, calc(-100% - 16px)); padding: 6px 10px; border-radius: 10px; background: #0f2a26; color: #e6f2ec; font-size: 0.78rem; white-space: nowrap; pointer-events: none; box-shadow: 0 10px 22px -12px rgb(0 0 0 / 0.6); }
+.ag-tip small { display: block; color: #9dffc4; font-size: 0.68rem; }
+.ag-legend { position: absolute; left: 16px; right: 16px; bottom: 10px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 0.74rem; color: var(--ink-soft); pointer-events: none; }
+.ag-dot { display: inline-block; width: 10px; height: 10px; margin-inline-end: 6px; border-radius: 50%; vertical-align: -1px; }
+.ag-dot.hub { background: #14403a; box-shadow: 0 0 0 2px #9dffc4; }
+.ag-dot.leaf { background: #e8a060; }
+.ag-hint { color: #6f8a7e; }
+.ag-panel {
+  position: relative; display: grid; align-content: start; gap: 10px; max-height: clamp(460px, 62vh, 640px); overflow-y: auto; padding: 18px 18px 16px;
+  border-radius: 18px; border: 1px solid #e4ddca;
+  background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
+  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 34px -24px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.ag-panel[hidden] { display: none; }
+.ag-panel h4 { margin: 0; padding-inline-end: 36px; font-family: "Fraunces TG", Georgia, serif; font-weight: 500; font-size: 1.12rem; color: var(--ink); overflow-wrap: anywhere; }
+.ag-panel-x { position: absolute; top: 12px; inset-inline-end: 12px; width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid #e4ddca; border-radius: 50%; background: #fffdf8; color: var(--ink); cursor: pointer; }
+.ag-role { margin: 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2f7a62; }
+.ag-desc { margin: 0; font-size: 0.88rem; line-height: 1.65; color: var(--ink); text-align: start; }
+.ag-io { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ag-io ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 0.76rem; color: var(--ink-soft); font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+.ag-io-h { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.ag-io-h.in { color: #1f8f57; }
+.ag-io-h.out { color: #c96a2a; }
+.ag-code-wrap { display: grid; gap: 4px; min-width: 0; }
+.ag-code-h { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.ag-file { font: 0.7rem ui-monospace, Consolas, monospace; color: #6f8a7e; overflow-wrap: anywhere; }
+.ag-code { margin: 0; max-height: 340px; overflow: auto; padding: 12px 14px; border-radius: 12px; background: #0f2a26; color: #d8efe4; font: 0.74rem/1.55 ui-monospace, Consolas, monospace; white-space: pre; tab-size: 4; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06); }
+@media (max-width: 1000px) { .ag-wrap.with-panel { grid-template-columns: minmax(0, 1fr); } .ag-panel { max-height: none; } }

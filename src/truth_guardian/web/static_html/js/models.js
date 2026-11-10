@@ -22,6 +22,66 @@
     return `<span class="candle ${kind}" style="--h:${h.toFixed(1)}%" title="${esc(label)}: ${num(value)}"><span class="candle-value">${num(value, 2)}</span></span>`;
   }
 
+  // ---- The reliability diagram, as on the previous site (its CalibrationChart, D-204): for each set, the predicted
+  // risk (the bin's average) against the share of its answers really hallucinated, with the dashed line of perfect
+  // calibration; beside it, how to read it. A point shows its numbers under the pointer or the keyboard. ----
+  const SERIES = [
+    { key: "ragtruth_dev", label: "card.seriesDev", color: "#3987e5", at: [7, -10, -10, "end"] },
+    { key: "ragtruth_test", label: "card.seriesTest", color: "#14a38b", at: [4, 10, 18, "start"] },
+    { key: "halueval", label: "card.seriesHalu", color: "#d95926", at: [3, 0, -12, "middle"] },
+  ];
+  const W = 560, H = 360, PAD = { left: 52, right: 20, top: 16, bottom: 48 };
+  const X = (v) => PAD.left + v * (W - PAD.left - PAD.right);
+  const Y = (v) => H - PAD.bottom - v * (H - PAD.top - PAD.bottom);
+  function calibration() {
+    const series = SERIES.filter((s) => card.calibration?.[s.key]).map((s) => ({ ...s, name: tr(s.label), ...card.calibration[s.key], bins: (card.calibration[s.key].bins || []).filter((b) => b.n > 0) }));
+    if (!series.length) return "";
+    const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1];
+    const point = (s, b) => tr("calib.point", { label: s.name, a: num(b.low, 1), b: num(b.high, 1), m: num(b.mean_risk, 2), o: pct(b.observed), n: num(b.n, 0) });
+    const svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(tr("calib.aria"))}">
+      ${ticks.map((t) => `<line class="grid" x1="${X(0)}" x2="${X(1)}" y1="${Y(t)}" y2="${Y(t)}"/><text class="tick" x="${X(0) - 8}" y="${Y(t)}" dy="0.32em" text-anchor="end">${num(t, 1)}</text><text class="tick" x="${X(t)}" y="${Y(0) + 18}" text-anchor="middle">${num(t, 1)}</text>`).join("")}
+      <text class="axis" x="${(X(0) + X(1)) / 2}" y="${H - 8}" text-anchor="middle">${esc(tr("calib.x"))}</text>
+      <text class="axis" transform="translate(14 ${(Y(0) + Y(1)) / 2}) rotate(-90)" text-anchor="middle">${esc(tr("calib.y"))}</text>
+      <line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" stroke="#5f6f67" stroke-width="1.5" stroke-dasharray="5 5"/>
+      ${series.map((s) => `<polyline points="${s.bins.map((b) => `${X(b.mean_risk)},${Y(b.observed)}`).join(" ")}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${s.bins.map((b) => `<circle cx="${X(b.mean_risk)}" cy="${Y(b.observed)}" r="4" fill="${s.color}" stroke="#f7f3e9" stroke-width="2"/>`).join("")}`).join("")}
+      ${series.map((s) => { const [i, dx, dy, anchor] = s.at; const b = s.bins[Math.min(i, s.bins.length - 1)]; return b ? `<text class="name" x="${X(b.mean_risk) + dx}" y="${Y(b.observed) + dy}" text-anchor="${anchor}">${esc(s.name)}</text>` : ""; }).join("")}
+      ${series.map((s, si) => s.bins.map((b, bi) => `<circle class="hit" cx="${X(b.mean_risk)}" cy="${Y(b.observed)}" r="12" tabindex="0" data-s="${si}" data-b="${bi}" aria-label="${esc(point(s, b))}"/>`).join("")).join("")}
+    </svg>`;
+    const lows = Array.from({ length: 10 }, (_, i) => i / 10);
+    const table = `<details class="calib-table"><summary>${esc(tr("calib.table"))}</summary><div><table>
+      <thead><tr><th>${esc(tr("calib.band"))}</th>${series.map((s) => `<th>${esc(tr("calib.col", { label: s.name }))}</th>`).join("")}</tr></thead>
+      <tbody>${lows.map((low) => `<tr><td>${esc(tr("calib.range", { a: num(low, 1), b: num(low + 0.1, 1) }))}</td>${series.map((s) => { const b = s.bins.find((v) => Math.abs(v.low - low) < 1e-9); return `<td>${esc(b ? tr("calib.cell", { m: num(b.mean_risk, 2), o: pct(b.observed), n: num(b.n, 0) }) : tr("calib.none"))}</td>`; }).join("")}</tr>`).join("")}</tbody>
+    </table></div></details>`;
+    calibSeries = series;
+    return `<div class="calib-box">
+      <div class="calib-chart">
+        <ul class="calib-legend" aria-label="${esc(tr("calib.legend"))}">${series.map((s) => `<li><span class="calib-dot" style="background:${s.color}"></span>${esc(tr("calib.ece", { label: s.name, v: num(s.ece, 3) }))}</li>`).join("")}<li><span class="calib-dash"></span>${esc(tr("calib.perfect"))}</li></ul>
+        <div class="calib-plot" dir="ltr">${svg}<div class="calib-tip" hidden></div></div>
+        ${table}
+      </div>
+      <div class="calib-read"><p>${esc(tr("card.calib1"))}</p><p>${esc(tr("card.calib2"))}</p><p>${esc(tr("card.calib3"))}</p><small>${esc(tr("card.calibNote"))}</small></div>
+    </div>`;
+  }
+  let calibSeries = [];
+  // The point's numbers in a small dark card above it, under the pointer or the keyboard.
+  function tipOn(hit) {
+    const plot = hit.closest(".calib-plot");
+    const tip = plot?.querySelector(".calib-tip");
+    const s = calibSeries[+hit.dataset.s];
+    const b = s?.bins[+hit.dataset.b];
+    if (!tip || !b) return;
+    tip.innerHTML = `<b><span class="calib-dot" style="background:${s.color}"></span>${esc(s.name)}</b><div>${esc(tr("calib.tipRisk", { a: num(b.low, 1), b: num(b.high, 1), m: num(b.mean_risk, 2) }))}</div><div>${esc(tr("calib.tipReal", { o: pct(b.observed) }))}</div><div>${esc(tr("calib.tipN", { n: num(b.n, 0) }))}</div>`;
+    const left = X(b.mean_risk) / W;
+    const shift = left < 0.3 ? "-12px" : left > 0.7 ? "calc(-100% + 12px)" : "-50%";
+    Object.assign(tip.style, { left: `${left * 100}%`, top: `${(Y(b.observed) / H) * 100}%`, transform: `translate(${shift}, calc(-100% - 14px))` });
+    tip.hidden = false;
+  }
+  const tipOff = (hit) => { const tip = hit.closest(".calib-plot")?.querySelector(".calib-tip"); if (tip) tip.hidden = true; };
+  for (const [on, off] of [["mouseover", "mouseout"], ["focusin", "focusout"]]) {
+    body.addEventListener(on, (e) => { if (e.target.classList?.contains("hit")) tipOn(e.target); });
+    body.addEventListener(off, (e) => { if (e.target.classList?.contains("hit")) tipOff(e.target); });
+  }
+
   function render() {
     if (!card) return;
     const test = card.locked_test || {};
@@ -47,7 +107,6 @@
     ];
 
     const tasks = Object.entries(test.by_task || {});
-    const bins = (card.calibration?.ragtruth_dev?.bins || []).filter((b) => b.n > 0);
 
     const rows = [
       ["RAGTruth test", test],
@@ -85,12 +144,9 @@
         </figure>
       </div>
 
-      <figure class="chart-box">
-        <figcaption class="chart-title">${esc(tr("html.m.calib"))} <span class="chart-unit">ECE ${num(card.calibration?.ragtruth_dev?.ece)}</span></figcaption>
-        <div class="candles calib">
-          ${bins.map((b) => `<div class="candle-group"><div class="candle-bars"><span class="candle base" style="--h:${(b.mean_risk * 100).toFixed(1)}%" title="${esc(tr("html.m.predicted"))}"></span><span class="candle tg" style="--h:${(b.observed * 100).toFixed(1)}%" title="${esc(tr("html.m.observed"))}"></span></div><span class="candle-name">${num(b.low, 1)}–${num(b.high, 1)}</span></div>`).join("")}
-        </div>
-        <div class="legend"><span class="key base"></span>${esc(tr("html.m.predicted"))}<span class="key tg"></span>${esc(tr("html.m.observed"))}</div>
+      <figure class="chart-box calib-figure">
+        <figcaption class="chart-title">${esc(tr("card.calibTitle"))}</figcaption>
+        ${calibration()}
       </figure>
 
       <div class="table-wrap">

@@ -9,6 +9,10 @@
   const pages = new Map([...main.querySelectorAll(".page")].map((el) => [el.dataset.page, el]));
   // The addresses this front end has a page for; the others (pages not built yet) show the home page.
   const ROUTES = { "/": "home", "/models": "models", "/architecture": "architecture", "/team": "team", "/about": "about", "/contact": "contact" };
+  // A reload, wherever it is done, opens the site again from the home page (D-205): the address goes back to "/" before
+  // the page is chosen, so the opening plays and the home page comes after it, as on a first visit.
+  const reloaded = performance.getEntriesByType("navigation")[0]?.type === "reload";
+  if (reloaded) { history.scrollRestoration = "manual"; if (location.pathname !== "/" || location.hash) history.replaceState(null, "", "/"); }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tr = (key) => (window.TG ? window.TG.t(key) : key);
   // The change's timings, read from style.css (:root), so the one standard is set in one place.
@@ -140,21 +144,51 @@
 
   // ---- The Model performance page's row of tabs: one opens at a time, softly, below the row ----
   const tabs = [...document.querySelectorAll('.tabs [role="tab"]')];
+  const panelOf = (t) => document.getElementById(t.getAttribute("aria-controls"));
+  const TAB_OUT = 200;
+  const TAB_HEIGHT = 420;
+  const tabRow = document.querySelector(".tabs");
+  let tabTimer = 0;
+  // A long panel (Reliability) changed for a short one made the page shorter at once, and the window, scrolled down,
+  // fell to the top in one jump. Now (D-204): if the row of tabs has gone up out of view, the window first slides
+  // back to it; the panel shown fades out while the page keeps its height; the next one fades in; and the page then
+  // eases to its new height, so the window never falls.
   function openTab(tab, focus = false) {
+    const next = panelOf(tab);
+    const shown = tabs.map(panelOf).find((p) => p && !p.hidden && p !== next);
     tabs.forEach((t) => {
       const on = t === tab;
       t.setAttribute("aria-selected", String(on));
       t.tabIndex = on ? 0 : -1;
-      const panel = document.getElementById(t.getAttribute("aria-controls"));
-      if (!panel) return;
-      panel.hidden = !on;
-      if (on && !reduced) {
-        panel.classList.remove("tab-in");
-        void panel.offsetWidth;
-        panel.classList.add("tab-in");
-      }
     });
-    if (focus) tab.focus();
+    if (focus) tab.focus({ preventScroll: true });
+    if (!next) return;
+    clearTimeout(tabTimer);
+    const page = next.closest(".page");
+    if (reduced || !shown || !page) {
+      tabs.map(panelOf).forEach((p) => { if (p) p.hidden = p !== next; });
+      return;
+    }
+    page.getAnimations().forEach((a) => a.cancel());
+    const from = page.offsetHeight;
+    page.style.minHeight = `${from}px`;
+    const rowTop = tabRow ? tabRow.getBoundingClientRect().top : 0;
+    if (rowTop < 0) window.scrollTo({ top: Math.max(0, window.scrollY + rowTop - 16), behavior: "smooth" });
+    shown.classList.remove("tab-in");
+    shown.classList.add("tab-out");
+    const shownHeight = shown.offsetHeight;
+    tabTimer = setTimeout(() => {
+      tabs.map(panelOf).forEach((p) => { if (p) { p.hidden = p !== next; p.classList.remove("tab-out", "tab-in"); } });
+      void next.offsetWidth;
+      next.classList.add("tab-in");
+      // The new height, worked out from the two panels while the page keeps its old one: letting the page go short even
+      // for a moment, to measure it, is what dropped the window to the top.
+      const to = from - shownHeight + next.offsetHeight;
+      if (to >= from) { page.style.minHeight = ""; return; }
+      page.style.minHeight = `${to}px`;
+      const shrink = page.animate([{ minHeight: `${from}px` }, { minHeight: `${to}px` }], { duration: TAB_HEIGHT, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" });
+      shrink.onfinish = () => { page.style.minHeight = ""; };
+    }, TAB_OUT);
   }
   tabs.forEach((tab, i) => {
     tab.addEventListener("click", () => openTab(tab));

@@ -122,3 +122,4 @@ computer on 2026-11-10 (see `docs/DECISIONS.md` D-191). No Claude and nothing pa
 | OpenAlex API (D-197) | https://openalex.org | Data CC0; free without a key | Scholarly works for questions about research |
 | Groq vision and Whisper large (D-200) | https://console.groq.com | Free tier with the owner's key; its own terms | A second model's look at an image and a second transcript of a recording; the picture or recording is sent to Groq |
 | Jina Reader | https://jina.ai/reader | Free without a key at a low rate; its own terms | Reads the pages the model names as plain text |
+| AI-Archaeologist (INNOVERSE), its AI Engine graph (D-206) | the owner's earlier project, js/ai-graph.js | The owner's own work | Rewritten for this site | The Architecture page's code map: its force-directed graph, side panel and meta graph |
