@@ -8,7 +8,7 @@
   if (!main) return;
   const pages = new Map([...main.querySelectorAll(".page")].map((el) => [el.dataset.page, el]));
   // The addresses this front end has a page for; the others (pages not built yet) show the home page.
-  const ROUTES = { "/": "home", "/models": "models", "/team": "team", "/about": "about", "/contact": "contact" };
+  const ROUTES = { "/": "home", "/models": "models", "/architecture": "architecture", "/team": "team", "/about": "about", "/contact": "contact" };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tr = (key) => (window.TG ? window.TG.t(key) : key);
   // The change's timings, read from style.css (:root), so the one standard is set in one place.
@@ -97,7 +97,7 @@
       next.hidden = false;
       if (!instant) enter(next, 60);
       current = next;
-      const TITLES = { models: "html.models", team: "team.title", about: "about.title", contact: "contact.title" };
+      const TITLES = { models: "html.models", architecture: "html.arch", team: "team.title", about: "about.title", contact: "contact.title" };
       document.title = name === "home" ? "Truth Guardian (HTML)" : `${tr(TITLES[name] || `${name}.title`)} · Truth Guardian`;
       if (section) setTimeout(() => scrollToSection(section), reduced ? 0 : 300);
     });

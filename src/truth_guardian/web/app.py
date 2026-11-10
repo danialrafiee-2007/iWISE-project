@@ -705,6 +705,14 @@ def create_app(
 
         return _stream(work)
 
+    @app.get("/api/online/status")
+    def online_status() -> dict:
+        """Whether the free online services answer now (rag/free.py, D-202): the home page's second lamp. Asks nothing
+        that costs, and keeps its answer a minute."""
+        from truth_guardian.rag import free
+
+        return free.online_status(root)
+
     @app.post("/api/ask/free")
     def ask_free(body: AskFreeIn) -> StreamingResponse:
         """When the documents hold no answer: a free online model answers (no Claude), and the local Guardian checks the

@@ -208,3 +208,32 @@ def test_the_chat_scrolls_inside_itself_and_the_report_opens_in_a_window():
     assert "full.showModal()" in chat and "scrollIntoView" not in chat and "log.scrollTop = log.scrollHeight" in chat
     css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
     assert ".chat .chat-log { flex: 1 1 0; min-height: 0;" in css and ".report-dialog-body {" in css
+
+
+def test_the_banner_has_a_second_lamp_for_the_online_models_and_the_new_description():
+    """D-202: under the local models' lamp, a second one says whether the free online models answer; the banner's
+    description says what is checked for text, images and recordings, in all seven languages."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert 'id="online-lamp"' in page and 'id="online-state"' in page and 'data-i18n="html.lead"' in page
+    assert page.index('id="chip-lamp"') < page.index('id="online-lamp"')
+    script = (HTML / "js" / "app.js").read_text(encoding="utf-8")
+    assert "/api/online/status" in script and "html.online.on" in script
+    strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    for key in ("html.lead", "html.online.on", "html.online.partly", "html.online.off", "html.online.checking"):
+        assert strings.count(f'"{key}"') == 7, key
+
+
+def test_the_architecture_page_and_the_rails_online_lamp():
+    """D-203: a rail button opens the Architecture page, six stages each naming its models, local or online; the online
+    lamp also stands in the rail under the local models' one; the home page fits the screen."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert 'href="/architecture" data-page="architecture"' in page and 'class="page" data-page="architecture"' in page
+    assert page.count('class="card arch-step"') == 6
+    assert page.index('id="rail-lamp"') < page.index('id="rail-online-lamp"')
+    assert '"/architecture": "architecture"' in (HTML / "js" / "pages.js").read_text(encoding="utf-8")
+    assert "rail-online-lamp" in (HTML / "js" / "app.js").read_text(encoding="utf-8")
+    strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    for n in range(1, 7):
+        assert strings.count(f'"html.arch.s{n}.d"') == 7
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert 'grid-template-rows: auto minmax(0, 1fr)' in css and "text-align: justify" in css

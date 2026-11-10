@@ -355,3 +355,20 @@ def test_a_capital_or_another_place_of_the_same_name_is_kept_apart():
     words = set(free.terms("When was the Eiffel Tower in Paris completed?"))
     assert not free.concerns("Eiffel Tower (Paris, Texas)", words) and free.concerns("Eiffel Tower", words)
     assert free.concerns("Hafez (poet)", set(free.terms("Where was Hafez born?")))
+
+
+def test_the_online_lamp_asks_only_what_costs_nothing_and_keeps_its_answer(tmp_path, monkeypatch):
+    monkeypatch.setattr(free, "_status", {})
+    (tmp_path / free.SETTINGS_FILE).write_text("GROQ_API_KEY=gsk_test\nTAVILY_API_KEY=tvly-test\n", encoding="utf-8")
+    asked = []
+
+    def fetch(url, data=None, headers=None, timeout=None):
+        asked.append(url)
+        return (200, "{}") if "groq" in url or "wikipedia" in url else (503, "")
+
+    clock = iter([0.0, 0.0, 10.0, 10.0])
+    status = free.online_status(tmp_path, fetch, lambda: next(clock))
+    assert status == {"state": "online", "answer": ["groq"], "search": ["wikipedia", "tavily"], "keys": ["GROQ_API_KEY", "TAVILY_API_KEY"]}
+    assert not any("tavily" in url or "openrouter" in url for url in asked)  # no search spent; no key, no request
+    free.online_status(tmp_path, fetch, lambda: next(clock))
+    assert len(asked) == 3  # kept for a minute: nothing asked again

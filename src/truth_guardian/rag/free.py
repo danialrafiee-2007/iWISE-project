@@ -802,3 +802,41 @@ def _citations(sources: list[dict], labels: list[str]) -> list[Citation]:
         Citation(n=n, document=s["title"], collection="web", page=None, text=s["text"], place=s["url"], role={"model": "cited by the model", "guardian": "found by the Guardian", "both": "cited by the model and found by the Guardian"}[s["found_by"]], stance=label, found_by=s["found_by"])
         for n, (s, label) in enumerate(zip(sources, labels), 1)
     ]
+
+
+# ---- Whether the free online services can be reached now (D-202), for the second lamp on the home page ----
+# Each is asked something that costs nothing: a model list, a key's own page, a site's info. Tavily is not asked (a
+# search would spend a credit), only whether its key is set. The result is kept a minute, so the page's polling never
+# adds up to many requests.
+PROBES = {
+    "groq": ("https://api.groq.com/openai/v1/models", "GROQ_API_KEY"),
+    "openrouter": ("https://openrouter.ai/api/v1/key", "OPENROUTER_API_KEY"),
+    "pollinations": ("https://text.pollinations.ai/models", None),
+    "wikipedia": ("https://en.wikipedia.org/w/api.php?action=query&meta=siteinfo&format=json", None),
+}
+STATUS_KEPT = 60.0
+_status: dict = {}
+
+
+def online_status(root: Path = ROOT, fetch=_request, now=time.monotonic) -> dict:
+    """{"state": "online" | "partly" | "offline", "answer": [services that answer], "search": [sources that answer],
+    "keys": [keys set]}: online when a model and Wikipedia answer, partly when only one of them does."""
+    if _status and now() - _status["at"] < STATUS_KEPT:
+        return _status["value"]
+    values = settings(root)
+
+    def ask(name: str) -> bool:
+        url, key_name = PROBES[name]
+        if key_name and not values.get(key_name):
+            return False
+        status, _ = fetch(url, None, {"Authorization": f"Bearer {values[key_name]}"} if key_name else None, PAGE_TIMEOUT)
+        return status == 200
+
+    with ThreadPoolExecutor(max_workers=len(PROBES)) as pool:
+        answered = dict(zip(PROBES, pool.map(ask, PROBES)))
+    answer = [name for name in ("groq", "openrouter", "pollinations") if answered[name]]
+    search = ["wikipedia"] * answered["wikipedia"] + ["tavily"] * bool(values.get("TAVILY_API_KEY"))
+    state = "online" if answer and answered["wikipedia"] else "partly" if answer or answered["wikipedia"] else "offline"
+    value = {"state": state, "answer": answer, "search": search, "keys": [k for k in ("GROQ_API_KEY", "OPENROUTER_API_KEY", "TAVILY_API_KEY") if values.get(k)]}
+    _status.update(at=now(), value=value)
+    return value

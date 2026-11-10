@@ -606,6 +606,57 @@ a.pop-item { text-decoration: none; }
   white-space: nowrap;
 }
 .status-chip .lamp { width: 9px; height: 9px; }
+/* The two lamps one under the other, the same width (D-202). */
+.status-stack { display: grid; gap: 8px; justify-items: stretch; }
+.status-stack .status-chip { justify-content: flex-start; }
+.rail-lamp + .rail-lamp { margin-top: -6px; }
+
+/* ---- The home page fits the screen (D-203): the banner takes what its text needs, the chat the rest, and only the
+   chat's log scrolls. The description sits in a framed box, justified, across the banner's width. On a narrow or very
+   short screen the page flows and scrolls as before. ---- */
+.home-banner { padding: 18px 26px; gap: 14px 24px; }
+.home-banner .banner-title { font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
+.banner-lead {
+  max-width: none;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+@media (min-width: 901px) and (min-height: 620px) {
+  .page[data-page="home"]:not([hidden]) { height: calc(100dvh - 60px); grid-template-rows: auto minmax(0, 1fr); }
+  .page[data-page="home"] .chat { height: auto; min-height: 0; }
+  .page[data-page="home"] .chat .section-note { margin-top: 4px; }
+}
+
+/* ---- Architecture (D-203): six stages in a grid of cards, each with its models as chips, local or online ---- */
+.arch-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+.arch-flow > li { display: grid; }
+.arch-step { display: grid; align-content: start; gap: 10px; padding: 18px 20px; }
+.arch-head { display: flex; align-items: center; gap: 10px; }
+.arch-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 11px; background: linear-gradient(135deg, #14403a, #0b2723); color: #9dffc4; box-shadow: var(--lift), inset 0 1px 0 rgb(255 255 255 / 0.12); }
+.arch-icon svg { width: 19px; height: 19px; }
+.arch-num { font-family: "Fraunces TG", Georgia, serif; font-size: 0.85rem; color: var(--ink-soft); }
+.arch-title { margin: 0; font-family: "Fraunces TG", Georgia, "Times New Roman", serif; font-weight: 500; font-size: 1.12rem; color: var(--ink); }
+.arch-text { margin: 0; color: var(--ink); font-size: 0.9rem; line-height: 1.65; text-align: justify; text-justify: inter-word; }
+.arch-chips, .arch-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.arch-legend { margin-top: 12px; }
+.arch-chip { padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; line-height: 1.5; direction: ltr; unicode-bidi: isolate; border: 1px solid transparent; }
+.arch-chip.local { background: rgb(47 179 106 / 0.12); border-color: rgb(47 179 106 / 0.35); color: #0f5a34; }
+.arch-chip.online { background: rgb(64 132 214 / 0.11); border-color: rgb(64 132 214 / 0.35); color: #1d4f8a; }
+.arch-chip.score { background: rgb(232 160 96 / 0.16); border-color: rgb(232 160 96 / 0.45); color: #7a3f12; }
+.arch-legend .arch-chip { direction: inherit; }
+.arch-legend .arch-chip.local { background: rgb(157 255 196 / 0.12); color: #c9ffe0; border-color: rgb(157 255 196 / 0.35); }
+.arch-legend .arch-chip.online { background: rgb(140 190 255 / 0.12); color: #cfe4ff; border-color: rgb(140 190 255 / 0.35); }
+@media (max-width: 1100px) { .arch-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .arch-flow { grid-template-columns: 1fr; } }
 
 /* Right-to-left pages: the persian and arabic text in the system's own fonts. */
 :root[dir="rtl"] .banner-text,
