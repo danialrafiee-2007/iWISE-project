@@ -933,6 +933,7 @@ a.pop-item { text-decoration: none; }
 .sources li .stance.contradicts, .stance.contradicts { background: rgb(255 107 107 / 0.18); color: #8f1f1f; }
 .sources li .stance.unrelated, .stance.unrelated { background: rgb(185 198 191 / 0.35); color: #4a5a52; }
 .sources li .stance.missing, .stance.missing { background: rgb(243 195 79 / 0.25); color: #6b4a06; }
+.sources li .stance.not_found, .stance.not_found { background: rgb(210 60 60 / 0.9); color: #fff; }
 .sources li .stance.unjudged, .stance.unjudged { background: rgb(150 120 220 / 0.16); color: #4a3a85; }
 /* The light check, sentence by sentence. */
 .light-list { display: grid; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }

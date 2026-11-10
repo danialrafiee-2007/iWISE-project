@@ -66,11 +66,11 @@ def test_the_answer_is_checked_and_every_source_labelled(tmp_path):
     assert "SOURCES" not in a.text and "1889" in a.text
     by = {c.place: c for c in a.citations}
     assert by["https://example.org/eiffel"].found_by == "model" and by["https://example.org/eiffel"].stance == "supports"
-    assert by["https://dead.example/x"].stance == "missing" and by["https://dead.example/x"].text == ""
+    assert by["https://dead.example/x"].stance == "not_found" and by["https://dead.example/x"].text == ""
     wiki = [c for c in a.citations if c.found_by == "guardian"]
     assert wiki and wiki[0].place.startswith("https://en.wikipedia.org/wiki/") and wiki[0].stance == "contradicts"
     # The engine read only the sources that opened, in their order, and the note names the page that did not.
-    assert len(engine.samples[0].documents) == 2 and any("could not be opened" in n for n in a.notes)
+    assert len(engine.samples[0].documents) == 2 and any("do not exist" in n for n in a.notes)
 
 
 def test_a_wait_the_free_service_asks_for_is_waited_once(tmp_path):
@@ -90,7 +90,7 @@ def test_a_language_no_check_reads_gets_the_light_check(tmp_path, monkeypatch):
     engine = Engine(refuse=Route())
     a = free.answer_free("When?", engine, root=tmp_path, fetch=Net(), sleep=lambda s: None)
     assert a.status == "light" and a.report is None
-    assert {c.stance for c in a.citations} == {"unjudged", "missing"}
+    assert {c.stance for c in a.citations} == {"unjudged", "not_found"}
 
 
 def test_no_source_found_leaves_it_unchecked(tmp_path):
@@ -125,7 +125,7 @@ def test_a_page_that_does_not_answer_in_time_is_skipped_not_fatal(tmp_path):
     net = Net()
 
     def slow(url, data=None, headers=None, timeout=None):
-        if url.startswith(free.READER):
+        if url.startswith(free.READER) or url.startswith(("https://example.org", "https://dead.example")):
             return 0, "TimeoutError: timed out"
         return net(url, data, headers, timeout)
 
@@ -183,8 +183,8 @@ def test_the_web_search_keeps_passages_that_concern_the_answer():
     def fetch(url, data=None, headers=None, timeout=None):
         seen.update(url=url, headers=headers, data=data)
         return 200, json.dumps({"results": [
-            {"title": "Karun River | Britannica", "url": "https://www.britannica.com/place/Karun-River", "content": "The Karun River, Iran's longest river, is about 950 km long and joins the Shatt al-Arab."},
-            {"title": "Cooking", "url": "https://food.example/x", "content": "A recipe for rice with saffron."},
+            {"title": "Karun River | Britannica", "url": "https://www.britannica.com/place/Karun-River", "content": "The Karun River, Iran's longest river, is about 950 km long and joins the Shatt al-Arab.", "score": 0.9},
+            {"title": "Cooking", "url": "https://food.example/x", "content": "A recipe for rice with saffron.", "score": 0.9},
         ]})
 
     words = set(free.terms("How long is the Karun River? It is 950 km long."))
@@ -222,3 +222,76 @@ def test_one_wikidata_entity_is_given_once():
     entity = {"id": "Q622796", "labels": {"en": {"value": "Milad Tower"}}, "claims": {"P2048": [{"rank": "normal", "mainsnak": {"snaktype": "value", "datavalue": {"type": "quantity", "value": {"amount": "+435", "unit": "http://www.wikidata.org/entity/Q11573"}}}}]}}
     fetch = lambda url, data=None, headers=None, timeout=None: (200, json.dumps({"entities": {"Q622796": entity}}))
     assert len(free.wikidata([("fa", "برج میلاد"), ("en", "Milad Tower")], fetch)) == 1
+
+
+def test_a_page_is_told_apart_as_made_up_or_closed_to_programs():
+    gone = lambda url, data=None, headers=None, timeout=None: (0, "URLError: <urlopen error [Errno 11001] getaddrinfo failed>")
+    shut = lambda url, data=None, headers=None, timeout=None: (403, "Forbidden")
+    assert free.probe("https://no-such-site.example/x", gone) == "not_found"
+    assert free.probe("https://www.britannica.com/x", shut) == "blocked"
+    assert free.read_page("https://www.britannica.com/x", set(), shut) == ("", "blocked")
+
+
+def test_a_source_left_unrelated_is_judged_again_on_its_own():
+    class Alone:
+        def __init__(self):
+            self.calls = 0
+
+        def analyze(self, sample, cancelled=None):
+            self.calls += 1
+            claim = ClaimReport(start=0, end=4, text="1889", status="supported", risk=0.1, explanation="x", action="keep", evidence=Evidence(document_id="source1", text="1889"))
+            return Report(id=sample.id, verdict="grounded", risk=0.1, response_threshold=0.4, sentence_threshold=0.3, claims=[claim])
+
+    engine = Alone()
+    labels = free.judge_each("It opened in 1889.", "When?", ["a", "b", "c"], ["supports", "unrelated", "contradicts"], engine)
+    assert labels == ["supports", "supports", "contradicts"] and engine.calls == 1
+
+
+def test_a_source_alone_never_turns_into_a_contradiction():
+    class Strict:
+        def analyze(self, sample, cancelled=None):
+            claim = ClaimReport(start=0, end=4, text="1937", status="contradicted", risk=0.9, explanation="x", action="verify", evidence=Evidence(document_id="source1", text="1936"))
+            return Report(id=sample.id, verdict="hallucinated", risk=0.9, response_threshold=0.4, sentence_threshold=0.3, claims=[claim])
+
+    assert free.judge_each("Published in 1937.", "When?", ["born 1903, died 1951"], ["unrelated"], Strict()) == ["unrelated"]
+
+
+def test_a_source_in_a_language_the_check_does_not_read_is_left_out_of_it(tmp_path, monkeypatch):
+    persian = "برج ایفل در سال ۱۸۸۹ ساخته شد و ارتفاع آن ۳۳۰ متر است. این برج در پاریس قرار دارد و نماد فرانسه است."
+    monkeypatch.setattr(free, "tavily", lambda question, words, *rest, **more: [("Persian page", "https://fa.example/eiffel", persian)])
+    engine = Engine()
+    a = free.answer_free("When was the Eiffel Tower completed?", engine, root=tmp_path, fetch=Net(), sleep=lambda s: None)
+    assert a.status == "checked"
+    assert all(persian not in d.text for d in engine.samples[0].documents)
+    assert {c.stance for c in a.citations if c.place == "https://fa.example/eiffel"} == {"unjudged"}
+
+
+def test_an_address_with_persian_letters_is_sent_encoded():
+    url = "https://fa.wikipedia.org/wiki/برج_میلاد"
+    sent = free.ascii_url(url)
+    assert sent.isascii() and sent.startswith("https://fa.wikipedia.org/wiki/%D8%A8") and free.ascii_url(sent) == sent
+    assert free.ascii_url("https://r.jina.ai/https://fa.wikipedia.org/wiki/حافظ").isascii()
+
+
+def test_a_persian_question_also_searches_the_reliable_persian_sites(tmp_path, monkeypatch):
+    calls = []
+
+    def fake(question, words, key=None, fetch=None, sites=(), results=free.TAVILY_RESULTS, shared=2):
+        calls.append(sites)
+        return [("حافظ", "https://rch.ac.ir/article/Details?id=9348", "حافظ در حدود سال ۷۲۷ هجری در شیراز به دنیا آمد.")] if sites else []
+
+    monkeypatch.setattr(free, "tavily", fake)
+    monkeypatch.setattr(free, "light_check", lambda text, hits: [])
+    persian = Net(reply="حافظ در شیراز به دنیا آمد.\nSOURCES: none")
+    a = free.answer_free("حافظ در کدام شهر به دنیا آمد؟", Engine(refuse=Route()), root=tmp_path, fetch=persian, sleep=lambda s: None)
+    assert calls.count(free.FA_SITES) == 1 and () in calls
+    assert any(c.place == "https://rch.ac.ir/article/Details?id=9348" for c in a.citations)
+    calls.clear()
+    free.answer_free("When was the Eiffel Tower completed?", Engine(), root=tmp_path, fetch=Net(), sleep=lambda s: None)
+    assert calls == [()]  # an English question: the general web search only
+
+
+def test_a_web_hit_tavily_scores_low_is_left_out():
+    hits = {"results": [{"title": "Prices", "url": "https://x.example/p", "content": "Karun River 950 km long prices today", "score": 0.12}]}
+    words = set(free.terms("Karun River 950 km long"))
+    assert free.tavily("Karun", words, None, lambda *a, **k: (200, json.dumps(hits))) == []

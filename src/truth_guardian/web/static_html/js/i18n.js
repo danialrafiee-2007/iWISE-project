@@ -754,7 +754,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "The model named no page for its answer.",
   "html.free.n.noSource": "No source was found to check it against.",
   "html.free.n.noAnswer": "The free model wrote no answer.",
-  "html.free.busy": "The free online service is busy; try again in a minute."
+  "html.free.busy": "The free online service is busy; try again in a minute.",
+  "html.free.st.not_found": "Does not exist",
+  "html.free.n.gone": "{n} page(s) the model named do not exist (the address answers \"not found\"); the model may have made them up: {urls}",
+  "html.free.n.shut": "{n} page(s) the model named could not be read; the site may keep programs out: {urls}"
  },
  "ar": {
   "landing.lead": "لا تفوق إجابة الذكاء الاصطناعي دليلها جودةً. التحدي هو معرفة ما إذا كانت الإجابة موثّقة أم فيها هلوسة، وما مقدار الخطر، وأي أجزائها مشكوك فيها ولماذا؛ يفعل Truth Guardian ذلك للنص، وكذلك للصوت والصور.",
@@ -1503,7 +1506,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "لم يذكر النموذج أي صفحة لإجابته.",
   "html.free.n.noSource": "لم يُعثر على مصدر لفحصها مقابله.",
   "html.free.n.noAnswer": "لم يكتب النموذج المجاني أي إجابة.",
-  "html.free.busy": "الخدمة المجانية على الإنترنت مشغولة؛ حاول بعد دقيقة."
+  "html.free.busy": "الخدمة المجانية على الإنترنت مشغولة؛ حاول بعد دقيقة.",
+  "html.free.st.not_found": "غير موجودة",
+  "html.free.n.gone": "{n} صفحة ذكرها النموذج غير موجودة (العنوان يجيب «غير موجود»)؛ ربما اختلقها النموذج: {urls}",
+  "html.free.n.shut": "تعذّرت قراءة {n} صفحة ذكرها النموذج؛ ربما يمنع الموقع البرامج: {urls}"
  },
  "zh": {
   "landing.lead": "AI 的回答好坏取决于其证据。本挑战要判断回答是有依据还是存在幻觉、风险有多大、哪些部分可疑以及原因；Truth Guardian 对文本做到这一点，也对声音和图像做到。",
@@ -2252,7 +2258,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "模型没有为回答提供任何网页。",
   "html.free.n.noSource": "没有找到可用于核查的来源。",
   "html.free.n.noAnswer": "免费模型没有写出回答。",
-  "html.free.busy": "免费在线服务繁忙，请一分钟后再试。"
+  "html.free.busy": "免费在线服务繁忙，请一分钟后再试。",
+  "html.free.st.not_found": "不存在",
+  "html.free.n.gone": "模型提到的 {n} 个网页不存在（地址返回“未找到”），可能是模型编造的：{urls}",
+  "html.free.n.shut": "模型提到的 {n} 个网页无法读取，网站可能拒绝程序访问：{urls}"
  },
  "fr": {
   "landing.lead": "La réponse d'une IA ne vaut que par ses preuves. Le défi consiste à dire si une réponse est fondée ou hallucinée, quel est le risque, quelles parties sont suspectes et pourquoi ; Truth Guardian le fait pour le texte, et aussi pour le son et les images.",
@@ -3005,7 +3014,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "Le modèle n'a cité aucune page pour sa réponse.",
   "html.free.n.noSource": "Aucune source n'a été trouvée pour la vérifier.",
   "html.free.n.noAnswer": "Le modèle gratuit n'a écrit aucune réponse.",
-  "html.free.busy": "Le service gratuit en ligne est occupé ; réessayez dans une minute."
+  "html.free.busy": "Le service gratuit en ligne est occupé ; réessayez dans une minute.",
+  "html.free.st.not_found": "N'existe pas",
+  "html.free.n.gone": "{n} page(s) citée(s) par le modèle n'existent pas (l'adresse répond « introuvable ») ; le modèle les a peut-être inventées : {urls}",
+  "html.free.n.shut": "{n} page(s) citée(s) par le modèle n'ont pas pu être lues ; le site bloque peut-être les programmes : {urls}"
  },
  "ru": {
   "landing.lead": "Ответ ИИ хорош ровно настолько, насколько хороши его доказательства. Задача — определить, обоснован ли ответ или это галлюцинация, насколько велик риск, какие части подозрительны и почему; Truth Guardian делает это для текста, а также для звука и изображений.",
@@ -3758,7 +3770,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "Модель не назвала ни одной страницы для ответа.",
   "html.free.n.noSource": "Не найдено источников для проверки.",
   "html.free.n.noAnswer": "Бесплатная модель не написала ответа.",
-  "html.free.busy": "Бесплатный онлайн-сервис занят; попробуйте через минуту."
+  "html.free.busy": "Бесплатный онлайн-сервис занят; попробуйте через минуту.",
+  "html.free.st.not_found": "Не существует",
+  "html.free.n.gone": "{n} страниц(ы), названные моделью, не существуют (адрес отвечает «не найдено»); возможно, модель их выдумала: {urls}",
+  "html.free.n.shut": "{n} страниц(ы), названные моделью, не удалось прочитать; сайт может не пускать программы: {urls}"
  },
  "es": {
   "landing.lead": "La respuesta de una IA vale lo que vale su evidencia. El reto es saber si una respuesta está fundamentada o contiene una alucinación, cuánto riesgo tiene, qué partes son sospechosas y por qué; Truth Guardian lo hace con el texto, y también con sonido e imágenes.",
@@ -4511,7 +4526,10 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "El modelo no nombró ninguna página para su respuesta.",
   "html.free.n.noSource": "No se encontró ninguna fuente con la que comprobarla.",
   "html.free.n.noAnswer": "El modelo gratuito no escribió ninguna respuesta.",
-  "html.free.busy": "El servicio gratuito en línea está ocupado; inténtalo de nuevo en un minuto."
+  "html.free.busy": "El servicio gratuito en línea está ocupado; inténtalo de nuevo en un minuto.",
+  "html.free.st.not_found": "No existe",
+  "html.free.n.gone": "{n} página(s) que nombró el modelo no existen (la dirección responde «no encontrada»); quizá el modelo las inventó: {urls}",
+  "html.free.n.shut": "No se pudieron leer {n} página(s) que nombró el modelo; quizá el sitio no deja entrar a los programas: {urls}"
  },
  "fa": {
   "landing.lead": "پاسخ هوش مصنوعی فقط به اندازهٔ شاهدش درست است. چالش این است که معلوم شود پاسخ مستند است یا توهم، خطرش چقدر است، کدام بخش‌ها مشکوک‌اند و چرا؛ Truth Guardian این کار را برای متن، و افزون بر آن برای صدا و تصویر انجام می‌دهد.",
@@ -5260,6 +5278,9 @@ window.TG_MESSAGES = {
   "html.free.n.noPage": "مدل برای پاسخش هیچ صفحه‌ای نام نبرد.",
   "html.free.n.noSource": "هیچ منبعی برای سنجیدن آن پیدا نشد.",
   "html.free.n.noAnswer": "مدل رایگان پاسخی ننوشت.",
-  "html.free.busy": "سرویس آنلاین رایگان شلوغ است؛ یک دقیقهٔ دیگر دوباره بپرسید."
+  "html.free.busy": "سرویس آنلاین رایگان شلوغ است؛ یک دقیقهٔ دیگر دوباره بپرسید.",
+  "html.free.st.not_found": "وجود ندارد",
+  "html.free.n.gone": "{n} صفحه که مدل نام برده بود وجود ندارد (نشانی «پیدا نشد» می‌دهد)؛ شاید مدل آن را ساخته باشد: {urls}",
+  "html.free.n.shut": "{n} صفحه که مدل نام برده بود خوانده نشد؛ شاید آن سایت به برنامه‌ها اجازهٔ ورود ندهد: {urls}"
  }
 };

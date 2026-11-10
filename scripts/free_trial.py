@@ -44,7 +44,7 @@ def main() -> None:
     args = parser.parse_args()
     out = ROOT / "runtime" / "online" / f"free_trial_{datetime.now():%Y%m%d_%H%M}.jsonl"
     out.parent.mkdir(parents=True, exist_ok=True)
-    print(f"{'#':>2}  {'status':9} {'verdict':12} {'risk':>5}  {'claims':>6}  sources (S supports, C contradicts, U unrelated, M missing, J unjudged)")
+    print(f"{'#':>2}  {'status':9} {'verdict':12} {'risk':>5}  {'claims':>6}  sources (S supports, C contradicts, U unrelated, M could not be read, X does not exist, J unjudged)")
     with out.open("a", encoding="utf-8", newline="\n") as f:
         for n, question in enumerate(QUESTIONS, 1):
             if n > 1 and args.gap:
@@ -60,7 +60,7 @@ def main() -> None:
                 print(f"{n:>2}  error     {answer['error'][:90]}")
                 continue
             report = answer.get("report") or {}
-            letters = "".join({"supports": "S", "contradicts": "C", "unrelated": "U", "missing": "M", "unjudged": "J"}[c["stance"]] for c in answer["citations"])
+            letters = "".join({"supports": "S", "contradicts": "C", "unrelated": "U", "missing": "M", "not_found": "X", "unjudged": "J"}[c["stance"]] for c in answer["citations"])
             doubtful = sum(1 for claim in answer.get("light", []) if claim["status"] == "doubtful")
             claims = len(report.get("claims", [])) or len(answer.get("light", []))
             print(f"{n:>2}  {answer.get('seconds', 0):5.1f}s {answer['status']:9} {report.get('verdict') or ('doubtful ' + str(doubtful) if answer.get('light') else '-'):12} {report.get('risk') or 0:5.2f}  {claims:>6}  {letters}")

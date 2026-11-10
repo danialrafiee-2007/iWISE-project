@@ -60,6 +60,13 @@ READER = "https://r.jina.ai/"
 # TAVILY_API_KEY (free, 1,000 searches a month) on the account's own limit.
 TAVILY = "https://api.tavily.com/search"
 TAVILY_RESULTS = 4
+# For a question or answer in Persian, a second web search kept to reliable Persian sites (D-196): encyclopaedias (the
+# Great Islamic Encyclopaedia, the Encyclopaedia of the World of Islam, Encyclopaedia Iranica), the Persian poetry
+# corpus Ganjoor, the Statistical Centre of Iran, the national news agencies IRNA and ISNA, and the journal and
+# conference indexes Noormags and Civilica. Each was checked to answer for Persian questions on 2026-11-10.
+FA_SITES = ("cgie.org.ir", "rch.ac.ir", "iranicaonline.org", "ganjoor.net", "amar.org.ir", "irna.ir", "isna.ir", "noormags.ir", "civilica.com")
+FA_RESULTS = 5
+MIN_SCORE = 0.3  # Tavily's relevance score (0 to 1) below which a hit is left out
 # Wikidata: the structured facts behind Wikipedia (a population with its year, a height, a date of birth), read for
 # the articles found, as plain sentences the check can compare numbers and dates with.
 WIKIDATA = "https://www.wikidata.org/w/api.php"
@@ -77,6 +84,7 @@ UNITS = {
 }
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 WIKI_LANGS = {"en", "fa", "ar", "fr", "ru", "es", "zh"}
+CHECKED = {"en", "ar", "fr", "ru", "es", "zh"}  # the languages the full check reads (language.py); Persian gets the light one
 MAX_MODEL_PAGES = 3
 WIKI_ARTICLES = 2
 WIKI_HITS = 5  # search hits looked at; only those whose title concerns the question are read
@@ -99,7 +107,7 @@ NOTE = (
     "the model named and against Wikipedia articles it found itself, so a grounded verdict means the answer agrees with "
     "what was found, not that every page is right"
 )
-STANCES = ("supports", "contradicts", "unrelated", "missing", "unjudged")
+STANCES = ("supports", "contradicts", "unrelated", "missing", "not_found", "unjudged")
 
 
 class Busy(Exception):
@@ -144,9 +152,25 @@ def provider(values: dict[str, str]) -> tuple[str, str, str | None]:
     return providers(values)[0]
 
 
+def ascii_url(url: str) -> str:
+    """An address as the network sends it: letters outside ASCII (a Persian article's title) percent-encoded, and a
+    non-ASCII site name in its IDNA form, so such an address is read and never breaks the request."""
+    parts = urllib.parse.urlsplit(url)
+    try:
+        host = parts.hostname.encode("idna").decode("ascii") if parts.hostname else ""
+    except UnicodeError:
+        host = parts.hostname or ""
+    netloc = host + (f":{parts.port}" if parts.port else "")
+    keep = "/:@!$&'()*+,;=%-._~"
+    return urllib.parse.urlunsplit((parts.scheme, netloc, urllib.parse.quote(parts.path, safe=keep), urllib.parse.quote(parts.query, safe=keep + "?/"), urllib.parse.quote(parts.fragment, safe=keep)))
+
+
 def _request(url: str, data: dict | None = None, headers: dict | None = None, timeout: float = TIMEOUT) -> tuple[int, str]:
     body = json.dumps(data).encode() if data is not None else None
-    request = urllib.request.Request(url, data=body, headers={"User-Agent": AGENT, **({"Content-Type": "application/json"} if body else {}), **(headers or {})})
+    try:
+        request = urllib.request.Request(ascii_url(url), data=body, headers={"User-Agent": AGENT, **({"Content-Type": "application/json"} if body else {}), **(headers or {})})
+    except ValueError as e:  # an address that cannot be sent at all
+        return 0, f"{type(e).__name__}: {e}"
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             return response.status, response.read().decode("utf-8", errors="replace")
@@ -269,17 +293,42 @@ def wiki_article(lang: str, title: str, fetch=_request) -> str | None:
     return None if "missing" in page else page.get("extract") or None
 
 
-def read_page(url: str, words: set[str], fetch=_request) -> str | None:
-    """What a page the model named says about the answer; None when it does not open (it may not exist). A Wikipedia
-    article is read from Wikipedia's API, any other page through Jina Reader, and cleaned of its markup."""
+_GONE = ("getaddrinfo failed", "Name or service not known", "nodename nor servname", "No address associated", "Errno 11001")
+
+
+def probe(url: str, fetch=_request) -> str:
+    """Whether a page that could not be read exists: asked directly, "not_found" when the site answers 404 or 410 or
+    its name does not exist (the model may have made the address up), else "blocked" (it exists but keeps programs out,
+    or did not answer in time)."""
+    status, text = fetch(url, None, {"Accept": "text/html"}, PAGE_TIMEOUT)
+    if status in (404, 410) or (status == 0 and any(sign in text for sign in _GONE)):
+        return "not_found"
+    return "blocked"
+
+
+def read_page(url: str, words: set[str], fetch=_request) -> tuple[str, str]:
+    """What a page the model named says about the answer, and its state: ("passage", "ok"), where the passage is empty
+    when nothing on the page concerns the answer, or ("", "not_found") or ("", "blocked"). A Wikipedia article is read
+    from Wikipedia's API, any other page through Jina Reader, cleaned of its markup."""
     wiki = _WIKI_PAGE.match(url)
     if wiki:
-        article = wiki_article(wiki.group(1), urllib.parse.unquote(wiki.group(2)).replace("_", " "), fetch)
-        return relevant(article, words) or None if article else None
+        lang, title = wiki.group(1), urllib.parse.unquote(wiki.group(2)).replace("_", " ")
+        query = urllib.parse.urlencode({"action": "query", "prop": "extracts", "explaintext": 1, "titles": title, "format": "json", "redirects": 1})
+        status, text = _wiki_get(f"{WIKI.format(lang=lang)}?{query}", fetch)
+        if status != 200:
+            return "", "blocked"
+        try:
+            page = next(iter(json.loads(text)["query"]["pages"].values()))
+        except (ValueError, KeyError, TypeError, StopIteration):
+            return "", "blocked"
+        return ("", "not_found") if "missing" in page or "invalid" in page else (relevant(page.get("extract") or "", words), "ok")
     status, text = fetch(READER + url, None, {"Accept": "text/plain"}, PAGE_TIMEOUT)
-    if status != 200 or len(text.strip()) < 200 or "Warning: Target URL returned error" in text[:600]:
-        return None
-    return relevant(clean(text.split("Markdown Content:", 1)[-1]), words) or None
+    head = text[:600]
+    if status == 200 and len(text.strip()) >= 200 and "Warning: Target URL returned error" not in head:
+        return relevant(clean(text.split("Markdown Content:", 1)[-1]), words), "ok"
+    if re.search(r"Target URL returned error (404|410)", head):
+        return "", "not_found"
+    return "", probe(url, fetch)
 
 
 def concerns(title: str, words: set[str]) -> bool:
@@ -312,11 +361,13 @@ def wikipedia(question: str, words: set[str], lang: str, fetch=_request) -> list
     return found
 
 
-def tavily(question: str, words: set[str], key: str | None = None, fetch=_request) -> list[tuple[str, str, str]]:
+def tavily(question: str, words: set[str], key: str | None = None, fetch=_request, sites: tuple[str, ...] = (), results: int = TAVILY_RESULTS, shared: int = 2) -> list[tuple[str, str, str]]:
     """Web pages found for the question by Tavily: (title, address, the passage it found), keeping only passages that
-    share at least two words with the question or the answer."""
+    share at least `shared` words with the question or the answer and that Tavily itself scores at least MIN_SCORE (its
+    low-scored hits were noise: prices, unrelated news, profile pages). sites: only these sites (the Persian search)."""
     headers = {"Authorization": f"Bearer {key}"} if key else {"X-Tavily-Access-Mode": "keyless"}
-    status, text = fetch(TAVILY, {"query": question[:400], "max_results": TAVILY_RESULTS, "search_depth": "basic"}, headers, PAGE_TIMEOUT)
+    body = {"query": question[:400], "max_results": results, "search_depth": "basic", **({"include_domains": list(sites)} if sites else {})}
+    status, text = fetch(TAVILY, body, headers, PAGE_TIMEOUT)
     if status != 200:
         return []
     try:
@@ -326,7 +377,7 @@ def tavily(question: str, words: set[str], key: str | None = None, fetch=_reques
     found = []
     for result in results:
         content = clean(str(result.get("content") or ""))
-        if result.get("url") and len(words & set(terms(content))) >= 2:
+        if result.get("url") and float(result.get("score") or 0) >= MIN_SCORE and len(words & set(terms(content))) >= shared:
             found.append((str(result.get("title") or result["url"]), str(result["url"]), content[:PASSAGE_CHARS]))
     return found
 
@@ -444,6 +495,27 @@ def stances(report: Report | None, texts: list[str]) -> list[str]:
     return labels
 
 
+ALONE = 6  # at most this many sources are judged again on their own
+
+
+def judge_each(text: str, question: str, texts: list[str], labels: list[str], engine, cancelled=None) -> list[str]:
+    """The check names one evidence for each claim, so a second source saying the same thing was left "unrelated".
+    Each source left so (up to ALONE) is judged again on its own against the whole answer, and becomes "supports" when a
+    claim is supported by it. It never becomes "contradicts" this way: alone, a source that simply lacks the answer's
+    number but holds other numbers reads as a contradiction (the trial marked five sources of a right answer so), so a
+    contradiction is taken only from the check against all the sources together."""
+    labels = list(labels)
+    for i in [i for i, label in enumerate(labels) if label == "unrelated"][:ALONE]:
+        _proceed(cancelled)
+        try:
+            alone = engine.analyze(make_sample(text, [texts[i]], question, sample_id=f"free-source{i + 1}"), cancelled=cancelled)
+        except NotChecked:
+            continue
+        if stances(alone, [texts[i]])[0] == "supports":
+            labels[i] = "supports"
+    return labels
+
+
 def answer_free(
     question: str,
     engine,
@@ -504,48 +576,70 @@ def answer_free(
     langs = list(dict.fromkeys([code if code in WIKI_LANGS else "en", "en"]))
     # Every page the model named, every Wikipedia search and the web search are read at once, not one after another;
     # then Wikidata's facts for the articles found.
-    with ThreadPoolExecutor(max_workers=len(urls) + len(langs) + 1) as pool:
+    persian = "fa" in {code, (detect(question).code or "").split("-")[0].lower()}
+    tavily_key = settings(root).get("TAVILY_API_KEY")
+    with ThreadPoolExecutor(max_workers=len(urls) + len(langs) + 2) as pool:
         pages = [pool.submit(read_page, url, words, fetch) for url in urls]
         searches = [pool.submit(wikipedia, question, words, lang, fetch) for lang in langs]
-        web = pool.submit(tavily, question, words, settings(root).get("TAVILY_API_KEY"), fetch)
+        # For a Persian question the general search is a second voice beside the Persian sites, so it must share more.
+        web = pool.submit(tavily, question, words, tavily_key, fetch, (), TAVILY_RESULTS, 3 if persian else 2)
+        # A Persian question also searches the reliable Persian sites, where Persian facts are best found.
+        fa_web = pool.submit(tavily, question, words, tavily_key, fetch, FA_SITES, FA_RESULTS) if persian else None
         read = [page.result() for page in pages]
         found = [search.result() for search in searches]
         on_web = web.result()
+        on_fa_web = fa_web.result() if fa_web else []
     articles = [(lang, title) for lang, hits in zip(langs, found) for title, _, _ in hits]
     articles += [(m.group(1), urllib.parse.unquote(m.group(2)).replace("_", " ")) for url in urls if (m := _WIKI_PAGE.match(url))]
     facts = wikidata(list(dict.fromkeys(articles))[:4], fetch)
     _proceed(cancelled)
-    sources: list[dict] = [{"title": url, "url": url, "text": passage or "", "opened": passage is not None, "found_by": "model"} for url, passage in zip(urls, read)]
+    sources: list[dict] = [{"title": url, "url": url, "text": passage, "opened": state == "ok", "state": state, "found_by": "model"} for url, (passage, state) in zip(urls, read)]
     for lang, hits in zip(langs, found):
         for title, url, passage in hits:
             same = [s for s in sources if urllib.parse.unquote(s["url"]).replace(" ", "_") == urllib.parse.unquote(url)]
             if same:  # the model named the very article the Guardian found: one source, brought by both
                 same[0]["found_by"] = "both"
-                if not same[0]["opened"]:
-                    same[0].update(text=passage, opened=True)
+                if not same[0]["text"]:
+                    same[0].update(text=passage, opened=True, state="ok")
             else:
-                sources.append({"title": f"Wikipedia ({lang}): {title}", "url": url, "text": passage, "opened": True, "found_by": "guardian"})
-    for title, url, passage in on_web:
+                sources.append({"title": f"Wikipedia ({lang}): {title}", "url": url, "text": passage, "opened": True, "state": "ok", "found_by": "guardian"})
+    for title, url, passage in [*[(f"(fa) {t}", u, p) for t, u, p in on_fa_web], *on_web]:
         same = [s for s in sources if s["url"].rstrip("/") == url.rstrip("/")]
         if same:
             if same[0]["found_by"] == "model":
                 same[0]["found_by"] = "both"
-            if not same[0]["opened"]:
-                same[0].update(text=passage, opened=True)
+            if not same[0]["text"]:
+                same[0].update(text=passage, opened=True, state="ok")
         elif "wikipedia.org/wiki/" not in url:  # Wikipedia is read whole above; a search snippet of it adds nothing
-            sources.append({"title": f"Web: {title}", "url": url, "text": passage, "opened": True, "found_by": "guardian"})
+            sources.append({"title": f"Web: {title}", "url": url, "text": passage, "opened": True, "state": "ok", "found_by": "guardian"})
     for name, url, sentences in facts:
-        sources.append({"title": f"Wikidata: {name}", "url": url, "text": sentences, "opened": True, "found_by": "guardian"})
+        sources.append({"title": f"Wikidata: {name}", "url": url, "text": sentences, "opened": True, "state": "ok", "found_by": "guardian"})
 
-    opened = [s for s in sources if s["opened"]]
+    # What each source is before any check: a page that does not exist, one that could not be read, one with nothing on
+    # the answer, or one to check against.
+    first = {"not_found": "not_found", "blocked": "missing"}
+    opened = [s for s in sources if s["state"] == "ok" and s["text"].strip()]
+    # A source in a language the full check does not read (a Persian page beside an English answer) would turn the whole
+    # check into the light one; it is listed and left out of the check, read but not judged.
+    said = (detect(text).code or "").split("-")[0].lower()
+    if said in CHECKED:
+        apart = [s for s in opened if (detect(s["text"]).code or said).split("-")[0].lower() not in CHECKED]
+        opened = [s for s in opened if s not in apart]
+        for s in apart:
+            s["state"] = "apart"
+        first["apart"] = "unjudged"
     notes = [NOTE]
-    missing = [s["url"] for s in sources if not s["opened"]]
-    if missing:
-        notes.append(f"{len(missing)} page(s) the model named could not be opened; they may not exist: " + ", ".join(missing))
+    gone = [s["url"] for s in sources if s["state"] == "not_found"]
+    shut = [s["url"] for s in sources if s["state"] == "blocked"]
+    if gone:
+        notes.append(f"{len(gone)} page(s) the model named do not exist (the address answers not found): " + ", ".join(gone))
+    if shut:
+        notes.append(f"{len(shut)} page(s) the model named could not be read; the site may keep programs out: " + ", ".join(shut))
     if not urls:
         notes.append("the model named no page for its answer")
+    before = lambda s, judged: first.get(s["state"]) or ("unrelated" if not s["text"].strip() else judged)
     if not opened:
-        return done(status="unchecked", text=text, generator=generator, citations=_citations(sources, ["missing"] * len(sources)), notes=[*notes, "no source was found to check it against"])
+        return done(status="unchecked", text=text, generator=generator, citations=_citations(sources, [before(s, "unrelated") for s in sources]), notes=[*notes, "no source was found to check it against"])
 
     stage("check")
     sample = make_sample(text, [s["text"] for s in opened], question, sample_id="free", origins=[s["title"] for s in opened])
@@ -555,11 +649,15 @@ def answer_free(
         status = "checked"
     except NotChecked as refused:
         if refused.reason != "language":
-            return done(status="unchecked", text=text, generator=generator, citations=_citations(sources, ["unjudged" if s["opened"] else "missing" for s in sources]), notes=[*notes, str(refused)])
+            return done(status="unchecked", text=text, generator=generator, citations=_citations(sources, [before(s, "unjudged") for s in sources]), notes=[*notes, str(refused)])
         light = light_check(text, [SimpleNamespace(text=s["text"]) for s in opened])
         status = "light"
-    labels = iter(stances(report, [s["text"] for s in opened]))
-    found = [next(labels) if s["opened"] else "missing" for s in sources]
+    texts = [s["text"] for s in opened]
+    judged = stances(report, texts)
+    if report is not None:
+        judged = judge_each(text, question, texts, judged, engine, cancelled)
+    labels = iter(judged)
+    found = [next(labels) if s in opened else before(s, "unrelated") for s in sources]
     return done(status=status, text=text, generator=generator, report=report, light=light, citations=_citations(sources, found), notes=notes)
 
 

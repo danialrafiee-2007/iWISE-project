@@ -189,9 +189,12 @@
   }
 
   // The server's notes on a free online answer come in English (rag/free.py); they are shown in the page's language.
+  const count = (n) => new Intl.NumberFormat(({ fa: "fa-IR", ar: "ar-u-nu-latn" })[lang()] || lang()).format(Number(n));
   const NOTES = [
     [/^answered online by a free model/, () => tr("html.free.n.main")],
-    [/^(\d+) page\(s\) the model named could not be opened; they may not exist: (.*)$/, (m) => tr("html.free.n.missing", { n: new Intl.NumberFormat(({ fa: "fa-IR", ar: "ar-u-nu-latn" })[lang()] || lang()).format(Number(m[1])), urls: m[2] })],
+    [/^(\d+) page\(s\) the model named could not be opened; they may not exist: (.*)$/, (m) => tr("html.free.n.missing", { n: count(m[1]), urls: m[2] })],
+    [/^(\d+) page\(s\) the model named do not exist \(the address answers not found\): (.*)$/, (m) => tr("html.free.n.gone", { n: count(m[1]), urls: m[2] })],
+    [/^(\d+) page\(s\) the model named could not be read; the site may keep programs out: (.*)$/, (m) => tr("html.free.n.shut", { n: count(m[1]), urls: m[2] })],
     [/^the model named no page for its answer$/, () => tr("html.free.n.noPage")],
     [/^no source was found to check it against$/, () => tr("html.free.n.noSource")],
     [/^the free model wrote no answer$/, () => tr("html.free.n.noAnswer")],

@@ -117,4 +117,5 @@ computer on 2026-11-10 (see `docs/DECISIONS.md` D-191). No Claude and nothing pa
 | Wikipedia API | https://www.mediawiki.org/wiki/API:Main_page | Text CC BY-SA 4.0; the API is free without a key | The Guardian's own sources: short passages shown with their article's link |
 | Wikidata API | https://www.wikidata.org/wiki/Wikidata:Data_access | Data CC0; free without a key | Exact facts (population, height, dates, places) for the articles found, as plain sentences |
 | Tavily search (D-194) | https://tavily.com | Small daily allowance without a key; free key 1,000 searches a month, no card; its own terms | The Guardian's own web search beyond Wikipedia |
+| Persian sites searched through Tavily (D-196) | cgie.org.ir, rch.ac.ir, iranicaonline.org, ganjoor.net, amar.org.ir, irna.ir, isna.ir, noormags.ir, civilica.com | Each site's own terms; only short passages are read and shown with their link | The Guardian's sources for Persian questions |
 | Jina Reader | https://jina.ai/reader | Free without a key at a low rate; its own terms | Reads the pages the model names as plain text |
