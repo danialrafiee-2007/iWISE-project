@@ -25,7 +25,7 @@ data/processed/
 *.safetensors
 *.onnx
 
-# Secrets (the Contact page's mail account lives in smtp.local.env, the online check's key in anthropic.local.env, the
+# Secrets (the Contact page's mail account lives in smtp.local.env, an old key file anthropic.local.env if one is left, the
 # free online services' keys in free.local.env; the .example.env files show their lines)
 .env
 smtp.local.env

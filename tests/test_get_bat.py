@@ -10,7 +10,7 @@ BAT = ROOT / "Get-Truth-Guardian.bat"
 def test_the_download_file_asks_for_a_drive_and_makes_its_folder_there():
     text = BAT.read_text(encoding="utf-8")
     assert 'set "FOLDER=iWISE_Truth Guardian"' in text
-    assert "set /p \"DRIVE=" in text and 'set "ROOT=%DRIVE%:\%FOLDER%"' in text
+    assert 'set /p "DRIVE=' in text and r'set "ROOT=%DRIVE%:\%FOLDER%"' in text
 
 
 def test_it_downloads_the_latest_release_checks_every_part_and_starts_the_package():
@@ -19,7 +19,7 @@ def test_it_downloads_the_latest_release_checks_every_part_and_starts_the_packag
     for name in ("package.txt", "SHA256SUMS.txt", "Start-Truth-Guardian.bat", "README-FIRST.txt"):
         assert f'call :fetch "{name}"' in text, name
     assert "Get-FileHash -Algorithm SHA256" in text and "-C -" in text  # every part checked; broken downloads resume
-    assert 'call "%ROOT%\Start-Truth-Guardian.bat"' in text
+    assert r'call "%ROOT%\Start-Truth-Guardian.bat"' in text
 
 
 def test_it_installs_nothing_and_keeps_windows_line_endings():

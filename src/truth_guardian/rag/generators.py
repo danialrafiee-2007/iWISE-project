@@ -1,9 +1,6 @@
-"""What writes an answer from the passages: the local model through llama-server, or Claude when a key is set (D-164).
-
-Both take the same request and tell their text as it comes, so the rest of the RAG does not know which one ran. The local
-model runs offline on this computer. Claude is better and costs money: it counts against the online check's daily budget
-(online.py) and needs a key, so it is used only when the person chooses it. A stream cut off midway reports no usage, so
-what it cost cannot be counted.
+"""What writes an answer from the passages: the local model through llama-server, offline on this computer (D-164).
+A model online once wrote too, when a key was set; it was removed with the rest of that layer (D-216), and when the
+documents hold no answer the free online model of rag/free.py answers instead.
 
 The small local model can fall into saying one sentence over and over until its tokens run out, which takes minutes and which
 the check cannot object to, since each repeat is as grounded as the first. So its writing stops at the first sentence said twice.
@@ -19,11 +16,9 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import NamedTuple, Protocol
 
-from truth_guardian import online
 from truth_guardian.text import split_sentences
 
 LOCAL_MAX_TOKENS = 400
-ONLINE_MAX_TOKENS = 8_000
 MIN_REPEAT_CHARS = 15
 _CITATION = re.compile(r"\[[\d\s,]+\]")
 _SENTENCE_ENDS = (".", "!", "?", "]", "。", "！", "？", "؟")
@@ -67,7 +62,7 @@ class Generator(Protocol):
 
     def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = (), schema: dict | None = None) -> Written:
         """images: PNG pictures the model may look at along with the last message. schema: the JSON the reply must be, held to
-        by the local model's grammar; the system prompt must ask for it too, as Claude reads it from there."""
+        by the local model's grammar; the system prompt should ask for it too."""
         ...
 
 
@@ -128,41 +123,3 @@ class LocalGenerator:
         except (OSError, RuntimeError, http.client.HTTPException) as e:
             raise NotAvailable(f"the local model did not answer: {e}") from e
         return Written((whole_sentences(written) if cut_off and not schema else written).strip(), vision.ALIAS)
-
-
-class ClaudeGenerator:
-    name = "online"
-
-    def __init__(self, root: Path = online.ROOT, client=None, store: Path = online.STORE):
-        self.root, self.client, self.store = root, client, store
-
-    def available(self) -> bool:
-        return self.client is not None or online.configured(self.root)
-
-    def write(self, system: str, messages: list[dict], on_text: OnText | None = None, images: Sequence[bytes] = (), schema: dict | None = None) -> Written:
-        import anthropic
-
-        values = online.settings(self.root)
-        limit = online.budget(values)
-        if online.spent_today(self.store) >= limit:
-            raise NotAvailable(f"today's online budget of ${limit:.2f} is spent")
-        if not self.available():
-            raise NotAvailable("the online model has no key; put it in anthropic.local.env (see anthropic.example.env)")
-        client = self.client or online._client(values["ANTHROPIC_API_KEY"])
-        parts = [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": base64.b64encode(image).decode()}} for image in images]
-        try:
-            with client.beta.messages.stream(
-                model=online.MODEL, max_tokens=ONLINE_MAX_TOKENS, system=system, messages=_with_images(messages, parts, first=True), output_config={"effort": online.EFFORT},
-                betas=["server-side-fallback-2026-07-01"], fallbacks="default",
-            ) as stream:
-                for text in stream.text_stream:
-                    if on_text:
-                        on_text(text)
-                final = stream.get_final_message()
-        except anthropic.APIError as e:
-            raise NotAvailable(f"the online model did not answer: {type(e).__name__}") from e
-        cost = online._cost(final.usage)
-        with online._lock:
-            online._add_spend(cost, self.store)
-        text = "".join(block.text for block in final.content if block.type == "text").strip()
-        return Written(text, online.MODEL, cost, final.stop_reason == "refusal")

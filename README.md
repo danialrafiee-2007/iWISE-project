@@ -116,16 +116,6 @@ then tells a transcript from one with a changed fact at 0.74 to 0.78 AUROC (0.65
 matter: Tesseract, built for documents, reads the answer's words in only 4 to 26% of them, so the check finds little
 evidence there and calls most answers unsupported; documents and screenshots read well.
 
-An experimental online check (D-141, `online.py`) can give a second opinion when the local check is not sure: up to
-three doubtful claims go to Claude Opus 5.5, which reads the same sources and searches the web, and its answer is shown
-apart from the local verdict, never in its place. It is off until a key is set in `anthropic.local.env` (copy
-`anthropic.example.env`; git and Docker ignore the copy), spends at most `TG_ONLINE_DAILY_USD` a day (default $2), and
-never answers the same claims over the same sources twice. It uses Anthropic's official `anthropic` package (2.3.0, in
-the lock file). **Status: built and tested with a stand-in client, not yet switched on** (no API account is paid for
-yet, owner's decision of 2026-10-29). To switch it on: open an Individual account at console.anthropic.com, buy a little
-prepaid credit (5 to 10 dollars is enough to try it), set a monthly spend limit under Limits, make a key under
-Settings, API Keys, and put it after `ANTHROPIC_API_KEY=` in `anthropic.local.env`; the next check that is unsure uses it.
-
 The Contact page is the other part that uses the internet: its server sends each message by SMTP to the team's mailbox
 (majidrafiee1404@gmail.com, fixed in `contact.py`). Copy `smtp.example.env` to `smtp.local.env` (ignored by git and
 Docker) and fill in the sending account, for Gmail an app password; or set `TG_SMTP_USER` and `TG_SMTP_PASSWORD` in the
@@ -159,7 +149,7 @@ files of different kinds had every part right in 8 of 8 questions (`scripts/eval
 recordings are untested.
 
 `POST /api/ask` answers a question from the library and streams its stages, its text and the result. The closest passages go
-to a model, the local Qwen by default or Claude if a key is set and the person chooses it, which cites them as [n]. When nothing
+to the local model (Qwen3-VL-2B), which cites them as [n]. When nothing
 is close enough, the answer says the documents do not say, without calling a model. The Guardian checks every answer against
 the passages it was given and its verdict is shown beside it; Persian gets a lighter check, labelled as such, and an answer
 resting on the image model's description is marked as an opinion and not checked.

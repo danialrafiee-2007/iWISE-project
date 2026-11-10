@@ -2,7 +2,7 @@
 // report panels): the answer with every claim coloured by its status, the chosen claim in detail (its evidence, the
 // suggested action and fix, its cautions), the verdict card (grade, verdict, risk on its gauge with the decision or
 // guarantee lines, the triage lane), who is to blame, sources that disagree, what was left out, which claims add most to
-// the risk, the reliability dimensions, the online second opinion and the warnings. The words are the previous site's
+// the risk, the reliability dimensions and the warnings. The words are the previous site's
 // (panels.*, verdict.*, status.*, action.*, lane.*, blame.*, dimension.*, stage.* in js/i18n.js).
 // TGReport.render(element, answer, { compact }) fills an element; compact keeps the chat's bubble short.
 
@@ -16,7 +16,7 @@
   const pct = (x) => (x == null ? "–" : new Intl.NumberFormat(loc(), { style: "percent", maximumFractionDigits: 1 }).format(x));
   const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : "");
   const label = (family, key) => (has(`${family}.${key}`) ? tr(`${family}.${key}`) : key.replace(/_/g, " "));
-  const STAGES = ["lexical", "symbolic", "dense", "hhem", "polarity", "shifts", "score", "claims", "checks", "verdict", "multilingual", "online"];
+  const STAGES = ["lexical", "symbolic", "dense", "hhem", "polarity", "shifts", "score", "claims", "checks", "verdict", "multilingual"];
 
   // The answer with each claim as a coloured, clickable stretch.
   function answerHTML(text, claims, selected) {
@@ -102,18 +102,10 @@
     return parts.join("");
   }
 
-  function onlineHTML(r) {
-    const o = r.online;
-    if (!o) return "";
-    const claims = (o.claims || []).map((c) => `<li><strong>${esc(c.text)}</strong><span class="rp-small"> · ${esc(c.in_sources)} · ${esc(c.on_web)}</span><p class="rp-small">${esc(c.explanation)}${c.correction ? ` → ${esc(c.correction)}` : ""}</p>${(c.sources || []).map((s) => `<span class="rp-small mono">${esc(s.title || s.url)}</span>`).join(" ")}</li>`).join("");
-    return `<div class="rp-card"><h4>${esc(has("stage.online") ? tr("stage.online") : "Online")} · ${esc(o.model || "")}</h4>${o.message ? `<p class="rp-small">${esc(o.message)}</p>` : ""}${claims ? `<ul class="rp-list">${claims}</ul>` : ""}</div>`;
-  }
-
-  // Which of the engine's stages read the answer: the text engine's checks, the multilingual check, the online check.
+  // Which of the engine's stages read the answer: the text engine's checks and the multilingual check.
   function stagesHTML(r) {
-    const used = new Set(STAGES.filter((s) => !["multilingual", "online"].includes(s)));
+    const used = new Set(STAGES.filter((s) => s !== "multilingual"));
     if (r.language && r.language.check && r.language.check !== "english") used.add("multilingual");
-    if (r.online) used.add("online");
     return `<div class="stage-row">${STAGES.map((s) => `<span class="stage-chip${used.has(s) ? " on" : ""}">${esc(label("stage", s))}</span>`).join("")}</div>`;
   }
 
@@ -134,7 +126,6 @@
              <div class="rp-main">
                <div class="rp-card"><h4>${esc(tr("analyze.answerTitle"))}</h4>${legend()}<p class="rp-answer">${answerHTML(a.text, r.claims, selected)}</p></div>
                ${claimHTML(r.claims[selected])}
-               ${onlineHTML(r)}
                ${(r.warnings || []).map((w) => `<p class="rp-warn">${esc(w)}</p>`).join("")}
                ${r.cited_answer ? `<div class="rp-card"><p class="rp-text">${esc(r.cited_answer)}</p></div>` : ""}
                <div class="rp-card"><h4>${esc(tr("html.r.stages"))}</h4>${stagesHTML(r)}</div>

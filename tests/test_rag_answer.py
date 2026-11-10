@@ -3,16 +3,13 @@ import json
 import threading
 from types import SimpleNamespace as NS
 
-import anthropic
-import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from truth_guardian import online
 from truth_guardian.heal import Change, Healing
 from truth_guardian.media import vision
 from truth_guardian.rag.answer import HISTORY_CHARS, HISTORY_TURNS, NOT_IN_DOCUMENTS, _HoldBack, _tidy_citations, answer, light_check
-from truth_guardian.rag.generators import ClaudeGenerator, LocalGenerator, NotAvailable, Written, repeat_starts
+from truth_guardian.rag.generators import LocalGenerator, NotAvailable, Written, repeat_starts
 from truth_guardian.rag.library import MINE, Hit, Library
 from truth_guardian.report import ClaimReport, Evidence, Report
 from truth_guardian.web.app import create_app
@@ -419,77 +416,11 @@ def test_a_local_server_that_will_not_start_or_answer_is_told_in_words(monkeypat
         LocalGenerator().write("s", [])
 
 
-def test_an_online_failure_is_told_in_words(tmp_path):
-    def fails(**request):
-        raise anthropic.APIConnectionError(request=httpx.Request("POST", "https://example.invalid"))
-
-    client = NS(beta=NS(messages=NS(stream=fails)))
-    with pytest.raises(NotAvailable, match="did not answer: APIConnectionError"):
-        ClaudeGenerator(tmp_path, client, tmp_path / "s").write("s", [])
-
-
-class FakeStream:
-    def __init__(self, final, texts):
-        self.final, self.text_stream = final, texts
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        return False
-
-    def get_final_message(self):
-        return self.final
-
-
-class FakeClaude:
-    def __init__(self, stop_reason="end_turn"):
-        self.asked = []
-        usage = NS(input_tokens=1000, output_tokens=100, cache_creation_input_tokens=0, cache_read_input_tokens=0, server_tool_use=None)
-        final = NS(content=[NS(type="thinking", thinking=""), NS(type="text", text="Hello [1].")], usage=usage, stop_reason=stop_reason)
-        self.beta = NS(messages=NS(stream=lambda **request: self.asked.append(request) or FakeStream(final, ["Hello ", "[1]."])))
-
-
 def test_the_local_model_is_shown_the_pictures_with_the_last_message(llama):
     LocalGenerator().write("s", [{"role": "user", "content": "Before"}, {"role": "user", "content": "Look"}], images=[b"png"])
     assert llama.body["messages"][1] == {"role": "user", "content": "Before"}
     text, picture = llama.body["messages"][2]["content"]
     assert text == {"type": "text", "text": "Look"} and picture["image_url"]["url"] == "data:image/png;base64,cG5n"
-
-
-def test_claude_is_shown_the_pictures_the_way_its_api_asks(tmp_path):
-    client = FakeClaude()
-    ClaudeGenerator(tmp_path, client, tmp_path / "s").write("s", [{"role": "user", "content": "Look"}], images=[b"png"])
-    picture, text = client.asked[0]["messages"][-1]["content"]
-    assert picture == {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": "cG5n"}} and text == {"type": "text", "text": "Look"}
-
-
-def test_claude_writes_with_the_current_request_and_counts_its_cost(tmp_path):
-    client, pieces = FakeClaude(), []
-    written = ClaudeGenerator(tmp_path, client, tmp_path / "s").write("Be brief.", [{"role": "user", "content": "Hi"}], pieces.append)
-    assert written.text == "Hello [1]." and pieces == ["Hello ", "[1]."] and written.model == "claude-opus-5-5"
-    assert written.cost_usd == pytest.approx((1000 * 4 + 100 * 20) / 1e6)
-    assert online.spent_today(tmp_path / "s") == pytest.approx(written.cost_usd)
-    asked = client.asked[0]
-    assert asked["model"] == "claude-opus-5-5" and asked["fallbacks"] == "default" and asked["betas"] == ["server-side-fallback-2026-07-01"]
-    assert asked["output_config"] == {"effort": online.EFFORT} and asked["system"] == "Be brief." and "thinking" not in asked and "temperature" not in asked
-
-
-def test_a_refusal_counts_as_no_answer_and_past_the_budget_nothing_is_sent(tmp_path):
-    assert ClaudeGenerator(tmp_path, FakeClaude("refusal"), tmp_path / "s").write("s", []).refused
-    (tmp_path / online.SETTINGS_FILE).write_text("TG_ONLINE_DAILY_USD=0\n", encoding="utf-8")
-    client = FakeClaude()
-    with pytest.raises(NotAvailable, match="budget"):
-        ClaudeGenerator(tmp_path, client, tmp_path / "s").write("s", [])
-    assert client.asked == []
-
-
-def test_claude_without_a_key_says_how_to_add_one(tmp_path, monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    generator = ClaudeGenerator(tmp_path, None, tmp_path / "s")
-    assert not generator.available()
-    with pytest.raises(NotAvailable, match="no key"):
-        generator.write("s", [])
 
 
 class AnsweringEngine(FakeEngine):
@@ -499,7 +430,7 @@ class AnsweringEngine(FakeEngine):
 
 @pytest.fixture
 def client(shelf):
-    generators = {"local": Script(RIGHT, RIGHT, RIGHT), "online": NS(name="online", available=lambda: False)}
+    generators = {"local": Script(RIGHT, RIGHT, RIGHT)}
     with TestClient(create_app(AnsweringEngine(), ExampleStore(ROOT), load=False, library=shelf, generators=generators)) as c:
         c.generators = generators
         yield c
@@ -514,10 +445,10 @@ def test_the_api_streams_the_stages_and_the_text_then_the_answer(client):
     assert "".join(e["text"] for e in found if e["type"] == "text") == RIGHT
 
 
-def test_the_api_says_which_generators_can_run_and_refuses_one_that_cannot(client):
-    assert client.get("/api/ask/generators").json() == {"local": True, "online": False}
-    refused = client.post("/api/ask", json={"question": QUESTION, "generator": "online"})
-    assert refused.status_code == 503 and "online" in refused.json()["detail"]
+def test_the_api_says_the_local_model_can_run_and_there_is_no_other_writer(client):
+    """D-216: the online writer (Claude) is gone; asking for it is refused as an unknown choice."""
+    assert client.get("/api/ask/generators").json() == {"local": True}
+    assert client.post("/api/ask", json={"question": QUESTION, "generator": "online"}).status_code == 422
 
 
 def test_the_api_validates_what_it_is_asked(client):

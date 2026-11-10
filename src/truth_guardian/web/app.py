@@ -183,7 +183,7 @@ class AskIn(_Strict):
     question: str = Field(min_length=1, max_length=MAX_QUESTION)
     history: Annotated[list[TurnIn], Field(max_length=20)] = []
     collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
-    generator: Literal["local", "online"] = "local"
+    generator: Literal["local"] = "local"
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
 
 
@@ -194,7 +194,7 @@ class AskFreeIn(_Strict):
 class AgentRunIn(_Strict):
     task: str = Field(min_length=1, max_length=MAX_QUESTION)
     collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
-    generator: Literal["local", "online"] = "local"
+    generator: Literal["local"] = "local"
     policy: Literal["strict", "lenient"] = "strict"
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a task too short to tell its own")
 
@@ -363,7 +363,6 @@ def create_app(
                 emit({"type": "queued"})
             stage = lambda name: emit({"type": "stage", "stage": name, "t": round(time.perf_counter() - started, 2)})
             report = engine.analyze(sample, profile, policy, stage, cancelled, hint)
-            report = engine.consult(sample, report, stage)  # the experimental online check, when set up (D-141)
             if own and policy == "strict":
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}
@@ -707,9 +706,9 @@ def create_app(
     def writers() -> dict:
         nonlocal generators
         if generators is None:
-            from truth_guardian.rag.generators import ClaudeGenerator, LocalGenerator
+            from truth_guardian.rag.generators import LocalGenerator
 
-            generators = {"local": LocalGenerator(), "online": ClaudeGenerator(root)}
+            generators = {"local": LocalGenerator()}
         return generators
 
     @app.get("/api/ask/generators")
@@ -722,7 +721,7 @@ def create_app(
         ready()
         books, writer = shelf(), writers()[body.generator]
         if not writer.available():
-            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing, and anthropic.example.env how to add a key")
+            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing")
         from truth_guardian.rag.agent import run_agent
 
         def work(emit, cancelled) -> dict:
@@ -737,7 +736,7 @@ def create_app(
         ready()
         books, writer = shelf(), writers()[body.generator]
         if not writer.available():
-            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing, and anthropic.example.env how to add a key")
+            raise HTTPException(503, f"the {body.generator} model cannot run on this computer yet; TruthGuardian.bat check says what is missing")
         from truth_guardian.rag.answer import answer
 
         def work(emit, cancelled) -> dict:
