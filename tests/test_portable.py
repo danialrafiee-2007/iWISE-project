@@ -93,7 +93,8 @@ def test_a_build_replaces_an_earlier_package_but_never_another_folder(install, t
     out = tmp_path / "out"
     builder.build(install, out)
     text = (out / "packages" / "package.txt").read_text(encoding="ascii")
-    assert "BUILD=" in text and "PARTS=1" in text and "NEED_GB=" in text
+    assert "BUILD=" in text and "PARTS=1" in text and "NEED_GB=" in text and "TOTAL_MB=1" in text
+    assert (out / builder.GETTER).read_bytes() == (ROOT / builder.GETTER).read_bytes()  # D-217: it finishes or updates the folder
     assert (out / builder.STARTER).read_bytes().count(b"\r\n") > 50 and b"\n" not in (out / builder.STARTER).read_bytes().replace(b"\r\n", b"")
     guide = (out / builder.GUIDE).read_text(encoding="utf-8-sig")
     assert "{" not in guide and "راهنمای فارسی" in guide
@@ -165,12 +166,27 @@ def test_the_first_click_unpacks_and_starts_and_the_second_only_starts(package):
 
 
 @windows
+def test_unpacking_alone_notes_where_and_the_app_then_starts_without_the_parts(package):
+    """D-217: Get-Truth-Guardian.bat has the starter only unpack, reads where from packages, and may delete the parts."""
+    build = (package / "packages" / "package.txt").read_text(encoding="ascii").split("BUILD=")[1].split()[0]
+    unpacked = start(package, TG_UNPACK_ONLY="1")
+    assert unpacked.returncode == 0 and "Part 1 of" in unpacked.stdout and "STARTED" not in unpacked.stdout, unpacked.stdout
+    note = (package / "packages" / f"unpacked-{build}.txt").read_text(encoding="utf-8").strip()
+    assert note == str(package / "TruthGuardian")
+    for part in (package / "packages").glob("*.zip"):
+        part.unlink()
+    started = start(package)
+    assert started.returncode == 0 and "STARTED" in started.stdout and "unpacking" not in started.stdout.lower()
+
+
+@windows
 def test_a_missing_part_is_named_and_a_new_copy_continues_where_it_stopped(package, tmp_path):
     parts = sorted((package / "packages").glob("*.zip"))
     saved = tmp_path / "saved.zip"
     shutil.move(parts[-1], saved)
     stopped = start(package)
     assert stopped.returncode == 1 and parts[-1].name in stopped.stdout and "STARTED" not in stopped.stdout
+    assert "Get-Truth-Guardian.bat" in stopped.stdout
     parts[0].unlink()
     shutil.move(saved, parts[-1])
     resumed = start(package)

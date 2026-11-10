@@ -6,12 +6,15 @@ Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 ## For judges: the ready-made package
 
 **One file does everything:** download `Get-Truth-Guardian.bat` from the latest
-[Release](https://github.com/danialrafiee-2007/iWISE-project/releases/latest) and double-click it. It asks which drive
-to use, makes the folder `iWISE_Truth Guardian` there, downloads the latest ready-made package (the whole source code
-with its tests and documents, Python with every package, and every model), checks each part against its SHA-256,
-unpacks it and opens the app in the browser, offline from then on. A broken download resumes where it stopped and
-running the file again skips what is done; it installs nothing in Windows and needs no administrator (D-213). Windows
-may warn about a file from the internet: choose **More info**, then **Run anyway**.
+[Release](https://github.com/danialrafiee-2007/iWISE-project/releases/latest) and double-click it. Its questions all
+come first: which drive to use (it makes the folder `iWISE_Truth Guardian` there), whether to delete the downloaded
+parts once they are unpacked (about 5 GB back) and whether to put a shortcut on the desktop. Then it runs on its own:
+it downloads the latest ready-made package (the whole source code with its tests and documents, Python with every
+package, and every model) with the whole download's progress and the time left, checks each part against its SHA-256,
+unpacks it and opens the app in the browser, offline from then on. A broken download resumes where it stopped; run
+again, the file skips what is done and starts the app, and without internet it starts the copy already there. It
+installs nothing in Windows and needs no administrator (D-213, D-217). Windows may warn about a file from the
+internet: choose **More info**, then **Run anyway**; the release page gives the file's SHA-256 to check it first.
 
 `scripts/build_portable.py` turns a finished install into one folder with everything the setup steps produce, so whoever
 receives it has nothing to download or wait for beyond the first unpacking: they copy the folder, double-click
@@ -24,8 +27,9 @@ English and Persian. To make it, after `TruthGuardian.bat setup`:
 
 The app is split into zip parts under 2 GB, for GitHub Releases and FAT32 drives. It carries the Visual C++ runtime beside
 Python for a clean Windows, and the same data as the Docker image: no raw datasets, training data or locked test sets, so
-`scripts/build_data.py` and the evaluation scripts need `TruthGuardian.bat setup` first. No key file or log goes in. Delivered
-through a public link, it exposes the purchased layers like a public Space does (`docs/CREDITS.md`), so keep the link private.
+`scripts/build_data.py` and the evaluation scripts need `TruthGuardian.bat setup` first. No key file or log goes in, and
+nothing bought from elsewhere (the first site and its purchased layers left the project in D-214), so the package can be
+published in a public Release.
 
 ## Quick start (Windows)
 

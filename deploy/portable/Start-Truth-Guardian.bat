@@ -1,6 +1,8 @@
 @echo off
 rem Truth Guardian, the ready-made package: one double-click, no internet, nothing installed in Windows.
-rem The first time this unpacks packages\ into one folder; afterwards the app starts at once.
+rem The first time this unpacks packages\ into one folder; afterwards the app starts at once. Where it unpacked goes into
+rem packages\unpacked-BUILD.txt, so that Get-Truth-Guardian.bat knows the app is ready and the downloaded parts can go
+rem (D-217); with TG_UNPACK_ONLY set it only unpacks, for Get-Truth-Guardian.bat to finish its own steps first.
 
 setlocal EnableExtensions DisableDelayedExpansion
 chcp 65001 >nul
@@ -72,6 +74,8 @@ echo   Unpacked.
 echo.
 
 :start
+if not exist "%PACKAGES%\unpacked-%BUILD%.txt" if exist "%TARGET%\runtime\unpacked-%BUILD%.txt" >"%PACKAGES%\unpacked-%BUILD%.txt" echo %TARGET%
+if defined TG_UNPACK_ONLY goto finished
 if not exist "%TARGET%\TruthGuardian.bat" goto part_damaged
 call "%TARGET%\TruthGuardian.bat" %*
 if errorlevel 1 goto app_failed
@@ -95,7 +99,8 @@ echo   Free some space, or copy this folder to another disk, and try again.
 goto failed
 
 :part_missing
-echo   %PART% is missing from the packages folder. Copy the whole Truth Guardian folder again and try again.
+echo   %PART% is missing from the packages folder.
+echo   Run Get-Truth-Guardian.bat to download it again, or copy the whole Truth Guardian folder again, and try again.
 goto failed
 
 :part_damaged

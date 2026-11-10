@@ -3,9 +3,10 @@
     TruthGuardian.bat setup
     .venv/Scripts/python.exe scripts/build_portable.py --out D:/dist/TruthGuardian-Portable
 
-The package is a folder: deploy/portable's two files and the app in zip parts, each small enough for GitHub Releases and
-a FAT32 drive. It holds the same data as the Docker image (no raw datasets, training data or locked test sets) and no
-key, log or cache of this computer. The Visual C++ runtime goes beside Python, since a clean Windows may not have it.
+The package is a folder: deploy/portable's two files, Get-Truth-Guardian.bat (D-217: it finishes or updates the folder
+from the Release, and starts it offline) and the app in zip parts, each small enough for GitHub Releases and a FAT32 drive.
+It holds the same data as the Docker image (no raw datasets, training data or locked test sets) and no key, log or cache
+of this computer. The Visual C++ runtime goes beside Python, since a clean Windows may not have it.
 """
 
 import argparse
@@ -23,6 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "deploy" / "portable"
 STARTER = "Start-Truth-Guardian.bat"
+GETTER = "Get-Truth-Guardian.bat"
 GUIDE = "README-FIRST.txt"
 LLAMA_FOLDER = "runtime/tools/llama.cpp"
 SYSTEM32 = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32"
@@ -172,12 +174,15 @@ def build(root: Path, out: Path, limit: int | None = None) -> list[Path]:
     verify(parts, chosen)
     unpacked = sum(source.stat().st_size for source in chosen.values())
     need_gb = math.ceil((unpacked + ENVIRONMENT_BYTES + SPARE_BYTES) / 2**30)
+    # The download's size, for Get-Truth-Guardian.bat to show the whole download's progress and the time left (D-217).
+    total_mb = math.ceil(sum(part.stat().st_size for part in parts) / 2**20)
     sums = "".join(f"{sha256_of(part)}  {part.name}\n" for part in parts)
     build_id = time.strftime("%Y%m%d-%H%M") + "-" + hashlib.sha256(sums.encode("ascii")).hexdigest()[:8]
-    (packages / "package.txt").write_text(f"BUILD={build_id}\nPARTS={len(parts)}\nNEED_GB={need_gb}\n", encoding="ascii", newline="\r\n")
+    (packages / "package.txt").write_text(f"BUILD={build_id}\nPARTS={len(parts)}\nNEED_GB={need_gb}\nTOTAL_MB={total_mb}\n", encoding="ascii", newline="\r\n")
     (packages / "SHA256SUMS.txt").write_text(sums, encoding="ascii", newline="\r\n")
     shutil.rmtree(out / "work", ignore_errors=True)
     shutil.copyfile(TEMPLATE / STARTER, out / STARTER)
+    shutil.copyfile(ROOT / GETTER, out / GETTER)
     guide = (TEMPLATE / GUIDE).read_text(encoding="utf-8").replace("{need_gb}", str(need_gb)).replace("{build}", build_id)
     (out / GUIDE).write_text(guide, encoding="utf-8-sig", newline="\r\n")
     return parts
