@@ -315,19 +315,20 @@ def test_a_node_opens_the_code_window_and_the_page_behind_it_is_locked():
     assert "html:has(dialog[open]) { overflow: hidden;" in css
 
 
-def test_the_site_tour_walks_the_site_home_models_and_architecture():
-    """D-209: the rail's tour menu starts the site tour or plays it by itself; its steps go from the site as a whole to
-    the home page, Model performance and Architecture, in that order, each step with its words in seven languages."""
+def test_the_site_tour_walks_the_site_its_brain_and_every_page():
+    """D-209, D-211: one button in the rail starts the tour; its 26 steps go from the site as a whole to the home page,
+    Model performance, the brain (Architecture: its three graphs and six stages), Team, About and Contact, in that order,
+    each step with its words in seven languages."""
     script = (HTML / "js" / "ui.js").read_text(encoding="utf-8")
     tour = script[script.index("const STEPS = ["):script.index("].map((step, i)")]
     urls = re.findall(r'url: "([^"]+)"', tour)
-    assert urls[0] == "/" and urls[-1] == "/architecture" and len(urls) == 14
-    order = [urls.index(u) for u in ("/", "/models", "/architecture")]
-    assert order == sorted(order) and urls == sorted(urls, key=["/", "/models", "/architecture"].index)
+    pages = ["/", "/models", "/architecture", "/team", "/about", "/contact"]
+    assert len(urls) == 26 and urls == sorted(urls, key=pages.index) and set(urls) == set(pages)
+    assert set(re.findall(r'graph: "([a-z]+)"', tour)) == {"guardian", "answers", "readers"}
     page = (HTML / "index.html").read_text(encoding="utf-8")
-    assert 'data-tour="site"' in page and 'data-tour="play"' in page and 'data-tour="text"' not in page
+    assert page.count('data-tour="site"') == 1 and 'data-tour="play"' not in page and 'id="tour-menu"' not in page
     strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
-    for i in range(1, 15):
+    for i in range(1, 27):
         for part in ("t", "b"):
             assert strings.count(f'"html.tour.s{i}.{part}"') == 7, (i, part)
 

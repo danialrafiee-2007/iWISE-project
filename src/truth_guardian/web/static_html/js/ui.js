@@ -197,8 +197,8 @@
     }
   });
 
-  // ---- The site tour (D-209), after the previous site's: the site as a whole, then the home page, Model performance and
-  // Architecture. Each step opens its page (and tab), dims everything but the part it explains, and puts the card
+  // ---- The site tour (D-209, D-211), after the previous site's, for the judges: the site as a whole, the home page,
+  // Model performance, the brain (Architecture: its map, its three parts and six stages), Team, About and Contact. Each step opens its page (and tab), dims everything but the part it explains, and puts the card
   // where it covers none of that part; Back, Next, Autoplay (which counts only once the part is on screen), the arrow
   // keys and Escape, as there. The page stays usable underneath; only the card takes clicks. ----
 
@@ -206,17 +206,29 @@
     { url: "/" },
     { url: "/", target: ".rail" },
     { url: "/", target: ".home-banner" },
-    { url: "/", target: ".home-banner .status-stack" },
-    { url: "/", target: "#composer", seconds: 10 },
-    { url: "/", target: "#chat-check" },
+    { url: "/", target: ".home-banner .status-stack", seconds: 10 },
+    { url: "/", target: "#composer", seconds: 11 },
+    { url: "/", target: "#chat-check", seconds: 10 },
+    { url: "/", target: ".log-fab", seconds: 9 },
     { url: "/models", target: ".tabs" },
-    { url: "/models", tab: "tab-report", target: "#panel-report" },
-    { url: "/models", tab: "tab-reliability", target: "#panel-reliability .stat-row" },
+    { url: "/models", tab: "tab-report", target: "#panel-report", seconds: 10 },
+    { url: "/models", tab: "tab-reliability", target: "#panel-reliability .stat-row", seconds: 10 },
     { url: "/models", tab: "tab-reliability", target: "#panel-reliability .calib-figure", seconds: 10 },
-    { url: "/models", tab: "tab-agent", target: "#panel-agent" },
+    { url: "/models", tab: "tab-agent", target: "#panel-agent", seconds: 10 },
     { url: "/models", tab: "tab-fool", target: "#panel-fool" },
-    { url: "/architecture", target: ".ag-graph", seconds: 10 },
-    { url: "/architecture", target: ".arch-flow", seconds: 10 },
+    { url: "/architecture", graph: "guardian", target: ".ag-graph", seconds: 11 },
+    { url: "/architecture", graph: "guardian", target: ".ag-graph", seconds: 14 },
+    { url: "/architecture", graph: "answers", target: ".ag-graph", seconds: 12 },
+    { url: "/architecture", graph: "readers", target: ".ag-graph", seconds: 11 },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(1)" },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(2)" },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(3)" },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(4)", seconds: 9 },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(5)" },
+    { url: "/architecture", target: ".arch-flow > li:nth-child(6)" },
+    { url: "/team", target: '.page[data-page="team"] .banner' },
+    { url: "/about", target: 'section[aria-labelledby="about-engine"]' },
+    { url: "/contact", target: '.page[data-page="contact"] .banner', seconds: 10 },
   ].map((step, i) => ({ ...step, title: `html.tour.s${i + 1}.t`, body: `html.tour.s${i + 1}.b` }));
   const SECONDS = 8;
   const PAD = 10;
@@ -260,16 +272,31 @@
     tour.elapsed = 0;
     tour.layer.querySelector(".tour-bar span").style.width = "0%";
     words();
+    // The new step's words may make the card taller: it takes its new place at once rather than sliding off the screen.
+    const card = tour.layer.querySelector(".tour-card");
+    card.style.transition = "none";
+    place();
+    requestAnimationFrame(() => requestAnimationFrame(() => { card.style.transition = ""; }));
     if (step.url !== location.pathname && window.TG?.go) {
       // A new page comes in with its layers rising; the part is brought into view once they have settled.
       tour.scrolled = true;
-      await window.TG.go(step.url);
-      await new Promise((done) => setTimeout(done, 900));
-      if (!current()) return;
+      // While a page changes (counted, as Next may be pressed again meanwhile) the spot is off and the card waits in
+      // the middle; the step shown then finds its part once no page is still changing.
+      tour.moves = (tour.moves || 0) + 1;
+      try {
+        await window.TG.go(step.url);
+        await new Promise((done) => setTimeout(done, 900));
+      } finally {
+        tour.moves -= 1;
+      }
+      if (!current()) { if (!tour.moves) tour.scrolled = false; return; }
       tour.scrolled = false;
     }
     if (!current()) return;
     if (step.tab && document.getElementById(step.tab)?.getAttribute("aria-selected") !== "true") window.TG?.openTab?.(step.tab);
+    // A step on the brain's map shows its part's graph (the Guardian, answers and online, the readers).
+    const graphButton = step.graph && document.querySelector(`.ag-tabs [data-graph="${step.graph}"]`);
+    if (graphButton && graphButton.getAttribute("aria-pressed") !== "true") graphButton.click();
     place();
   }
 
@@ -280,7 +307,7 @@
     const step = STEPS[tour.index];
     const spot = tour.layer.querySelector(".tour-spot");
     const card = tour.layer.querySelector(".tour-card");
-    const el = step.target ? visible(step.target) : null;
+    const el = step.target && !tour.moves ? visible(step.target) : null;
     if (el && !tour.scrolled) {
       tour.scrolled = true;
       const r = el.getBoundingClientRect();
@@ -374,8 +401,8 @@
     if (e.key === "ArrowLeft") go(root.dir === "rtl" ? 1 : -1);
   });
   window.addEventListener("resize", () => { if (tour) tour.scrolled = true; });
+  // One button in the rail starts the tour; its card has Autoplay for a hands-free run (D-211).
   document.querySelector('[data-tour="site"]')?.addEventListener("click", () => { close(); startTour(false); });
-  document.querySelector('[data-tour="play"]')?.addEventListener("click", () => { close(); startTour(true); });
   listeners.add(() => { if (tour) words(); });
 
   apply();

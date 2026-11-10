@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=57">
-  <link rel="stylesheet" href="/css/intro.css?v=57">
+  <link rel="stylesheet" href="/css/style.css?v=61">
+  <link rel="stylesheet" href="/css/intro.css?v=61">
 </head>
 <body class="intro-on">
   <!-- The plain HTML5 and CSS3 front end, next to the React one. It talks to the same API (/api/...).
@@ -128,23 +128,10 @@
         <!-- At the bottom, as the previous site's controls: the tour, then the languages, then the models' lamp. Each
              opens its list beside the rail (js/ui.js). -->
         <div class="rail-group">
-          <div class="rail-menu" data-menu="tour">
-            <button class="rail-btn" type="button" data-label="Tour" aria-label="Tour" data-i18n-label="tour.button" aria-haspopup="menu" aria-expanded="false" aria-controls="tour-menu">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg>
-            </button>
-            <div class="pop" id="tour-menu" role="menu" aria-label="Start the guided tour" data-i18n-aria="tour.start" hidden>
-              <!-- The site tour (D-209): the site as a whole, the home page, Model performance and Architecture (js/ui.js). -->
-              <button class="pop-item" type="button" role="menuitem" data-tour="site">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5l5-2 6 2 5-2v13l-5 2-6-2-5 2z"/><path d="M9 4.5v13M15 6.5v13"/></svg>
-                <span data-i18n="html.tour.site">Site tour</span>
-              </button>
-              <button class="pop-item" type="button" role="menuitem" data-tour="play">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>
-                <span data-i18n="html.tour.play">Play by itself</span>
-              </button>
-            </div>
-          </div>
-
+          <!-- The site tour (D-209, D-211): one button; the tour walks the judges through the site and its brain (js/ui.js). -->
+          <button class="rail-btn" type="button" data-tour="site" data-label="Site tour" aria-label="Site tour" data-i18n-label="html.tour.site">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg>
+          </button>
           <div class="rail-menu" data-menu="lang">
             <button class="rail-btn" type="button" data-label="Language" aria-label="Language" data-i18n-label="lang.label" aria-haspopup="menu" aria-expanded="false" aria-controls="lang-menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9s1.3-6.4 3.9-9z"/></svg>
@@ -601,23 +588,23 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=57"></script>
-  <script src="/js/ui.js?v=57"></script>
-  <script src="/js/activity.js?v=57"></script>
-  <script src="/js/intro.js?v=57"></script>
-  <script src="/js/pages.js?v=57"></script>
-  <script src="/js/arch-data.js?v=57"></script>
-  <script src="/js/arch-src.js?v=57"></script>
-  <script src="/js/arch-graph.js?v=57"></script>
-  <script src="/js/contact.js?v=57"></script>
-  <script src="/js/report.js?v=57"></script>
-  <script src="/js/models.js?v=57"></script>
-  <script src="/js/spectra.js?v=57"></script>
-  <script src="/js/check.js?v=57"></script>
-  <script src="/js/agent.js?v=57"></script>
-  <script src="/js/cascade.js?v=57"></script>
-  <script src="/js/fool.js?v=57"></script>
-  <script src="/js/chat.js?v=57"></script>
-  <script src="/js/app.js?v=57"></script>
+  <script src="/js/i18n.js?v=61"></script>
+  <script src="/js/ui.js?v=61"></script>
+  <script src="/js/activity.js?v=61"></script>
+  <script src="/js/intro.js?v=61"></script>
+  <script src="/js/pages.js?v=61"></script>
+  <script src="/js/arch-data.js?v=61"></script>
+  <script src="/js/arch-src.js?v=61"></script>
+  <script src="/js/arch-graph.js?v=61"></script>
+  <script src="/js/contact.js?v=61"></script>
+  <script src="/js/report.js?v=61"></script>
+  <script src="/js/models.js?v=61"></script>
+  <script src="/js/spectra.js?v=61"></script>
+  <script src="/js/check.js?v=61"></script>
+  <script src="/js/agent.js?v=61"></script>
+  <script src="/js/cascade.js?v=61"></script>
+  <script src="/js/fool.js?v=61"></script>
+  <script src="/js/chat.js?v=61"></script>
+  <script src="/js/app.js?v=61"></script>
 </body>
 </html>
