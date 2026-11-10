@@ -315,8 +315,12 @@
       if (still > 90) running = false; // settled: the physics rests until a node is dragged
       if (running) frame = requestAnimationFrame(loop);
     }
+    let waiting = false;
     function start() {
       if (started) { if (!running) { running = true; frame = requestAnimationFrame(loop); } return; }
+      // Not laid out yet (its page still coming in): the size observer starts it once the box has its real width.
+      if (!graph.clientWidth) { waiting = true; return; }
+      waiting = false;
       started = true;
       measure();
       seed();
@@ -328,10 +332,15 @@
     function stop() { running = false; cancelAnimationFrame(frame); }
     // When the box changes size (the side panel opens or closes, the window is resized), the physics takes the new
     // size and settles the nodes into it again.
+    // The whole layout moves with the centre, so the nodes never stay bunched where the old centre was (D-207).
     new ResizeObserver(() => {
-      if (!started) return;
+      if (waiting) { start(); return; }
+      if (!started || !graph.clientWidth) return;
+      const [ox, oy] = [cx, cy];
       measure();
-      if (!running) { running = true; still = 0; frame = requestAnimationFrame(loop); }
+      for (const n of nodes) { n.x += cx - ox; n.y += cy - oy; }
+      still = 0;
+      if (!running) { running = true; frame = requestAnimationFrame(loop); }
     }).observe(graph);
 
     words();
@@ -368,4 +377,29 @@
   if (page) new MutationObserver(begin).observe(page, { attributes: true, attributeFilter: ["hidden"] });
   begin();
   if (window.TG) window.TG.onLang(() => { main?.words(); meta?.words(); });
+
+  // ---- The six stages' function buttons: each opens its real code in a window over the page (D-207), as the
+  // earlier project's catalog did ----
+  const dialog = document.getElementById("code-dialog");
+  function closeCode() {
+    if (!dialog?.open || dialog.classList.contains("closing")) return;
+    if (reduced) return dialog.close();
+    dialog.classList.add("closing");
+    setTimeout(() => { dialog.close(); dialog.classList.remove("closing"); }, 320);
+  }
+  function openCode(key) {
+    if (!dialog) return;
+    const [file, name] = key.split(":");
+    dialog.querySelector(".code-dialog-title").textContent = /^[A-Z]/.test(name) ? name : `${name}()`;
+    dialog.querySelector(".ag-file").textContent = `src/truth_guardian/${file}`;
+    dialog.querySelector("code").textContent = (window.TG_SRC || {})[key] || tr("html.ag.noCode");
+    if (!dialog.open) dialog.showModal();
+    dialog.querySelector(".ag-code").scrollTop = 0;
+  }
+  if (dialog) {
+    dialog.querySelector(".dialog-x").addEventListener("click", closeCode);
+    dialog.addEventListener("click", (e) => { if (e.target === dialog) closeCode(); });
+    dialog.addEventListener("cancel", (e) => { e.preventDefault(); closeCode(); });
+  }
+  document.querySelectorAll(".arch-fn[data-src]").forEach((b) => b.addEventListener("click", () => openCode(b.dataset.src)));
 })();

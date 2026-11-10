@@ -955,7 +955,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "Lets a node be moved with the pointer.",
   "html.ag.x_zoom": "Zooming with the wheel, and this meta graph.",
   "html.ag.x_wheel": "Zooms toward the pointer, keeping the point under it still.",
-  "html.ag.x_meta": "Opens this graph under the main one on a double-click."
+  "html.ag.x_meta": "Opens this graph under the main one on a double-click.",
+  "html.ag.catalog": "What each stage runs"
  },
  "ar": {
   "landing.lead": "لا تفوق إجابة الذكاء الاصطناعي دليلها جودةً. التحدي هو معرفة ما إذا كانت الإجابة موثّقة أم فيها هلوسة، وما مقدار الخطر، وأي أجزائها مشكوك فيها ولماذا؛ يفعل Truth Guardian ذلك للنص، وكذلك للصوت والصور.",
@@ -1905,7 +1906,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "يتيح تحريك العقدة بالمؤشر.",
   "html.ag.x_zoom": "التكبير بالعجلة، وهذا الرسم الفوقي.",
   "html.ag.x_wheel": "يكبّر نحو المؤشر مع تثبيت النقطة التي تحته.",
-  "html.ag.x_meta": "يفتح هذا الرسم تحت الرسم الرئيسي بنقرة مزدوجة."
+  "html.ag.x_meta": "يفتح هذا الرسم تحت الرسم الرئيسي بنقرة مزدوجة.",
+  "html.ag.catalog": "ما الذي تشغّله كل مرحلة"
  },
  "zh": {
   "landing.lead": "AI 的回答好坏取决于其证据。本挑战要判断回答是有依据还是存在幻觉、风险有多大、哪些部分可疑以及原因；Truth Guardian 对文本做到这一点，也对声音和图像做到。",
@@ -2855,7 +2857,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "允许用指针移动节点。",
   "html.ag.x_zoom": "滚轮缩放，以及这张元图。",
   "html.ag.x_wheel": "朝指针方向缩放，保持指针下的点不动。",
-  "html.ag.x_meta": "双击时在主图下方打开这张图。"
+  "html.ag.x_meta": "双击时在主图下方打开这张图。",
+  "html.ag.catalog": "每个阶段运行什么"
  },
  "fr": {
   "landing.lead": "La réponse d'une IA ne vaut que par ses preuves. Le défi consiste à dire si une réponse est fondée ou hallucinée, quel est le risque, quelles parties sont suspectes et pourquoi ; Truth Guardian le fait pour le texte, et aussi pour le son et les images.",
@@ -3809,7 +3812,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "Permet de déplacer un nœud avec le pointeur.",
   "html.ag.x_zoom": "Le zoom à la molette, et ce méta-graphe.",
   "html.ag.x_wheel": "Zoome vers le pointeur en gardant immobile le point situé dessous.",
-  "html.ag.x_meta": "Ouvre ce graphe sous le graphe principal par un double-clic."
+  "html.ag.x_meta": "Ouvre ce graphe sous le graphe principal par un double-clic.",
+  "html.ag.catalog": "Ce que fait tourner chaque étape"
  },
  "ru": {
   "landing.lead": "Ответ ИИ хорош ровно настолько, насколько хороши его доказательства. Задача — определить, обоснован ли ответ или это галлюцинация, насколько велик риск, какие части подозрительны и почему; Truth Guardian делает это для текста, а также для звука и изображений.",
@@ -4763,7 +4767,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "Позволяет передвигать узел указателем.",
   "html.ag.x_zoom": "Масштаб колесом и этот метаграф.",
   "html.ag.x_wheel": "Масштабирует к указателю, оставляя точку под ним на месте.",
-  "html.ag.x_meta": "По двойному щелчку открывает этот граф под основным."
+  "html.ag.x_meta": "По двойному щелчку открывает этот граф под основным.",
+  "html.ag.catalog": "Что запускает каждый этап"
  },
  "es": {
   "landing.lead": "La respuesta de una IA vale lo que vale su evidencia. El reto es saber si una respuesta está fundamentada o contiene una alucinación, cuánto riesgo tiene, qué partes son sospechosas y por qué; Truth Guardian lo hace con el texto, y también con sonido e imágenes.",
@@ -5717,7 +5722,8 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "Permite mover un nodo con el puntero.",
   "html.ag.x_zoom": "El zoom con la rueda, y este metagrafo.",
   "html.ag.x_wheel": "Amplía hacia el puntero manteniendo fijo el punto que hay debajo.",
-  "html.ag.x_meta": "Abre este grafo bajo el principal con un doble clic."
+  "html.ag.x_meta": "Abre este grafo bajo el principal con un doble clic.",
+  "html.ag.catalog": "Qué ejecuta cada etapa"
  },
  "fa": {
   "landing.lead": "پاسخ هوش مصنوعی فقط به اندازهٔ شاهدش درست است. چالش این است که معلوم شود پاسخ مستند است یا توهم، خطرش چقدر است، کدام بخش‌ها مشکوک‌اند و چرا؛ Truth Guardian این کار را برای متن، و افزون بر آن برای صدا و تصویر انجام می‌دهد.",
@@ -6667,6 +6673,7 @@ window.TG_MESSAGES = {
   "html.ag.x_drag": "امکان جابه‌جایی گره با نشانگر را می‌دهد.",
   "html.ag.x_zoom": "بزرگ‌نمایی با چرخ موس، و همین فرانمودار.",
   "html.ag.x_wheel": "به سمت نشانگر بزرگ‌نمایی می‌کند و نقطهٔ زیر آن را ثابت نگه می‌دارد.",
-  "html.ag.x_meta": "با دوبار کلیک، این نمودار را زیر نمودار اصلی باز می‌کند."
+  "html.ag.x_meta": "با دوبار کلیک، این نمودار را زیر نمودار اصلی باز می‌کند.",
+  "html.ag.catalog": "هر مرحله چه چیزی اجرا می‌کند"
  }
 };

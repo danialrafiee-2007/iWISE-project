@@ -288,3 +288,16 @@ def test_the_architecture_graph_shows_the_real_code_in_seven_languages():
     page = (HTML / "index.html").read_text(encoding="utf-8")
     order = [page.index(f'<script src="/js/{name}') for name in ("arch-data.js", "arch-src.js", "arch-graph.js")]
     assert 'id="arch-graphs"' in page and order == sorted(order)
+
+
+def test_the_code_map_comes_first_and_every_stage_button_opens_real_code():
+    """D-207: on the Architecture page the code map comes right after the banner and the six stages follow it as a
+    catalog; every function button of a stage names code the page carries."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    arch = page[page.index('data-page="architecture"'):page.index('data-page="team" hidden')]
+    assert arch.index('id="arch-graphs"') < arch.index('class="arch-flow"') < arch.index('id="code-dialog"')
+    buttons = re.findall(r'class="arch-fn" data-src="([^"]+)"', arch)
+    assert len(buttons) >= 18
+    shown = (HTML / "js" / "arch-src.js").read_text(encoding="utf-8")
+    for key in buttons:
+        assert f'"{key}":' in shown, key
