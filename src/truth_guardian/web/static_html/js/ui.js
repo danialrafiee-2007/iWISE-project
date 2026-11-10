@@ -196,11 +196,32 @@
     }
   });
 
-  // ---- The tour: the page dims and a card explains, with Back, Autoplay and Next, as on the previous site. Only its
-  // first step belongs on this page so far; the others come with the pages they show. ----
+  // ---- The site tour (D-209), after the previous site's: the site as a whole, then the home page, Model performance and
+  // Architecture. Each step opens its page (and tab), dims everything but the part it explains, and puts the card
+  // where it covers none of that part; Back, Next, Autoplay (which counts only once the part is on screen), the arrow
+  // keys and Escape, as there. The page stays usable underneath; only the card takes clicks. ----
 
-  const STEPS = [{ title: "tour.s1.title", body: "tour.s1.body", seconds: 8 }];
+  const STEPS = [
+    { url: "/" },
+    { url: "/", target: ".rail" },
+    { url: "/", target: ".home-banner" },
+    { url: "/", target: ".home-banner .status-stack" },
+    { url: "/", target: "#composer", seconds: 10 },
+    { url: "/", target: "#chat-check" },
+    { url: "/models", target: ".tabs" },
+    { url: "/models", tab: "tab-report", target: "#panel-report" },
+    { url: "/models", tab: "tab-reliability", target: "#panel-reliability .stat-row" },
+    { url: "/models", tab: "tab-reliability", target: "#panel-reliability .calib-figure", seconds: 10 },
+    { url: "/models", tab: "tab-agent", target: "#panel-agent" },
+    { url: "/models", tab: "tab-fool", target: "#panel-fool" },
+    { url: "/architecture", target: ".ag-graph", seconds: 10 },
+    { url: "/architecture", target: ".arch-flow", seconds: 10 },
+  ].map((step, i) => ({ ...step, title: `html.tour.s${i + 1}.t`, body: `html.tour.s${i + 1}.b` }));
+  const SECONDS = 8;
+  const PAD = 10;
   let tour = null;
+
+  const visible = (selector) => [...document.querySelectorAll(selector)].find((el) => el.getClientRects().length > 0) || null;
 
   // The tour's card fades out softly, as everything else on the site.
   function stopTour() {
@@ -212,7 +233,7 @@
     setTimeout(() => layer.remove(), 320);
   }
 
-  function showStep() {
+  function words() {
     const step = STEPS[tour.index];
     const card = tour.layer.querySelector(".tour-card");
     card.querySelector(".tour-count").textContent = t("tour.count", { i: tour.index + 1, n: STEPS.length });
@@ -225,8 +246,72 @@
     card.querySelector('[data-act="next"]').textContent = tour.index === STEPS.length - 1 ? t("tour.finish") : t("tour.next");
     card.querySelector('[data-act="close"]').setAttribute("aria-label", t("tour.close"));
     card.querySelector(".tour-bar").hidden = !tour.auto;
+  }
+
+  // Enter a step: its page, then its tab, then wait for its part and bring it into view once.
+  async function showStep() {
+    const step = STEPS[tour.index];
+    // Only the latest step may go on after waiting: Next clicked quickly leaves earlier steps still waiting.
+    const mine = tour, seq = (tour.seq = (tour.seq || 0) + 1);
+    const current = () => tour === mine && tour.seq === seq;
+    tour.found = false;
+    tour.scrolled = false;
     tour.elapsed = 0;
-    card.querySelector(".tour-bar span").style.width = "0%";
+    tour.layer.querySelector(".tour-bar span").style.width = "0%";
+    words();
+    if (step.url !== location.pathname && window.TG?.go) {
+      // A new page comes in with its layers rising; the part is brought into view once they have settled.
+      tour.scrolled = true;
+      await window.TG.go(step.url);
+      await new Promise((done) => setTimeout(done, 900));
+      if (!current()) return;
+      tour.scrolled = false;
+    }
+    if (!current()) return;
+    if (step.tab && document.getElementById(step.tab)?.getAttribute("aria-selected") !== "true") window.TG?.openTab?.(step.tab);
+    place();
+  }
+
+  // Dim around the part (or the whole page when the step has none) and set the card where it covers none of it:
+  // below, above, beside, else at the bottom corner; on a narrow screen always at the bottom.
+  function place() {
+    if (!tour) return;
+    const step = STEPS[tour.index];
+    const spot = tour.layer.querySelector(".tour-spot");
+    const card = tour.layer.querySelector(".tour-card");
+    const el = step.target ? visible(step.target) : null;
+    if (el && !tour.scrolled) {
+      tour.scrolled = true;
+      const r = el.getBoundingClientRect();
+      const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+      // The part is brought near the top of the screen; a taller one keeps only its top lit (below).
+      window.scrollBy({ top: r.top - PAD * 3, behavior });
+    }
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const width = Math.min(400, vw - 32), height = card.offsetHeight || 240, gap = PAD + 14;
+    let box = { left: (vw - width) / 2, top: Math.max(16, vh / 2 - height / 2) };
+    if (el) {
+      const r = el.getBoundingClientRect();
+      // A part taller than the screen leaves room under it for the card: only its top is lit (D-209).
+      const top = Math.max(r.top, 8), bottom = Math.min(r.bottom, vh - 8, Math.max(top + 120, vh - height - gap - PAD - 16));
+      Object.assign(spot.style, { top: `${top - PAD}px`, left: `${r.left - PAD}px`, width: `${r.width + PAD * 2}px`, height: `${Math.max(0, bottom - top) + PAD * 2}px` });
+      spot.classList.add("on");
+      tour.found = true;
+      const alongX = Math.min(Math.max(16, r.left), vw - width - 16);
+      const alongY = Math.min(Math.max(16, top), vh - height - 16);
+      if (vw < 640) box = { left: 16, top: vh - height - 16 };
+      else if (bottom + gap + height <= vh - 8) box = { left: alongX, top: bottom + gap };
+      else if (top - gap - height >= 8) box = { left: alongX, top: top - gap - height };
+      else if (vw - r.right - gap >= width + 16) box = { left: r.right + gap, top: alongY };
+      else if (r.left - gap >= width + 16) box = { left: r.left - gap - width, top: alongY };
+      else box = { left: vw - width - 16, top: vh - height - 16 };
+    } else {
+      spot.classList.remove("on");
+      tour.found = !step.target;
+    }
+    // The card always stays on the screen.
+    box.top = Math.min(Math.max(16, box.top), vh - height - 16);
+    Object.assign(card.style, { width: `${width}px`, left: `${box.left}px`, top: `${box.top}px` });
   }
 
   function go(delta) {
@@ -236,11 +321,13 @@
     showStep();
   }
 
-  function startTour() {
+  function startTour(auto = false) {
     stopTour();
     const layer = document.createElement("div");
     layer.className = "tour-layer";
     layer.innerHTML = `
+      <div class="tour-dim"></div>
+      <div class="tour-spot"></div>
       <div class="tour-card" role="dialog" aria-modal="false" aria-labelledby="tour-title" tabindex="-1">
         <div class="tour-head"><span class="tour-count"></span>
           <button type="button" class="tour-x" data-act="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -255,37 +342,39 @@
         </div>
       </div>`;
     document.body.appendChild(layer);
-    tour = { layer, index: 0, auto: false, elapsed: 0, timer: null };
+    tour = { layer, index: 0, auto, elapsed: 0, timer: null, found: false, scrolled: false };
     layer.addEventListener("click", (e) => {
       const act = e.target.closest("[data-act]")?.dataset.act;
       if (act === "close") stopTour();
       if (act === "back") go(-1);
       if (act === "next") go(1);
-      if (act === "auto") { tour.auto = !tour.auto; showStep(); }
+      if (act === "auto") { tour.auto = !tour.auto; tour.elapsed = 0; words(); }
     });
-    // Autoplay: a bar fills over the step's seconds, then the tour moves on by itself.
+    // Every tenth of a second: follow the part as the page moves, and in Autoplay fill the bar once it is on screen.
     tour.timer = setInterval(() => {
-      if (!tour || !tour.auto) return;
-      const seconds = STEPS[tour.index].seconds || 8;
+      if (!tour) return;
+      place();
+      if (!tour.auto || !tour.found) return;
+      const seconds = STEPS[tour.index].seconds || SECONDS;
       tour.elapsed += 0.1;
       layer.querySelector(".tour-bar span").style.width = `${Math.min(100, (tour.elapsed / seconds) * 100)}%`;
       if (tour.elapsed >= seconds) go(1);
     }, 100);
     showStep();
-    layer.querySelector(".tour-card").focus();
+    layer.querySelector(".tour-card").focus({ preventScroll: true });
   }
 
   document.addEventListener("keydown", (e) => {
     if (!tour) return;
+    if (e.target.closest?.("input, textarea, select")) return;
     if (e.key === "Escape") stopTour();
     if (e.key === "ArrowRight") go(root.dir === "rtl" ? -1 : 1);
     if (e.key === "ArrowLeft") go(root.dir === "rtl" ? 1 : -1);
   });
-  document.querySelector('[data-tour="text"]')?.addEventListener("click", () => {
-    close();
-    startTour();
-  });
-  listeners.add(() => { if (tour) showStep(); });
+  window.addEventListener("resize", () => { if (tour) tour.scrolled = true; });
+  document.querySelector('[data-tour="site"]')?.addEventListener("click", () => { close(); startTour(false); });
+  document.querySelector('[data-tour="play"]')?.addEventListener("click", () => { close(); startTour(true); });
+  listeners.add(() => { if (tour) words(); });
 
   apply();
 })();

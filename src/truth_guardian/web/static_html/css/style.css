@@ -2033,3 +2033,13 @@ dialog[open] { overscroll-behavior: contain; }
 .code-dialog-h { color: var(--ink-soft); margin-top: 4px; }
 .code-dialog .ag-code { max-height: none; overflow-x: auto; overflow-y: visible; overscroll-behavior: contain; }
 .ag-wrap, .ag-wrap.with-panel { grid-template-columns: minmax(0, 1fr); }
+
+
+/* ---- The site tour (D-209): the page dims around the part a step explains, which stays lit inside a soft frame; the
+   card sits beside it. Only the card takes clicks; the page stays usable underneath. ---- */
+.tour-layer { display: block; padding: 0; background: none; backdrop-filter: none; pointer-events: none; }
+.tour-dim { position: absolute; inset: 0; background: rgb(10 40 30 / 0.42); transition: opacity 260ms; }
+.tour-spot { position: absolute; border-radius: 22px; outline: 2px solid #9dffc4; box-shadow: 0 0 0 9999px rgb(10 40 30 / 0.42), 0 0 24px 4px rgb(57 255 136 / 0.35); opacity: 0; transition: top 260ms var(--ease-soft), left 260ms var(--ease-soft), width 260ms var(--ease-soft), height 260ms var(--ease-soft), opacity 200ms; }
+.tour-spot.on { opacity: 1; }
+.tour-layer:has(.tour-spot.on) .tour-dim { opacity: 0; }
+.tour-card { position: absolute; pointer-events: auto; transition: top 260ms var(--ease-soft), left 260ms var(--ease-soft); }
