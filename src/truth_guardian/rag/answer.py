@@ -14,7 +14,7 @@ import re
 import threading
 import time
 from collections.abc import Callable, Sequence
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -26,6 +26,7 @@ from truth_guardian.language import detect
 from truth_guardian.pipeline import make_sample
 from truth_guardian.rag.generators import Generator, OnText
 from truth_guardian.rag.library import MINE, PROJECT, Found, Hit, Library
+from truth_guardian.rag.seen import SeenCheck, check_seen
 from truth_guardian.rag.words import terms
 from truth_guardian.report import Report
 from truth_guardian.schema import Sample
@@ -107,6 +108,8 @@ class Answer(BaseModel):
     cost_usd: float = 0.0
     seconds: float = 0.0
     notes: list[str] = Field(default_factory=list)
+    seen: SeenCheck | None = Field(default=None, description="An answer resting on an image model's description: what it says the image reads, checked against the OCR reader (rag/seen.py)")
+    second: Any = Field(default=None, description="A second online model's opinion on the image or recording, and each sentence agreed or disputed by it (rag/second.py)")
 
 
 def _where(hit: Hit) -> str:
@@ -278,14 +281,54 @@ def answer(
     text, citations, notes = _tidy_citations(written.text, found.hits)
     read = [hit for hit in found.hits if hit.role != "description"]
     if not read or any(c.role == "description" for c in citations):
-        return done(status="opinion", text=text, citations=citations, notes=[*notes, OPINION_NOTE], **base)
+        # The description is the model's own opinion and is not checked against; what the answer says the image reads is
+        # checked against what the OCR reader read in the same images (D-199).
+        stage("check")
+        other = look_again(question, found.hits, citations, library)
+        seen = check_seen(text, image_reading(found.hits, citations, library), other[2] if other else "")
+        second = _second("image", other[0], other[1], text, question, engine, other[2], cancelled) if other else None
+        return done(status="opinion", text=text, citations=citations, notes=[*notes, OPINION_NOTE], seen=seen, second=second, **base)
     sources = [hit.text for hit in read]
     origins = [hit.document for hit in read]
 
     stage("check")
     sample = make_sample(text, sources, question, sample_id="rag", origins=origins)
     # Healing would remove what the model saw and the sources do not say, which may be right; the verdict and a note say so instead.
-    return done(**check_written(sample, citations, notes, read, found.hits, engine, stage, cancelled, may_heal=not pictures), **base)
+    checked = check_written(sample, citations, notes, read, found.hits, engine, stage, cancelled, may_heal=not pictures)
+    # An answer resting on a recording: checked again against a second listener's transcript, when one was kept (D-200).
+    heard = [library.second_of(c.document_id) for c in checked.get("citations", []) if c.role == "transcript" and c.document_id is not None]
+    heard = [h for h in dict.fromkeys(heard) if h]
+    if heard:
+        checked["second"] = _second("recording", heard[0][0], "\n".join(text for _, text in heard), checked["text"], question, engine, "", cancelled)
+    return done(**checked, **base)
+
+
+def _second(kind: str, model: str, other: str, text: str, question: str, engine, read: str, cancelled):
+    from truth_guardian.rag.second import opinion  # here, as rag/second.py reads rag/free.py, which reads this module
+
+    return opinion(kind, model, other, text, question, engine, read, cancelled)
+
+
+def look_again(question: str, hits: list[Hit], citations: list[Citation], library: Library) -> tuple[str, str, str] | None:
+    """A second online model's look at the first image the answer rests on: (model, its answer, the words it read), or
+    None when no picture is kept or no vision service has a key (rag/second.py, D-200)."""
+    from truth_guardian.rag.second import look
+
+    images = list(dict.fromkeys([c.document_id for c in citations if c.role == "description" and c.document_id is not None]
+                                + [h.document_id for h in hits if h.role == "description"]))
+    for image in images:
+        picture = library.picture(image)
+        if picture:
+            return look(question, picture)
+    return None
+
+
+def image_reading(hits: list[Hit], citations: list[Citation], library: Library) -> str:
+    """What the OCR reader read in the images the answer rests on: the "ocr" passages of each image document cited or
+    found with a description, in their order."""
+    images = list(dict.fromkeys([c.document_id for c in citations if c.role == "description" and c.document_id is not None]
+                                + [h.document_id for h in hits if h.role == "description"]))
+    return "\n".join(p.text for image in images for p in library.passages_of(image) if p.role == "ocr")
 
 
 def check_written(

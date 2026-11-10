@@ -438,3 +438,15 @@ def test_the_api_names_a_reader_that_is_not_on_this_computer(tmp_path, monkeypat
     monkeypatch.setattr("truth_guardian.web.app._absent_reader", lambda kind, describe: "the speech model")
     with client_of(tmp_path, OSError("no files")) as c:
         assert "the speech model is not on this computer" in events(c.post("/api/library/documents", json=upload("talk.mp3")))[-1]["message"]
+
+
+def test_what_an_image_answer_says_the_image_reads_is_checked_against_the_ocr_reader(tmp_path, lenient):
+    """D-199: the description is not checked against, but the words the answer quotes are checked against Tesseract."""
+    books = shelf(tmp_path, picture(words="CHOPPER\nقله زردکوه", seen='A logo with the word "CHOPPER" and Persian text.'))
+    books.add("logo.png", b"pixels")
+    writer = Script('The logo reads "CHOPPER" [1]. Below it the text reads "هایکویتری دا" [1]. It is dark blue [1].')
+    found = answer("What does the logo say?", books, Checker(), writer, (MINE,))
+    assert found.status == "opinion" and found.seen is not None
+    assert [c.status for c in found.seen.claims] == ["supported", "contradicted", "unverifiable"]
+    assert found.seen.verdict == "hallucinated" and found.seen.checked_share == round(2 / 3, 3) and "CHOPPER" in found.seen.read
+    books.close()

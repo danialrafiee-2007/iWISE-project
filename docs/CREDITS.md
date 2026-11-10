@@ -120,4 +120,5 @@ computer on 2026-11-10 (see `docs/DECISIONS.md` D-191). No Claude and nothing pa
 | Persian sites searched through Tavily (D-196) | cgie.org.ir, rch.ac.ir, iranicaonline.org, ganjoor.net, amar.org.ir, irna.ir, isna.ir, noormags.ir, civilica.com | Each site's own terms; only short passages are read and shown with their link | The Guardian's sources for Persian questions |
 | World Bank Indicators API (D-197) | https://datahelpdesk.worldbank.org/knowledgebase/articles/889392 | Data CC BY 4.0; free without a key | A country's latest figures for questions that ask them |
 | OpenAlex API (D-197) | https://openalex.org | Data CC0; free without a key | Scholarly works for questions about research |
+| Groq vision and Whisper large (D-200) | https://console.groq.com | Free tier with the owner's key; its own terms | A second model's look at an image and a second transcript of a recording; the picture or recording is sent to Groq |
 | Jina Reader | https://jina.ai/reader | Free without a key at a low rate; its own terms | Reads the pages the model names as plain text |

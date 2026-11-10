@@ -199,6 +199,7 @@
     [/^no source was found to check it against$/, () => tr("html.free.n.noSource")],
     [/^the free model wrote no answer$/, () => tr("html.free.n.noAnswer")],
     [/^the answer written from the documents did not pass the Guardian's check/, () => tr("html.free.n.local")],
+    [/^this answer rests on what an image model says it sees/, () => tr("html.free.n.opinion")],
   ];
   function noteText(note) {
     for (const [pattern, say] of NOTES) {
@@ -214,6 +215,39 @@
 
   // The light check (a language no full check reads): each sentence close to the sources or doubtful, and why.
   const REASON = { "a number is not in the documents": "html.full.r.number", "a day or month is not in the documents": "html.full.r.day", "no passage is close to this sentence": "html.full.r.far" };
+  // An answer about an image (D-199): what it says the image reads, checked against the separate OCR reader; a
+  // green, red or grey line for the verdict, the share that could be checked, each sentence, and what was read.
+  const SEEN_TONE = { grounded: "supports", hallucinated: "contradicts", disputed: "disputed", unverifiable: "unjudged" };
+  const SEEN_STANCE = { supported: "supports", contradicted: "contradicts", agreed: "supports", disputed: "disputed", unverifiable: "unjudged" };
+  function seenHTML(a) {
+    const seen = a.seen;
+    if (!seen) return "";
+    const share = new Intl.NumberFormat(({ fa: "fa-IR", ar: "ar-u-nu-latn" })[lang()] || lang(), { style: "percent", maximumFractionDigits: 0 }).format(seen.checked_share);
+    return `<div class="rp-card seen-card ${seen.verdict}">
+      <h4>${esc(tr("html.seen.title"))}</h4>
+      <p class="seen-verdict ${SEEN_TONE[seen.verdict]}">${esc(tr(`html.seen.${seen.verdict}`))}</p>
+      <p class="rp-small">${esc(tr("html.seen.share", { p: share }))}</p>
+      <ul class="light-list">${seen.claims.map((c) => `<li class="${c.status === "contradicted" ? "doubtful" : ""}"><span class="stance ${SEEN_STANCE[c.status]}">${esc(tr(`html.seen.st.${c.status}`))}</span><span dir="auto">${esc(c.text)}</span><span class="rp-small">${esc(tr(`html.seen.r.${c.reason}`))}</span></li>`).join("")}</ul>
+      <p class="rp-small">${seen.read ? `${esc(tr("html.seen.read"))} <span class="seen-read" dir="auto">${esc(seen.read)}</span>` : esc(tr("html.seen.none"))}</p>
+    </div>`;
+  }
+
+  // A second online model's opinion on the image or the recording (D-200): its verdict in green, orange or grey, each
+  // sentence of the answer agreed or disputed by it, what it answered or heard, and the caution that agreeing is no proof.
+  const SECOND_TONE = { agreed: "supports", disputed: "disputed", unclear: "unjudged" };
+  function secondHTML(a) {
+    const second = a.second;
+    if (!second) return "";
+    return `<div class="rp-card seen-card">
+      <h4>${esc(tr(`html.second.title.${second.kind}`, { m: second.model }))}</h4>
+      <p class="seen-verdict ${SECOND_TONE[second.verdict]}">${esc(tr(`html.second.${second.verdict}`))}</p>
+      <ul class="light-list">${second.claims.map((c) => `<li class="${c.status === "disputed" ? "doubtful" : ""}"><span class="stance ${SECOND_TONE[c.status]}">${esc(tr(`html.second.st.${c.status}`))}</span><span dir="auto">${esc(c.text)}</span></li>`).join("")}</ul>
+      <p class="rp-small">${esc(tr(`html.second.said.${second.kind}`))} <span class="seen-read" dir="auto">${esc(second.text)}</span></p>
+      ${second.read ? `<p class="rp-small">${esc(tr("html.second.read"))} <span class="seen-read" dir="auto">${esc(second.read)}</span></p>` : ""}
+      <p class="rp-small">${esc(tr("html.second.caution"))}</p>
+    </div>`;
+  }
+
   function lightHTML(a) {
     if (!a.light?.length) return "";
     return `<ul class="light-list">${a.light.map((l) => `<li class="${l.status}"><span class="stance ${l.status === "close" ? "supports" : "contradicts"}">${esc(tr(l.status === "close" ? "html.full.close" : "html.full.doubtful"))}</span><span dir="auto">${esc(l.text)}</span>${l.reasons.length ? `<span class="rp-small">${l.reasons.map((r) => esc(REASON[r] ? tr(REASON[r]) : r)).join(" · ")}</span>` : ""}</li>`).join("")}</ul>`;
@@ -263,6 +297,8 @@
       <p class="section-note"><strong>${esc(tr("html.full.question"))}:</strong> <span dir="auto">${esc(last.question)}</span></p>
       ${isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>` : ""}
       <p class="mono rp-small">${esc(tr("html.full.meta", { g: a.generator || "", s: Number(a.seconds || 0).toFixed(1) }))}</p>
+      ${seenHTML(a)}
+      ${secondHTML(a)}
       <div id="chat-full-report"></div>
       ${a.light?.length ? `<div class="rp-card"><h4>${esc(tr("html.full.light"))}</h4>${lightHTML(a)}</div>` : ""}
       ${a.citations.length ? `<div class="rp-card full-sources">${sourcesHTML(a, true)}</div>` : ""}

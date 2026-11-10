@@ -942,6 +942,14 @@ a.pop-item { text-decoration: none; }
 .light-list li { display: grid; gap: 3px; padding: 8px 10px; border-radius: 10px; background: rgb(243 237 223 / 0.6); font-size: 0.88rem; }
 .light-list li.doubtful { background: rgb(255 107 107 / 0.08); }
 .light-list .stance { justify-self: start; }
+/* An answer about an image, checked against the text the OCR reader read (D-199): its verdict in green, red or grey. */
+.seen-verdict { margin: 0; padding: 10px 14px; border-radius: 12px; font-weight: 700; }
+.seen-verdict.supports { background: rgb(57 217 138 / 0.16); color: #17603b; border-inline-start: 4px solid #2f9a72; }
+.seen-verdict.contradicts { background: rgb(255 107 107 / 0.14); color: #8f1f1f; border-inline-start: 4px solid #d23c3c; }
+.seen-verdict.disputed { background: rgb(243 150 60 / 0.16); color: #7a3a0c; border-inline-start: 4px solid #e08a2e; }
+.sources li .stance.disputed, .stance.disputed { background: rgb(243 150 60 / 0.2); color: #7a3a0c; }
+.seen-verdict.unjudged { background: rgb(185 198 191 / 0.25); color: #4a5a52; border-inline-start: 4px solid #8fa197; }
+.seen-read { color: var(--ink); font-family: ui-monospace, Consolas, monospace; unicode-bidi: plaintext; }
 /* "Truth Guardian check": the last answer's full report under the chat, in site 1's warm panel colours. */
 .chat-full { display: grid; gap: 12px; margin-top: 18px; border: 1px solid #e4ddca; background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%); scroll-margin-top: 16px; }
 .chat-full[hidden] { display: none; }

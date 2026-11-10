@@ -562,6 +562,10 @@ def create_app(
             if not (models_dir() / multilingual.E5).is_dir():
                 raise HTTPException(503, "the model the library reads with is not on this computer; run TruthGuardian.bat setup once with internet")
             library = open_library(root)
+            # A recording added is also heard by a second, online listener when a free key is set (rag/second.py, D-200).
+            from truth_guardian.rag import second
+
+            library.hear = lambda name, data: second.hear(name, data, root)
         return library
 
     @app.get("/api/library")

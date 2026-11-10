@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS passages (
     place TEXT, role TEXT
 );
 CREATE TABLE IF NOT EXISTS pictures (document_id INTEGER PRIMARY KEY REFERENCES documents (id) ON DELETE CASCADE, data BLOB NOT NULL);
+CREATE TABLE IF NOT EXISTS seconds (document_id INTEGER PRIMARY KEY REFERENCES documents (id) ON DELETE CASCADE, model TEXT NOT NULL, text TEXT NOT NULL);
 """
 ADDED_COLUMNS = {"documents": ("reader", "concerns", "reviewed_at"), "passages": ("place", "role")}
 Encode = Callable[[list[str], str], np.ndarray]
@@ -161,6 +162,8 @@ class Library:
         self._lock = threading.Lock()
         self._indexes: dict[tuple[str, ...], _Index] = {}
         self._drafts: OrderedDict[str, Draft] = OrderedDict()
+        # A second listener for a recording as it is added (rag/second.py, D-200): (name, bytes) -> (model, transcript) or None.
+        self.hear: Callable[[str, bytes], tuple[str, str] | None] | None = None
 
     def close(self) -> None:
         self._db.close()
@@ -182,7 +185,15 @@ class Library:
         if known is not None:
             return known
         if kind_of(name):
-            return self._store_reading(name, digest, self.read(name, data, languages, describe), collection, progress, picture=picture_of(name, data))
+            entry = self._store_reading(name, digest, self.read(name, data, languages, describe), collection, progress, picture=picture_of(name, data))
+            if kind_of(name) == "audio" and self.hear is not None:
+                try:  # a second transcript is a help, never a reason the file is not added
+                    heard = self.hear(name, data)
+                except Exception:
+                    heard = None
+                if heard:
+                    self.set_second(entry.id, *heard)
+            return entry
         found = extract(name, data)
         pieces = [p for page, text in enumerate(found.by_page, 1) for p in passages(text, page)] if found.by_page else passages(found.text)
         return self._store(name, digest, pieces, collection, progress, found.kind, found.pages, detect(found.text[:5000]).code)
@@ -220,6 +231,16 @@ class Library:
         """What the library holds of a document, so a person can see what was extracted."""
         with self._lock:
             return [Passage(*row) for row in self._db.execute("SELECT text, page, place, role FROM passages WHERE document_id = ? ORDER BY id", (document_id,))]
+
+    def second_of(self, document_id: int) -> tuple[str, str] | None:
+        """A second model's transcript of a recording: (model, text), kept when it was added."""
+        with self._lock:
+            row = self._db.execute("SELECT model, text FROM seconds WHERE document_id = ?", (document_id,)).fetchone()
+        return (row[0], row[1]) if row else None
+
+    def set_second(self, document_id: int, model: str, text: str) -> None:
+        with self._lock, self._db:
+            self._db.execute("INSERT OR REPLACE INTO seconds (document_id, model, text) VALUES (?, ?, ?)", (document_id, model, text))
 
     def picture(self, document_id: int) -> bytes | None:
         with self._lock:

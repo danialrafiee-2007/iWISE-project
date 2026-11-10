@@ -182,3 +182,19 @@ def test_the_chat_bubble_shows_the_answer_alone_and_an_untrusted_documents_answe
     bubble = chat[chat.index("  function showAnswer(box, a) {"):chat.index("  function untrusted(a) {")]
     assert "TGReport.render" not in bubble and "sourcesHTML" not in bubble and "msg-hint" in bubble
     assert "function untrusted(a)" in chat and 'a.status === "not_in_documents" || rejected' in chat
+
+
+def test_an_image_answers_check_is_shown_in_the_full_report():
+    """D-199: the full report shows the image check's verdict, its share and each sentence; the opinion note is translated."""
+    chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    assert "function seenHTML(a)" in chat and "${seenHTML(a)}" in chat and "html.free.n.opinion" in chat
+    i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    assert '"html.seen.hallucinated": "توهم: پاسخ می‌گوید در تصویر متنی هست که وجود ندارد"' in i18n
+
+
+def test_the_second_opinion_is_shown_in_the_full_report():
+    """D-200: the full report shows the second model's opinion on an image or a recording, agreed or disputed."""
+    chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    assert "function secondHTML(a)" in chat and "${secondHTML(a)}" in chat
+    i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    assert '"html.second.disputed": "دو مدل اختلاف دارند: احتمال توهم"' in i18n
