@@ -57,6 +57,7 @@ class Route:
 @pytest.fixture(autouse=True)
 def _fresh_wikipedia(monkeypatch):
     monkeypatch.setattr(free, "_wiki_kept", {})
+    monkeypatch.setattr(free, "_countries", {})
 
 
 def test_the_answer_is_checked_and_every_source_labelled(tmp_path):
@@ -295,3 +296,62 @@ def test_a_web_hit_tavily_scores_low_is_left_out():
     hits = {"results": [{"title": "Prices", "url": "https://x.example/p", "content": "Karun River 950 km long prices today", "score": 0.12}]}
     words = set(free.terms("Karun River 950 km long"))
     assert free.tavily("Karun", words, None, lambda *a, **k: (200, json.dumps(hits))) == []
+
+
+def _bank(url, data=None, headers=None, timeout=None):
+    if "/country?format=json" in url:
+        return 200, json.dumps([{}, [{"id": "IRN", "name": "Iran, Islamic Rep.", "region": {"value": "Middle East"}}, {"id": "WLD", "name": "World", "region": {"value": "Aggregates"}}]])
+    if "/country/IRN/indicator/SP.POP.TOTL" in url:
+        return 200, json.dumps([{}, [{"country": {"id": "IR", "value": "Iran, Islamic Rep."}, "date": "2025", "value": 92417681}]])
+    return 404, ""
+
+
+def test_a_country_figure_comes_from_the_world_bank_only_when_asked_of_a_country():
+    [(title, url, sentence)] = free.world_bank("What is the population of Iran?", _bank)
+    assert sentence == "According to the World Bank, the population of Iran was 92,417,681 people in 2025." and "SP.POP.TOTL" in url
+    assert free.world_bank("جمعیت ایران چقدر است؟", _bank)[0][2] == sentence
+    assert free.world_bank("What is the population of Bam, Iran?", _bank) == []  # a place inside the country
+    assert free.world_bank("جمعیت شهر بم چقدر است؟", _bank) == []
+    assert free.world_bank("When was Iran's oldest bridge built?", _bank) == []  # no figure asked about
+
+
+def test_a_research_question_gets_scholarly_works():
+    works = {"results": [
+        {"id": "https://openalex.org/W1", "title": "Growth of the number of simple closed geodesics on hyperbolic surfaces", "publication_year": 2008,
+         "authorships": [{"author": {"display_name": "Maryam Mirzakhani"}}], "primary_location": {"source": {"display_name": "Annals of Mathematics"}},
+         "doi": "https://doi.org/10.4007/annals.2008.168.97"},
+        {"id": "https://openalex.org/W2", "title": "Cooking with saffron", "publication_year": 2001, "authorships": [], "doi": None},
+    ]}
+    fetch = lambda url, data=None, headers=None, timeout=None: (200, json.dumps(works))
+    q = "Which paper did Mirzakhani publish on simple closed geodesics on hyperbolic surfaces?"
+    [(title, url, sentence)] = free.scholarly(q, set(free.terms(q)), fetch)
+    assert url == "https://doi.org/10.4007/annals.2008.168.97"
+    assert sentence == ('The work "Growth of the number of simple closed geodesics on hyperbolic surfaces" by Maryam Mirzakhani was published '
+                        "in 2008 in Annals of Mathematics (DOI 10.4007/annals.2008.168.97).")
+    assert free.scholarly("When was the Eiffel Tower built?", set(), fetch) == []  # not a question about research
+
+
+def test_a_source_alone_contradicts_only_a_claim_the_whole_check_found_wrong():
+    wrong = ClaimReport(start=0, end=10, text="Iran's population is 86 million", status="contradicted", risk=0.9, explanation="x", action="verify", evidence=Evidence(document_id="source1", text="the population of Iran was 92,417,681"))
+
+    class Bank:
+        def analyze(self, sample, cancelled=None):
+            return Report(id=sample.id, verdict="hallucinated", risk=0.9, response_threshold=0.4, sentence_threshold=0.3, claims=[wrong])
+
+    main = Report(id="m", verdict="hallucinated", risk=0.9, response_threshold=0.4, sentence_threshold=0.3, claims=[wrong])
+    right = Report(id="m", verdict="grounded", risk=0.1, response_threshold=0.4, sentence_threshold=0.3, claims=[wrong.model_copy(update={"status": "supported"})])
+    assert free.judge_each("Iran has 86 million people.", "?", ["World Bank: 92,417,681"], ["unrelated"], Bank(), report=main) == ["contradicts"]
+    assert free.judge_each("Iran has 86 million people.", "?", ["World Bank: 92,417,681"], ["unrelated"], Bank(), report=right) == ["unrelated"]
+
+
+def test_a_source_on_something_else_does_not_count_against_a_claim():
+    claim = ClaimReport(start=0, end=10, text="Iran's population is 86 million", status="contradicted", risk=0.9, explanation="x", action="verify", evidence=Evidence(document_id="source1", text="the life expectancy at birth of Iran was 77.9 years"))
+    assert not free._about_same(claim)
+    assert free._about_same(claim.model_copy(update={"evidence": Evidence(document_id="source1", text="the population of Iran was 92,417,681")}))
+
+
+def test_a_capital_or_another_place_of_the_same_name_is_kept_apart():
+    assert free.world_bank("What is the capital of Bhutan and how many people live there?", _bank) == []
+    words = set(free.terms("When was the Eiffel Tower in Paris completed?"))
+    assert not free.concerns("Eiffel Tower (Paris, Texas)", words) and free.concerns("Eiffel Tower", words)
+    assert free.concerns("Hafez (poet)", set(free.terms("Where was Hafez born?")))

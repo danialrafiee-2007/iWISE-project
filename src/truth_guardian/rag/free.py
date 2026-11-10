@@ -67,6 +67,39 @@ TAVILY_RESULTS = 4
 FA_SITES = ("cgie.org.ir", "rch.ac.ir", "iranicaonline.org", "ganjoor.net", "amar.org.ir", "irna.ir", "isna.ir", "noormags.ir", "civilica.com")
 FA_RESULTS = 5
 MIN_SCORE = 0.3  # Tavily's relevance score (0 to 1) below which a hit is left out
+# Specialised sources, asked only when the question is of their kind (D-197), both free without a key.
+# The World Bank's figures for countries: a country named in the question and a figure it asks about.
+WORLD_BANK = "https://api.worldbank.org/v2"
+INDICATORS = {  # what the question asks about: its words in English and Persian, the World Bank's indicator
+    "population": (("population", "people live", "inhabitants", "جمعیت"), "SP.POP.TOTL", "{:,.0f} people"),
+    "GDP": (("gdp", "gross domestic product", "economy size", "تولید ناخالص"), "NY.GDP.MKTP.CD", "{:,.0f} US dollars"),
+    "GDP per person": (("per capita", "سرانه"), "NY.GDP.PCAP.CD", "{:,.0f} US dollars"),
+    "life expectancy at birth": (("life expectancy", "امید به زندگی"), "SP.DYN.LE00.IN", "{:.1f} years"),
+    "land area": (("area", "square kilomet", "مساحت"), "AG.LND.TOTL.K2", "{:,.0f} square kilometres"),
+    "unemployment rate": (("unemployment", "بیکاری"), "SL.UEM.TOTL.ZS", "{:.1f} percent"),
+    "inflation rate": (("inflation", "تورم"), "FP.CPI.TOTL.ZG", "{:.1f} percent"),
+    "adult literacy rate": (("literacy", "باسوادی", "سواد"), "SE.ADT.LITR.ZS", "{:.1f} percent"),
+}
+# Country names the World Bank writes otherwise, and Persian names, to its three-letter codes.
+COUNTRY_ALIASES = {
+    "iran": "IRN", "ایران": "IRN", "russia": "RUS", "روسیه": "RUS", "south korea": "KOR", "north korea": "PRK",
+    "egypt": "EGY", "مصر": "EGY", "turkey": "TUR", "türkiye": "TUR", "ترکیه": "TUR", "united states": "USA", "usa": "USA",
+    "america": "USA", "آمریکا": "USA", "امریکا": "USA", "united kingdom": "GBR", "britain": "GBR", "uk": "GBR",
+    "انگلستان": "GBR", "بریتانیا": "GBR", "syria": "SYR", "سوریه": "SYR", "venezuela": "VEN", "yemen": "YEM", "یمن": "YEM",
+    "laos": "LAO", "vietnam": "VNM", "ویتنام": "VNM", "عراق": "IRQ", "افغانستان": "AFG", "پاکستان": "PAK",
+    "عربستان": "SAU", "امارات": "ARE", "قطر": "QAT", "کویت": "KWT", "عمان": "OMN", "بحرین": "BHR", "آذربایجان": "AZE",
+    "ارمنستان": "ARM", "ترکمنستان": "TKM", "تاجیکستان": "TJK", "ازبکستان": "UZB", "قزاقستان": "KAZ", "چین": "CHN",
+    "هند": "IND", "ژاپن": "JPN", "آلمان": "DEU", "فرانسه": "FRA", "ایتالیا": "ITA", "اسپانیا": "ESP", "کانادا": "CAN",
+    "برزیل": "BRA", "استرالیا": "AUS", "بوتان": "BTN", "نپال": "NPL", "اندونزی": "IDN", "مالزی": "MYS", "لبنان": "LBN",
+    "اردن": "JOR", "مکزیک": "MEX", "آرژانتین": "ARG", "نیجریه": "NGA", "سوئد": "SWE", "نروژ": "NOR", "هلند": "NLD",
+}
+_countries: dict[str, str] = {}
+PLACE_WORDS = (" city", " town", " village", " province", " county", " state of ", " capital", "شهر", "روستا", "استان", "شهرستان", "پایتخت")
+# OpenAlex: scholarly works (papers, theses, some books) for a question about research, with authors, year, venue, DOI.
+OPENALEX = "https://api.openalex.org/works"
+RESEARCH = ("paper", "study", "studies", "journal", "article", "published", "research", "researcher", "scientist", "theorem",
+            "thesis", "doi", "مقاله", "پژوهش", "تحقیق", "مجله", "دانشمند", "پایان‌نامه", "قضیه")
+SCHOLARLY_RESULTS = 3
 # Wikidata: the structured facts behind Wikipedia (a population with its year, a height, a date of birth), read for
 # the articles found, as plain sentences the check can compare numbers and dates with.
 WIKIDATA = "https://www.wikidata.org/w/api.php"
@@ -334,7 +367,9 @@ def read_page(url: str, words: set[str], fetch=_request) -> tuple[str, str]:
 def concerns(title: str, words: set[str]) -> bool:
     """A search hit concerns the question when every word of its title is in the question or the answer: "Fields Medal"
     or "Maryam Mirzakhani" for a question about the first woman to win the Fields Medal, never "Simone Biles"."""
-    title_words = set(terms(re.sub(r"\([^)]*\)", "", title)))  # "Hafez (poet)": the words before the bracket
+    # "Hafez (poet)": a bracket of one describing word is set aside; "Eiffel Tower (Paris, Texas)", a bracket naming
+    # another place, is not, so the replica's article is not read for a question about the tower in Paris.
+    title_words = set(terms(re.sub(r"\(\s*[^),\s]+\s*\)", "", title)))
     return bool(title_words) and title_words <= words
 
 
@@ -468,6 +503,86 @@ def wikidata(articles: list[tuple[str, str]], fetch=_request) -> list[tuple[str,
     return found
 
 
+def _country_names(fetch=_request) -> dict[str, str]:
+    """The World Bank's countries by lower-cased name (and the part before a comma: "Iran, Islamic Rep." gives
+    "iran"), with COUNTRY_ALIASES; asked once a session. Regions and income groups are left out."""
+    if not _countries:
+        status, text = fetch(f"{WORLD_BANK}/country?format=json&per_page=400", None, None, PAGE_TIMEOUT)
+        if status == 200:
+            try:
+                for country in json.loads(text)[1]:
+                    if (country.get("region") or {}).get("value") == "Aggregates":
+                        continue
+                    name = country["name"].lower()
+                    _countries[name] = _countries.get(name) or country["id"]
+                    _countries[name.split(",")[0].strip()] = country["id"]
+            except (ValueError, KeyError, IndexError, TypeError):
+                pass
+        _countries.update({name: code for name, code in COUNTRY_ALIASES.items() if name not in _countries})
+    return _countries
+
+
+def world_bank(question: str, fetch=_request) -> list[tuple[str, str, str]]:
+    """The World Bank's latest figure for each figure the question asks about (population, GDP, life expectancy...)
+    in each country it names: (title, address, a sentence with the figure and its year). Nothing when it names no
+    country or asks about no such figure."""
+    lowered = f" {question.lower()} "
+    asked = [(label, code, shown) for label, (cues, code, shown) in INDICATORS.items() if any(cue in lowered for cue in cues)]
+    if not asked:
+        return []
+    # A question about a place inside a country ("the city of Bam", "Bam, Iran") must not get the whole country's figure,
+    # which the check could read as contradicting the place's own.
+    if any(word in lowered for word in PLACE_WORDS):
+        return []
+    names = _country_names(fetch)
+    found_codes = list(dict.fromkeys(
+        code for name, code in sorted(names.items(), key=lambda kv: -len(kv[0]))
+        if re.search(rf"(?<!\w){re.escape(name)}(?!\w)", lowered) and not re.search(rf",\s*{re.escape(name)}(?!\w)", lowered)
+    ))[:2]
+    found = []
+    for country in found_codes:
+        for label, code, shown in asked[:3]:
+            status, text = fetch(f"{WORLD_BANK}/country/{country}/indicator/{code}?format=json&mrnev=1", None, None, PAGE_TIMEOUT)
+            if status != 200:
+                continue
+            try:
+                row = json.loads(text)[1][0]
+                value, year, name = float(row["value"]), row["date"], row["country"]["value"]
+            except (ValueError, KeyError, IndexError, TypeError):
+                continue
+            found.append((f"{name}: {label}", f"https://data.worldbank.org/indicator/{code}?locations={row.get('country', {}).get('id', '')}",
+                          f"According to the World Bank, the {label} of {name.split(',')[0]} was {shown.format(value)} in {year}."))
+    return found
+
+
+def scholarly(question: str, words: set[str], fetch=_request) -> list[tuple[str, str, str]]:
+    """Scholarly works found by OpenAlex for a question about research: (title, address, a sentence with their
+    authors, year, venue and DOI), keeping works whose title shares two words with the question or the answer."""
+    if not any(cue in question.lower() for cue in RESEARCH):
+        return []
+    query = urllib.parse.urlencode({"search": " ".join(terms(question))[:300] or question[:300], "per_page": SCHOLARLY_RESULTS,
+                                    "select": "id,title,publication_year,authorships,primary_location,doi,cited_by_count"})
+    status, text = fetch(f"{OPENALEX}?{query}", None, None, PAGE_TIMEOUT)
+    if status != 200:
+        return []
+    try:
+        works = json.loads(text).get("results", [])
+    except ValueError:
+        return []
+    found = []
+    for work in works:
+        title = str(work.get("title") or "")
+        if not title or len(words & set(terms(title))) < 2:
+            continue
+        authors = [a["author"]["display_name"] for a in work.get("authorships", []) if a.get("author", {}).get("display_name")]
+        venue = ((work.get("primary_location") or {}).get("source") or {}).get("display_name")
+        sentence = f'The work "{title}" by {", ".join(authors[:4]) or "unknown authors"}{" et al." if len(authors) > 4 else ""} was published in {work.get("publication_year")}'
+        sentence += f" in {venue}" if venue else ""
+        sentence += f" (DOI {work['doi'].removeprefix('https://doi.org/')})." if work.get("doi") else "."
+        found.append((title, work.get("doi") or work.get("id") or OPENALEX, sentence))
+    return found
+
+
 def _same(evidence: str, source: str) -> bool:
     flat = lambda text: " ".join(text.split())
     return bool(evidence.strip()) and flat(evidence) in flat(source)
@@ -498,12 +613,14 @@ def stances(report: Report | None, texts: list[str]) -> list[str]:
 ALONE = 6  # at most this many sources are judged again on their own
 
 
-def judge_each(text: str, question: str, texts: list[str], labels: list[str], engine, cancelled=None) -> list[str]:
+def judge_each(text: str, question: str, texts: list[str], labels: list[str], engine, cancelled=None, report: Report | None = None) -> list[str]:
     """The check names one evidence for each claim, so a second source saying the same thing was left "unrelated".
     Each source left so (up to ALONE) is judged again on its own against the whole answer, and becomes "supports" when a
-    claim is supported by it. It never becomes "contradicts" this way: alone, a source that simply lacks the answer's
-    number but holds other numbers reads as a contradiction (the trial marked five sources of a right answer so), so a
-    contradiction is taken only from the check against all the sources together."""
+    claim is supported by it. It becomes "contradicts" only when a claim it contradicts alone is one the check against
+    all the sources (report) found contradicted too: alone, a source that simply lacks the answer's number but holds
+    other numbers reads as a contradiction (a trial marked five sources of a right answer so), while the World Bank's
+    figure against a wrong population is a real one (D-197)."""
+    wrong = {claim.text for claim in (report.claims if report else []) if claim.status == "contradicted"}
     labels = list(labels)
     for i in [i for i, label in enumerate(labels) if label == "unrelated"][:ALONE]:
         _proceed(cancelled)
@@ -511,9 +628,19 @@ def judge_each(text: str, question: str, texts: list[str], labels: list[str], en
             alone = engine.analyze(make_sample(text, [texts[i]], question, sample_id=f"free-source{i + 1}"), cancelled=cancelled)
         except NotChecked:
             continue
-        if stances(alone, [texts[i]])[0] == "supports":
+        said = stances(alone, [texts[i]])[0]
+        if said == "supports":
             labels[i] = "supports"
+        elif said == "contradicts" and any(claim.status == "contradicted" and claim.text in wrong and _about_same(claim) for claim in alone.claims):
+            labels[i] = "contradicts"
     return labels
+
+
+def _about_same(claim) -> bool:
+    """A contradiction's evidence speaks of what the claim speaks of: two words other than numbers in common ("population"
+    and "Iran"), so a source on Iran's life expectancy does not count against a claim on its population."""
+    words = lambda text: {word for word in terms(text) if not any(ch.isdigit() for ch in word)}
+    return bool(claim.evidence) and len(words(claim.text) & words(claim.evidence.text)) >= 2
 
 
 def answer_free(
@@ -578,17 +705,22 @@ def answer_free(
     # then Wikidata's facts for the articles found.
     persian = "fa" in {code, (detect(question).code or "").split("-")[0].lower()}
     tavily_key = settings(root).get("TAVILY_API_KEY")
-    with ThreadPoolExecutor(max_workers=len(urls) + len(langs) + 2) as pool:
+    with ThreadPoolExecutor(max_workers=len(urls) + len(langs) + 4) as pool:
         pages = [pool.submit(read_page, url, words, fetch) for url in urls]
         searches = [pool.submit(wikipedia, question, words, lang, fetch) for lang in langs]
         # For a Persian question the general search is a second voice beside the Persian sites, so it must share more.
         web = pool.submit(tavily, question, words, tavily_key, fetch, (), TAVILY_RESULTS, 3 if persian else 2)
         # A Persian question also searches the reliable Persian sites, where Persian facts are best found.
         fa_web = pool.submit(tavily, question, words, tavily_key, fetch, FA_SITES, FA_RESULTS) if persian else None
+        # A country's figure from the World Bank, a research question's works from OpenAlex: only when asked of their kind.
+        figures = pool.submit(world_bank, question, fetch)
+        works = pool.submit(scholarly, question, words, fetch)
         read = [page.result() for page in pages]
         found = [search.result() for search in searches]
         on_web = web.result()
         on_fa_web = fa_web.result() if fa_web else []
+        on_figures = figures.result()
+        on_works = works.result()
     articles = [(lang, title) for lang, hits in zip(langs, found) for title, _, _ in hits]
     articles += [(m.group(1), urllib.parse.unquote(m.group(2)).replace("_", " ")) for url in urls if (m := _WIKI_PAGE.match(url))]
     facts = wikidata(list(dict.fromkeys(articles))[:4], fetch)
@@ -614,6 +746,10 @@ def answer_free(
             sources.append({"title": f"Web: {title}", "url": url, "text": passage, "opened": True, "state": "ok", "found_by": "guardian"})
     for name, url, sentences in facts:
         sources.append({"title": f"Wikidata: {name}", "url": url, "text": sentences, "opened": True, "state": "ok", "found_by": "guardian"})
+    for name, url, sentence in on_figures:
+        sources.append({"title": f"World Bank: {name}", "url": url, "text": sentence, "opened": True, "state": "ok", "found_by": "guardian"})
+    for name, url, sentence in on_works:
+        sources.append({"title": f"OpenAlex: {name}", "url": url, "text": sentence, "opened": True, "state": "ok", "found_by": "guardian"})
 
     # What each source is before any check: a page that does not exist, one that could not be read, one with nothing on
     # the answer, or one to check against.
@@ -655,7 +791,7 @@ def answer_free(
     texts = [s["text"] for s in opened]
     judged = stances(report, texts)
     if report is not None:
-        judged = judge_each(text, question, texts, judged, engine, cancelled)
+        judged = judge_each(text, question, texts, judged, engine, cancelled, report)
     labels = iter(judged)
     found = [next(labels) if s in opened else before(s, "unrelated") for s in sources]
     return done(status=status, text=text, generator=generator, report=report, light=light, citations=_citations(sources, found), notes=notes)
