@@ -330,3 +330,20 @@ def test_the_site_tour_walks_the_site_home_models_and_architecture():
     for i in range(1, 15):
         for part in ("t", "b"):
             assert strings.count(f'"html.tour.s{i}.{part}"') == 7, (i, part)
+
+
+def test_the_activity_log_button_window_and_the_site_records():
+    """D-210: the activity log's button and window come from js/activity.js, loaded right after ui.js (it needs the
+    languages); the site records pages, tabs, questions, answers, files, reports, code opened, the tour, the language
+    and the lamps; the window's words are in seven languages."""
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    assert page.index('src="/js/ui.js') < page.index('src="/js/activity.js') < page.index('src="/js/pages.js')
+    script = (HTML / "js" / "activity.js").read_text(encoding="utf-8")
+    for part in ("/api/activity?after=", "/api/activity/history", "/api/activity/download?format=", "localStorage", "window.TGLog"):
+        assert part in script, part
+    hooks = {"pages.js": '"page", "open"', "chat.js": '"chat", "ask"', "arch-graph.js": '"code opened"', "ui.js": '"tour"', "app.js": '"lamp"'}
+    for name, hook in hooks.items():
+        assert hook in (HTML / "js" / name).read_text(encoding="utf-8"), name
+    strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    for key in ("html.log.title", "html.log.tab.engine", "html.log.tab.history", "html.log.csv", "html.log.empty.site"):
+        assert strings.count(f'"{key}"') == 7, key

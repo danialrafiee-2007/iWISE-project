@@ -390,6 +390,7 @@
     q(".ag-file").textContent = n.src ? fileOf(n.src) : "";
     q("code").textContent = codeOf(n);
     onClosed = closed || null;
+    window.TGLog?.log("architecture", "code opened", n.src || n.title);
     if (!dialog.open) dialog.showModal();
     q(".code-dialog-body").scrollTop = 0;
     q(".ag-code").scrollTop = 0;

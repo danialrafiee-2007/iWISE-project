@@ -92,6 +92,7 @@
         chip.classList.remove("busy");
         chip.classList.add("ok");
         state.textContent = "✓";
+        window.TGLog?.log("chat", "file added", `${file.name} (${file.type || "file"}, ${Math.round(file.size / 1024)} KB)`);
         addNote(tr("html.chat.added", { name: file.name }));
       } catch (e) {
         chip.classList.remove("busy");
@@ -327,6 +328,7 @@
   }
   checkBtn?.addEventListener("click", () => {
     if (!last) return;
+    window.TGLog?.log("chat", "Truth Guardian check", last.question);
     drawFull();
     if (full && !full.open) full.showModal();
     if (fullBody) fullBody.scrollTop = 0;
@@ -349,6 +351,7 @@
       say("");
     }
     bubble("user").textContent = question;
+    window.TGLog?.log("chat", "ask", question);
     const box = bubble("assistant");
     box.innerHTML = `<p class="thinking">${esc(tr("html.chat.thinking"))}</p>`;
     try {
@@ -366,6 +369,7 @@
         const status = (text) => { box.innerHTML = `${said ? `<p class="msg-text" dir="auto">${esc(said)}</p>` : ""}<p class="thinking">${esc(text)}</p>`; };
         let countdown = 0;
         status(tr("html.chat.online"));
+        window.TGLog?.log("chat", "went online", rejected ? "the documents' answer did not pass the check" : "not in the documents");
         try {
           const online = await stream("/api/ask/free", { question }, (event) => {
             if (event.type === "text") { said = event.text; return; }
@@ -388,6 +392,7 @@
       }
       showAnswer(box, a);
       remember(question, a);
+      window.TGLog?.log("chat", "answer", [a.generator, a.status, a.report?.verdict, a.report ? `risk ${(+a.report.risk).toFixed(2)}` : ""].filter(Boolean).join(" · "));
       history.push({ role: "user", content: question.slice(0, 5000) }, { role: "assistant", content: String(a.text).slice(0, 5000) });
       fileList.innerHTML = "";
       fileList.hidden = true;
@@ -395,6 +400,7 @@
       // A free service that asks for a longer wait than the server waits says so in the page's language.
       const busy = /free service .* (is|still) busy/.test(err.message);
       box.innerHTML = `<p class="msg-off">${esc(busy ? tr("html.free.busy") : tr("html.chat.error", { error: err.message }))}</p>`;
+      window.TGLog?.log("chat", "failed", err.message, "error");
     } finally {
       busy = false;
       send.disabled = false;

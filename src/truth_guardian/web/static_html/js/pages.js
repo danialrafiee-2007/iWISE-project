@@ -101,6 +101,7 @@
       next.hidden = false;
       if (!instant) enter(next, 60);
       current = next;
+      window.TGLog?.log("page", "open", path);
       const TITLES = { models: "html.models", architecture: "html.arch", team: "team.title", about: "about.title", contact: "contact.title" };
       document.title = name === "home" ? "Truth Guardian (HTML)" : `${tr(TITLES[name] || `${name}.title`)} · Truth Guardian`;
       if (section) setTimeout(() => scrollToSection(section), reduced ? 0 : 300);
@@ -163,6 +164,7 @@
     });
     if (focus) tab.focus({ preventScroll: true });
     if (!next) return;
+    window.TGLog?.log("tab", "open", tab.textContent.trim());
     clearTimeout(tabTimer);
     const page = next.closest(".page");
     if (reduced || !shown || !page) {

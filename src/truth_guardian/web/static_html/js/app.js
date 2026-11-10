@@ -15,6 +15,7 @@ function lamp(chipLamp, chipText, rail) {
   const textEl = document.getElementById(chipText);
   let last = null;
   function show(key, kind, detail = "") {
+    if (!last || last[0] !== key) window.TGLog?.log("lamp", chipText === "state" ? "local models" : chipText === "online-state" ? "online models" : "guardian", `${tr(key)}${detail ? ` (${detail})` : ""}`, kind === "bad" ? "error" : "ok");
     last = [key, kind, detail];
     const text = tr(key);
     const tip = detail ? `${text}: ${detail}` : text;

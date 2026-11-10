@@ -250,3 +250,38 @@ def test_changed_range_finds_the_edit():
     assert _changed_range("It is big.", "It is not big.") == (6, 10)
     assert _changed_range("It is not big.", "It is big.") == (6, 7)
     assert _changed_range("Same.", "Same.") is None
+
+
+def test_the_activity_log_follows_a_check_and_leaves_out_the_polling(client):
+    """D-210: a check is logged as its start, each stage and its result (verdict and risk); the page's polling of the
+    lamps is not a row; the log is shown since a row, downloaded as CSV or JSON, and the project's history read."""
+    client.get("/api/health")
+    body = {"question": "When?", "sources": ["She died in 1945."], "answer": "She died in 2022.", "task": "qa"}
+    events(client.post("/api/analyze", json=body))
+    rows = client.get("/api/activity").json()["rows"]
+    kinds = [(r["category"], r["action"]) for r in rows]
+    assert ("check", "start") in kinds and ("check", "result") in kinds and ("request", "POST /api/analyze") in kinds
+    assert ("check", "stage") in kinds
+    assert not any(r["action"].startswith("GET /api/health") for r in rows)
+    result = next(r for r in rows if r["action"] == "result")
+    assert "verdict hallucinated" in result["detail"] and result["ms"] is not None
+    last = rows[-1]["id"]
+    assert client.get(f"/api/activity?after={last}").json()["rows"] == []
+    csv_file = client.get("/api/activity/download?format=csv")
+    assert csv_file.headers["content-disposition"].startswith("attachment") and "category" in csv_file.text.splitlines()[0]
+    assert isinstance(client.get("/api/activity/download?format=json").json(), list)
+    history = client.get("/api/activity/history").json()
+    assert history["decisions"] and history["decisions"][0]["id"] == "D-001"
+
+
+def test_the_activity_log_writes_day_files_and_keeps_questions_short(tmp_path):
+    from truth_guardian.web import activity
+
+    log = activity.ActivityLog(tmp_path / "logs")
+    log.record("answer", "start", "word " * 200)
+    log.changed("guardian", "ready")
+    log.changed("guardian", "ready")
+    rows = log.everything()
+    assert len(rows) == 2 and len(rows[0]["detail"]) <= 400
+    assert list((tmp_path / "logs").glob("activity-*.jsonl"))
+    assert activity.short("a " * 100, 20).endswith("…")

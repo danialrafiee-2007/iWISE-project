@@ -22,6 +22,7 @@ import tempfile
 import threading
 import time
 from collections.abc import Callable
+from datetime import datetime
 from email.message import EmailMessage
 from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
@@ -40,7 +41,7 @@ from truth_guardian.pipeline import NO_WORDS, make_sample
 from truth_guardian.rag.media import MEDIA_KINDS, Kept, concerns, kind_of, shown
 from truth_guardian.schema import Sample
 from truth_guardian.text import split_sentences
-from truth_guardian.web import contact
+from truth_guardian.web import activity, contact
 from truth_guardian.web.engine import ROOT, Cancelled, Engine, NotChecked
 from truth_guardian.web.documents import MAX_BYTES, SUPPORTED, extract, split
 from truth_guardian.web.examples import Example, ExampleStore, fool_answers
@@ -197,21 +198,39 @@ class AgentRunIn(_Strict):
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a task too short to tell its own")
 
 
-def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict]) -> StreamingResponse:
+def _stream(work: Callable[[Callable[[dict], None], threading.Event], dict], log: activity.ActivityLog | None = None, kind: str = "", head: str = "") -> StreamingResponse:
     """Run work in a thread; it reports events through its first argument and returns the final result. The second
-    argument is set when the client disconnects, so the checks it queued are dropped."""
+    argument is set when the client disconnects, so the checks it queued are dropped. With a log, its start, each stage,
+    its result and any error become rows of the activity log (D-210)."""
     events: queue.Queue = queue.Queue()
     cancelled = threading.Event()
+    started = activity.timer()
+    since = lambda: (activity.timer() - started) * 1000
+
+    def emit(event: dict) -> None:
+        events.put(event)
+        if log is not None and (line := activity.stage_line(event)):
+            log.record(kind, "stage", line, ms=since())
 
     def run() -> None:
+        if log is not None:
+            log.record(kind, "start", head)
         try:
-            events.put({"type": "result", **work(events.put, cancelled)})
+            result = work(emit, cancelled)
+            events.put({"type": "result", **result})
+            if log is not None:
+                log.record(kind, "result", activity.summary(result), ms=since())
         except Cancelled:
-            pass
+            if log is not None:
+                log.record(kind, "cancelled", "the page went away before it ran", "error", since())
         except (KeyError, ValueError) as e:
             events.put({"type": "error", "message": str(e).strip("'\"")})
+            if log is not None:
+                log.record(kind, "error", str(e).strip("'\""), "error", since())
         except Exception as e:
             events.put({"type": "error", "message": f"the check failed: {type(e).__name__}"})
+            if log is not None:
+                log.record(kind, "error", f"{type(e).__name__}: {e}", "error", since())
         finally:
             events.put(None)
 
@@ -283,6 +302,26 @@ def create_app(
             sys.modules["truth_guardian.media.vision"].stop()
 
     app = FastAPI(title="Truth Guardian", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json", redoc_url=None)
+    log = activity.ActivityLog(activity.folder(root))
+    log.record("system", "server started", f"engine {engine.state}")
+    # Polled by the page every few seconds; their changes are logged as states (below), not as requests.
+    QUIET = ("/api/health", "/api/online/status", "/api/activity", "/api/ask/generators", "/api/media/status")
+
+    @app.middleware("http")
+    async def every_request(request: Request, call_next):
+        """Each request to the API, with its answer's status and time (D-210); the page's polling is left out."""
+        path = request.url.path
+        if not path.startswith("/api/") or path.startswith(QUIET):
+            return await call_next(request)
+        started = activity.timer()
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            log.record("request", f"{request.method} {path}", type(e).__name__, "error", (activity.timer() - started) * 1000)
+            raise
+        log.record("request", f"{request.method} {path}", f"HTTP {response.status_code}", "error" if response.status_code >= 400 else "ok",
+                   (activity.timer() - started) * 1000)
+        return response
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts())
     if code := os.environ.get("TG_ACCESS_CODE"):
 
@@ -328,7 +367,7 @@ def create_app(
                 store.store(example_id, engine.version, report)
             return {"report": report.model_dump(mode="json"), "seconds": round(time.perf_counter() - started, 2), "cached": False}
 
-        return _stream(work)
+        return _stream(work, log, "check")
 
     def sample_from(body: CheckIn) -> tuple[Sample, str | None]:
         if body.example_id:
@@ -342,7 +381,9 @@ def create_app(
 
     @app.get("/api/health")
     def health() -> dict:
-        return {**engine.info(), "examples": len(store.examples), "agent_examples": len(store.agents), "fool_answers": len(fool)}
+        info = engine.info()
+        log.changed("guardian", info["state"], info.get("model_version") or info.get("error") or "")
+        return {**info, "examples": len(store.examples), "agent_examples": len(store.agents), "fool_answers": len(fool)}
 
     @app.get("/api/examples")
     def examples() -> dict:
@@ -380,7 +421,7 @@ def create_app(
             ]
             return {"original": sample.answer, "answer": healing.answer, "rounds": rounds, "seconds": round(time.perf_counter() - started, 2)}
 
-        return _stream(work)
+        return _stream(work, log, "heal")
 
     @app.post("/api/agent")
     def agent(body: AgentIn) -> StreamingResponse:
@@ -458,7 +499,7 @@ def create_app(
                 "located": located, "cautioned": cautioned, "seconds": round(time.perf_counter() - started, 2),
             }
 
-        return _stream(work)
+        return _stream(work, log, "fool")
 
     @app.get("/api/documents")
     def document_types() -> dict:
@@ -593,7 +634,7 @@ def create_app(
                 entry = books.add(body.name, raw, progress=progress, languages=body.languages, describe=body.describe)
             return {"document": entry._asdict(), "seconds": round(time.perf_counter() - started, 2)}
 
-        return _stream(work)
+        return _stream(work, log, "library")
 
     @app.post("/api/library/read")
     def library_read(body: ShelfFileIn) -> StreamingResponse:
@@ -619,7 +660,7 @@ def create_app(
                 "parts": shown(reading), "seconds": round(time.perf_counter() - started, 2),
             }
 
-        return _stream(work)
+        return _stream(work, log, "reader")
 
     @app.post("/api/library/reviewed")
     def library_reviewed(body: ReviewIn) -> StreamingResponse:
@@ -634,7 +675,7 @@ def create_app(
             entry = books.add_reviewed(body.draft, [Kept(part.index, part.text, part.confirmed) for part in body.parts], progress=progress)
             return {"document": entry._asdict(), "seconds": round(time.perf_counter() - started, 2)}
 
-        return _stream(work)
+        return _stream(work, log, "library")
 
     @app.get("/api/library/documents/{document_id}/picture")
     def library_picture(document_id: int) -> Response:
@@ -687,7 +728,7 @@ def create_app(
             found = run_agent(body.task, books, engine, writer, tuple(body.collections), body.policy, body.language, emit, cancelled)
             return {"answer": found.model_dump(mode="json")}
 
-        return _stream(work)
+        return _stream(work, log, "agent", body.task)
 
     @app.post("/api/ask")
     def ask(body: AskIn) -> StreamingResponse:
@@ -703,7 +744,7 @@ def create_app(
             found = answer(body.question, books, engine, writer, tuple(body.collections), history, body.language, emit, cancelled)
             return {"answer": found.model_dump(mode="json")}
 
-        return _stream(work)
+        return _stream(work, log, "answer", body.question)
 
     @app.get("/api/online/status")
     def online_status() -> dict:
@@ -711,7 +752,9 @@ def create_app(
         that costs, and keeps its answer a minute."""
         from truth_guardian.rag import free
 
-        return free.online_status(root)
+        found = free.online_status(root)
+        log.changed("online", found["state"], " · ".join(found["answer"] + found["search"]))
+        return found
 
     @app.post("/api/ask/free")
     def ask_free(body: AskFreeIn) -> StreamingResponse:
@@ -727,7 +770,7 @@ def create_app(
             found = free.answer_free(body.question, engine, emit, cancelled, root=root)
             return {"answer": found.model_dump(mode="json")}
 
-        return _stream(work)
+        return _stream(work, log, "online", body.question)
 
     @app.get("/api/contact")
     def contact_status() -> dict:
@@ -749,6 +792,27 @@ def create_app(
         except (OSError, smtplib.SMTPException) as e:
             raise HTTPException(502, f"the mail server could not be reached ({type(e).__name__})") from None
         return {"sent": True}
+
+    @app.get("/api/activity")
+    def activity_rows(after: int = 0) -> dict:
+        """The engine's rows newer than `after`, for the page's activity log to follow live (D-210)."""
+        return {"rows": log.since(after)}
+
+    @app.get("/api/activity/download")
+    def activity_download(format: Literal["csv", "json"] = "csv") -> Response:
+        """Every row the engine's log holds, earlier runs included, as a file."""
+        rows = log.everything()
+        stamp = datetime.now().strftime("%Y%m%d-%H%M")
+        if format == "json":
+            return Response(json.dumps(rows, ensure_ascii=False, indent=1), media_type="application/json",
+                            headers={"Content-Disposition": f'attachment; filename="truth-guardian-engine-{stamp}.json"'})
+        return Response(activity.to_csv(rows), media_type="text/csv; charset=utf-8",
+                        headers={"Content-Disposition": f'attachment; filename="truth-guardian-engine-{stamp}.csv"'})
+
+    @app.get("/api/activity/history")
+    def activity_history() -> dict:
+        """The project's history: its decisions (docs/DECISIONS.md) and its commits."""
+        return {"decisions": activity.decisions(root), "commits": activity.commits(root)}
 
     @app.get("/{path:path}", include_in_schema=False)
     def static(path: str) -> FileResponse:

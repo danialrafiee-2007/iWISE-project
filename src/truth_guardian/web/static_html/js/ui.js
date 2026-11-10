@@ -76,6 +76,7 @@
   function setLang(code) {
     if (!find(code) || code === lang) return;
     lang = code;
+    window.TGLog?.log("language", "changed", code);
     try { localStorage.setItem(STORAGE, code); } catch { /* storage unavailable */ }
     apply();
   }
@@ -316,13 +317,14 @@
 
   function go(delta) {
     const next = tour.index + delta;
-    if (next >= STEPS.length) return stopTour();
+    if (next >= STEPS.length) { window.TGLog?.log("tour", "finished"); return stopTour(); }
     tour.index = Math.max(0, next);
     showStep();
   }
 
   function startTour(auto = false) {
     stopTour();
+    window.TGLog?.log("tour", auto ? "played by itself" : "started");
     const layer = document.createElement("div");
     layer.className = "tour-layer";
     layer.innerHTML = `
