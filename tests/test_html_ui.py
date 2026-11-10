@@ -301,3 +301,15 @@ def test_the_code_map_comes_first_and_every_stage_button_opens_real_code():
     shown = (HTML / "js" / "arch-src.js").read_text(encoding="utf-8")
     for key in buttons:
         assert f'"{key}":' in shown, key
+
+
+def test_a_node_opens_the_code_window_and_the_page_behind_it_is_locked():
+    """D-208: a node of the code map opens the same window as the stages' buttons (no side panel), with its role, what
+    it does, its inputs and outputs and its whole code; while any window is open the page behind it does not scroll."""
+    script = (HTML / "js" / "arch-graph.js").read_text(encoding="utf-8")
+    assert "ag-panel" not in script and "showNode(n," in script
+    page = (HTML / "index.html").read_text(encoding="utf-8")
+    for part in ("code-dialog-role", "code-dialog-desc", "code-dialog-io", "data-in", "data-out"):
+        assert part in page[page.index('id="code-dialog"'):], part
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert "html:has(dialog[open]) { overflow: hidden;" in css

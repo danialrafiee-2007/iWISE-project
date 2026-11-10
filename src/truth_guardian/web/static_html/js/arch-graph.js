@@ -1,7 +1,8 @@
 // The Architecture page's live map of the code (D-206), after the AI Engine section of the owner's earlier project:
 // a force-directed graph per part of Truth Guardian (js/arch-data.js). Scroll to zoom, drag the background to pan, drag
-// a node to move it; hovering a node names it, clicking it opens a panel with what it does (in the page's language),
-// its inputs and outputs and its real code (js/arch-src.js). A double-click on the background opens, under it, the
+// a node to move it; hovering a node names it, clicking it opens a window over the page with what it does (in the
+// page's language), its inputs and outputs and its whole real code (js/arch-src.js, D-208). A double-click on the
+// background opens, under it, the
 // graph that explains this graph; on that one a double-click resets the zoom. In the site's colours: modules in deep
 // green, functions in peach, on the warm panel.
 
@@ -41,7 +42,7 @@
     const id = ++gid;
     const { byId, links } = buildLinks(nodes, flow);
 
-    // ---- The page: the graph's box (title, tooltip, legend) and the side panel ----
+    // ---- The page: the graph's box (title, tooltip, legend); a node's code opens in the window over the page ----
     const wrap = el("div", "ag-wrap");
     const graph = el("div", "ag-graph");
     graph.dir = "ltr";
@@ -69,26 +70,13 @@
     graph.appendChild(legend);
     wrap.appendChild(graph);
 
-    const panel = el("aside", "ag-panel");
-    panel.hidden = true;
-    panel.innerHTML = `<button type="button" class="ag-panel-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <h4 dir="ltr"></h4><p class="ag-role"></p><p class="ag-desc" dir="auto"></p>
-      <div class="ag-io"><div><span class="ag-io-h in"></span><ul data-in dir="ltr"></ul></div><div><span class="ag-io-h out"></span><ul data-out dir="ltr"></ul></div></div>
-      <div class="ag-code-wrap"><span class="ag-code-h"></span><span class="ag-file" dir="ltr"></span><pre class="ag-code" dir="ltr"><code></code></pre></div>`;
-    wrap.appendChild(panel);
     mount.appendChild(wrap);
-    const q = (s) => panel.querySelector(s);
 
     // The words in the page's language; called again when the language changes.
     function words() {
       head.innerHTML = `<b>${esc(tr(opts.title))}</b><span>${esc(tr(opts.subtitle))}</span>`;
       legend.innerHTML = `<span><i class="ag-dot hub"></i>${esc(tr("html.ag.module"))}</span><span><i class="ag-dot leaf"></i>${esc(tr("html.ag.function"))}</span><span class="ag-hint">${esc(tr(opts.closable ? "html.ag.hintMeta" : "html.ag.hint"))}</span>`;
       svg.setAttribute("aria-label", tr(opts.title));
-      q(".ag-panel-x").setAttribute("aria-label", tr("team.close"));
-      q(".ag-io-h.in").textContent = tr("html.ag.in");
-      q(".ag-io-h.out").textContent = tr("html.ag.out");
-      q(".ag-code-h").textContent = tr("html.ag.code");
-      if (selected) select(selected);
       if (hovered) hover(hovered);
     }
 
@@ -224,21 +212,13 @@
       } else tip.hidden = true;
       applyClasses();
     }
+    // A click opens the node in the window over the page, as the stages' buttons do; the node stays lit until it closes.
     function select(n) {
       selected = n;
-      q("h4").textContent = n.title;
-      q(".ag-role").textContent = roleOf(n);
-      q(".ag-desc").textContent = tr(`html.ag.${n.id}`);
-      q("[data-in]").innerHTML = (n.in || ["—"]).map((x) => `<li>${esc(x)}</li>`).join("");
-      q("[data-out]").innerHTML = (n.out || ["—"]).map((x) => `<li>${esc(x)}</li>`).join("");
-      q(".ag-file").textContent = n.src ? `src/truth_guardian/${n.src.split(":")[0]}`.replace("src/truth_guardian/js/", "static_html/js/") : "";
-      q("code").textContent = codeOf(n);
-      panel.hidden = false;
-      wrap.classList.add("with-panel");
       applyClasses();
+      showNode(n, () => { selected = null; applyClasses(); });
     }
-    function deselect() { selected = null; panel.hidden = true; wrap.classList.remove("with-panel"); applyClasses(); }
-    q(".ag-panel-x").addEventListener("click", deselect);
+    function deselect() { selected = null; applyClasses(); }
 
     function svgPoint(e) {
       const r = svg.getBoundingClientRect();
@@ -330,7 +310,7 @@
       frame = requestAnimationFrame(loop);
     }
     function stop() { running = false; cancelAnimationFrame(frame); }
-    // When the box changes size (the side panel opens or closes, the window is resized), the physics takes the new
+    // When the box changes size (the window is resized, the page's layout settles), the physics takes the new
     // size and settles the nodes into it again.
     // The whole layout moves with the centre, so the nodes never stay bunched where the old centre was (D-207).
     new ResizeObserver(() => {
@@ -378,23 +358,49 @@
   begin();
   if (window.TG) window.TG.onLang(() => { main?.words(); meta?.words(); });
 
-  // ---- The six stages' function buttons: each opens its real code in a window over the page (D-207), as the
-  // earlier project's catalog did ----
+  // ---- The window over the page (D-207, D-208): a graph node or a stage's function button opens it with the node's
+  // role, what it does, its inputs and outputs and its whole code. While it is open the page behind it is locked (see
+  // style.css): the wheel and the scroll bar move only what is in the window. ----
   const dialog = document.getElementById("code-dialog");
+  const nodeBySrc = {};
+  for (const graph of Object.values(DATA)) for (const n of graph.nodes) if (n.src && !nodeBySrc[n.src]) nodeBySrc[n.src] = n;
+  let onClosed = null;
   function closeCode() {
     if (!dialog?.open || dialog.classList.contains("closing")) return;
-    if (reduced) return dialog.close();
+    const done = () => { dialog.close(); dialog.classList.remove("closing"); onClosed?.(); onClosed = null; };
+    if (reduced) return done();
     dialog.classList.add("closing");
-    setTimeout(() => { dialog.close(); dialog.classList.remove("closing"); }, 320);
+    setTimeout(done, 320);
+  }
+  const fileOf = (src) => `src/truth_guardian/${src.split(":")[0]}`.replace("src/truth_guardian/js/", "src/truth_guardian/web/static_html/js/");
+  const roleName = (n) => tr(n.type === "root" ? "html.ag.core" : n.type === "hub" ? "html.ag.module" : "html.ag.function");
+  function showNode(n, closed) {
+    if (!dialog) return;
+    const q = (s) => dialog.querySelector(s);
+    q(".code-dialog-title").textContent = n.title;
+    q(".code-dialog-role").textContent = roleName(n);
+    q(".code-dialog-desc").textContent = tr(`html.ag.${n.id}`);
+    q(".code-io-h.in").textContent = tr("html.ag.in");
+    q(".code-io-h.out").textContent = tr("html.ag.out");
+    q("[data-in]").innerHTML = (n.in || ["—"]).map((x) => `<li>${esc(x)}</li>`).join("");
+    q("[data-out]").innerHTML = (n.out || ["—"]).map((x) => `<li>${esc(x)}</li>`).join("");
+    q(".code-dialog-io").hidden = false;
+    q(".code-dialog-desc").hidden = false;
+    q(".code-dialog-h").textContent = tr("html.ag.code");
+    q(".ag-file").textContent = n.src ? fileOf(n.src) : "";
+    q("code").textContent = codeOf(n);
+    onClosed = closed || null;
+    if (!dialog.open) dialog.showModal();
+    q(".code-dialog-body").scrollTop = 0;
+    q(".ag-code").scrollTop = 0;
   }
   function openCode(key) {
-    if (!dialog) return;
-    const [file, name] = key.split(":");
-    dialog.querySelector(".code-dialog-title").textContent = /^[A-Z]/.test(name) ? name : `${name}()`;
-    dialog.querySelector(".ag-file").textContent = `src/truth_guardian/${file}`;
-    dialog.querySelector("code").textContent = (window.TG_SRC || {})[key] || tr("html.ag.noCode");
-    if (!dialog.open) dialog.showModal();
-    dialog.querySelector(".ag-code").scrollTop = 0;
+    const known = nodeBySrc[key];
+    if (known) return showNode(known);
+    const name = key.split(":")[1];
+    showNode({ id: "", type: "leaf", title: /^[A-Z]/.test(name) ? name : `${name}()`, src: key });
+    dialog.querySelector(".code-dialog-desc").hidden = true;
+    dialog.querySelector(".code-dialog-io").hidden = true;
   }
   if (dialog) {
     dialog.querySelector(".dialog-x").addEventListener("click", closeCode);

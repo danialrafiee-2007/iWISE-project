@@ -2013,3 +2013,23 @@ button.person-card { text-align: center; padding: 0 16px 18px; }
 .code-dialog-body { display: grid; gap: 8px; max-height: calc(100dvh - 34px); padding: 26px 28px; }
 .code-dialog-title { margin: 0; padding-inline-end: 48px; font: 500 1.2rem "Fraunces TG", Georgia, serif; color: var(--ink); text-align: left; }
 .code-dialog .ag-code { max-height: calc(100dvh - 170px); }
+
+
+/* ---- D-208: a node of the code map opens in the same window as the stages' buttons, its code shown whole; while any
+   window is open over the page, the page behind it is locked and only the window scrolls. The close button sits at
+   the window's corner and the title keeps clear of it on both sides. ---- */
+html:has(dialog[open]) { overflow: hidden; scrollbar-gutter: stable; }
+dialog[open] { overscroll-behavior: contain; }
+.code-dialog-body { overflow-y: auto; overscroll-behavior: contain; align-content: start; }
+.code-dialog-title { padding-inline: 52px; text-align: center; overflow-wrap: anywhere; }
+.code-dialog-role { margin: 0; text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2f7a62; }
+.code-dialog-desc { margin: 0 auto; max-width: 78ch; text-align: center; font-size: 0.95rem; line-height: 1.7; color: var(--ink); }
+.code-dialog-io { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 10px 14px; border: 1px solid #e4ddca; border-radius: 12px; background: rgb(255 253 248 / 0.7); }
+.code-dialog-io[hidden], .code-dialog-desc[hidden] { display: none; }
+.code-dialog-io ul { margin: 4px 0 0; padding: 0; list-style: none; display: grid; gap: 3px; font: 0.8rem ui-monospace, Consolas, monospace; color: var(--ink-soft); overflow-wrap: anywhere; }
+.code-io-h, .code-dialog-h { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.code-io-h.in { color: #1f8f57; }
+.code-io-h.out { color: #c96a2a; }
+.code-dialog-h { color: var(--ink-soft); margin-top: 4px; }
+.code-dialog .ag-code { max-height: none; overflow-x: auto; overflow-y: visible; overscroll-behavior: contain; }
+.ag-wrap, .ag-wrap.with-panel { grid-template-columns: minmax(0, 1fr); }
