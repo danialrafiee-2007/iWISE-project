@@ -757,7 +757,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "The free online service is busy; try again in a minute.",
   "html.free.st.not_found": "Does not exist",
   "html.free.n.gone": "{n} page(s) the model named do not exist (the address answers \"not found\"); the model may have made them up: {urls}",
-  "html.free.n.shut": "{n} page(s) the model named could not be read; the site may keep programs out: {urls}"
+  "html.free.n.shut": "{n} page(s) the model named could not be read; the site may keep programs out: {urls}",
+  "html.chat.hint": "For the Guardian's full report, press “Truth Guardian check”.",
+  "html.free.n.local": "The answer written from the documents did not pass the Guardian's check, so the question was asked online instead."
  },
  "ar": {
   "landing.lead": "لا تفوق إجابة الذكاء الاصطناعي دليلها جودةً. التحدي هو معرفة ما إذا كانت الإجابة موثّقة أم فيها هلوسة، وما مقدار الخطر، وأي أجزائها مشكوك فيها ولماذا؛ يفعل Truth Guardian ذلك للنص، وكذلك للصوت والصور.",
@@ -1509,7 +1511,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "الخدمة المجانية على الإنترنت مشغولة؛ حاول بعد دقيقة.",
   "html.free.st.not_found": "غير موجودة",
   "html.free.n.gone": "{n} صفحة ذكرها النموذج غير موجودة (العنوان يجيب «غير موجود»)؛ ربما اختلقها النموذج: {urls}",
-  "html.free.n.shut": "تعذّرت قراءة {n} صفحة ذكرها النموذج؛ ربما يمنع الموقع البرامج: {urls}"
+  "html.free.n.shut": "تعذّرت قراءة {n} صفحة ذكرها النموذج؛ ربما يمنع الموقع البرامج: {urls}",
+  "html.chat.hint": "لتقرير الحارس الكامل، اضغط «Truth Guardian check».",
+  "html.free.n.local": "لم تجتز الإجابة المكتوبة من المستندات فحص الحارس، لذا طُرح السؤال على الإنترنت بدلًا منها."
  },
  "zh": {
   "landing.lead": "AI 的回答好坏取决于其证据。本挑战要判断回答是有依据还是存在幻觉、风险有多大、哪些部分可疑以及原因；Truth Guardian 对文本做到这一点，也对声音和图像做到。",
@@ -2261,7 +2265,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "免费在线服务繁忙，请一分钟后再试。",
   "html.free.st.not_found": "不存在",
   "html.free.n.gone": "模型提到的 {n} 个网页不存在（地址返回“未找到”），可能是模型编造的：{urls}",
-  "html.free.n.shut": "模型提到的 {n} 个网页无法读取，网站可能拒绝程序访问：{urls}"
+  "html.free.n.shut": "模型提到的 {n} 个网页无法读取，网站可能拒绝程序访问：{urls}",
+  "html.chat.hint": "要查看守护者的完整报告，请按“Truth Guardian check”。",
+  "html.free.n.local": "根据文档写出的回答没有通过守护者的核查，因此改为在线提问。"
  },
  "fr": {
   "landing.lead": "La réponse d'une IA ne vaut que par ses preuves. Le défi consiste à dire si une réponse est fondée ou hallucinée, quel est le risque, quelles parties sont suspectes et pourquoi ; Truth Guardian le fait pour le texte, et aussi pour le son et les images.",
@@ -3017,7 +3023,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "Le service gratuit en ligne est occupé ; réessayez dans une minute.",
   "html.free.st.not_found": "N'existe pas",
   "html.free.n.gone": "{n} page(s) citée(s) par le modèle n'existent pas (l'adresse répond « introuvable ») ; le modèle les a peut-être inventées : {urls}",
-  "html.free.n.shut": "{n} page(s) citée(s) par le modèle n'ont pas pu être lues ; le site bloque peut-être les programmes : {urls}"
+  "html.free.n.shut": "{n} page(s) citée(s) par le modèle n'ont pas pu être lues ; le site bloque peut-être les programmes : {urls}",
+  "html.chat.hint": "Pour le rapport complet du Gardien, appuyez sur « Truth Guardian check ».",
+  "html.free.n.local": "La réponse écrite à partir des documents n'a pas passé la vérification du Gardien ; la question a donc été posée en ligne."
  },
  "ru": {
   "landing.lead": "Ответ ИИ хорош ровно настолько, насколько хороши его доказательства. Задача — определить, обоснован ли ответ или это галлюцинация, насколько велик риск, какие части подозрительны и почему; Truth Guardian делает это для текста, а также для звука и изображений.",
@@ -3773,7 +3781,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "Бесплатный онлайн-сервис занят; попробуйте через минуту.",
   "html.free.st.not_found": "Не существует",
   "html.free.n.gone": "{n} страниц(ы), названные моделью, не существуют (адрес отвечает «не найдено»); возможно, модель их выдумала: {urls}",
-  "html.free.n.shut": "{n} страниц(ы), названные моделью, не удалось прочитать; сайт может не пускать программы: {urls}"
+  "html.free.n.shut": "{n} страниц(ы), названные моделью, не удалось прочитать; сайт может не пускать программы: {urls}",
+  "html.chat.hint": "Полный отчёт Стража — по кнопке «Truth Guardian check».",
+  "html.free.n.local": "Ответ по документам не прошёл проверку Стража, поэтому вопрос задан онлайн."
  },
  "es": {
   "landing.lead": "La respuesta de una IA vale lo que vale su evidencia. El reto es saber si una respuesta está fundamentada o contiene una alucinación, cuánto riesgo tiene, qué partes son sospechosas y por qué; Truth Guardian lo hace con el texto, y también con sonido e imágenes.",
@@ -4529,7 +4539,9 @@ window.TG_MESSAGES = {
   "html.free.busy": "El servicio gratuito en línea está ocupado; inténtalo de nuevo en un minuto.",
   "html.free.st.not_found": "No existe",
   "html.free.n.gone": "{n} página(s) que nombró el modelo no existen (la dirección responde «no encontrada»); quizá el modelo las inventó: {urls}",
-  "html.free.n.shut": "No se pudieron leer {n} página(s) que nombró el modelo; quizá el sitio no deja entrar a los programas: {urls}"
+  "html.free.n.shut": "No se pudieron leer {n} página(s) que nombró el modelo; quizá el sitio no deja entrar a los programas: {urls}",
+  "html.chat.hint": "Para el informe completo del Guardián, pulsa «Truth Guardian check».",
+  "html.free.n.local": "La respuesta escrita a partir de los documentos no pasó la comprobación del Guardián, así que la pregunta se hizo en línea."
  },
  "fa": {
   "landing.lead": "پاسخ هوش مصنوعی فقط به اندازهٔ شاهدش درست است. چالش این است که معلوم شود پاسخ مستند است یا توهم، خطرش چقدر است، کدام بخش‌ها مشکوک‌اند و چرا؛ Truth Guardian این کار را برای متن، و افزون بر آن برای صدا و تصویر انجام می‌دهد.",
@@ -5281,6 +5293,8 @@ window.TG_MESSAGES = {
   "html.free.busy": "سرویس آنلاین رایگان شلوغ است؛ یک دقیقهٔ دیگر دوباره بپرسید.",
   "html.free.st.not_found": "وجود ندارد",
   "html.free.n.gone": "{n} صفحه که مدل نام برده بود وجود ندارد (نشانی «پیدا نشد» می‌دهد)؛ شاید مدل آن را ساخته باشد: {urls}",
-  "html.free.n.shut": "{n} صفحه که مدل نام برده بود خوانده نشد؛ شاید آن سایت به برنامه‌ها اجازهٔ ورود ندهد: {urls}"
+  "html.free.n.shut": "{n} صفحه که مدل نام برده بود خوانده نشد؛ شاید آن سایت به برنامه‌ها اجازهٔ ورود ندهد: {urls}",
+  "html.chat.hint": "برای گزارش کامل نگهبان، دکمهٔ «Truth Guardian check» را بزنید.",
+  "html.free.n.local": "پاسخی که از روی اسناد نوشته شد در بررسی نگهبان قبول نشد؛ برای همین پرسش به‌صورت آنلاین پرسیده شد."
  }
 };

@@ -198,6 +198,7 @@
     [/^the model named no page for its answer$/, () => tr("html.free.n.noPage")],
     [/^no source was found to check it against$/, () => tr("html.free.n.noSource")],
     [/^the free model wrote no answer$/, () => tr("html.free.n.noAnswer")],
+    [/^the answer written from the documents did not pass the Guardian's check/, () => tr("html.free.n.local")],
   ];
   function noteText(note) {
     for (const [pattern, say] of NOTES) {
@@ -228,17 +229,22 @@
       box.innerHTML = `${online}<p class="msg-off">${esc((a.notes || []).map((n) => noteText(n).text).join(" · ") || tr("html.chat.error", { error: "" }))}</p>`;
       return;
     }
-    // The answer and, under it, the Guardian's report, short: the verdict, the answer with each claim coloured (a click
-    // on a claim shows its evidence, action and fix), then the sources with their labels. Its whole report opens under
-    // the chat with "Truth Guardian check".
+    // The answer alone, as in a chat (D-198): the Guardian's report, the sources and their labels open under the chat
+    // with "Truth Guardian check", never inside the bubble.
     box.innerHTML = `
       ${online}
-      <div class="report-head"><span class="report-title">${esc(tr("html.chat.report"))}</span><span class="status-tag ${a.status}">${esc(tr(STATUS[a.status] || a.status))}</span></div>
-      ${a.report ? "" : `<p class="msg-text" dir="auto">${esc(a.text)}</p>`}
-      <div class="chat-report"></div>
-      ${lightHTML(a)}
-      ${sourcesHTML(a)}`;
-    if (a.report && window.TGReport) window.TGReport.render(box.querySelector(".chat-report"), a, { compact: true });
+      <p class="msg-text" dir="auto">${esc(a.text)}</p>
+      <p class="msg-hint">${esc(tr("html.chat.hint"))}</p>`;
+  }
+
+  // An answer written from the documents that the Guardian's own check does not trust: a hallucination verdict, or half
+  // or more of its sentences doubtful under the light check. It is not shown; the question goes online instead (D-198).
+  function untrusted(a) {
+    if (a.status === "light") {
+      const doubtful = (a.light || []).filter((l) => l.status === "doubtful").length;
+      return (a.light || []).length > 0 && doubtful * 2 >= a.light.length;
+    }
+    return a.status === "checked" && a.report?.verdict === "hallucinated";
   }
 
   // ---- "Truth Guardian check": the last answer's full report, under the chat on this page ----
@@ -300,15 +306,13 @@
     try {
       let written = "";
       const result = await stream("/api/ask", { question, history: history.slice(-8), language: lang() }, (event) => {
-        if (event.type === "text") {
-          written = event.text;
-          box.innerHTML = `<p class="msg-text streaming">${esc(written)}</p>`;
-        }
+        if (event.type === "text") written = event.text; // kept back until the Guardian has checked it
       });
       let a = result.answer;
       // Not in the documents: the question goes to a free online model, and its answer comes back checked by the
       // project's own models against the pages it named and sources the Guardian found (/api/ask/free). Each step is told.
-      if (a.status === "not_in_documents") {
+      const rejected = untrusted(a);
+      if (a.status === "not_in_documents" || rejected) {
         // The model's answer is shown the moment it comes; the Guardian's steps go on under it until its report is ready.
         let said = "";
         const status = (text) => { box.innerHTML = `${said ? `<p class="msg-text" dir="auto">${esc(said)}</p>` : ""}<p class="thinking">${esc(text)}</p>`; };
@@ -329,6 +333,7 @@
             if (event.stage === "check") status(tr("html.free.checking"));
           });
           a = online.answer;
+          if (rejected) a = { ...a, notes: ["the answer written from the documents did not pass the Guardian's check, so the question was asked online", ...(a.notes || [])] };
         } finally {
           clearInterval(countdown);
         }

@@ -889,6 +889,8 @@ a.pop-item { text-decoration: none; }
 .msg.note { justify-self: center; max-width: 100%; font-size: 0.8rem; color: #2f7a62; }
 .msg.note.bad { color: #8f1f1f; }
 .msg-text { margin: 0; white-space: pre-wrap; }
+/* Under an answer in the chat: where its Guardian report is (D-198). */
+.msg-hint { margin: 8px 0 0; font-size: 0.78rem; color: var(--ink-soft); }
 .thinking { margin: 0; color: var(--ink-soft); animation: content-in 900ms ease-in-out infinite alternate; }
 .msg-off { margin: 8px 0 0; padding: 8px 12px; border-radius: 12px; background: rgb(230 152 109 / 0.14); color: #6b3416; font-size: 0.86rem; }
 .online-tag {

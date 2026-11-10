@@ -174,3 +174,11 @@ def test_the_chat_goes_to_the_free_online_answer_and_shows_the_full_report_below
     assert 'id="chat-full"' in (HTML / "index.html").read_text(encoding="utf-8")
     server = (ROOT / "src" / "truth_guardian" / "web" / "app.py").read_text(encoding="utf-8")
     assert '"/api/ask/free"' in server and '"/api/ask/web"' not in server
+
+
+def test_the_chat_bubble_shows_the_answer_alone_and_an_untrusted_documents_answer_goes_online():
+    """D-198: the Guardian's report is under the chat only; a documents' answer the check does not trust is not shown."""
+    chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
+    bubble = chat[chat.index("  function showAnswer(box, a) {"):chat.index("  function untrusted(a) {")]
+    assert "TGReport.render" not in bubble and "sourcesHTML" not in bubble and "msg-hint" in bubble
+    assert "function untrusted(a)" in chat and 'a.status === "not_in_documents" || rejected' in chat
