@@ -2095,3 +2095,9 @@ dialog[open] { overscroll-behavior: contain; }
 /* Not over the opening: the button comes in with the site. */
 body:not(.entered) .log-fab { opacity: 0; pointer-events: none; }
 .log-fab { transition: transform 160ms, box-shadow 160ms, opacity 400ms; }
+
+/* Right-to-left pages (Persian, Arabic) put the rail on the right: the activity log's button then goes to the bottom
+   left, and its count to its other side, so it never sits on the rail (D-212). */
+:root[dir="rtl"] .log-fab { right: auto; left: 22px; }
+:root[dir="rtl"] .log-fab-n { right: auto; left: -4px; }
+@media (max-width: 720px) { :root[dir="rtl"] .log-fab { right: auto; left: 14px; } }

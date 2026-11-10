@@ -348,3 +348,11 @@ def test_the_activity_log_button_window_and_the_site_records():
     strings = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
     for key in ("html.log.title", "html.log.tab.engine", "html.log.tab.history", "html.log.csv", "html.log.empty.site"):
         assert strings.count(f'"{key}"') == 7, key
+
+
+def test_the_activity_log_button_moves_off_the_rail_on_right_to_left_pages():
+    """D-212: in Persian and Arabic the rail is on the right, so the log's button goes to the bottom left and its count
+    to its other side."""
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert ':root[dir="rtl"] .log-fab { right: auto; left: 22px; }' in css
+    assert ':root[dir="rtl"] .log-fab-n { right: auto; left: -4px; }' in css
