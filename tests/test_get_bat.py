@@ -162,6 +162,7 @@ def test_one_run_downloads_unpacks_frees_the_parts_makes_the_shortcut_and_starts
 
     offline = get(drive, OFFLINE, tmp_path, "\n")
     assert offline.returncode == 0 and "No connection to GitHub" in offline.stdout and "STARTED" in offline.stdout
+    assert "curl:" not in offline.stdout + offline.stderr  # its own words say it, not curl's
 
 
 @windows
@@ -192,3 +193,13 @@ def test_without_internet_a_download_not_finished_says_to_connect_and_run_again(
     os.remove(os.path.join(packages, sorted(n for n in os.listdir(packages) if n.endswith(".zip"))[-1]))
     stopped = get(drive, OFFLINE, tmp_path, "\nn\nn\n")
     assert stopped.returncode == 1 and "not finished" in stopped.stdout and "STARTED" not in stopped.stdout
+
+
+@windows
+def test_the_size_is_told_rounded_as_people_read_it(drive, release, tmp_path):
+    """D-217: 5134 MB is "about 5 GB" in what the file says (the room it asks for is still rounded up)."""
+    served = tmp_path / "release" / "package.txt"
+    served.write_bytes(served.read_bytes().replace(b"TOTAL_MB=1\r\n", b"TOTAL_MB=5134\r\n"))
+    done = get(drive, release, tmp_path, f"{drive}\nn\nn\n")
+    assert done.returncode == 0 and "about 5 GB" in done.stdout and "about 6 GB" not in done.stdout, done.stdout
+    assert "of 5.0 GB" in done.stdout

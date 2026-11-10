@@ -107,7 +107,10 @@ if not defined BUILD goto no_release
 if not defined PARTS goto no_release
 if not defined NEED_GB set "NEED_GB=0"
 if not defined TOTAL_MB set /a TOTAL_MB=PARTS * 2048
-set /a SIZE_GB=(TOTAL_MB + 1023) / 1024
+rem The size as people read it (rounded), and rounded up for the room it needs.
+set /a SIZE_GB=(TOTAL_MB + 512) / 1024
+if %SIZE_GB% LSS 1 set "SIZE_GB=1"
+set /a SIZE_UP=(TOTAL_MB + 1023) / 1024
 echo   Version %BUILD%: %PARTS% parts, about %SIZE_GB% GB.
 echo.
 
@@ -120,7 +123,7 @@ goto start
 :room
 rem ---- 3. Room for what is still to download and for unpacking ----
 call :measure
-set /a NEED_ALL=SIZE_GB - DONE_GB + NEED_GB
+set /a NEED_ALL=SIZE_UP - DONE_GB + NEED_GB
 set "FREE_GB="
 for /f %%g in ('%PS% "[math]::Floor((New-Object IO.DriveInfo('%DRIVE%')).AvailableFreeSpace/1GB)" ^<nul') do set "FREE_GB=%%g"
 if not defined FREE_GB goto questions
@@ -188,7 +191,7 @@ exit /b 0
 
 rem :fetch name : a small file of the release, fetched again each time (the release may be newer), as name.new.
 :fetch
-"%CURL%" -fsSL --retry 2 --retry-delay 2 --connect-timeout 10 -o "%PACKAGES%\%~1.new" "%BASE%/%~1"
+"%CURL%" -fsL --retry 2 --retry-delay 2 --connect-timeout 10 -o "%PACKAGES%\%~1.new" "%BASE%/%~1" 2>nul
 exit /b %errorlevel%
 
 rem :measure : the bytes of this version's parts already here (whole or begun), in GB too, and the time.
@@ -201,7 +204,7 @@ exit /b 0
 
 rem :overall : how much of the whole download is here, and from the speed so far, how long the rest takes.
 :overall
-%PS% "%C%; $s=(Get-ChildItem -LiteralPath $env:PACKAGES -File | Where-Object { $_.Name -like ('truth-guardian-*-of-'+$env:PARTS+'.zip*') } | Measure-Object Length -Sum).Sum; if (-not $s) { $s=0 }; $t=[double]$env:TOTAL_MB*1MB; if ($t -le 0) { exit }; $line=[string]::Format($c, '  Overall: {0:N1} of {1:N1} GB ({2:N0}%%)', ($s/1GB), ($t/1GB), [math]::Min(100, 100*$s/$t)); $new=$s-[double]$env:DONE0; $sec=[DateTimeOffset]::Now.ToUnixTimeSeconds()-[long]$env:T0; if ($new -gt 20MB -and $sec -gt 3 -and $s -lt $t) { $r=$new/$sec; $m=[math]::Max(1, [math]::Ceiling(($t-$s)/$r/60)); if ($m -ge 60) { $left=[string]::Format($c, '{0} h {1} min', [math]::Floor($m/60), $m %% 60) } else { $left=[string]::Format($c, '{0} min', $m) }; $line+=[string]::Format($c, ', {0:N1} MB/s, about {1} left', ($r/1MB), $left) }; $line" <nul
+%PS% "%C%; $s=(Get-ChildItem -LiteralPath $env:PACKAGES -File | Where-Object { $_.Name -like ('truth-guardian-*-of-'+$env:PARTS+'.zip*') } | Measure-Object Length -Sum).Sum; if (-not $s) { $s=0 }; $t=[double]$env:TOTAL_MB*1MB; if ($t -le 0) { exit }; $line=[string]::Format($c, '  Overall: {0:N1} of {1:N1} GB ({2:N0}%%)', ($s/1GB), ($t/1GB), [math]::Min(100, 100*$s/$t)); $new=$s-[double]$env:DONE0; $sec=[DateTimeOffset]::Now.ToUnixTimeSeconds()-[long]$env:T0; if ($new -gt 20MB -and $sec -gt 3 -and ($t-$s) -gt 2MB) { $r=$new/$sec; $m=[math]::Max(1, [math]::Ceiling(($t-$s)/$r/60)); if ($m -ge 60) { $left=[string]::Format($c, '{0} h {1} min', [math]::Floor($m/60), $m %% 60) } else { $left=[string]::Format($c, '{0} min', $m) }; $line+=[string]::Format($c, ', {0:N1} MB/s, about {1} left', ($r/1MB), $left) }; $line" <nul
 exit /b 0
 
 rem :part hash name : one part, skipped when it is already here and checks; else downloaded (resuming a broken

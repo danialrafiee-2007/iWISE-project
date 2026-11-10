@@ -42,7 +42,7 @@ set "MODE=start"
 set "PORT=8765"
 set "BROWSER="
 set "PAUSE_AT_END=0"
-echo %cmdcmdline% | find /i "%~nx0" >nul && set "PAUSE_AT_END=1"
+echo %cmdcmdline% | "%SystemRoot%\System32\find.exe" /i "%~nx0" >nul && set "PAUSE_AT_END=1"
 
 :parse
 if "%~1"=="" goto parsed

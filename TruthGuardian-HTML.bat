@@ -35,6 +35,6 @@ if "%OPEN%"=="1" start "" /min powershell -NoProfile -ExecutionPolicy Bypass -Wi
 call "%HERE%TruthGuardian.bat" --port 8766 --no-browser%PASS%
 set "RC=%errorlevel%"
 if "%RC%"=="0" goto end
-echo %cmdcmdline% | find /i "%~nx0" >nul && pause
+echo %cmdcmdline% | "%SystemRoot%\System32\find.exe" /i "%~nx0" >nul && pause
 :end
 endlocal & exit /b %RC%
