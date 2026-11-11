@@ -91,8 +91,8 @@ HF_HUB_OFFLINE=1 uv run --offline python scripts/export_onnx.py
 
 ## Web app
 
-`TruthGuardian.bat` starts it on http://127.0.0.1:8765 and opens the browser (`TruthGuardian-HTML.bat` opens the same
-site full screen on port 8766); the models load and warm up in the background (about a minute on the project laptop):
+`TruthGuardian.bat` starts it on http://127.0.0.1:8765 and opens the browser; the models load and warm up in the
+background (about a minute on the project laptop):
 
 ```bash
 uv run --offline python -m truth_guardian.web

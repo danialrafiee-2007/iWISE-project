@@ -49,6 +49,8 @@ def test_the_repository_keeps_every_batch_file_with_crlf_line_ends():
         pytest.skip("no git repository here")
     names = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.bat"], capture_output=True, text=True, check=True).stdout.split()
     assert "Get-Truth-Guardian.bat" in names
+    # D-221: three batch files, each with its own job: the judges' download, the app's launcher, the package's starter.
+    assert sorted(names) == ["Get-Truth-Guardian.bat", "TruthGuardian.bat", "deploy/portable/Start-Truth-Guardian.bat"]
     for name in names:
         stored = subprocess.run(["git", "-C", str(ROOT), "show", f":{name}"], capture_output=True, check=True).stdout
         assert stored.count(b"\r\n") == stored.count(b"\n") > 0, name
