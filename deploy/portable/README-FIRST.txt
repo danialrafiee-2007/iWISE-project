@@ -3,7 +3,7 @@ Hallucination detection for RAG and agent answers. iWISE 2026, AI Challenge 4. B
 
 TO RUN IT
   Downloaded with Get-Truth-Guardian.bat: it has done everything and opened the app. Later, double-click the
-  Truth Guardian shortcut on the desktop (if you asked for one) or Start-Truth-Guardian.bat in this folder.
+  Truth Guardian shortcut on the desktop (if you asked for one) or TruthGuardian.bat in the TruthGuardian folder.
 
   Received as a copied folder:
     1. Copy this whole folder to your computer.
@@ -43,7 +43,7 @@ GOOD TO KNOW
 
 اجرا
   اگر با Get-Truth-Guardian.bat دانلود کرده‌اید، همه‌ی کارها انجام شده و برنامه باز شده است. دفعه‌های بعد روی میانبر
-  Truth Guardian روی دسکتاپ (اگر ساخته‌اید) یا روی Start-Truth-Guardian.bat در همین پوشه دوبار کلیک کنید.
+  Truth Guardian روی دسکتاپ (اگر ساخته‌اید) یا روی TruthGuardian.bat در پوشه‌ی TruthGuardian دوبار کلیک کنید.
 
   اگر این پوشه را کپی‌شده دریافت کرده‌اید:
     ۱. تمام این پوشه را روی کامپیوتر خود کپی کنید.

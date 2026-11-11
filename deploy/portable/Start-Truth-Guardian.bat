@@ -1,8 +1,9 @@
 @echo off
 rem Truth Guardian, the ready-made package: one double-click, no internet, nothing installed in Windows.
-rem The first time this unpacks packages\ into one folder; afterwards the app starts at once. Where it unpacked goes into
-rem packages\unpacked-BUILD.txt, so that Get-Truth-Guardian.bat knows the app is ready and the downloaded parts can go
-rem (D-217); with TG_UNPACK_ONLY set it only unpacks, for Get-Truth-Guardian.bat to finish its own steps first.
+rem For a package received as a whole folder (a copy, a USB drive): the first time this unpacks packages\ into one
+rem folder; afterwards the app starts at once. Where it unpacked goes into packages\unpacked-BUILD.txt; with
+rem TG_UNPACK_ONLY set it only unpacks. Judges who download Get-Truth-Guardian.bat never meet this file: that one
+rem unpacks and starts TruthGuardian.bat by itself (D-224).
 
 setlocal EnableExtensions DisableDelayedExpansion
 chcp 65001 >nul

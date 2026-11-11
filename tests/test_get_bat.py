@@ -25,10 +25,12 @@ def test_the_download_file_asks_for_a_drive_and_makes_its_folder_there():
 def test_it_downloads_the_latest_release_checks_every_part_and_starts_the_package():
     text = BAT.read_text(encoding="utf-8")
     assert re.search(r'set "BASE=https://github\.com/%REPO%/releases/latest/download"', text)
-    for name in ("package.txt", "SHA256SUMS.txt", "Start-Truth-Guardian.bat", "README-FIRST.txt"):
+    for name in ("package.txt", "SHA256SUMS.txt", "README-FIRST.txt"):
         assert f'call :fetch "{name}"' in text, name
     assert "Get-FileHash -Algorithm SHA256" in text and "-C -" in text  # every part checked; broken downloads resume
-    assert r'call "%ROOT%\Start-Truth-Guardian.bat"' in text
+    # D-224: it unpacks the parts itself and runs the project's own launcher; the judges meet these two files only.
+    assert r'"%TAR%" -xf "%PART%" -C "%APP%"' in text and r'call "%APP%\TruthGuardian.bat" %*' in text
+    assert "Start-Truth-Guardian" not in text
 
 
 def test_it_installs_nothing_and_keeps_windows_line_endings():
@@ -106,7 +108,7 @@ def release(tmp_path, monkeypatch):
     builder.build(install, out, limit=1500)
     served = tmp_path / "release"
     served.mkdir()
-    for path in [*(out / "packages").iterdir(), out / builder.STARTER, out / builder.GUIDE]:
+    for path in [*(out / "packages").iterdir(), out / builder.GUIDE]:  # no starter: the release no longer carries it (D-224)
         shutil.copyfile(path, served / path.name)
 
     class Quiet(http.server.SimpleHTTPRequestHandler):
@@ -155,11 +157,12 @@ def test_one_run_downloads_unpacks_frees_the_parts_makes_the_shortcut_and_starts
     assert not [name for name in os.listdir(packages) if name.endswith((".zip", ".part"))]  # about 5 GB back
     assert os.path.isfile(os.path.join(packages, "package.txt")) and os.path.isfile(os.path.join(root, "Get-Truth-Guardian.bat"))
     link = tmp_path / "desktop" / "Truth Guardian.lnk"
-    assert link.is_file() and shortcut_target(link).lower() == os.path.join(root, "Start-Truth-Guardian.bat").lower()
+    assert link.is_file() and shortcut_target(link).lower() == os.path.join(root, "TruthGuardian", "TruthGuardian.bat").lower()
+    assert all(not name.startswith("unpacked-") for name in os.listdir(packages))  # the notes live in the project now
 
     again = get(drive, release, tmp_path, "\n")
     assert any(line.strip().startswith(f"{drive}:") and "already here" in line for line in again.stdout.splitlines()), again.stdout
-    assert again.returncode == 0 and "already unpacked" in again.stdout and "STARTED" in again.stdout
+    assert again.returncode == 0 and "already set up" in again.stdout and "STARTED" in again.stdout
     assert "Downloading" not in again.stdout and "Two questions" not in again.stdout
 
     offline = get(drive, OFFLINE, tmp_path, "\n")

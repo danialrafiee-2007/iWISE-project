@@ -1,13 +1,14 @@
 @echo off
-rem Truth Guardian: download the whole project and run it, with one double-click (D-213, D-217).
+rem Truth Guardian: download the whole project, set it up and run it, with one double-click (D-213, D-217, D-224).
 rem
 rem It asks which drive to use, makes the folder "iWISE_Truth Guardian" there and downloads the latest ready-made package
 rem from the project's GitHub Releases: the whole source code with its tests and documents, Python with every package,
 rem and every model (the Guardian's, the word detector, HHEM, Qwen3-VL-2B, Whisper Small, Tesseract, E5, mDeBERTa).
 rem All its questions come first (the drive, whether to delete the downloaded parts once they are unpacked, whether to
 rem put a shortcut on the desktop), so the rest runs on its own. Each part is checked against its SHA-256 before use, a
-rem broken download resumes where it stopped, and the whole download's progress is shown with the time left. Then the
-rem package unpacks itself and the app opens in the browser, offline.
+rem broken download resumes where it stopped, and the whole download's progress is shown with the time left. Then it
+rem unpacks the parts into the folder's TruthGuardian folder and runs the project there with TruthGuardian.bat, which
+rem opens the app in the browser, offline. The desktop shortcut runs TruthGuardian.bat too.
 rem Run again, it finds its folder, skips what is done and starts the app; without internet it starts the copy already
 rem on this computer. It installs nothing in Windows and needs no administrator; outside its folder it writes only the
 rem desktop shortcut, and only when asked to.
@@ -33,12 +34,10 @@ set "CURL=%SystemRoot%\System32\curl.exe"
 set "TAR=%SystemRoot%\System32\tar.exe"
 set "PS=powershell -NoProfile -ExecutionPolicy Bypass -Command"
 set "C=$c=[Globalization.CultureInfo]::InvariantCulture"
-rem In PowerShell, $a = where the app is unpacked: the starter's note in packages\unpacked-BUILD.txt, else beside it.
-set "APP_PS=$m=Join-Path $env:PACKAGES ('unpacked-'+$env:BUILD+'.txt'); $a=Join-Path $env:ROOT 'TruthGuardian'; if (Test-Path -LiteralPath $m) { $n=(Get-Content -LiteralPath $m -Encoding UTF8 -TotalCount 1).Trim(); if (Test-Path -LiteralPath (Join-Path $n ('runtime\unpacked-'+$env:BUILD+'.txt'))) { $a=$n } }"
 
 echo.
 echo   Truth Guardian: hallucination detection for RAG and agent answers
-echo   This downloads the whole project (source code and models) and runs it on this computer.
+echo   This downloads the whole project (source code and models), sets it up and runs it on this computer.
 echo.
 
 if not exist "%CURL%" goto old_windows
@@ -65,6 +64,8 @@ set "DRIVE=%DRIVE:~0,1%"
 if not exist "%DRIVE%:\" goto drive_missing
 set "ROOT=%DRIVE%:\%FOLDER%"
 set "PACKAGES=%ROOT%\packages"
+rem The project, unpacked: TruthGuardian.bat in it runs it.
+set "APP=%ROOT%\TruthGuardian"
 if not exist "%PACKAGES%" mkdir "%PACKAGES%" 2>nul
 if not exist "%PACKAGES%" goto drive_readonly
 echo.
@@ -78,12 +79,10 @@ echo   Reading the latest release...
 set "ONLINE=1"
 call :fetch "package.txt" || set "ONLINE="
 if defined ONLINE call :fetch "SHA256SUMS.txt" || set "ONLINE="
-if defined ONLINE call :fetch "Start-Truth-Guardian.bat" || set "ONLINE="
 if defined ONLINE call :fetch "README-FIRST.txt" || set "ONLINE="
 if not defined ONLINE goto offline
 move /y "%PACKAGES%\package.txt.new" "%PACKAGES%\package.txt" >nul
 move /y "%PACKAGES%\SHA256SUMS.txt.new" "%PACKAGES%\SHA256SUMS.txt" >nul
-move /y "%PACKAGES%\Start-Truth-Guardian.bat.new" "%ROOT%\Start-Truth-Guardian.bat" >nul
 move /y "%PACKAGES%\README-FIRST.txt.new" "%ROOT%\README-FIRST.txt" >nul
 goto read_package
 :offline
@@ -92,7 +91,6 @@ echo   No connection to GitHub: using what is already on this computer.
 :read_package
 if not exist "%PACKAGES%\package.txt" goto no_release
 if not exist "%PACKAGES%\SHA256SUMS.txt" goto no_release
-if not exist "%ROOT%\Start-Truth-Guardian.bat" goto no_release
 set "BUILD="
 set "PARTS="
 set "NEED_GB="
@@ -115,9 +113,8 @@ echo   Version %BUILD%: %PARTS% parts, about %SIZE_GB% GB.
 echo.
 
 rem Already unpacked: start at once.
-call :installed
-if not "%INSTALLED%"=="yes" goto room
-echo   This version is already unpacked on this computer.
+if not exist "%APP%\runtime\unpacked-%BUILD%.txt" goto room
+echo   This version is already set up on this computer.
 goto start
 
 :room
@@ -160,34 +157,47 @@ call :overall
 echo   All %PARTS% parts are here and checked.
 echo.
 
-rem ---- 6. Unpack, then what was asked ----
-set "TG_UNPACK_ONLY=1"
-call "%ROOT%\Start-Truth-Guardian.bat"
-set "RC=%errorlevel%"
-set "TG_UNPACK_ONLY="
-if not "%RC%"=="0" exit /b 1
+rem ---- 6. Unpack every part into the TruthGuardian folder, once; a part already unpacked is noted and skipped ----
+if not exist "%APP%" mkdir "%APP%" 2>nul
+if not exist "%APP%" goto cannot_unpack
+echo   Unpacking into %APP%
+echo   This happens once and needs no internet. Please keep this window open.
+rem Windows' tar is given each part by its name alone, from inside the packages folder.
+pushd "%PACKAGES%"
+set "N=0"
+:unpack_next
+set /a N+=1
+if %N% GTR %PARTS% goto unpacked
+set "PART=truth-guardian-%N%-of-%PARTS%.zip"
+if exist "%APP%\runtime\unpacked-%BUILD%-%N%.txt" goto unpack_next
+echo   Part %N% of %PARTS%
+"%TAR%" -xf "%PART%" -C "%APP%"
+if errorlevel 1 goto part_damaged
+if not exist "%APP%\runtime" mkdir "%APP%\runtime"
+>"%APP%\runtime\unpacked-%BUILD%-%N%.txt" echo %PART%
+goto unpack_next
+:unpacked
+popd
+>"%APP%\runtime\unpacked-%BUILD%.txt" echo %BUILD%
+echo   Unpacked.
+echo.
 if "%CLEAN%"=="Y" call :clean
 if "%LINK%"=="Y" call :shortcut
 
 :start
-rem ---- 7. Run ----
+rem ---- 7. Run: TruthGuardian.bat in the project builds its Python environment the first time and opens the app ----
+if not exist "%APP%\TruthGuardian.bat" goto part_damaged
 echo.
-echo   Next time, start it with Start-Truth-Guardian.bat in %ROOT%
-echo   or the desktop shortcut, if there is one; no internet is needed. This file starts it too, and gets a newer
-echo   version when there is one.
+echo   Next time, double-click the Truth Guardian shortcut on the desktop, if there is one, or TruthGuardian.bat in
+echo   %APP%
+echo   No internet is needed. This file starts it too, and gets a newer version when there is one.
 echo.
-call "%ROOT%\Start-Truth-Guardian.bat" %*
-exit /b %errorlevel%
+call "%APP%\TruthGuardian.bat" %*
+if errorlevel 1 goto app_failed
+exit /b 0
 
 
 rem ======== helpers ========
-
-rem :installed : INSTALLED=yes when this version is unpacked, where the starter noted (packages\unpacked-BUILD.txt, in
-rem UTF-8, which PowerShell reads right whatever the letters of the folder's name) or beside it.
-:installed
-set "INSTALLED=no"
-for /f %%x in ('%PS% "%APP_PS%; if (Test-Path -LiteralPath (Join-Path $a ('runtime\unpacked-'+$env:BUILD+'.txt'))) { 'yes' } else { 'no' }" ^<nul') do set "INSTALLED=%%x"
-exit /b 0
 
 rem :fetch name : a small file of the release, fetched again each time (the release may be newer), as name.new.
 :fetch
@@ -273,21 +283,20 @@ for /f %%s in ('%PS% "(Get-FileHash -Algorithm SHA256 -LiteralPath $env:FILE).Ha
 if /i "%GOT%"=="%WANT%" exit /b 0
 exit /b 1
 
-rem :clean : this version's downloaded parts go (the names in SHA256SUMS.txt, nothing else), once the starter has
-rem noted that every one of them is unpacked.
+rem :clean : this version's downloaded parts go (the names in SHA256SUMS.txt, nothing else), once every one of them is
+rem noted as unpacked.
 :clean
-call :installed
-if not "%INSTALLED%"=="yes" exit /b 1
+if not exist "%APP%\runtime\unpacked-%BUILD%.txt" exit /b 1
 for /f "usebackq tokens=2" %%n in ("%PACKAGES%\SHA256SUMS.txt") do del /f /q "%PACKAGES%\%%n" "%PACKAGES%\%%n.part" >nul 2>nul
 echo   The downloaded parts are deleted: about %SIZE_GB% GB is free again.
 exit /b 0
 
-rem :shortcut : "Truth Guardian" on the desktop, which runs Start-Truth-Guardian.bat in the folder, with the site's shield.
+rem :shortcut : "Truth Guardian" on the desktop, which runs TruthGuardian.bat in the project, with the site's shield.
 :shortcut
 set "LINK_DONE="
-for /f %%x in ('%PS% "$d=$env:LINK_DIR; if (-not $d) { $d=[Environment]::GetFolderPath('Desktop') }; $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d $env:LINK_NAME)); $s.TargetPath=(Join-Path $env:ROOT 'Start-Truth-Guardian.bat'); $s.WorkingDirectory=$env:ROOT; $s.Description='Truth Guardian: hallucination detection, offline on this computer'; %APP_PS%; $i=(Join-Path $a 'deploy\portable\truth-guardian.ico'); if (Test-Path -LiteralPath $i) { $s.IconLocation=$i+',0' }; $s.Save(); 'ok'" ^<nul 2^>nul') do set "LINK_DONE=%%x"
+for /f %%x in ('%PS% "$d=$env:LINK_DIR; if (-not $d) { $d=[Environment]::GetFolderPath('Desktop') }; $s=(New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $d $env:LINK_NAME)); $s.TargetPath=(Join-Path $env:APP 'TruthGuardian.bat'); $s.WorkingDirectory=$env:APP; $s.Description='Truth Guardian: hallucination detection, offline on this computer'; $i=(Join-Path $env:APP 'deploy\portable\truth-guardian.ico'); if (Test-Path -LiteralPath $i) { $s.IconLocation=$i+',0' }; $s.Save(); 'ok'" ^<nul 2^>nul') do set "LINK_DONE=%%x"
 if "%LINK_DONE%"=="ok" goto shortcut_made
-echo   The desktop shortcut could not be made; Start-Truth-Guardian.bat in the folder starts the app.
+echo   The desktop shortcut could not be made; TruthGuardian.bat in the TruthGuardian folder starts the app.
 exit /b 0
 :shortcut_made
 echo   On the desktop: a shortcut named Truth Guardian.
@@ -324,6 +333,24 @@ goto failed
 :offline_unfinished
 echo   There is no internet connection and the download is not finished.
 echo   Connect to the internet and run this file again: what is done is kept and the rest resumes.
+goto failed
+
+:cannot_unpack
+echo   The folder %APP% could not be made. Choose another drive and run this file again.
+goto failed
+
+:part_damaged
+popd 2>nul
+echo.
+echo   A part could not be unpacked: %PART%
+echo   Each part was checked before unpacking, so the drive is most likely full: free some space on drive %DRIVE%: and
+echo   run this file again. What is already unpacked is kept.
+goto failed
+
+:app_failed
+echo.
+echo   The app did not start. The messages above say why; TruthGuardian.bat check, in the TruthGuardian folder, lists
+echo   what is missing.
 goto failed
 
 :failed
