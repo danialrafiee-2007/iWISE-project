@@ -118,7 +118,7 @@ def test_check_an_answer_is_its_own_tab_and_ask_the_documents_is_gone():
 
 
 def test_fool_the_guardian_chooses_its_trick_from_the_sites_own_cards_and_waits_for_the_models():
-    """D-186, D-214: the tricks are a row of the site's own cards (js/deck.js), the check streams its stages, the
+    """D-186, D-219: the tricks are the site's own pile of cards (js/deck.js), the check streams its stages, the
     sources read in their own direction, and nothing is tricked or checked before the models are ready."""
     page = (HTML / "index.html").read_text(encoding="utf-8")
     assert page.index("/js/deck.js") < page.index("/js/fool.js") and 'id="fool-score"' in page
@@ -126,7 +126,7 @@ def test_fool_the_guardian_chooses_its_trick_from_the_sites_own_cards_and_waits_
     assert "TGDeck?.tricks" in fool and "TGReport.progress" in fool and "getReader" in fool
     assert "/api/health" in fool and 'dir="auto"' in fool
     deck = (HTML / "js" / "deck.js").read_text(encoding="utf-8")
-    assert 'role="radiogroup"' in deck and "ArrowRight" in deck
+    assert 'role="tablist"' in deck and "ArrowRight" in deck and "ArrowDown" in deck
 
 
 def test_fool_outcome_is_the_coloured_shield_and_the_sources_are_a_list():
@@ -156,7 +156,7 @@ def test_fool_answer_comes_first_and_the_apply_row_sits_under_the_tricks():
 
 
 def test_check_an_answer_shows_its_examples_as_the_sites_own_cards_and_nothing_of_the_bought_layers_is_left():
-    """D-190, D-214: the examples are a grid of the site's own cards (js/deck.js, loaded before js/check.js); the
+    """D-190, D-219: the examples are the site's own ring of cards (js/deck.js, loaded before js/check.js); the
     example titles come in every language; no file of the site comes from the bought layers any more."""
     page = (HTML / "index.html").read_text(encoding="utf-8")
     assert page.index("/js/deck.js") < page.index("/js/check.js")
@@ -169,6 +169,42 @@ def test_check_an_answer_shows_its_examples_as_the_sites_own_cards_and_nothing_o
             text = path.read_text(encoding="utf-8").lower()
             assert "getlayers" not in text and "spectra" not in text and "cardscascade" not in text, path
     assert not (HTML / "js" / "spectra.js").exists() and not (HTML / "js" / "cascade.js").exists()
+
+
+def test_the_examples_and_the_tricks_are_card_decks_in_3d_of_the_sites_own_code():
+    """D-219: the examples turn as a ring and the tricks stand as a pile, both in 3D, written for this project: one
+    position eases toward the card asked for; the ring waits while a check runs or a report is shown and for people who
+    asked for less motion; both follow the page's direction; the Apply row sits under the cards, not over them."""
+    deck = (HTML / "js" / "deck.js").read_text(encoding="utf-8")
+    assert "function glide(" in deck and "requestAnimationFrame" in deck and "prefers-reduced-motion" in deck
+    assert "opts.paused?.()" in deck and "setInterval" in deck and "rtl()" in deck
+    assert "rotateY(" in deck and "rotateX(" in deck and 'aria-roledescription="carousel"' in deck
+    check = (HTML / "js" / "check.js").read_text(encoding="utf-8")
+    assert "paused: () => check.running || heal.running || !!view" in check and 'tr("html.deck.next")' in check
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    assert ".ex-stage {" in css and "perspective:" in css and "transform-style: preserve-3d" in css
+    assert "align-items: stretch" in css[css.index(".ck-top {"):][:200]
+    assert "align-self: stretch" in css[css.index(".fool-left { display: flex"):][:200]
+    row = css[css.index(".fool-apply-row {"):]
+    assert row[: row.index("}")].count("position: relative") == 1
+    i18n = (HTML / "js" / "i18n.js").read_text(encoding="utf-8")
+    assert '"html.deck.next": "نمونهٔ بعدی"' in i18n
+
+
+def test_check_an_agent_draws_its_steps_as_the_guardians_path():
+    """D-220: the agent's steps as a rail with a shield on each step the Guardian checked (passed, warned, stopped),
+    the rail cut under a stop, the steps not reached and the ones that would not have run told apart; the step just
+    reached lands on the rail. Its classes (gp-) stay apart from the code map's (ag-)."""
+    agent = (HTML / "js" / "agent.js").read_text(encoding="utf-8")
+    assert "function pathHTML(" in agent and "drawnShown" in agent and 'class="gp-path"' in agent
+    for state in ('"ahead"', '"skipped"', '"stop"', '"warn"', '"pass"', '"line-cut"', '"line-done"', '"line-next"'):
+        assert state in agent, state
+    assert all(key in agent for key in ("agent.titleStop", "agent.titleWarn", "agent.stoppedAt", "agent.warningAt", "agent.wouldNot"))
+    assert "ag-" not in agent.replace("agent-", "").replace("page-", "")
+    css = (HTML / "css" / "style.css").read_text(encoding="utf-8")
+    block = css[css.index("/* ---- Check an agent: the Guardian's path"):]
+    assert ".gp-step.is-stop .gp-card" in block and ".gp-step.line-cut .gp-rail::after" in block and "prefers-reduced-motion" in block
+    assert ".ag-" not in block and ".step-text" not in css
 
 
 def test_the_chat_goes_to_the_free_online_answer_and_shows_the_full_report_below():

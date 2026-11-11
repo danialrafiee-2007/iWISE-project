@@ -623,11 +623,10 @@ a.pop-item { text-decoration: none; }
   box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 34px -24px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
 }
 #panel-reliability .table-wrap { padding: 12px 14px; }
-#panel-agent .step { background: rgb(243 237 223 / 0.7); border-color: #e4ddca; }
 #panel-agent .chip { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
 #panel-agent .chip[aria-pressed="true"] { background: radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 50%), linear-gradient(160deg, var(--active-light), var(--active)); border-color: transparent; }
 #panel-agent .btn-ghost { border-color: #e4ddca; background: linear-gradient(180deg, #fffdf8, #f6f0e2); }
-#panel-agent .rp-well, #panel-agent .own, #panel-agent .step-obs { background: rgb(243 237 223 / 0.7); }
+#panel-agent .rp-well, #panel-agent .own { background: rgb(243 237 223 / 0.7); }
 
 /* ---- The reliability diagram (D-204), as on the previous site: the chart and, beside it, how to read it ---- */
 .calib-box { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 22px; align-items: start; }
@@ -1201,7 +1200,7 @@ a.pop-item { text-decoration: none; }
 .rp-card, .rp-claim, .rp-well, .tab-body, .ck-view, .ck-results, .fool-results, .fool-left { grid-template-columns: minmax(0, 1fr); }
 .rp-card > *, .rp-claim > *, .rp-well > *, .tab-body > *, .ck-view > *, .ck-results > *, .fool-results > *, .rp-main > *, .rp-side > *, .rp-verdict-head > div, .rp-lane > span { min-width: 0; }
 .rp-card, .rp-claim, .rp-warn, .rp-small, .rp-text, .mono { overflow-wrap: anywhere; }
-.rp-answer, .rp-text, .rp-small, .rp-warn, .rp-well > span, .rp-list li, .step-text, .step-obs, .ck-why li span { unicode-bidi: plaintext; text-align: start; }
+.rp-answer, .rp-text, .rp-small, .rp-warn, .rp-well > span, .rp-list li, .ck-why li span { unicode-bidi: plaintext; text-align: start; }
 .rp-main, .rp-side { display: grid; align-content: start; gap: 12px; min-width: 0; }
 .rp-card {
   display: grid;
@@ -1356,18 +1355,6 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 .agent-head.halted { border-top-color: #d23c3c; }
 .agent-state { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #2f7a62; }
 .agent-head.halted .agent-state { color: #a02424; }
-.steps { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.step { padding: 10px 14px; border-radius: 14px; background: rgb(var(--emerald) / 0.04); border: 1px solid rgb(var(--emerald) / 0.08); opacity: 0.45; transition: opacity 400ms, background 300ms; }
-.step.shown { opacity: 1; background: rgb(255 255 255 / 0.85); }
-.step.warning { background: rgb(243 195 79 / 0.12); border-color: rgb(201 138 18 / 0.35); }
-.step.stop { background: rgb(255 107 107 / 0.1); border-color: rgb(210 60 60 / 0.4); }
-.step-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.78rem; }
-.step-head .pill { background: rgb(var(--emerald) / 0.08); color: var(--ink-soft); }
-.step-text { margin: 6px 0 0; font: 0.84rem/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; }
-.step-obs { margin: 6px 0 0; padding: 6px 10px; border-radius: 10px; background: rgb(var(--emerald) / 0.06); font: 0.8rem/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; color: var(--ink-soft); }
-.step-alert { margin: 8px 0 0; font-size: 0.86rem; font-weight: 600; }
-.step-alert.stop { color: #a02424; }
-.step-alert.warning { color: #8a5d05; }
 .tracer-row { display: grid; grid-template-columns: 70px 1fr 48px; align-items: center; gap: 10px; font-size: 0.82rem; }
 
 /* Fool the Guardian: the title with the score beside it, the tricks' cards, the answer, the outcome lamp. */
@@ -1378,10 +1365,11 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 .score-n { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.7rem; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--ink); }
 .score-n.bad { color: #a02424; }
 .fool-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
-/* The Apply row inside the deck, along its foot, above the cards that fold forward. */
-.fool-apply-row { position: absolute; inset-inline: 14px; bottom: 14px; z-index: 3000; display: grid; gap: 8px; padding: 10px 12px; border: 1px solid rgb(228 221 202 / 0.9); border-radius: 18px; background: rgb(253 251 245 / 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 10px 24px -16px rgb(44 58 52 / 0.5); }
+/* The Apply row on the deck's field, under the cards (D-219: no longer over the front card's title). */
+.fool-apply-row { position: relative; z-index: 3000; display: grid; gap: 8px; padding: 10px 12px; border: 1px solid rgb(228 221 202 / 0.9); border-radius: 18px; background: rgb(253 251 245 / 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 10px 24px -16px rgb(44 58 52 / 0.5); }
 .fool-apply-row .rp-warn, .fool-apply-row .fool-unfit-note { padding: 6px 10px; }
-.fool-left { display: grid; align-content: start; gap: 12px; min-width: 0; }
+.fool-left { display: flex; flex-direction: column; gap: 12px; min-width: 0; align-self: stretch; }
+#fool-deck { display: flex; flex: 1; flex-direction: column; } /* the tricks as tall as the answer beside them (D-219) */
 .fool-grid > .rp-card, .rp-grid .rp-card { align-content: start; align-self: start; }
 .fool-answer textarea.code.plain { min-height: 180px; }
 /* The answer's sources, always in view: each one a few lines until a click opens it in full; its words can be selected. */
@@ -1471,7 +1459,11 @@ textarea.code.plain { min-height: 120px; font: inherit; font-size: 0.95rem; line
 .outcome-title { margin: 4px 0; font-family: "Fraunces TG", Georgia, serif; font-weight: 500; font-size: 1.5rem; }
 
 /* Check an answer: the examples deck beside the form, the stages while it checks, the report, the healing rounds. */
-.ck-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 14px; align-items: start; }
+.ck-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 14px; align-items: stretch; }
+/* The examples' column as tall as the form beside it, the deck filling it (D-219). */
+.ck-try { display: flex; flex-direction: column; min-width: 0; }
+#ck-deck { display: flex; flex: 1; flex-direction: column; }
+.ck-form-card { align-self: start; }
 .ck-label { margin: 0 0 8px; font-size: 0.84rem; font-weight: 600; color: var(--ink-soft); }
 .ck-form { display: grid; gap: 12px; }
 .ck-form select {
@@ -2057,38 +2049,198 @@ body:not(.entered) .log-fab { opacity: 0; pointer-events: none; }
 @media (max-width: 720px) { :root[dir="rtl"] .log-fab { right: auto; left: 14px; } }
 
 
-/* ---- The site's own choosers (js/deck.js, D-214) ----
-   Check an answer's examples: a grid of warm cards, each with a stripe in its colour. Fool the Guardian's tricks: a row
-   of cards, the chosen one lit in green, with the Apply row under them. */
-.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-.ex-tile {
-  position: relative; display: grid; align-content: start; gap: 6px; min-height: 150px; padding: 14px 14px 14px 18px; text-align: start;
-  border: 1px solid #e4ddca; border-radius: 16px; cursor: pointer; color: var(--ink); font: inherit; overflow: hidden;
-  background: linear-gradient(135deg, rgb(231 240 232 / 0.95) 0%, rgb(247 243 233 / 0.95) 55%, rgb(239 230 211 / 0.95) 100%);
-  box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 14px 26px -22px rgb(44 58 52 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.7);
-  transition: transform 160ms, box-shadow 160ms;
+/* ---- The site's card decks in 3D (js/deck.js, D-219) ----
+   Check an answer's examples: a ring of cards on a sage-to-cream field, a glow in the front card's colour behind it,
+   its title, the two arrows and the button below. Fool the Guardian's tricks: a pile of cards on the same field, the
+   counter and a track of dots beside it, the Apply row under the cards. */
+.ex-deck {
+  position: relative; display: flex; flex: 1; flex-direction: column; align-items: center; gap: 14px; overflow: hidden;
+  padding: 22px 14px 20px; border: 1px solid #e4ddca; border-radius: 26px; outline: none;
+  background: radial-gradient(120% 90% at 50% 0%, #e3ece0 0%, #f5f0e3 66%, #efe6d3 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px -22px rgb(var(--emerald) / 0.5);
 }
-.ex-tile::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 5px; background: var(--accent); }
-.ex-tile:hover, .ex-tile:focus-visible { transform: translateY(-2px); box-shadow: 0 2px 3px rgb(44 58 52 / 0.06), 0 18px 30px -20px rgb(44 58 52 / 0.55), 0 0 0 2px color-mix(in oklab, var(--accent) 45%, transparent); outline: none; }
-.ex-chip { justify-self: start; padding: 2px 8px; border-radius: 8px; background: color-mix(in oklab, var(--accent) 22%, #fffdf8); color: #2c3a34; font: 600 0.72rem ui-monospace, Consolas, monospace; }
-.ex-kicker { font: 0.68rem ui-monospace, Consolas, monospace; letter-spacing: 0.12em; text-transform: uppercase; color: #6f8a7e; }
-.ex-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.05rem; font-weight: 600; line-height: 1.2; }
-.ex-about { font-size: 0.8rem; line-height: 1.45; color: var(--ink-soft); }
-.tk { display: grid; gap: 12px; }
-.tk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.ex-deck:focus-visible { box-shadow: inset 0 1px 0 #fff, 0 0 0 3px rgb(118 186 168 / 0.6); }
+.ex-glow {
+  position: absolute; left: 50%; top: 38%; width: min(600px, 120%); height: 400px; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, var(--halo, #34d399), transparent 70%); opacity: 0.5; filter: blur(26px);
+  pointer-events: none; transition: background 600ms ease;
+}
+.ex-stage {
+  position: relative; flex: 1 1 auto; width: 100%; min-height: 330px; perspective: 1500px; perspective-origin: 50% 42%;
+  touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab;
+}
+.ex-stage.dragging { cursor: grabbing; }
+.ex-ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.ex-card {
+  position: absolute; left: calc(var(--cw, 240px) / -2); top: calc(var(--cw, 240px) * -0.64); width: var(--cw, 240px); height: calc(var(--cw, 240px) * 1.28);
+  padding: 0; border: 0; border-radius: 24px; overflow: hidden; color: #fff; font: inherit; text-align: start; cursor: pointer;
+  background: linear-gradient(158deg, color-mix(in oklab, var(--glow) 56%, #24392f) 0%, color-mix(in oklab, var(--glow) 20%, #1b2a23) 56%, #14211b 100%);
+  box-shadow: 0 2px 4px rgb(20 33 27 / 0.2), 0 28px 50px -22px rgb(20 33 27 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  will-change: transform, opacity, filter; backface-visibility: hidden;
+}
+.ex-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(170deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 34%); pointer-events: none; }
+.ex-card:focus-visible { outline: 3px solid rgb(255 255 255 / 0.8); outline-offset: -6px; }
+.ex-veil { position: absolute; inset: 0; background: linear-gradient(to top, rgb(6 14 11 / 0.82), rgb(6 14 11 / 0) 62%); }
+.ex-body { position: relative; display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: 18px; box-sizing: border-box; }
+.ex-chip { align-self: flex-start; padding: 3px 8px; border: 1px solid rgb(255 255 255 / 0.28); border-radius: 8px; background: rgb(255 255 255 / 0.14); font: 600 0.7rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; }
+.ex-text { display: grid; gap: 7px; }
+.ex-kicker { font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.15em; text-transform: uppercase; color: rgb(255 255 255 / 0.72); }
+.ex-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: calc(var(--cw, 240px) * 0.084); font-weight: 600; line-height: 1.15; }
+.ex-about { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 4; -webkit-box-orient: vertical; font-size: clamp(0.8rem, calc(var(--cw, 240px) * 0.054), 0.92rem); line-height: 1.42; color: rgb(255 255 255 / 0.78); }
+.ex-foot { position: relative; z-index: 2; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.ex-caption { display: flex; align-items: center; min-height: 2.4em; margin: 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.35rem; line-height: 1.2; color: var(--ink); }
+.ex-nav { display: flex; align-items: center; gap: 12px; }
+.ex-go { white-space: nowrap; }
+.ex-arrow {
+  display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid #ddd3bd; border-radius: 50%;
+  background: rgb(255 253 248 / 0.85); color: #2c4a3c; cursor: pointer; transition: background 160ms, transform 160ms;
+}
+.ex-arrow:hover { background: #fff; transform: translateY(-1px); }
+.ex-arrow:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
+.ex-arrow svg { width: 18px; height: 18px; }
+.ex-arrow-next svg, :root[dir="rtl"] .ex-arrow svg { transform: scaleX(-1); }
+:root[dir="rtl"] .ex-arrow-next svg { transform: none; }
+.ex-live, .tk-live { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.tk-deck { display: flex; flex: 1; align-items: stretch; gap: 12px; }
+.tk-stage {
+  position: relative; display: flex; flex: 1; flex-direction: column; min-width: 0; overflow: hidden; border-radius: 24px; outline: none;
+  background: radial-gradient(130% 100% at 50% 6%, #e3ece0 0%, #f2ecdd 60%, #eee4cf 100%);
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px -22px rgb(var(--emerald) / 0.5); touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.tk-stage:focus-visible { box-shadow: inset 0 1px 0 #fff, 0 0 0 3px rgb(118 186 168 / 0.6); }
+.tk-pile { position: relative; flex: 1 1 auto; min-height: 480px; perspective: 1250px; perspective-origin: 50% 24%; cursor: grab; }
+.tk-stage.dragging .tk-pile { cursor: grabbing; }
 .tk-card {
-  position: relative; display: grid; align-content: start; gap: 6px; min-height: 140px; padding: 12px 14px; text-align: start;
-  border: 1px solid #e4ddca; border-block-start: 4px solid var(--fill); border-radius: 14px; cursor: pointer; color: var(--ink); font: inherit;
-  background: linear-gradient(180deg, #fffdf8, #f6f0e2); box-shadow: 0 2px 3px rgb(44 58 52 / 0.06); transition: transform 160ms, box-shadow 160ms, background 200ms;
+  position: absolute; left: 0; right: 0; bottom: 22px; width: var(--tk-w, 300px); height: var(--tk-h, 350px); margin-inline: auto;
+  transform-origin: 50% 100%; transform-style: preserve-3d; will-change: transform, opacity; cursor: pointer;
 }
-.tk-card:hover { transform: translateY(-2px); }
-.tk-card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
-.tk-card[aria-checked="true"] { background: radial-gradient(circle at 30% 20%, rgb(230 255 244 / 0.9), rgb(230 255 244 / 0) 55%), linear-gradient(160deg, var(--active-light), var(--active)); border-color: transparent; border-block-start-color: var(--fill); box-shadow: 0 10px 22px -14px rgb(var(--emerald) / 0.7); }
-.tk-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.tk-chip { padding: 2px 7px; border-radius: 7px; background: rgb(20 64 58 / 0.08); font: 600 0.7rem ui-monospace, Consolas, monospace; }
-.tk-rate { font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #6f8a7e; }
-.tk-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.1rem; font-weight: 600; line-height: 1.15; }
-.tk-hint { font-size: 0.78rem; line-height: 1.45; color: var(--ink-soft); }
-.tk-unfit { display: none; justify-self: start; padding: 2px 8px; border-radius: 8px; background: rgb(20 64 58 / 0.1); font-size: 0.7rem; color: #4b6158; }
-.tk-card.unfit { opacity: 0.6; }
+.tk-face {
+  position: absolute; inset: 0; overflow: hidden; border-radius: 24px; backface-visibility: hidden; transition: filter 300ms;
+  box-shadow: 0 2px 4px rgb(20 33 27 / 0.2), 0 26px 46px -20px rgb(20 33 27 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+.tk-face::after { content: ""; position: absolute; inset: 0; background: linear-gradient(165deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0) 32%, rgb(0 0 0 / 0.18)); pointer-events: none; }
+.tk-veil { position: absolute; inset: 0; background: linear-gradient(to top, rgb(6 10 16 / 0.8), rgb(6 10 16 / 0.25) 36%, rgb(6 10 16 / 0) 62%); }
+.tk-body { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; padding: 18px 20px; box-sizing: border-box; color: #fff; text-align: start; }
+.tk-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tk-chip { padding: 3px 8px; border: 1px solid rgb(255 255 255 / 0.28); border-radius: 8px; background: rgb(255 255 255 / 0.14); font: 600 0.72rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; }
+.tk-rate { font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(255 255 255 / 0.8); }
+.tk-unfit { display: none; align-self: flex-start; margin-top: 10px; padding: 3px 8px; border-radius: 8px; background: rgb(0 0 0 / 0.35); font-size: 0.72rem; }
 .tk-card.unfit .tk-unfit { display: inline-block; }
+.tk-card.unfit .tk-face { filter: grayscale(0.6) brightness(0.85); }
+.tk-text { display: grid; gap: 6px; margin-top: auto; }
+.tk-kicker { font: 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(255 255 255 / 0.7); }
+.tk-title { font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: calc(var(--tk-w, 300px) * 0.088); font-weight: 600; line-height: 1.05; }
+.tk-hint { max-width: 34ch; font-size: clamp(0.8rem, calc(var(--tk-w, 300px) * 0.047), 0.95rem); line-height: 1.45; color: rgb(255 255 255 / 0.8); }
+.tk-foot { position: relative; z-index: 1100; padding: 0 14px 14px; }
+.tk-foot:empty { display: none; }
+.tk-side { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; min-width: 54px; }
+.tk-count { margin: 0; white-space: nowrap; font: 500 1.4rem ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; color: var(--ink); }
+.tk-count small { font-size: 0.78rem; color: var(--ink-soft); }
+.tk-count [data-count] { display: inline-block; }
+.tk-count .tick { animation: tk-count-in 300ms ease-out; }
+@keyframes tk-count-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+/* The dots on a thin track; the chosen one a longer emerald bar. */
+.tk-dots { position: relative; display: grid; gap: 0; }
+.tk-dots::before { content: ""; position: absolute; inset-block: 12px; left: 50%; width: 2px; margin-left: -1px; border-radius: 2px; background: #e2d8c2; }
+.tk-dot { position: relative; display: grid; place-items: center; width: 28px; height: 26px; padding: 0; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
+.tk-dot:hover span { background: #9fb8a8; }
+.tk-dot:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
+.tk-dot span { display: block; width: 8px; height: 8px; border: 2px solid #f6f0e2; border-radius: 6px; background: #cfc4ab; box-sizing: content-box; transition: height 220ms, background 220ms; }
+.tk-dot[aria-selected="true"] span { height: 18px; background: rgb(var(--emerald)); }
+@media (max-width: 720px) {
+  .tk-deck { flex-direction: column-reverse; }
+  .tk-side { flex-direction: row; justify-content: center; }
+  .tk-dots { grid-auto-flow: column; }
+  .tk-dots::before { inset-block: auto; top: 50%; left: 12px; right: 12px; width: auto; height: 2px; margin: -1px 0 0; }
+  .tk-dot[aria-selected="true"] span { width: 18px; height: 8px; }
+  .tk-side { gap: 6px; }
+  .tk-count { font-size: 1.15rem; }
+  .tk-dot { width: 20px; }
+  .tk-pile { min-height: 400px; }
+}
+@media (prefers-reduced-motion: reduce) { .tk-count .tick { animation: none; } .ex-glow { transition: none; } }
+
+/* ---- Check an agent: the Guardian's path down the steps (js/agent.js, D-220) ----
+   A rail on the inline start with a shield on each step the Guardian has checked (green: passed, amber: a warning,
+   red: it stopped the run), a dot on the steps not reached, the rail walked in green, cut by a red bar under a stop,
+   and dashed ahead; each step's card beside its mark. The step just reached lands on the rail as the rail fills down. */
+.gp-trail h4 { margin-bottom: 6px; }
+.gp-path { display: grid; margin: 4px 0 0; padding: 0; list-style: none; }
+.gp-step { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 10px; padding-bottom: 14px; }
+.gp-step:last-child { padding-bottom: 0; }
+.gp-rail { position: relative; display: flex; justify-content: center; }
+.gp-node { position: relative; z-index: 1; display: grid; place-items: center; width: 40px; height: 40px; }
+.gp-line {
+  position: absolute; top: 40px; bottom: -1px; left: 50%; width: 3px; margin-left: -1.5px; border-radius: 3px;
+  background: repeating-linear-gradient(to bottom, #d8cdb4 0 6px, transparent 6px 11px);
+}
+.gp-step:last-child .gp-line { display: none; }
+.gp-step.line-done .gp-line { background: linear-gradient(to bottom, #2f9a64, rgb(var(--emerald))); }
+.gp-step.line-next .gp-line { background: repeating-linear-gradient(to bottom, #3fae74 0 6px, transparent 6px 12px); background-size: 100% 12px; animation: gp-walk 0.9s linear infinite; }
+.gp-step.line-cut .gp-line { background: repeating-linear-gradient(to bottom, #e3c9c3 0 5px, transparent 5px 11px); }
+.gp-step.line-cut .gp-rail::after {
+  content: ""; position: absolute; top: 47px; left: 50%; width: 24px; height: 4px; margin-left: -12px; border-radius: 4px;
+  background: #d23c3c; box-shadow: 0 0 0 3px rgb(210 60 60 / 0.16);
+}
+.gp-step.filling .gp-line { transform-origin: top; animation: gp-fill 560ms ease-out both; }
+@keyframes gp-walk { to { background-position: 0 12px; } }
+@keyframes gp-fill { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.gp-shield { width: 34px; height: 34px; overflow: visible; filter: drop-shadow(0 4px 6px rgb(20 33 27 / 0.22)); }
+.gp-shield path { fill: none; stroke: #fff; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.gp-shield .gp-shield-body { stroke-width: 1.2; }
+.gp-shield.pass .gp-shield-body { fill: #2f9a64; stroke: #1d6a45; }
+.gp-shield.warn .gp-shield-body { fill: #e0a423; stroke: #9a6a0a; }
+.gp-shield.stop .gp-shield-body { fill: #d23c3c; stroke: #8f1f1f; }
+.gp-dot { width: 12px; height: 12px; border: 2px solid #cfc4ab; border-radius: 50%; background: #fbf8f0; }
+.gp-step.is-skipped .gp-dot { border-style: dashed; border-color: #d6a5a0; background: transparent; }
+/* The step the Guardian is on: a ring breathing round its shield. */
+.gp-step.is-front .gp-node::before { content: ""; position: absolute; inset: 1px; border-radius: 50%; animation: gp-breathe 1.6s ease-out infinite; }
+.gp-step.is-front.is-pass .gp-node::before { box-shadow: 0 0 0 0 rgb(47 154 100 / 0.45); --ring: rgb(47 154 100 / 0); }
+.gp-step.is-front.is-warn .gp-node::before { box-shadow: 0 0 0 0 rgb(224 164 35 / 0.5); --ring: rgb(224 164 35 / 0); }
+.gp-step.is-front.is-stop .gp-node::before { box-shadow: 0 0 0 0 rgb(210 60 60 / 0.5); --ring: rgb(210 60 60 / 0); animation-iteration-count: 3; }
+@keyframes gp-breathe { to { box-shadow: 0 0 0 12px var(--ring); } }
+
+.gp-card {
+  min-width: 0; padding: 11px 16px 13px; border: 1px solid #e4ddca; border-radius: 16px; background: rgb(255 253 248 / 0.94);
+  box-shadow: 0 1px 2px rgb(44 58 52 / 0.05), 0 12px 24px -22px rgb(44 58 52 / 0.5);
+}
+.gp-step.is-ahead .gp-card { padding-block: 8px; background: rgb(243 237 223 / 0.55); box-shadow: none; }
+.gp-step.is-ahead .gp-node, .gp-step.is-skipped .gp-node { height: 34px; }
+.gp-step.is-warn .gp-card { border-color: rgb(201 138 18 / 0.4); border-inline-start: 4px solid #e0a423; background: rgb(255 249 233 / 0.96); }
+.gp-step.is-stop .gp-card { border-color: rgb(210 60 60 / 0.35); border-inline-start: 4px solid #d23c3c; background: rgb(255 243 240 / 0.96); }
+.gp-step.is-skipped .gp-card { opacity: 0.6; background: rgb(243 237 223 / 0.5); box-shadow: none; }
+.gp-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gp-num { font: 600 0.78rem ui-monospace, Consolas, monospace; color: #6f8a7e; }
+.gp-kind { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px 2px 8px; border-radius: 999px; background: rgb(var(--emerald) / 0.08); font-size: 0.75rem; color: #2f5a49; }
+.gp-kind-icon, .gp-tool-icon { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.gp-tag { margin-inline-start: auto; font: 0.68rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #8a9a91; }
+.gp-step.is-stop .gp-tag { color: #a02424; }
+.gp-step.is-warn .gp-tag { color: #8a5d05; }
+.gp-title { margin: 7px 0 0; font-family: "Fraunces TG", Georgia, Tahoma, serif; font-size: 1.02rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.gp-text { margin: 5px 0 0; font: 0.84rem/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; unicode-bidi: plaintext; text-align: start; color: #2c3a34; }
+.gp-tool {
+  display: flex; gap: 8px; align-items: flex-start; margin: 8px 0 0; padding: 8px 12px; border: 1px dashed rgb(var(--emerald) / 0.2); border-radius: 12px;
+  background: rgb(var(--emerald) / 0.05); font: 0.8rem/1.5 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink-soft);
+}
+.gp-tool span { min-width: 0; unicode-bidi: plaintext; text-align: start; }
+.gp-tool-icon { margin-top: 2px; color: #4f7f69; }
+.gp-alert { margin: 10px 0 0; padding: 8px 12px; border-radius: 12px; font-size: 0.86rem; font-weight: 600; line-height: 1.45; unicode-bidi: plaintext; text-align: start; }
+.gp-alert.stop { background: rgb(210 60 60 / 0.1); color: #8f1f1f; }
+.gp-alert.warning { background: rgb(224 164 35 / 0.15); color: #74500a; }
+/* The step just reached: its mark lands on the rail and its card rises in. */
+.gp-step.fresh .gp-node { animation: gp-land 460ms cubic-bezier(0.2, 0.9, 0.3, 1.25) both; }
+.gp-step.fresh .gp-card { animation: gp-rise 420ms ease-out both; }
+@keyframes gp-land { from { opacity: 0; transform: translateY(-18px) scale(0.55); } to { opacity: 1; transform: none; } }
+@keyframes gp-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@media (max-width: 720px) {
+  .gp-step { grid-template-columns: 34px minmax(0, 1fr); column-gap: 8px; }
+  .gp-node { width: 32px; height: 32px; }
+  .gp-line { top: 32px; }
+  .gp-shield { width: 28px; height: 28px; }
+  .gp-step.line-cut .gp-rail::after { top: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gp-step.line-next .gp-line, .gp-step.filling .gp-line, .gp-step.is-front .gp-node::before, .gp-step.fresh .gp-node, .gp-step.fresh .gp-card { animation: none; }
+}

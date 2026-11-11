@@ -1,7 +1,7 @@
 // Fool the Guardian, as on the previous site's page (pages/Fool.tsx): take a grounded answer, slip one lie into it with
-// one of eight tricks (or edit it by hand), and see whether the Guardian finds the exact words. The tricks are the
-// tricks as a row of cards to choose from (js/deck.js, D-214),
-// each card with the share of its trick caught in the project's suite. While the edit is checked, the engine's stages
+// one of eight tricks (or edit it by hand), and see whether the Guardian finds the exact words. The tricks are a pile
+// of cards in 3D (js/deck.js, D-219: the wheel over it turns the cards, the dots and the counter beside it), each card
+// with the share of its trick caught in the project's suite. While the edit is checked, the engine's stages
 // come in one by one; the result is the project's shield in green (caught and found), amber (flagged but not placed,
 // or only cautioned) or red (it got through) beside its title, then the full report. The sources are a list always in
 // view: a click opens one in full (marked in peach), and its words can be selected with the mouse. The score of tries
@@ -243,7 +243,10 @@
     const n = int(KINDS.length, 2);
     window.TGDeck?.tricks(deckEl, {
       active: trick,
-      label: tr("fool.chooseTrick"),
+      label: tr("fool.tricks"),
+      tabsLabel: tr("fool.chooseTrick"),
+      count: (i) => int(i + 1, 2),
+      total: n,
       onActive: (i) => { trick = i; drawApply(); },
       cards: KINDS.map((k, i) => ({
         key: k,
@@ -251,12 +254,15 @@
         fill: FILL[k],
         html: `
           <span class="tk-top"><span class="tk-chip" dir="ltr">${esc(tr("fool.cardCount", { i: int(i + 1, 2), n }))}</span><span class="tk-rate">${rates?.[k] ? esc(tr("fool.caughtRate", { p: pct(rates[k].detected) })) : ""}</span></span>
-          <span class="tk-title">${esc(kindName(k))}</span>
-          <span class="tk-hint">${esc(tr(`fool.hint.${k}`))}</span>
-          <span class="tk-unfit">${esc(tr("html.f.unfit"))}</span>`,
+          <span class="tk-unfit">${esc(tr("html.f.unfit"))}</span>
+          <span class="tk-text">
+            <span class="tk-kicker">${esc(tr("fool.trick", { i: int(i + 1, 2) }))}</span>
+            <span class="tk-title">${esc(kindName(k))}</span>
+            <span class="tk-hint">${esc(tr(`fool.hint.${k}`))}</span>
+          </span>`,
       })),
     });
-    deckEl.querySelector(".tk-foot")?.appendChild(applyEl); // the Apply row sits under the cards
+    deckEl.querySelector(".tk-foot")?.appendChild(applyEl); // the Apply row sits on the field, under the cards
     markCards();
   }
 

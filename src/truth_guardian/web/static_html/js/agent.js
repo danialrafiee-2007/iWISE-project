@@ -2,6 +2,9 @@
 // steps, choose how strict the live Guardian is, and watch the steps arrive one by one; each is checked only against the
 // question and the tool outputs before it, and the Guardian stops the run at the step where it would have stepped in.
 // Then the tracer's suspicion for every step, the final answer's report, and how the stopping was measured.
+// The steps are drawn as the Guardian's path (D-220): a rail down the steps with a shield on each step it has checked,
+// green where the step passed, amber for a warning, red where it stopped the run, the rail cut under the stop; the
+// step just reached lands on the rail as the rail fills down to it.
 // Server: /api/examples (the agents), /api/examples/{id}, /api/agent (streamed, its result is the report).
 
 (() => {
@@ -38,6 +41,19 @@
   let error = null;
   let card = null;
   let custom = JSON.stringify(SAMPLE, null, 2);
+  let drawnShown = 0; // how many steps the last drawing showed: the ones after it are the steps just reached
+
+  // The path's marks, drawn for this site: the shield (its outline as on the rail's logo) with a tick, a bar or "!",
+  // and a small sign for each kind of step.
+  const SHIELD = '<path class="gp-shield-body" d="M12 2.6l7.4 3.1v5.4c0 4.7-3.1 8.6-7.4 10.4-4.3-1.8-7.4-5.7-7.4-10.4V5.7z"/>';
+  const MARK = { pass: '<path d="M8.6 12.1l2.4 2.4 4.4-4.8"/>', warn: '<path d="M12 7.6v5.2M12 15.9v.2"/>', stop: '<path d="M8.6 11.9h6.8"/>' };
+  const KIND = {
+    action: '<path d="M14.5 4.5a4.5 4.5 0 0 0-4.2 6.1L4.5 16.4l3.1 3.1 5.8-5.8a4.5 4.5 0 0 0 6.1-4.2l-2.6 1.1-2.4-.8-.8-2.4z"/>',
+    thought: '<path d="M4.5 6.5h15v9.5h-8.5l-4 3.2V16h-2.5z"/><path d="M8.5 11.2h.1M12 11.2h.1M15.5 11.2h.1"/>',
+    answer: '<path d="M6.5 20.5v-16M6.5 5h11l-2.2 3.8 2.2 3.8h-11"/>',
+    observation: '<path d="M2.8 12s3.4-5.8 9.2-5.8 9.2 5.8 9.2 5.8-3.4 5.8-9.2 5.8S2.8 12 2.8 12z"/><circle cx="12" cy="12" r="2.4"/>',
+  };
+  const icon = (paths, cls) => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
 
   const kindName = (k) => (has(`agent.kind.${k}`) ? tr(`agent.kind.${k}`) : k);
   const exampleTitle = (e) => (has(`example.${e.id}.title`) ? tr(`example.${e.id}.title`) : e.title);
@@ -67,6 +83,7 @@
     error = null;
     run = null;
     shown = 0;
+    drawnShown = 0;
     playing = false;
     draw();
     try {
@@ -125,12 +142,56 @@
     }
   }
 
+  // The Guardian's path: one row per step, the rail and its mark on the inline start, the step's card beside it.
+  function pathHTML(a, stop, finished) {
+    const alertFor = (step) => a?.alerts?.find((x) => x.step === step);
+    const n = run.steps.length;
+    const titleOf = (s, alert) => {
+      if (alert) return tr(alert.level === "stop" ? "agent.titleStop" : "agent.titleWarn");
+      if (s.kind === "action") return tr("agent.titleAction");
+      if (s.kind === "answer") return tr("agent.titleAnswer");
+      if (s.kind === "thought") return tr("agent.titleReason");
+      return kindName(s.kind);
+    };
+    return `<ol class="gp-path">${run.steps.map((s, i) => {
+      const alert = alertFor(s.step);
+      const reached = i < shown;
+      const skipped = stop >= 0 && i > stop;
+      const state = !reached ? "ahead" : skipped ? "skipped" : alert?.level === "stop" ? "stop" : alert?.level === "warning" ? "warn" : "pass";
+      // The rail under this step: walked (both ends reached), being walked (the Guardian heads for the next step), cut
+      // under a stop, or not yet.
+      const line = i === n - 1 ? "" : state === "stop" ? "line-cut" : reached && i + 1 < shown && !skipped ? "line-done"
+        : reached && !skipped && playing && i === shown - 1 ? "line-next" : "line-ahead";
+      const fresh = reached && i >= drawnShown;
+      const filling = i + 1 < shown && i + 1 >= drawnShown && line === "line-done";
+      const front = reached && i === shown - 1 && !finished && (playing || state === "stop");
+      const tag = !reached ? tr("agent.notYet") : skipped ? tr("agent.wouldNot")
+        : alert ? tr(alert.level === "stop" ? "agent.stoppedAt" : "agent.warningAt", { i: int(s.step) }) : "";
+      const mark = state === "ahead" || state === "skipped" ? '<span class="gp-dot"></span>' : icon(SHIELD + MARK[state], `gp-shield ${state}`);
+      return `<li class="gp-step is-${state} ${line}${fresh ? " fresh" : ""}${filling ? " filling" : ""}${front ? " is-front" : ""}">
+        <div class="gp-rail" aria-hidden="true"><span class="gp-line"></span><span class="gp-node">${mark}</span></div>
+        <div class="gp-card">
+          <div class="gp-head">
+            <span class="gp-num" dir="ltr">${String(s.step).padStart(2, "0")}</span>
+            <span class="gp-kind">${icon(KIND[s.kind] || KIND.thought, "gp-kind-icon")}${esc(kindName(s.kind))}</span>
+            ${finished && a.suspected_step === s.step ? `<span class="pill contested">${esc(tr("agent.origin"))}</span>` : ""}
+            ${tag ? `<span class="gp-tag">${esc(tag)}</span>` : ""}
+          </div>
+          ${reached ? `
+            <h5 class="gp-title">${esc(titleOf(s, skipped ? null : alert))}</h5>
+            <p class="gp-text" dir="auto">${esc(short(s.content))}</p>
+            ${s.observation ? `<div class="gp-tool">${icon(KIND.observation, "gp-tool-icon")}<span dir="auto">${esc(short(s.observation))}</span></div>` : ""}
+            ${alert && !skipped ? `<p class="gp-alert ${alert.level}">${esc(alert.level === "stop" ? tr("agent.alertStop", { reason: alert.reason }) : tr("agent.alertWarning", { reason: alert.reason }))}</p>` : ""}` : ""}
+        </div>
+      </li>`;
+    }).join("")}</ol>`;
+  }
+
   function draw() {
     const a = agent();
     const stop = stopIndex();
     const halted = stop >= 0 && run && shown > stop;
     const finished = run && shown >= run.steps.length;
-    const alertFor = (step) => a?.alerts?.find((x) => x.step === step);
     const tg = card?.guardian;
 
     root.innerHTML = `
@@ -159,19 +220,7 @@
             ${halted && !finished ? `<button type="button" class="btn-ghost" data-act="rest">${esc(tr("agent.wouldHave"))}</button>` : ""}
           </div>
         </div>
-        <div class="rp-card"><h4>${esc(tr("agent.trajectory"))}</h4>
-          <ol class="steps">${run.steps.map((s, i) => {
-            const alert = alertFor(s.step);
-            const visible = i < shown;
-            const after = stop >= 0 && i > stop;
-            return `<li class="step ${visible ? "shown" : ""} ${visible && alert ? alert.level : ""}">
-              <div class="step-head"><span class="mono">${String(s.step).padStart(2, "0")}</span><span class="pill">${esc(kindName(s.kind))}</span>
-                ${after && visible ? `<span class="rp-small bad">${esc(tr("agent.wouldNot"))}</span>` : ""}
-                ${finished && a.suspected_step === s.step ? `<span class="pill contested">${esc(tr("agent.origin"))}</span>` : ""}</div>
-              ${visible ? `<p class="step-text" dir="auto">${esc(short(s.content))}</p>${s.observation ? `<p class="step-obs" dir="auto">↳ ${esc(short(s.observation))}</p>` : ""}${alert ? `<p class="step-alert ${alert.level}">${esc(alert.level === "stop" ? tr("agent.alertStop", { reason: alert.reason }) : tr("agent.alertWarning", { reason: alert.reason }))}</p>` : ""}` : `<p class="rp-small">${esc(tr("agent.notYet"))}</p>`}
-            </li>`;
-          }).join("")}</ol>
-        </div>
+        <div class="rp-card gp-trail"><h4>${esc(tr("agent.trajectory"))}</h4>${pathHTML(a, stop, finished)}</div>
         ${finished ? `
           <div class="rp-grid">
             <div class="rp-main">
@@ -200,6 +249,7 @@
     }));
     const final = root.querySelector("#agent-final");
     if (final && window.TGReport && run) window.TGReport.render(final, { text: run.answer, report: run.report }, { compact: true });
+    drawnShown = shown;
   }
 
   fetch("/api/examples").then((r) => r.json()).then((e) => { examples = e.agents || []; draw(); }).catch(() => {});

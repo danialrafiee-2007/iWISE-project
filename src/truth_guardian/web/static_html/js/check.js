@@ -220,23 +220,32 @@
   }
 
   // ---- Drawing ----
-  // The ready-made examples as a grid of the site's own cards (js/deck.js, D-214), each with a stripe in its colour.
+  // The ready-made examples as a ring of cards in 3D (js/deck.js, D-219), each card in its own colour; it waits while
+  // a check runs or a report is shown.
   function drawDeck() {
     const el = root.querySelector("#ck-deck");
     if (!el || !window.TGDeck) return;
     const n = examples.length;
     window.TGDeck.examples(el, {
       label: tr("examples.button"),
+      browse: tr("deck.browse"),
+      cta: tr("examples.cta"),
+      prev: tr("html.deck.prev"),
+      next: tr("html.deck.next"),
+      paused: () => check.running || heal.running || !!view,
       onOpen: (i) => pick(examples[i].id),
       cards: examples.map((e, i) => ({
         key: e.id,
         label: tr("deck.item", { label: exampleTitle(e), i: int(i + 1), n: int(n) }),
+        title: exampleTitle(e),
         glow: GLOW[i % GLOW.length],
         html: `
           <span class="ex-chip" dir="ltr">${esc(new Intl.NumberFormat(loc(), { minimumIntegerDigits: 2 }).format(i + 1))}</span>
-          ${has(`task.${e.task}`) ? `<span class="ex-kicker">${esc(tr(`task.${e.task}`))}</span>` : ""}
-          <span class="ex-title" dir="auto">${esc(exampleTitle(e))}</span>
-          <span class="ex-about" dir="auto">${esc(exampleAbout(e))}</span>`,
+          <span class="ex-text">
+            ${has(`task.${e.task}`) ? `<span class="ex-kicker">${esc(tr(`task.${e.task}`))}</span>` : ""}
+            <span class="ex-title" dir="auto">${esc(exampleTitle(e))}</span>
+            <span class="ex-about" dir="auto">${esc(exampleAbout(e))}</span>
+          </span>`,
       })),
     });
   }

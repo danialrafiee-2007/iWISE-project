@@ -1028,7 +1028,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "No history found.",
   "html.log.decisions": "Decisions",
   "html.log.commits": "Commits",
-  "html.log.none": "none"
+  "html.log.none": "none",
+  "html.deck.prev": "Previous example",
+  "html.deck.next": "Next example"
  },
  "ar": {
   "landing.lead": "لا تفوق إجابة الذكاء الاصطناعي دليلها جودةً. التحدي هو معرفة ما إذا كانت الإجابة موثّقة أم فيها هلوسة، وما مقدار الخطر، وأي أجزائها مشكوك فيها ولماذا؛ يفعل Truth Guardian ذلك للنص، وكذلك للصوت والصور.",
@@ -2051,7 +2053,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "لم يُعثر على تاريخ.",
   "html.log.decisions": "القرارات",
   "html.log.commits": "الإيداعات",
-  "html.log.none": "لا شيء"
+  "html.log.none": "لا شيء",
+  "html.deck.prev": "المثال السابق",
+  "html.deck.next": "المثال التالي"
  },
  "zh": {
   "landing.lead": "AI 的回答好坏取决于其证据。本挑战要判断回答是有依据还是存在幻觉、风险有多大、哪些部分可疑以及原因；Truth Guardian 对文本做到这一点，也对声音和图像做到。",
@@ -3074,7 +3078,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "未找到历史记录。",
   "html.log.decisions": "决策",
   "html.log.commits": "提交",
-  "html.log.none": "无"
+  "html.log.none": "无",
+  "html.deck.prev": "上一个示例",
+  "html.deck.next": "下一个示例"
  },
  "fr": {
   "landing.lead": "La réponse d'une IA ne vaut que par ses preuves. Le défi consiste à dire si une réponse est fondée ou hallucinée, quel est le risque, quelles parties sont suspectes et pourquoi ; Truth Guardian le fait pour le texte, et aussi pour le son et les images.",
@@ -4101,7 +4107,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "Aucun historique trouvé.",
   "html.log.decisions": "Décisions",
   "html.log.commits": "Commits",
-  "html.log.none": "aucun"
+  "html.log.none": "aucun",
+  "html.deck.prev": "Exemple précédent",
+  "html.deck.next": "Exemple suivant"
  },
  "ru": {
   "landing.lead": "Ответ ИИ хорош ровно настолько, насколько хороши его доказательства. Задача — определить, обоснован ли ответ или это галлюцинация, насколько велик риск, какие части подозрительны и почему; Truth Guardian делает это для текста, а также для звука и изображений.",
@@ -5128,7 +5136,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "История не найдена.",
   "html.log.decisions": "Решения",
   "html.log.commits": "Коммиты",
-  "html.log.none": "нет"
+  "html.log.none": "нет",
+  "html.deck.prev": "Предыдущий пример",
+  "html.deck.next": "Следующий пример"
  },
  "es": {
   "landing.lead": "La respuesta de una IA vale lo que vale su evidencia. El reto es saber si una respuesta está fundamentada o contiene una alucinación, cuánto riesgo tiene, qué partes son sospechosas y por qué; Truth Guardian lo hace con el texto, y también con sonido e imágenes.",
@@ -6155,7 +6165,9 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "No se encontró historia.",
   "html.log.decisions": "Decisiones",
   "html.log.commits": "Commits",
-  "html.log.none": "ninguno"
+  "html.log.none": "ninguno",
+  "html.deck.prev": "Ejemplo anterior",
+  "html.deck.next": "Ejemplo siguiente"
  },
  "fa": {
   "landing.lead": "پاسخ هوش مصنوعی فقط به اندازهٔ شاهدش درست است. چالش این است که معلوم شود پاسخ مستند است یا توهم، خطرش چقدر است، کدام بخش‌ها مشکوک‌اند و چرا؛ Truth Guardian این کار را برای متن، و افزون بر آن برای صدا و تصویر انجام می‌دهد.",
@@ -7178,6 +7190,8 @@ window.TG_MESSAGES = {
   "html.log.empty.history": "تاریخچه‌ای پیدا نشد.",
   "html.log.decisions": "تصمیم‌ها",
   "html.log.commits": "کامیت‌ها",
-  "html.log.none": "هیچ"
+  "html.log.none": "هیچ",
+  "html.deck.prev": "نمونهٔ قبلی",
+  "html.deck.next": "نمونهٔ بعدی"
  }
 };
