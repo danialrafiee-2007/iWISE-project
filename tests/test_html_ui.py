@@ -176,7 +176,7 @@ def test_the_chat_goes_to_the_free_online_answer_and_shows_the_full_report_below
 def test_the_chat_bubble_shows_the_answer_alone_and_an_untrusted_documents_answer_goes_online():
     """D-198: the Guardian's report is under the chat only; a documents' answer the check does not trust is not shown."""
     chat = (HTML / "js" / "chat.js").read_text(encoding="utf-8")
-    bubble = chat[chat.index("  function showAnswer(box, a) {"):chat.index("  function untrusted(a) {")]
+    bubble = chat[chat.index("  function showAnswer(box, a"):chat.index("  function untrusted(a) {")]
     assert "TGReport.render" not in bubble and "sourcesHTML" not in bubble and "msg-hint" in bubble
     assert "function untrusted(a)" in chat and 'a.status === "not_in_documents" || rejected' in chat
 

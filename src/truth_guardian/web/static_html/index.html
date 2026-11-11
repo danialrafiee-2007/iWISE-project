@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#051813">
   <title>Truth Guardian (HTML)</title>
   <link rel="preload" href="/fonts/fraunces-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/css/style.css?v=70">
-  <link rel="stylesheet" href="/css/intro.css?v=70">
+  <link rel="stylesheet" href="/css/style.css?v=71">
+  <link rel="stylesheet" href="/css/intro.css?v=71">
 </head>
 <body class="intro-on">
   <!-- The site, in plain HTML5, CSS3 and JavaScript; it talks to the app's API (/api/...). Started by
@@ -188,6 +188,13 @@
                project's documents by the local model and checked by the Guardian before it is shown (/api/ask). js/chat.js -->
           <section class="card section chat" id="chat" aria-labelledby="chat-title">
             <h2 class="section-title" id="chat-title" data-i18n="html.chat.title">Ask Truth Guardian</h2>
+            <!-- What the Guardian learned online (D-222): the online answers it verified, kept to be answered offline next
+                 time; the window lists them, switches the keeping off and removes any of them (js/chat.js). -->
+            <button type="button" class="learn-btn" id="chat-learned">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 5.5A2 2 0 016.5 3.5H19v15H6.5a2 2 0 00-2 2z"/><path d="M4.5 20.5v-15"/><path d="M9.5 9.5l1.8 1.8 3.4-3.6"/></svg>
+              <span data-i18n="html.learn.btn">What it learned online</span>
+              <span class="learn-n" data-n hidden></span>
+            </button>
             <p class="section-note" data-i18n="html.chat.lead"></p>
             <ol class="chat-log" id="chat-log" aria-live="polite"></ol>
             <form class="composer" id="composer">
@@ -221,6 +228,12 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </button>
             <div class="report-dialog-body"></div>
+          </dialog>
+          <dialog class="person-dialog learn-dialog" id="learn-dialog" aria-labelledby="learn-title">
+            <button type="button" class="dialog-x" data-i18n-aria="team.close" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <div class="learn-body"></div>
           </dialog>
         </div>
 
@@ -588,22 +601,22 @@
       </main>
     </div>
   </div>
-  <script src="/js/i18n.js?v=70"></script>
-  <script src="/js/ui.js?v=70"></script>
-  <script src="/js/activity.js?v=70"></script>
-  <script src="/js/intro.js?v=70"></script>
-  <script src="/js/pages.js?v=70"></script>
-  <script src="/js/arch-data.js?v=70"></script>
-  <script src="/js/arch-src.js?v=70"></script>
-  <script src="/js/arch-graph.js?v=70"></script>
-  <script src="/js/contact.js?v=70"></script>
-  <script src="/js/report.js?v=70"></script>
-  <script src="/js/models.js?v=70"></script>
-  <script src="/js/deck.js?v=70"></script>
-  <script src="/js/check.js?v=70"></script>
-  <script src="/js/agent.js?v=70"></script>
-  <script src="/js/fool.js?v=70"></script>
-  <script src="/js/chat.js?v=70"></script>
-  <script src="/js/app.js?v=70"></script>
+  <script src="/js/i18n.js?v=71"></script>
+  <script src="/js/ui.js?v=71"></script>
+  <script src="/js/activity.js?v=71"></script>
+  <script src="/js/intro.js?v=71"></script>
+  <script src="/js/pages.js?v=71"></script>
+  <script src="/js/arch-data.js?v=71"></script>
+  <script src="/js/arch-src.js?v=71"></script>
+  <script src="/js/arch-graph.js?v=71"></script>
+  <script src="/js/contact.js?v=71"></script>
+  <script src="/js/report.js?v=71"></script>
+  <script src="/js/models.js?v=71"></script>
+  <script src="/js/deck.js?v=71"></script>
+  <script src="/js/check.js?v=71"></script>
+  <script src="/js/agent.js?v=71"></script>
+  <script src="/js/fool.js?v=71"></script>
+  <script src="/js/chat.js?v=71"></script>
+  <script src="/js/app.js?v=71"></script>
 </body>
 </html>

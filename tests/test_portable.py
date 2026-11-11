@@ -47,11 +47,12 @@ def test_keys_logs_caches_and_raw_data_stay_out(install):
         "runtime/opened-truth-guardian-hhem-fast.zip.txt", "runtime/python/.temp/x", "data/raw/ragtruth/response.jsonl", "data/raw/nltk_data/corpora/source.zip",
         "data/processed/ragtruth_train.jsonl", "data/processed/locked/ragtruth_test.jsonl", "data/features/nli/x.jsonl", "eval/predictions/x.jsonl",
         "runtime/rag-eval/en-all.sqlite", "runtime/npm-cache/_cacache/index", "runtime/tmp/pytest/x.txt", "runtime/media-smoke/ocr-en.png",
+        "data/web/library/learned.json",  # this computer's own setting for keeping what was learned online (D-222)
     ]
-    write(install, *left_out, "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json")
+    write(install, *left_out, "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json", "data/web/learned_seed.json")
     chosen = builder.select(install)
     assert not set(left_out) & set(chosen)
-    assert {"src/app.py", "TruthGuardian.bat", "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json", "data/raw/nltk_data/corpora/wordnet/LICENSE", "data/processed/ragtruth_dev.jsonl"} <= set(chosen)
+    assert {"src/app.py", "TruthGuardian.bat", "runtime/hf/hub/m/model.safetensors", "data/web/examples/a.json", "data/raw/nltk_data/corpora/wordnet/LICENSE", "data/processed/ragtruth_dev.jsonl", "data/web/learned_seed.json"} <= set(chosen)
 
 
 @windows
@@ -262,7 +263,7 @@ def test_the_package_carries_the_projects_documents_but_never_the_persons_own(in
         CREATE TABLE documents (id INTEGER PRIMARY KEY, collection TEXT NOT NULL, name TEXT NOT NULL);
         CREATE TABLE passages (id INTEGER PRIMARY KEY, document_id INTEGER NOT NULL REFERENCES documents (id) ON DELETE CASCADE, text TEXT);
         CREATE TABLE pictures (document_id INTEGER PRIMARY KEY REFERENCES documents (id) ON DELETE CASCADE, data BLOB);
-        INSERT INTO documents VALUES (1, 'project', 'museum_talk.wav'), (2, 'mine', 'my-photo.jpeg');
+        INSERT INTO documents VALUES (1, 'project', 'museum_talk.wav'), (2, 'mine', 'my-photo.jpeg'), (3, 'learned', 'Learned online - my question.txt');
         INSERT INTO passages VALUES (1, 1, 'the museum opened in 1901'), (2, 2, 'private words');
         INSERT INTO pictures VALUES (2, x'00');
     """)
@@ -276,5 +277,5 @@ def test_the_package_carries_the_projects_documents_but_never_the_persons_own(in
     assert carried.execute("SELECT text FROM passages").fetchall() == [("the museum opened in 1901",)]
     assert carried.execute("SELECT count(*) FROM pictures").fetchone() == (0,)
     carried.close()
-    assert sqlite3.connect(folder / "library.sqlite").execute("SELECT count(*) FROM documents").fetchone() == (2,)  # the install keeps its own
+    assert sqlite3.connect(folder / "library.sqlite").execute("SELECT count(*) FROM documents").fetchone() == (3,)  # the install keeps its own
     assert not (tmp_path / "out" / "work").exists()

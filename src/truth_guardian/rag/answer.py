@@ -25,7 +25,7 @@ from truth_guardian.heal import Healing
 from truth_guardian.language import detect
 from truth_guardian.pipeline import make_sample
 from truth_guardian.rag.generators import Generator, OnText
-from truth_guardian.rag.library import MINE, PROJECT, Found, Hit, Library
+from truth_guardian.rag.library import LEARNED, MINE, PROJECT, Found, Hit, Library
 from truth_guardian.rag.seen import SeenCheck, check_seen
 from truth_guardian.rag.words import terms
 from truth_guardian.report import Report
@@ -243,7 +243,7 @@ def answer(
     library: Library,
     engine,
     generator: Generator,
-    collections: tuple[str, ...] = (MINE, PROJECT),
+    collections: tuple[str, ...] = (MINE, PROJECT, LEARNED),
     history: list[dict] | None = None,
     language: str | None = None,
     emit: Callable[[dict], None] | None = None,

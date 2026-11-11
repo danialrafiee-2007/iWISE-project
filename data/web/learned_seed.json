@@ -1,0 +1,146 @@
+[
+ {
+  "question": "Who wrote the novel One Hundred Years of Solitude, and when was it first published?",
+  "answer": "The author of *One Hundred Years of Solitude* is Gabriel García Márquez. The novel was first published in 1967 (originally in Spanish as *Cien años de soledad*).",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.048,
+  "sources": [
+   {
+    "title": "https://en.wikipedia.org/wiki/One_Hundred_Years_of_Solitude",
+    "url": "https://en.wikipedia.org/wiki/One_Hundred_Years_of_Solitude",
+    "text": "One Hundred Years of Solitude (Spanish: Cien años de soledad, Latin American Spanish: [sjen ˈaɲos ðe soleˈðað]) is a 1967 novel by Colombian author Gabriel García Márquez that tells the multi-generational story of the Buendía family, whose patriarch, José Arcadio Buendía, founded the fictitious town of Macondo. The novel is often cited as one of the supreme achievements in world literature. It was recognized as one of the most important works of the Spanish language during the 4th International Conference of the Spanish Language held in Cartagena de Indias in March 2007. The magical realist style and thematic substance of the book established it as an important representative novel of the literary Latin American Boom of the 1960s and 1970s, which was stylistically influenced by Modernism (European and North American) and the Cuban Vanguardia (Avant-Garde) literary movement. …"
+   },
+   {
+    "title": "Wikipedia (en): Gabriel García Márquez",
+    "url": "https://en.wikipedia.org/wiki/Gabriel_Garc%C3%ADa_M%C3%A1rquez",
+    "text": "Gabriel José García Márquez (Latin American Spanish: [ɡaˈβɾjel ɣaɾˈsi.a ˈmaɾ.kes] ; 6 March 1928 – 17 April 2014) was a Colombian writer and journalist, known affectionately as Gabo ([ˈɡaβo]) or Gabito ([ɡaˈβito]) throughout Latin America. Considered one of the most significant authors of the 20th century, particularly in the Spanish language, he was awarded the 1972 Neustadt International Prize for Literature and the 1982 Nobel Prize in Literature. He pursued a self-directed education that resulted in leaving law school for a career in journalism. From early on he showed no inhibitions in his criticism of Colombian and foreign politics. In 1958, he married Mercedes Barcha Pardo; they had two sons, Rodrigo and Gonzalo. García Márquez started as a journalist and wrote many acclaimed non-fiction works and short stories. …"
+   },
+   {
+    "title": "Web: One Hundred Years of Solitude by Gabriel García Márquez | Audible.com",
+    "url": "https://www.audible.com/blog/summary-one-hundred-years-of-solitude-by-gabriel-garcia-marquez",
+    "text": "Gabriel García Márquez's One Hundred Years of Solitude, first published in 1967, is widely considered one of the most significant novels of the 20th century. This sweeping saga chronicles seven generations of the Buendía family in the fictional town of Macondo, weaving together elements of magical realism, Colombian history, and universal themes of love, war, and the cyclical nature of time. The novel sold millions of copies worldwide, won numerous awards, and helped García Márquez secure the [...] The novel was first published in Spanish in 1967 and has since been translated into more than 46 languages. One Hundred Years of Solitude has sold more than 50 million copies worldwide. García Márquez claims the novel's style was inspired by the way his grandmother used to tell stories. …"
+   }
+  ]
+ },
+ {
+  "question": "When did Apollo 11 land on the Moon, and who were the first two people to walk on it?",
+  "answer": "Landing date: Apollo 11 landed on the Moon on 20 July 1969. First walkers: The first two people to walk on the Moon were Neil Armstrong and Buzz Aldrin.",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.069,
+  "sources": [
+   {
+    "title": "https://www.nasa.gov/mission_pages/apollo/apollo11.html",
+    "url": "https://www.nasa.gov/mission_pages/apollo/apollo11.html",
+    "text": "July 20, 1969: One Giant Leap For Mankind Now, on the morning of July 16, Apollo 11 astronauts Neil Armstrong, Buzz Aldrin and Michael Collins sit atop another Saturn V at Launch Complex 39A at the Kennedy Space Center. The three-stage 363-foot rocket will use its 7.5 million pounds of thrust to propel them into space and into history. After one and a half orbits, Apollo 11 gets a “go” for what mission controllers call “Translunar Injection” – in other words, it’s time to head for the moon. Three days later the crew is in lunar orbit. A day after that, Armstrong and Aldrin climb into the lunar module _Eagle_ and begin the descent, while Collins orbits in the command module _Columbia_. Apollo 11 Commander Neil Armstrong working at an equipment storage area on the lunar module. This is one of the few photos that show Armstrong during the moonwalk. Click image to enlarge. …"
+   },
+   {
+    "title": "https://en.wikipedia.org/wiki/Apollo_11",
+    "url": "https://en.wikipedia.org/wiki/Apollo_11",
+    "text": "Apollo 11 (July 16–24, 1969) was the American spaceflight that first landed humans on the Moon, and the fifth crewed mission of NASA's Apollo program. The mission was crewed by Commander Neil Armstrong, Command Module Pilot Michael Collins, and Lunar Module Pilot Edwin \"Buzz\" Aldrin, all of whom were on their second and final spaceflight. Launched atop a Saturn V rocket from Kennedy Space Center in Florida on July 16 at 13:32 UTC, the Apollo spacecraft consisted of three parts: the command module (CM), which housed the three astronauts and was the only part to return to Earth; the service module (SM), which provided propulsion, electrical power, oxygen, and water to the command module; and the Lunar Module (LM), which had two stages—a descent stage with a large engine and fuel tanks for landing on the Moon, and a lighter ascent stage containing a cabin for two astronauts and a small engi …"
+   },
+   {
+    "title": "Wikipedia (en): Moon landing",
+    "url": "https://en.wikipedia.org/wiki/Moon_landing",
+    "text": "A Moon landing (also known as a lunar landing) is the arrival of a crewed or robotic lander on the Moon. The first human-made object to touch the Moon was Luna 2 in 1959, and the first crewed mission to land on the Moon was Apollo 11 in 1969. There were six crewed landings between 1969 and 1972 and numerous uncrewed landings. All crewed missions to the Moon were conducted by the Apollo program, with the last departing in December 1972. After Luna 24 in 1976, there were no soft landings—landings without significant damage—on the Moon until Chang'e 3 in 2013. All soft landings took place on the near side of the Moon until Chang'e 4 landed on the far side of the Moon in 2019. A total of twelve astronauts have landed on the Moon. This was accomplished with two pilot-astronauts flying a Lunar Module on each of six NASA missions. …"
+   }
+  ]
+ },
+ {
+  "question": "Who discovered penicillin, and in what year?",
+  "answer": "The discovery of penicillin was made by Alexander Fleming. The year of the discovery was 1928.",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.041,
+  "sources": [
+   {
+    "title": "https://en.wikipedia.org/wiki/Penicillin",
+    "url": "https://en.wikipedia.org/wiki/Penicillin",
+    "text": "Penicillins (P, PCN or PEN) are a group of β-lactam antibiotics originally obtained from Penicillium moulds, principally P. chrysogenum and P. rubens. Eight species of Penicillium, in the section Chrysogena, produce penicillins. Most penicillins in clinical use are synthesised by P. chrysogenum using deep tank fermentation and then purified. A number of natural penicillins have been discovered, but only two purified compounds are in clinical use: penicillin G (intramuscular or intravenous use) and penicillin V (given by mouth). Penicillins were among the first medications to be effective against many bacterial infections caused by staphylococci and streptococci. They are still widely used today for various bacterial infections, though many types of bacteria have developed resistance following extensive use. …"
+   },
+   {
+    "title": "https://www.nobelprize.org/prizes/medicine/1945/fleming/facts/",
+    "url": "https://www.nobelprize.org/prizes/medicine/1945/fleming/facts/",
+    "text": "Summary Laureates Sir Alexander Fleming Facts Nobel Prize lecture Biographical Banquet speech Documentary Photo gallery Questions and Answers Nominations Other resources Sir Alexander Fleming Nobel Prize in Physiology or Medicine 1945 Prize motivation: “for the discovery of penicillin and its curative effect in various infectious diseases” Among microorganisms, life is a constant battle for survival. Alexander Fleming became interested in this. He used to leave bowls with bacteria cultures standing by his worktable. In 1928 he saw that in addition to bacteria, a mold fungus had begun to grow in a bowl and that the bacteria's growth had been impeded in the vicinity of the mold. He concluded that the mold contained a substance that was effective against bacteria. The substance was given the name penicillin and became the basis for medication to treat bacterial infections. …"
+   },
+   {
+    "title": "Wikipedia (en): Discovery of penicillin",
+    "url": "https://en.wikipedia.org/wiki/Discovery_of_penicillin",
+    "text": "The discovery of penicillin was one of the most important scientific discoveries in the history of medicine. Ancient societies used moulds to treat infections and in the following centuries many people observed the inhibition of bacterial growth by moulds. While working at St Mary's Hospital in London in 1928, Scottish physician Alexander Fleming was the first to experimentally demonstrate that a Penicillium mould secretes an antibacterial substance, which he named \"penicillin\". The mould was found to be a variant of Penicillium notatum (now called Penicillium rubens), a contaminant of a bacterial culture in his laboratory. The work on penicillin at St Mary's ended in 1929. …"
+   }
+  ]
+ },
+ {
+  "question": "What is the capital of Australia?",
+  "answer": "The capital of Australia is Canberra.",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.035,
+  "sources": [
+   {
+    "title": "https://en.wikipedia.org/wiki/Canberra",
+    "url": "https://en.wikipedia.org/wiki/Canberra",
+    "text": "Canberra ( KAN-brə; Ngunawal: Kanbarra) is the capital city of Australia and the largest population centre in the Australian Capital Territory. With an estimated population of 484,630 as of 2025, Canberra is Australia's largest inland city and the eighth-largest Australian city by population. The city occupies most of the northern quadrant of the Australian Capital Territory, and its urban sprawl borders the state of New South Wales to the northwest, northeast and southeast. The Brindabellas are located south and west of the city, and form the northern part of the Australian Alps, the country's highest mountain range. Canberra was established following the federation of the Australian colonies to serve as the seat of government for the new nation, being a compromise between Sydney and Melbourne, Australia’s two largest cities. …"
+   },
+   {
+    "title": "Web: Australian Capital Territory (Canberra) | Study Australia",
+    "url": "https://www.studyaustralia.gov.au/en/life-in-australia/locations-in-australia/australian-capital-territory-canberra",
+    "text": "As Australia's capital, Canberra boasts some of the country’s preeminent educational and cultural institutions. The ACT is known for being welcoming, inclusive and liveable. Its location offers a unique Australian experience, and provides easy access to national parks, Australia's biggest snowfields in winter and the pristine beaches of the New South Wales south coast in summer. Map of ACT Map of study locations in the Australian Capital Territory. A snapshot of ACT [...] Skip to content or footer language English expand\\_more English 简体中文 India Bahasa Indonesia 日本語 한국어 language expand\\_more English 简体中文 India Bahasa Indonesia 日本語 한국어 Australian Capital Territory (Canberra) Australia's capital is a young, vibrant city with a reputation for inclusivity, innovation, and excellence in education. …"
+   },
+   {
+    "title": "Web: Australian Capital Territory | Tourism Australia",
+    "url": "https://australia.expedia.com/australian-capital-territory",
+    "text": "Take a day trip from Sydney to Canberra, the capital of Australia, to explore the city's attractions, cultural institutions and beautiful natural surroundings. We drive through Australia’s cool climate wool growing region and learn about the futuristic planning that makes Canberra one of the world's most modern and livable cities. Explore Now Canberra tasting tour From Canberra: Winery, Distillery, & Tasting Tour with Lunch [...] Canberra Day Tour Canberra Day Tour From Sydney with Guide & Private Transfer Experience the best things to do in Canberra on a day trip from Sydney. Snap photos of spectacular city views at Mt Ainsle peak, visit the Canberra's top museum, the Australian War Memorial, and take part in a guided tour of Parliament House. Explore Now PLACES TO GO [...] POS Book Now Australian Capital Territory Discover more than you expect in Canberra. …"
+   }
+  ]
+ },
+ {
+  "question": "Who painted the Mona Lisa?",
+  "answer": "Answer: The Mona Lisa was painted by Leonardo da Vinci.",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.055,
+  "sources": [
+   {
+    "title": "https://en.wikipedia.org/wiki/Mona_Lisa",
+    "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+    "text": "The Mona Lisa is a half-length portrait painting by the Italian artist Leonardo da Vinci. Considered an archetypal masterpiece of the Italian Renaissance, it has been described as \"the best known, the most visited, the most written about, the most sung about, [and] the most parodied work of art in the world\". The painting's novel qualities include the subject's enigmatic expression, the monumentality of the composition, the subtle modelling of forms, and the atmospheric illusionism. The painting has been traditionally considered to depict the Italian noblewoman Lisa del Giocondo. It is painted in oil on a white poplar panel. Leonardo never gave the painting to the Giocondo family. It was believed to have been painted between 1503 and 1506; however, Leonardo may have continued working on it as late as 1517. …"
+   },
+   {
+    "title": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+    "url": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+    "text": "Leonardo di ser Piero da Vinci (15 April 1452 – 2 May 1519), better known as Leonardo da Vinci, was an Italian polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor, and architect. While his fame initially rested on his achievements as a painter, he has also become known for his notebooks, in which he made drawings and notes on a variety of subjects, including anatomy, astronomy, botany, cartography, painting, and palaeontology. Leonardo is widely regarded as a genius who epitomised the Renaissance humanist ideal, and his collective works contributed to the development of European art to an extent rivalled only by that of his younger contemporary Michelangelo. …"
+   },
+   {
+    "title": "Wikipedia (en): Mona Lisa (Prado)",
+    "url": "https://en.wikipedia.org/wiki/Mona_Lisa_%28Prado%29",
+    "text": "The Prado Mona Lisa is a painting by the workshop of Leonardo da Vinci and depicts the same subject and composition as Leonardo's better known Mona Lisa at the Louvre, Paris. The Prado Mona Lisa has been in the collection of the Museo del Prado in Madrid, Spain since 1819, but was considered for decades a relatively unimportant copy. Following its restoration in 2012, however, the Prado's Mona Lisa has come to be understood as the earliest known studio copy of Leonardo's masterpiece. Although there are dozens of surviving copies of the Mona Lisa from the 16th and 17th centuries, the Prado's Mona Lisa may have been painted simultaneously by a student of Leonardo in the same studio where he painted his own Mona Lisa, so it is said to be the copy with the most historical value. …"
+   }
+  ]
+ },
+ {
+  "question": "Who was the first woman to win a Nobel Prize?",
+  "answer": "The first woman to win a Nobel Prize was Marie Curie. She received the Nobel Prize in Physics in 1903 for her research on radiation. She later became the first person to win a second Nobel Prize, this time in Chemistry in 1911. Her achievements made her the first female Nobel laureate in any category.",
+  "date": "2026-11-11",
+  "generator": "free-online:groq/openai/gpt-oss-120b",
+  "risk": 0.206,
+  "sources": [
+   {
+    "title": "https://en.wikipedia.org/wiki/Marie_Curie",
+    "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+    "text": "Maria Salomea Skłodowska Curie (née Skłodowska; 7 November 1867 – 4 July 1934), better known as Marie Curie, was a Polish and naturalised-French physicist and chemist. She shared the 1903 Nobel Prize in Physics with her husband, Pierre Curie, \"for their joint researches on the radioactivity phenomena discovered by Professor Henri Becquerel\". She won the 1911 Nobel Prize in Chemistry \"[for] the discovery of the elements radium and polonium, by the isolation of radium and the study of the nature and compounds of this remarkable element\". Curie was the first woman to win a Nobel Prize, the first person to win a Nobel Prize twice and the only person to win a Nobel Prize in two different scientific fields. She and Pierre were the first married couple to win the Nobel Prize, launching the Curie family legacy of five Nobel Prizes. …"
+   },
+   {
+    "title": "Web: Who was the first woman to win the Nobel Prize? (a) Marie Curie (b) Mo..",
+    "url": "https://askfilo.com/user-question-answers-smart-solutions/who-was-the-first-woman-to-win-the-nobel-prize-a-marie-curie-3335353330323735",
+    "text": "Who was the first woman to win the Nobel Prize? (a) Marie Curie expand image Question asked by Filo student Class 10 CBSE Not the question you're searching for? + Ask your question Ask your questionCross Add an Image Add a Document Text SolutionText solution Answer: The first woman to win the Nobel Prize was Marie Curie. Explanation: [...] ### Explanation: Marie Curie won the Nobel Prize in Physics in 1903, shared with her husband Pierre Curie and Henri Becquerel, for their work on radioactivity. She was the first woman ever to receive a Nobel Prize. Mother Teresa won the Nobel Peace Prize in 1979. Kalpana Chawla was an astronaut and did not receive a Nobel Prize. Indira Gandhi was the Prime Minister of India but did not receive a Nobel Prize. Therefore, the correct answer is option (a) Marie Curie. …"
+   },
+   {
+    "title": "Web: 828K views · 10K reactions | Marie Curie was the first woman to win a Nobel Prize, receiving the Nobel Prize in Physics in 1903, which she shared with her husband Pierre Curie and Henri Becquerel for their work on radioactivity. \n\nShe later became the first person to win a second Nobel Prize, receiving the Nobel Prize in Chemistry in 1911 for her discovery of the elements radium and polonium, as well as her investigation of their properties. | History In Pictures",
+    "url": "https://www.facebook.com/HistoryInPictures/videos/marie-curie-was-the-first-woman-to-win-a-nobel-prize-receiving-the-nobel-prize-i/2284986168538261",
+    "text": "Log In Log In Forgot Account? Video Home Live Reels Explore More Home Live Reels Explore Image 1 Video 1 0:00 / 0:45 [...] Pages Businesses Arts & entertainment Museum History Museum History In Pictures Videos Home Live Explore Privacy · Terms · Advertising · Ad Choices · Cookies · More See more on Facebook See more on Facebook Email or phone number Password Log In Forgot password? Create new account [...] 0:00 / 0:45 Marie Curie was the first woman to win a Nobel Prize, receiving the Nobel Prize in Physics in 1903, which she shared with her husband Pierre Curie and Henri Becquerel for their work on radioactivity. She later became the first person to win a second Nobel Prize, receiving the Nobel Prize in Chemistry in 1911 for her discovery of the elements radium and polonium, as well as her investigation of their properties. Like Comment Share Image 2 Image 3 28K 1.7K comments"
+   }
+  ]
+ }
+]

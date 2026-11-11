@@ -1030,7 +1030,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "Commits",
   "html.log.none": "none",
   "html.deck.prev": "Previous example",
-  "html.deck.next": "Next example"
+  "html.deck.next": "Next example",
+  "html.learn.btn": "What it learned online",
+  "html.learn.title": "What Truth Guardian learned online",
+  "html.learn.lead": "When a question is answered online and the Guardian finds the answer grounded, with a source that supports it and none that contradicts it, the question, the answer and the sources' own words are kept here. The next time it is asked, the answer comes from here, offline, and is checked again. Nothing is trained: the models stay exactly as measured.",
+  "html.learn.on": "Keep the online answers the Guardian verified",
+  "html.learn.empty": "Nothing is kept yet.",
+  "html.learn.seed": "project example",
+  "html.learn.show": "Show",
+  "html.learn.hide": "Hide",
+  "html.learn.remove": "Remove",
+  "html.learn.kept": "Kept: next time this question is answered offline, from what was verified now.",
+  "html.learn.from": "Answered offline, from what it learned online",
+  "html.learn.off": "Keeping is off: online answers are not kept."
  },
  "ar": {
   "landing.lead": "لا تفوق إجابة الذكاء الاصطناعي دليلها جودةً. التحدي هو معرفة ما إذا كانت الإجابة موثّقة أم فيها هلوسة، وما مقدار الخطر، وأي أجزائها مشكوك فيها ولماذا؛ يفعل Truth Guardian ذلك للنص، وكذلك للصوت والصور.",
@@ -2055,7 +2067,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "الإيداعات",
   "html.log.none": "لا شيء",
   "html.deck.prev": "المثال السابق",
-  "html.deck.next": "المثال التالي"
+  "html.deck.next": "المثال التالي",
+  "html.learn.btn": "ما تعلّمه عبر الإنترنت",
+  "html.learn.title": "ما تعلّمه حارس الحقيقة عبر الإنترنت",
+  "html.learn.lead": "عندما يُجاب عن سؤال عبر الإنترنت ويجد الحارس الإجابة موثّقة، بمصدر يؤيدها ودون مصدر يناقضها، يُحفظ هنا السؤال والإجابة ونصوص المصادر نفسها. وفي المرة التالية التي يُطرح فيها السؤال تأتي الإجابة من هنا دون اتصال، وتُفحص من جديد. لا يُدرَّب أي نموذج: تبقى النماذج كما قيست تمامًا.",
+  "html.learn.on": "احفظ الإجابات التي تحقّق منها الحارس عبر الإنترنت",
+  "html.learn.empty": "لم يُحفظ شيء بعد.",
+  "html.learn.seed": "مثال المشروع",
+  "html.learn.show": "عرض",
+  "html.learn.hide": "إخفاء",
+  "html.learn.remove": "حذف",
+  "html.learn.kept": "حُفظت: في المرة القادمة يُجاب عن هذا السؤال دون اتصال، مما تحقّق منه الآن.",
+  "html.learn.from": "إجابة دون اتصال، مما تعلّمه عبر الإنترنت",
+  "html.learn.off": "الحفظ متوقف: لا تُحفظ الإجابات التي تأتي عبر الإنترنت."
  },
  "zh": {
   "landing.lead": "AI 的回答好坏取决于其证据。本挑战要判断回答是有依据还是存在幻觉、风险有多大、哪些部分可疑以及原因；Truth Guardian 对文本做到这一点，也对声音和图像做到。",
@@ -3080,7 +3104,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "提交",
   "html.log.none": "无",
   "html.deck.prev": "上一个示例",
-  "html.deck.next": "下一个示例"
+  "html.deck.next": "下一个示例",
+  "html.learn.btn": "在线学到的内容",
+  "html.learn.title": "真相守护者在线学到的内容",
+  "html.learn.lead": "当一个问题通过在线方式回答，且守护者判定答案有据可依（有来源支持、没有来源反驳）时，问题、答案以及来源原文会保存在这里。下次再问到这个问题时，答案会离线从这里给出，并再次核查。不会训练任何模型：模型保持与测量时完全相同。",
+  "html.learn.on": "保存守护者核实过的在线答案",
+  "html.learn.empty": "尚未保存任何内容。",
+  "html.learn.seed": "项目示例",
+  "html.learn.show": "显示",
+  "html.learn.hide": "收起",
+  "html.learn.remove": "删除",
+  "html.learn.kept": "已保存：下次这个问题将离线回答，依据的是这次核实过的内容。",
+  "html.learn.from": "离线回答，依据在线学到的内容",
+  "html.learn.off": "保存已关闭：在线答案不会被保存。"
  },
  "fr": {
   "landing.lead": "La réponse d'une IA ne vaut que par ses preuves. Le défi consiste à dire si une réponse est fondée ou hallucinée, quel est le risque, quelles parties sont suspectes et pourquoi ; Truth Guardian le fait pour le texte, et aussi pour le son et les images.",
@@ -4109,7 +4145,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "Commits",
   "html.log.none": "aucun",
   "html.deck.prev": "Exemple précédent",
-  "html.deck.next": "Exemple suivant"
+  "html.deck.next": "Exemple suivant",
+  "html.learn.btn": "Ce qu'il a appris en ligne",
+  "html.learn.title": "Ce que Truth Guardian a appris en ligne",
+  "html.learn.lead": "Quand une question reçoit une réponse en ligne et que le Gardien la juge fondée, avec une source qui la confirme et aucune qui la contredit, la question, la réponse et les mots mêmes des sources sont gardés ici. La prochaine fois qu'elle est posée, la réponse vient d'ici, hors ligne, et elle est vérifiée de nouveau. Aucun modèle n'est entraîné : les modèles restent tels qu'ils ont été mesurés.",
+  "html.learn.on": "Garder les réponses en ligne vérifiées par le Gardien",
+  "html.learn.empty": "Rien n'est encore gardé.",
+  "html.learn.seed": "exemple du projet",
+  "html.learn.show": "Afficher",
+  "html.learn.hide": "Masquer",
+  "html.learn.remove": "Supprimer",
+  "html.learn.kept": "Gardée : la prochaine fois, cette question aura une réponse hors ligne, tirée de ce qui vient d'être vérifié.",
+  "html.learn.from": "Réponse hors ligne, tirée de ce qu'il a appris en ligne",
+  "html.learn.off": "La conservation est désactivée : les réponses en ligne ne sont pas gardées."
  },
  "ru": {
   "landing.lead": "Ответ ИИ хорош ровно настолько, насколько хороши его доказательства. Задача — определить, обоснован ли ответ или это галлюцинация, насколько велик риск, какие части подозрительны и почему; Truth Guardian делает это для текста, а также для звука и изображений.",
@@ -5138,7 +5186,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "Коммиты",
   "html.log.none": "нет",
   "html.deck.prev": "Предыдущий пример",
-  "html.deck.next": "Следующий пример"
+  "html.deck.next": "Следующий пример",
+  "html.learn.btn": "Что он узнал онлайн",
+  "html.learn.title": "Что Truth Guardian узнал онлайн",
+  "html.learn.lead": "Когда на вопрос отвечают онлайн и Страж признаёт ответ обоснованным — его подтверждает источник и ни один не опровергает, — вопрос, ответ и слова самих источников сохраняются здесь. Когда вопрос зададут снова, ответ придёт отсюда, без интернета, и будет проверен ещё раз. Никакая модель не обучается: модели остаются такими, какими были измерены.",
+  "html.learn.on": "Сохранять онлайн-ответы, проверенные Стражем",
+  "html.learn.empty": "Пока ничего не сохранено.",
+  "html.learn.seed": "пример проекта",
+  "html.learn.show": "Показать",
+  "html.learn.hide": "Скрыть",
+  "html.learn.remove": "Удалить",
+  "html.learn.kept": "Сохранено: в следующий раз на этот вопрос ответят без интернета, по тому, что проверено сейчас.",
+  "html.learn.from": "Ответ без интернета, из того, что он узнал онлайн",
+  "html.learn.off": "Сохранение выключено: онлайн-ответы не сохраняются."
  },
  "es": {
   "landing.lead": "La respuesta de una IA vale lo que vale su evidencia. El reto es saber si una respuesta está fundamentada o contiene una alucinación, cuánto riesgo tiene, qué partes son sospechosas y por qué; Truth Guardian lo hace con el texto, y también con sonido e imágenes.",
@@ -6167,7 +6227,19 @@ window.TG_MESSAGES = {
   "html.log.commits": "Commits",
   "html.log.none": "ninguno",
   "html.deck.prev": "Ejemplo anterior",
-  "html.deck.next": "Ejemplo siguiente"
+  "html.deck.next": "Ejemplo siguiente",
+  "html.learn.btn": "Lo que aprendió en línea",
+  "html.learn.title": "Lo que Truth Guardian aprendió en línea",
+  "html.learn.lead": "Cuando una pregunta se responde en línea y el Guardián encuentra la respuesta fundamentada, con una fuente que la respalda y ninguna que la contradiga, la pregunta, la respuesta y las palabras de las propias fuentes se guardan aquí. La próxima vez que se pregunte, la respuesta saldrá de aquí, sin conexión, y se comprobará de nuevo. No se entrena ningún modelo: los modelos siguen tal como se midieron.",
+  "html.learn.on": "Guardar las respuestas en línea que el Guardián verificó",
+  "html.learn.empty": "Todavía no hay nada guardado.",
+  "html.learn.seed": "ejemplo del proyecto",
+  "html.learn.show": "Mostrar",
+  "html.learn.hide": "Ocultar",
+  "html.learn.remove": "Eliminar",
+  "html.learn.kept": "Guardada: la próxima vez esta pregunta se responderá sin conexión, con lo verificado ahora.",
+  "html.learn.from": "Respuesta sin conexión, de lo que aprendió en línea",
+  "html.learn.off": "Guardar está desactivado: las respuestas en línea no se guardan."
  },
  "fa": {
   "landing.lead": "پاسخ هوش مصنوعی فقط به اندازهٔ شاهدش درست است. چالش این است که معلوم شود پاسخ مستند است یا توهم، خطرش چقدر است، کدام بخش‌ها مشکوک‌اند و چرا؛ Truth Guardian این کار را برای متن، و افزون بر آن برای صدا و تصویر انجام می‌دهد.",
@@ -7192,6 +7264,18 @@ window.TG_MESSAGES = {
   "html.log.commits": "کامیت‌ها",
   "html.log.none": "هیچ",
   "html.deck.prev": "نمونهٔ قبلی",
-  "html.deck.next": "نمونهٔ بعدی"
+  "html.deck.next": "نمونهٔ بعدی",
+  "html.learn.btn": "آموخته‌های آنلاین",
+  "html.learn.title": "آنچه نگهبان حقیقت از آنلاین آموخت",
+  "html.learn.lead": "وقتی پرسشی آنلاین پاسخ داده می‌شود و نگهبان پاسخ را مستند می‌یابد، با منبعی که آن را تأیید می‌کند و منبعی که با آن مخالف باشد نیست، پرسش، پاسخ و متن خود منبع‌ها اینجا نگه داشته می‌شود. دفعهٔ بعد که همان پرسش پرسیده شود، پاسخ از همین‌جا و بدون اینترنت می‌آید و دوباره بررسی می‌شود. هیچ مدلی آموزش داده نمی‌شود: مدل‌ها همان‌طور که اندازه‌گیری شده‌اند می‌مانند.",
+  "html.learn.on": "پاسخ‌های آنلاینی که نگهبان تأیید کرد نگه داشته شوند",
+  "html.learn.empty": "هنوز چیزی نگه داشته نشده است.",
+  "html.learn.seed": "نمونهٔ پروژه",
+  "html.learn.show": "نمایش",
+  "html.learn.hide": "بستن",
+  "html.learn.remove": "حذف",
+  "html.learn.kept": "نگه داشته شد: دفعهٔ بعد این پرسش بدون اینترنت و از همین پاسخ تأییدشده جواب داده می‌شود.",
+  "html.learn.from": "پاسخ بدون اینترنت، از آموخته‌های آنلاین",
+  "html.learn.off": "نگه‌داشتن خاموش است: پاسخ‌های آنلاین نگه داشته نمی‌شوند."
  }
 };

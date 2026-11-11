@@ -178,6 +178,17 @@ grounded verdict means the answer agrees with what was found, and Wikipedia does
 it by itself, and its "Truth Guardian check" button shows the last answer's full report under the chat.
 `scripts/free_trial.py` runs ten mixed questions through it and keeps every answer with its sources and labels.
 
+**What it learned online (D-222, `rag/learned.py`).** An online answer the Guardian finds grounded, with a source that
+supports it and none that contradicts it, is kept in the library's own collection, `learned`: the question, the answer
+and the supporting sources' own words. The next time the question, or one close to it, is asked, the library finds it
+there, so the local model answers offline from those words, and the Guardian checks that answer again before it is
+shown. Nothing is trained: the models stay as measured on the locked test sets, and only the library grows. The chat's
+"What it learned online" window lists what is kept, shows each in full, removes any of it and switches the keeping off
+(`GET /api/learned`, `POST /api/learned/settings`, `DELETE /api/learned/{id}`). A person's questions stay on their
+computer: the ready-made package carries only the project's own examples, `data/web/learned_seed.json`, which
+`scripts/build_learned_seed.py` made by asking the running app twelve questions of general knowledge online and writing
+the six answers the Guardian kept, unchanged.
+
 ### The agent (D-170)
 
 On the same page, "Agent, step by step" lets the model decide in several steps what to search for and work out, with the live

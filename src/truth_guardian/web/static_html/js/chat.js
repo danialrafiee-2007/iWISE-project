@@ -257,12 +257,16 @@
     return `<ul class="light-list">${a.light.map((l) => `<li class="${l.status}"><span class="stance ${l.status === "close" ? "supports" : "contradicts"}">${esc(tr(l.status === "close" ? "html.full.close" : "html.full.doubtful"))}</span><span dir="auto">${esc(l.text)}</span>${l.reasons.length ? `<span class="rp-small">${l.reasons.map((r) => esc(REASON[r] ? tr(REASON[r]) : r)).join(" · ")}</span>` : ""}</li>`).join("")}</ul>`;
   }
 
-  function showAnswer(box, a) {
+  function showAnswer(box, a, kept = null) {
     if (a.status === "not_in_documents") {
       box.innerHTML = `<p>${esc(a.text)}</p>`;
       return;
     }
-    const online = isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>` : "";
+    // Online, or written offline from what was learned online (D-222).
+    const fromLearned = (a.citations || []).some((c) => c.collection === "learned");
+    const online = isFree(a) ? `<p class="online-tag">${esc(tr("html.free.tag", { m: freeModel(a) }))}</p>`
+      : fromLearned ? `<p class="online-tag learn-tag">${esc(tr("html.learn.from"))}</p>` : "";
+    const keptNote = kept ? `<p class="learn-kept">${esc(tr("html.learn.kept"))}</p>` : "";
     if (!a.text) {
       box.innerHTML = `${online}<p class="msg-off">${esc((a.notes || []).map((n) => noteText(n).text).join(" · ") || tr("html.chat.error", { error: "" }))}</p>`;
       return;
@@ -272,6 +276,7 @@
     box.innerHTML = `
       ${online}
       <p class="msg-text" dir="auto">${esc(a.text)}</p>
+      ${keptNote}
       <p class="msg-hint">${esc(tr("html.chat.hint"))}</p>`;
   }
 
@@ -335,6 +340,87 @@
   });
   if (window.TG) window.TG.onLang(() => { if (full?.open) drawFull(); });
 
+  // ---- What it learned online (D-222): the online answers the Guardian verified, kept to be answered offline ----
+  // A window lists them newest first, each one shown in full on request and removable; a switch turns the keeping off.
+  const learnBtn = document.getElementById("chat-learned");
+  const learnDialog = document.getElementById("learn-dialog");
+  const learnBody = learnDialog?.querySelector(".learn-body");
+  let learned = null; // { on, items: [{ id, question, added_at, seed }] }
+  const shownText = new Map(); // id -> the kept text, once shown
+  const learnCount = (n) => new Intl.NumberFormat(lang() === "fa" ? "fa-IR" : lang() === "ar" ? "ar-u-nu-latn" : lang()).format(n);
+  async function loadLearned() {
+    try {
+      const res = await fetch("/api/learned");
+      if (res.ok) learned = await res.json();
+    } catch { /* the library is not ready yet */ }
+    const n = learnBtn?.querySelector("[data-n]");
+    if (n && learned) { n.textContent = learnCount(learned.items.length); n.hidden = false; }
+    if (learnDialog?.open) drawLearned();
+  }
+  function drawLearned() {
+    if (!learnBody) return;
+    const items = learned?.items || [];
+    learnBody.innerHTML = `
+      <h2 class="section-title" id="learn-title">${esc(tr("html.learn.title"))}</h2>
+      <p class="section-note">${esc(tr("html.learn.lead"))}</p>
+      <label class="learn-switch"><input type="checkbox" id="learn-on" ${learned?.on === false ? "" : "checked"}><span>${esc(tr("html.learn.on"))}</span></label>
+      ${learned?.on === false ? `<p class="rp-small">${esc(tr("html.learn.off"))}</p>` : ""}
+      ${items.length ? `<ol class="learn-list">${items.map((it) => `
+        <li class="learn-item">
+          <div class="learn-row">
+            <span class="learn-q" dir="auto">${esc(it.question)}</span>
+            <span class="learn-meta mono">${esc((it.added_at || "").slice(0, 10))}${it.seed ? ` · <span class="learn-seed">${esc(tr("html.learn.seed"))}</span>` : ""}</span>
+            <span class="learn-acts">
+              <button type="button" class="btn-ghost" data-show="${it.id}">${esc(tr(shownText.has(it.id) ? "html.learn.hide" : "html.learn.show"))}</button>
+              <button type="button" class="btn-ghost" data-forget="${it.id}">${esc(tr("html.learn.remove"))}</button>
+            </span>
+          </div>
+          ${shownText.has(it.id) ? `<pre class="learn-text" dir="auto">${esc(shownText.get(it.id))}</pre>` : ""}
+        </li>`).join("")}</ol>` : `<p class="rp-small">${esc(tr("html.learn.empty"))}</p>`}`;
+    learnBody.querySelector("#learn-on")?.addEventListener("change", async (e) => {
+      const on = e.target.checked;
+      await fetch("/api/learned/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ on }) });
+      window.TGLog?.log("chat", "learning online", on ? "on" : "off");
+      await loadLearned();
+    });
+    learnBody.querySelectorAll("[data-show]").forEach((b) => b.addEventListener("click", async () => {
+      const id = +b.dataset.show;
+      if (shownText.has(id)) shownText.delete(id);
+      else {
+        const res = await fetch(`/api/library/documents/${id}/passages`);
+        const { passages = [] } = res.ok ? await res.json() : {};
+        shownText.set(id, passages.map((p) => p.text).join("\n"));
+      }
+      drawLearned();
+    }));
+    learnBody.querySelectorAll("[data-forget]").forEach((b) => b.addEventListener("click", async () => {
+      const id = +b.dataset.forget;
+      await fetch(`/api/learned/${id}`, { method: "DELETE" });
+      shownText.delete(id);
+      window.TGLog?.log("chat", "forgot what was learned", String(id));
+      await loadLearned();
+    }));
+  }
+  function closeLearned() {
+    if (!learnDialog?.open || learnDialog.classList.contains("closing")) return;
+    if (reduced) return learnDialog.close();
+    learnDialog.classList.add("closing");
+    setTimeout(() => { learnDialog.close(); learnDialog.classList.remove("closing"); }, 320);
+  }
+  if (learnDialog) {
+    learnDialog.querySelector(".dialog-x").addEventListener("click", closeLearned);
+    learnDialog.addEventListener("click", (e) => { if (e.target === learnDialog) closeLearned(); });
+    learnDialog.addEventListener("cancel", (e) => { e.preventDefault(); closeLearned(); });
+  }
+  learnBtn?.addEventListener("click", async () => {
+    drawLearned();
+    if (learnDialog && !learnDialog.open) learnDialog.showModal();
+    await loadLearned();
+  });
+  if (window.TG) window.TG.onLang(() => { if (learnDialog?.open) drawLearned(); });
+  // The count on the button once the models are up (the library opens with them), and after each answer kept.
+  setTimeout(loadLearned, 4000);
+
   let busy = false;
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -360,6 +446,7 @@
         if (event.type === "text") written = event.text; // kept back until the Guardian has checked it
       });
       let a = result.answer;
+      let kept = null; // what was kept of an online answer, to be answered offline next time (D-222)
       // Not in the documents: the question goes to a free online model, and its answer comes back checked by the
       // project's own models against the pages it named and sources the Guardian found (/api/ask/free). Each step is told.
       const rejected = untrusted(a);
@@ -385,12 +472,17 @@
             if (event.stage === "check") status(tr("html.free.checking"));
           });
           a = online.answer;
+          kept = online.learned || null;
           if (rejected) a = { ...a, notes: ["the answer written from the documents did not pass the Guardian's check, so the question was asked online", ...(a.notes || [])] };
         } finally {
           clearInterval(countdown);
         }
       }
-      showAnswer(box, a);
+      showAnswer(box, a, kept);
+      if (kept) {
+        window.TGLog?.log("chat", "learned online", kept.question);
+        loadLearned();
+      }
       remember(question, a);
       window.TGLog?.log("chat", "answer", [a.generator, a.status, a.report?.verdict, a.report ? `risk ${(+a.report.risk).toFixed(2)}` : ""].filter(Boolean).join(" · "));
       history.push({ role: "user", content: question.slice(0, 5000) }, { role: "assistant", content: String(a.text).slice(0, 5000) });

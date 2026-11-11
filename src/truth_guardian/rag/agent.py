@@ -29,7 +29,7 @@ from truth_guardian.multicheck import _DIGITS
 from truth_guardian.pipeline import make_sample
 from truth_guardian.rag.answer import NO_ANSWER, NOT_IN_DOCUMENTS, OPINION_NOTE, WRITE_IN, Answer, _tidy_citations, _where, answer, check_written
 from truth_guardian.rag.generators import Generator
-from truth_guardian.rag.library import MINE, PROJECT, Hit, Library
+from truth_guardian.rag.library import LEARNED, MINE, PROJECT, Hit, Library
 from truth_guardian.schema import AgentStep
 from truth_guardian.web.engine import _proceed
 
@@ -170,7 +170,7 @@ def run_agent(
     library: Library,
     engine,
     generator: Generator,
-    collections: tuple[str, ...] = (MINE, PROJECT),
+    collections: tuple[str, ...] = (MINE, PROJECT, LEARNED),
     policy: Policy = "strict",
     language: str | None = None,
     emit: Callable[[dict], None] | None = None,

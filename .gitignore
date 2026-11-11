@@ -45,6 +45,8 @@ models/tracer/*/model.joblib
 !models/tracer/20261022-083040-tracer/model.joblib
 models/onnx/*/
 models/detector/
-data/web/
+# data/web holds this computer's library and caches; the project's learned examples (D-222) are kept in git.
+data/web/*
+!data/web/learned_seed.json
 layers-originals/
 *.tsbuildinfo

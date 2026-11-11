@@ -41,7 +41,8 @@ LEFT_OUT = {
 }
 # The chat's document library: the project's documents go into the package, the person's own never (D-214).
 LIBRARY = "data/web/library/library.sqlite"
-LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt")
+# learned.json: whether this computer keeps what the Guardian learned online (D-222); a new install starts with the default.
+LEFT_OUT_FILES = ("*.local.env", ".env", "*.pyc", "*.part", "*.incomplete", "*.tmp", ".agent_harnesses.json", "opened-*.txt", "learned.json")
 KEPT_DATA = (
     "data/web", "data/raw/nltk_data/corpora/wordnet", "data/processed/ragtruth_dev.jsonl", "data/processed/xdev_halueval_dialogue.jsonl",
     "data/processed/tg_agent_dev.jsonl", "data/processed/perturb_dev.jsonl",

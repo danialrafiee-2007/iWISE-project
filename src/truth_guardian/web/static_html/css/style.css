@@ -2244,3 +2244,41 @@ body:not(.entered) .log-fab { opacity: 0; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .gp-step.line-next .gp-line, .gp-step.filling .gp-line, .gp-step.is-front .gp-node::before, .gp-step.fresh .gp-node, .gp-step.fresh .gp-card { animation: none; }
 }
+
+/* ---- What the Guardian learned online (js/chat.js, D-222) ----
+   A small button at the chat card's top corner opens a window listing the online answers the Guardian verified and kept,
+   newest first, with a switch to stop keeping them; an answer kept, or one written from what was kept, says so. */
+.chat > .learn-btn {
+  position: absolute; top: 18px; inset-inline-end: 22px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px 6px 10px; border: 1px solid #e4ddca; border-radius: 999px; background: linear-gradient(180deg, #fffdf8, #f6f0e2);
+  color: #2f5a49; font: inherit; font-size: 0.8rem; cursor: pointer; transition: transform 160ms, box-shadow 160ms;
+}
+.chat > .learn-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -12px rgb(var(--emerald) / 0.6); }
+.chat > .learn-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(118 186 168 / 0.6); }
+.learn-btn svg { width: 16px; height: 16px; flex: none; }
+.learn-n { min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgb(var(--emerald)); color: #fff; font-size: 0.72rem; text-align: center; }
+.chat > .section-title { padding-inline-end: 230px; }
+.learn-tag { background: rgb(var(--emerald) / 0.1); color: #2f5a49; }
+.learn-kept { margin: 8px 0 0; padding: 6px 10px; border-radius: 10px; background: rgb(var(--emerald) / 0.07); color: #2f5a49; font-size: 0.8rem; }
+.learn-dialog { width: min(820px, calc(100vw - 32px)); background: linear-gradient(135deg, #eef5f0 0%, #f7f3e9 55%, #efe6d3 100%); }
+.learn-body { display: grid; gap: 12px; max-height: calc(100dvh - 34px); overflow-y: auto; overscroll-behavior: contain; padding: 28px 32px; }
+.learn-body .section-title { margin: 0; padding-inline-end: 48px; }
+.learn-switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.learn-switch input { width: 18px; height: 18px; accent-color: rgb(var(--emerald)); }
+.learn-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.learn-item { padding: 10px 14px; border: 1px solid #e4ddca; border-radius: 14px; background: rgb(255 253 248 / 0.9); }
+.learn-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.learn-q { flex: 1 1 260px; min-width: 0; font-weight: 600; color: var(--ink); unicode-bidi: plaintext; text-align: start; overflow-wrap: anywhere; }
+.learn-meta { font-size: 0.74rem; color: #6f8a7e; }
+.learn-seed { padding: 1px 7px; border-radius: 999px; background: rgb(var(--emerald) / 0.1); color: #2f5a49; }
+.learn-acts { display: inline-flex; gap: 6px; }
+.learn-acts .btn-ghost { padding: 4px 12px; font-size: 0.78rem; }
+.learn-text {
+  margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: rgb(var(--emerald) / 0.05); max-height: 320px; overflow: auto;
+  font: 0.8rem/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; unicode-bidi: plaintext; text-align: start; color: #2c3a34;
+}
+@media (max-width: 720px) {
+  .chat > .learn-btn { position: static; align-self: flex-start; margin: 2px 0 6px; }
+  .chat > .section-title { padding-inline-end: 0; }
+  .learn-body { padding: 22px 18px; }
+}

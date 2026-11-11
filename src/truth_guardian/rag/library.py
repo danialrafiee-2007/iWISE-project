@@ -34,6 +34,8 @@ from truth_guardian.web.documents import extract
 
 MINE = "mine"
 PROJECT = "project"
+# Online answers the Guardian found grounded, kept to be answered offline next time (rag/learned.py, D-222).
+LEARNED = "learned"
 FOLDER = Path("data") / "web" / "library"
 MAX_DOCUMENTS = 200
 MAX_PASSAGES = 50_000
@@ -284,7 +286,7 @@ class Library:
             self._indexes.clear()
         return bool(removed)
 
-    def search(self, query: str, collections: tuple[str, ...] = (MINE, PROJECT), k: int = 5) -> Found:
+    def search(self, query: str, collections: tuple[str, ...] = (MINE, PROJECT, LEARNED), k: int = 5) -> Found:
         index = self._index(tuple(sorted(collections)))
         if not index.rows:
             return Found([], 0.0, False)

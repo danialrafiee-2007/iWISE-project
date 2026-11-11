@@ -152,7 +152,7 @@ class ContactIn(_Strict):
 
 class SearchIn(_Strict):
     query: str = Field(min_length=1, max_length=MAX_QUESTION)
-    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    collections: Annotated[list[Literal["mine", "project", "learned"]], Field(min_length=1, max_length=3)] = ["mine", "project", "learned"]
     k: int = Field(default=5, ge=1, le=20)
 
 
@@ -182,7 +182,7 @@ class TurnIn(_Strict):
 class AskIn(_Strict):
     question: str = Field(min_length=1, max_length=MAX_QUESTION)
     history: Annotated[list[TurnIn], Field(max_length=20)] = []
-    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    collections: Annotated[list[Literal["mine", "project", "learned"]], Field(min_length=1, max_length=3)] = ["mine", "project", "learned"]
     generator: Literal["local"] = "local"
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a question too short to tell its own")
 
@@ -191,9 +191,13 @@ class AskFreeIn(_Strict):
     question: str = Field(min_length=1, max_length=MAX_QUESTION)
 
 
+class LearnedIn(_Strict):
+    on: bool = Field(description="keep the online answers the Guardian finds grounded, to answer them offline next time (D-222)")
+
+
 class AgentRunIn(_Strict):
     task: str = Field(min_length=1, max_length=MAX_QUESTION)
-    collections: Annotated[list[Literal["mine", "project"]], Field(min_length=1, max_length=2)] = ["mine", "project"]
+    collections: Annotated[list[Literal["mine", "project", "learned"]], Field(min_length=1, max_length=3)] = ["mine", "project", "learned"]
     generator: Literal["local"] = "local"
     policy: Literal["strict", "lenient"] = "strict"
     language: str | None = Field(default=None, pattern=r"^[A-Za-z]{2,3}([_-][A-Za-z]{2,8})?$", description="the interface's language, for a task too short to tell its own")
@@ -603,6 +607,13 @@ def create_app(
             if not (models_dir() / multilingual.E5).is_dir():
                 raise HTTPException(503, "the model the library reads with is not on this computer; run TruthGuardian.bat setup once with internet")
             library = open_library(root)
+            # The project's own learned examples (data/web/learned_seed.json, D-222), the first time the library opens.
+            from truth_guardian.rag import learned
+
+            try:
+                learned.ensure_seed(library, root)
+            except (OSError, ValueError):
+                pass
             # A recording added is also heard by a second, online listener when a free key is set (rag/second.py, D-200).
             from truth_guardian.rag import second
 
@@ -768,9 +779,40 @@ def create_app(
         def work(emit, cancelled) -> dict:
             # NotAvailable (the free service is busy or unreachable) is a ValueError, so it reaches the page as the stream's error.
             found = free.answer_free(body.question, engine, emit, cancelled, root=root)
-            return {"answer": found.model_dump(mode="json")}
+            # An answer the Guardian found grounded is kept, to be answered offline next time (rag/learned.py, D-222).
+            from truth_guardian.rag import learned
+
+            record, kept = learned.record_of(found), None
+            if record is not None and learned.settings(root)["on"]:
+                try:
+                    entry = learned.keep(shelf(), record, root)
+                    kept = {"id": entry.id, "question": record["question"], "record": record} if entry else None
+                except (HTTPException, OSError, ValueError):
+                    kept = None  # keeping is a help; the answer is shown all the same
+            return {"answer": found.model_dump(mode="json"), "learned": kept}
 
         return _stream(work, log, "online", body.question)
+
+    @app.get("/api/learned")
+    def learned_list() -> dict:
+        """What the Guardian learned online (rag/learned.py, D-222): the kept answers, newest first, and whether keeping is on."""
+        from truth_guardian.rag import learned
+
+        return {"on": learned.settings(root)["on"], "items": learned.items(shelf(), root), "max": learned.MAX_KEPT}
+
+    @app.post("/api/learned/settings")
+    def learned_settings(body: LearnedIn) -> dict:
+        from truth_guardian.rag import learned
+
+        return {"on": learned.save_settings(root, {**learned.settings(root), "on": body.on})["on"]}
+
+    @app.delete("/api/learned/{document_id}")
+    def learned_forget(document_id: int) -> dict:
+        from truth_guardian.rag import learned
+
+        if not learned.forget(shelf(), root, document_id):
+            raise HTTPException(404, f"nothing learned has the id {document_id}")
+        return {"removed": document_id}
 
     @app.get("/api/contact")
     def contact_status() -> dict:
