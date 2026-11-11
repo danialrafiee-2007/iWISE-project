@@ -3,9 +3,33 @@
 Hallucination detection and reliability assessment for RAG and agentic AI answers.
 Entry for iWISE 2026 AI & Web Programming Challenge, AI Challenge 4.
 
+<!-- D-223: the judges' one file, downloaded straight from the latest Release with one click. -->
+<p align="center">
+  <a href="https://github.com/danialrafiee-2007/iWISE-project/releases/latest/download/Get-Truth-Guardian.bat">
+    <img alt="Download Get-Truth-Guardian.bat" src="https://img.shields.io/badge/Download-Get--Truth--Guardian.bat-2f9a64?style=for-the-badge&logo=windows&logoColor=white">
+  </a>
+</p>
+
+<p align="center">
+  <b>Judges: this one file is all you need.</b><br>
+  1. Click the button above: <code>Get-Truth-Guardian.bat</code> downloads (15 KB).<br>
+  2. Double-click it. If Windows says it protected your PC, choose <b>More info</b>, then <b>Run anyway</b>.<br>
+  3. Press <b>Enter</b> three times (drive, free the space after unpacking, desktop shortcut) and wait:<br>
+  it downloads the whole project, checks it, and opens Truth Guardian in your browser, offline from then on.<br>
+  Next time: the <b>Truth Guardian</b> shortcut on the desktop.
+</p>
+
+<p align="center" dir="rtl">
+  <b>داوران محترم: فقط همین یک فایل را با دکمهٔ بالا دانلود کنید و روی آن دوبار کلیک کنید؛ بقیهٔ کارها خودکار است.</b>
+</p>
+
+<p align="center"><sub>The link always gives the newest release's file; the
+<a href="https://github.com/danialrafiee-2007/iWISE-project/releases/latest">release page</a> lists its SHA-256 to check
+it before running. The rest of this repository is the project's source code, tests and documents.</sub></p>
+
 ## For judges: the ready-made package
 
-**One file does everything:** download `Get-Truth-Guardian.bat` from the latest
+**One file does everything:** download `Get-Truth-Guardian.bat` ([direct link](https://github.com/danialrafiee-2007/iWISE-project/releases/latest/download/Get-Truth-Guardian.bat)) from the latest
 [Release](https://github.com/danialrafiee-2007/iWISE-project/releases/latest) and double-click it. Its questions all
 come first: which drive to use (it makes the folder `iWISE_Truth Guardian` there), whether to delete the downloaded
 parts once they are unpacked (about 5 GB back) and whether to put a shortcut on the desktop. Then it runs on its own:
